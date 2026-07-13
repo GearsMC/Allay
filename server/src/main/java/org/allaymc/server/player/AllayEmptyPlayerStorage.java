@@ -4,8 +4,6 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.allaymc.api.player.PlayerData;
 
-import java.util.UUID;
-
 /**
  * @author daoge_cmd
  */
@@ -15,22 +13,22 @@ public class AllayEmptyPlayerStorage extends AllayPlayerStorage {
     public static final AllayEmptyPlayerStorage INSTANCE = new AllayEmptyPlayerStorage();
 
     @Override
-    public PlayerData readPlayerData(UUID uuid) {
+    public PlayerData readPlayerData(String xuid) {
         return PlayerData.createEmpty();
     }
 
     @Override
-    public void savePlayerData(UUID uuid, PlayerData playerData) {
+    public void savePlayerData(String xuid, PlayerData playerData) {
         // Do nothing
     }
 
     @Override
-    public boolean removePlayerData(UUID uuid) {
+    public boolean removePlayerData(String xuid) {
         return false;
     }
 
     @Override
-    public boolean hasPlayerData(UUID uuid) {
+    public boolean hasPlayerData(String xuid) {
         return false;
     }
 }

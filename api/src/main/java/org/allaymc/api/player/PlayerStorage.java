@@ -1,19 +1,20 @@
 package org.allaymc.api.player;
 
-import java.util.UUID;
-
 /**
+ * PlayerStorage stores every player's data keyed by the player's xuid. Since the xuid never
+ * changes even if the player renames his xbox account, no data is lost after a name change.
+ *
  * @author daoge_cmd
  */
 public interface PlayerStorage {
 
     /**
-     * Reads the player data for the given UUID.
+     * Reads the player data for the given xuid.
      *
-     * @param uuid The UUID of the player
-     * @return The player data for the given UUID
+     * @param xuid The xuid of the player
+     * @return The player data for the given xuid
      */
-    PlayerData readPlayerData(UUID uuid);
+    PlayerData readPlayerData(String xuid);
 
     /**
      * Reads the player data for the given player.
@@ -22,16 +23,16 @@ public interface PlayerStorage {
      * @return The player data for the given player
      */
     default PlayerData readPlayerData(Player player) {
-        return readPlayerData(player.getLoginData().getUuid());
+        return readPlayerData(player.getXuid());
     }
 
     /**
-     * Saves the player data for the given UUID.
+     * Saves the player data for the given xuid.
      *
-     * @param uuid       The UUID of the player
+     * @param xuid       The xuid of the player
      * @param playerData The player data to save
      */
-    void savePlayerData(UUID uuid, PlayerData playerData);
+    void savePlayerData(String xuid, PlayerData playerData);
 
     /**
      * Saves the player data for the given player.
@@ -39,24 +40,24 @@ public interface PlayerStorage {
      * @param player The player
      */
     default void savePlayerData(Player player) {
-        savePlayerData(player.getLoginData().getUuid(), PlayerData.save(player));
+        savePlayerData(player.getXuid(), PlayerData.save(player));
     }
 
     /**
-     * Removes the player data for the given UUID.
+     * Removes the player data for the given xuid.
      *
-     * @param uuid The UUID of the player
+     * @param xuid The xuid of the player
      * @return {@code true} if the player data was removed, {@code false} otherwise.
      */
-    boolean removePlayerData(UUID uuid);
+    boolean removePlayerData(String xuid);
 
     /**
-     * Checks if the player data exists for the given UUID.
+     * Checks if the player data exists for the given xuid.
      *
-     * @param uuid The UUID of the player
+     * @param xuid The xuid of the player
      * @return {@code true} if the player data exists, {@code false} otherwise.
      */
-    boolean hasPlayerData(UUID uuid);
+    boolean hasPlayerData(String xuid);
 
     /**
      * Checks if the player data exists for the given player.
@@ -65,6 +66,6 @@ public interface PlayerStorage {
      * @return {@code true} if the player data exists, {@code false} otherwise.
      */
     default boolean hasPlayerData(Player player) {
-        return hasPlayerData(player.getLoginData().getUuid());
+        return hasPlayerData(player.getXuid());
     }
 }

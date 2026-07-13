@@ -8,7 +8,6 @@ import org.cloudburstmc.nbt.NbtUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.UUID;
 
 /**
  * @author daoge_cmd
@@ -24,31 +23,31 @@ public class AllayNBTFilePlayerStorage extends AllayPlayerStorage {
     }
 
     @Override
-    public PlayerData readPlayerData(UUID uuid) {
-        var path = buildPlayerDataFilePath(uuid);
+    public PlayerData readPlayerData(String xuid) {
+        var path = buildPlayerDataFilePath(xuid);
         if (!Files.exists(path)) return PlayerData.createEmpty();
 
         try (var reader = NbtUtils.createGZIPReader(Files.newInputStream(path))) {
             return PlayerData.fromNBT((NbtMap) reader.readTag());
         } catch (Throwable e) {
-            log.error("Error while reading player data {}", uuid, e);
+            log.error("Error while reading player data {}", xuid, e);
             return PlayerData.createEmpty();
         }
     }
 
     @SneakyThrows
     @Override
-    public void savePlayerData(UUID uuid, PlayerData playerData) {
-        var path = buildPlayerDataFilePath(uuid);
+    public void savePlayerData(String xuid, PlayerData playerData) {
+        var path = buildPlayerDataFilePath(xuid);
 
-        var oldPath = path.resolveSibling(uuid + "_old.nbt");
+        var oldPath = path.resolveSibling(xuid + "_old.nbt");
         if (Files.exists(oldPath)) {
             // The old file
             log.warn("Undeleted tmp player data file is found, which may caused by incorrect shutdown. File: {}", oldPath);
             Files.delete(oldPath);
         }
 
-        // Rename current file to uuid_old.nbt
+        // Rename current file to xuid_old.nbt
         var currentFileExists = Files.exists(path);
         if (currentFileExists) Files.move(path, oldPath);
 
@@ -56,28 +55,28 @@ public class AllayNBTFilePlayerStorage extends AllayPlayerStorage {
             writer.writeTag(playerData.toNBT());
         } catch (Throwable e) {
             if (currentFileExists) {
-                // error, rename uuid_old.nbt file to uuid.nbt
+                // error, rename xuid_old.nbt file to xuid.nbt
                 Files.move(oldPath, path);
             }
-            log.error("Error while writing player data {}", uuid, e);
+            log.error("Error while writing player data {}", xuid, e);
         }
 
-        // delete uuid_old.nbt file
+        // delete xuid_old.nbt file
         Files.deleteIfExists(oldPath);
     }
 
     @SneakyThrows
     @Override
-    public boolean removePlayerData(UUID uuid) {
-        return Files.deleteIfExists(buildPlayerDataFilePath(uuid));
+    public boolean removePlayerData(String xuid) {
+        return Files.deleteIfExists(buildPlayerDataFilePath(xuid));
     }
 
     @Override
-    public boolean hasPlayerData(UUID uuid) {
-        return Files.exists(buildPlayerDataFilePath(uuid));
+    public boolean hasPlayerData(String xuid) {
+        return Files.exists(buildPlayerDataFilePath(xuid));
     }
 
-    protected Path buildPlayerDataFilePath(UUID uuid) {
-        return dataFolderPath.resolve(uuid.toString() + ".nbt");
+    protected Path buildPlayerDataFilePath(String xuid) {
+        return dataFolderPath.resolve(xuid + ".nbt");
     }
 }
