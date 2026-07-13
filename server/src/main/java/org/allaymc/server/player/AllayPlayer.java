@@ -2426,11 +2426,11 @@ public class AllayPlayer implements Player {
                 );
             }
             case PlayerScorer scorer -> {
-                if (scorer.getUuid() == null) {
+                if (scorer.getXuid() == null) {
                     return null;
                 }
 
-                var player = Server.getInstance().getPlayerManager().getPlayers().get(scorer.getUuid());
+                var player = Server.getInstance().getPlayerManager().getPlayerByXuid(scorer.getXuid());
                 if (player == null) {
                     return null;
                 }
