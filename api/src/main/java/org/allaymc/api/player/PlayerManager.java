@@ -7,6 +7,7 @@ import org.allaymc.api.network.NetworkManager;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -99,6 +100,36 @@ public interface PlayerManager {
                 .findFirst()
                 .orElse(null);
     }
+
+    /**
+     * Find an online player by his xuid.
+     *
+     * @param xuid the xuid of the player
+     * @return the player if found, otherwise {@code null}
+     */
+    default Player getPlayerByXuid(String xuid) {
+        return getPlayers().values().stream()
+                .filter(player -> player.getXuid().equals(xuid))
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * Get the player identity storage which maintains the persistent name to xuid index.
+     *
+     * @return the player identity storage
+     */
+    PlayerIdentityStorage getPlayerIdentityStorage();
+
+    /**
+     * Resolve the given player name (or raw xuid) to a xuid. Online players are checked first,
+     * then the persistent identity index. If the input itself is a xuid (a long digit-only
+     * string), it is returned as is.
+     *
+     * @param nameOrXuid the name or xuid of the player
+     * @return the xuid of the player, or empty if the player is unknown to the server
+     */
+    Optional<String> resolveXuid(String nameOrXuid);
 
     /**
      * Check if the player is banned.

@@ -26,8 +26,10 @@ import org.jetbrains.annotations.UnmodifiableView;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * @author daoge_cmd
@@ -37,9 +39,13 @@ public class AllayPlayerManager implements PlayerManager {
     protected static final String BAN_INFO_FILE_NAME = "ban-info.yml";
     protected static final String WHITELIST_FILE_NAME = "whitelist.yml";
     protected static final String OPERATORS_FILE_NAME = "operators.yml";
+    protected static final String PLAYERS_META_FOLDER_NAME = "players-meta";
+    protected static final Pattern XUID_PATTERN = Pattern.compile("^\\d{14,20}$");
 
     @Getter
     protected final AllayPlayerStorage playerStorage;
+    @Getter
+    protected final AllayLevelDBPlayerIdentityStorage playerIdentityStorage;
     @Getter
     protected final AllayNetworkManager networkManager;
 
@@ -51,6 +57,7 @@ public class AllayPlayerManager implements PlayerManager {
 
     public AllayPlayerManager(AllayPlayerStorage playerStorage, AllayNetworkManager networkManager) {
         this.playerStorage = playerStorage;
+        this.playerIdentityStorage = new AllayLevelDBPlayerIdentityStorage(Path.of(PLAYERS_META_FOLDER_NAME));
         this.networkManager = networkManager;
         this.maxPlayerCount = AllayServer.getSettings().genericSettings().maxPlayerCount();
         this.players = new Object2ObjectOpenHashMap<>();
@@ -66,6 +73,7 @@ public class AllayPlayerManager implements PlayerManager {
 
     public void shutdown() {
         this.playerStorage.shutdown();
+        this.playerIdentityStorage.shutdown();
         this.banInfo.save();
         this.whitelist.save();
         this.operators.save();
@@ -268,6 +276,22 @@ public class AllayPlayerManager implements PlayerManager {
                 .ifPresent(player -> this.players.values().forEach(viewer -> viewer.viewPlayerAbilities(player)));
     }
 
+    @Override
+    public Optional<String> resolveXuid(String nameOrXuid) {
+        if (XUID_PATTERN.matcher(nameOrXuid).matches()) {
+            return Optional.of(nameOrXuid);
+        }
+
+        var onlinePlayer = players.values().stream()
+                .filter(player -> player.getOriginName().equalsIgnoreCase(nameOrXuid))
+                .findFirst();
+        if (onlinePlayer.isPresent()) {
+            return Optional.of(onlinePlayer.get().getXuid());
+        }
+
+        return playerIdentityStorage.lookupXuidByName(nameOrXuid);
+    }
+
     public void startNetworkInterfaces() {
         this.networkManager.startAll();
     }
@@ -283,6 +307,7 @@ public class AllayPlayerManager implements PlayerManager {
             previous.disconnect(TrKeys.MC_DISCONNECTIONSCREEN_BODY_LOGGEDINELSEWHERE);
         }
 
+        this.playerIdentityStorage.rememberIdentity(player);
         updatePlayerCount();
         Server.getInstance().getMessageChannel().addReceiver(player.getControlledEntity());
         broadcastPlayerListChange(player, true);
