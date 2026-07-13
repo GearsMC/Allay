@@ -3,45 +3,47 @@ package org.allaymc.api.player;
 import java.util.Optional;
 
 /**
- * PlayerIdentityStorage maintains a persistent, rename-safe index between players' xuids and
- * their last known names. Player data itself is keyed by xuid (see {@link PlayerStorage}), so
- * this index is what allows name based inputs (e.g. {@code /op <name>}) to be resolved to a
- * xuid without scanning every stored player data entry.
+ * PlayerIdentityStorage, oyuncuların xuid'leri ile bilinen son isimleri arasında kalıcı ve
+ * isim değişikliğine dayanıklı bir indeks tutar. Oyuncu verisinin kendisi xuid ile anahtarlanır
+ * (bkz. {@link PlayerStorage}); bu indeks sayesinde isim alan girdiler (örn. {@code /op <isim>})
+ * kayıtlı tüm oyuncu verilerini taramadan xuid'e çözümlenebilir.
+ *
+ * @author Clexa
  */
 public interface PlayerIdentityStorage {
 
     /**
-     * Remembers the identity of a player. If the player was known before under a different name,
-     * the old name mapping will be replaced with the new one, unless the old name has been taken
-     * over by another player in the meantime.
+     * Oyuncunun kimliğini kaydeder. Oyuncu daha önce farklı bir isimle biliniyorsa eski isim
+     * eşlemesi yenisiyle değiştirilir; ancak eski isim bu sırada başka bir oyuncu tarafından
+     * alınmışsa ona dokunulmaz.
      *
-     * @param xuid the xuid of the player
-     * @param name the current name of the player
+     * @param xuid oyuncunun xuid'i
+     * @param name oyuncunun güncel ismi
      */
     void rememberIdentity(String xuid, String name);
 
     /**
-     * Remembers the identity of the given player.
+     * Verilen oyuncunun kimliğini kaydeder.
      *
-     * @param player the player
+     * @param player oyuncu
      */
     default void rememberIdentity(Player player) {
         rememberIdentity(player.getXuid(), player.getOriginName());
     }
 
     /**
-     * Looks up a player's xuid by his last known name. The lookup is case-insensitive.
+     * Bilinen son ismine göre oyuncunun xuid'ini bulur. Arama büyük/küçük harf duyarsızdır.
      *
-     * @param name the last known name of the player
-     * @return the xuid of the player, or empty if the name is unknown
+     * @param name oyuncunun bilinen son ismi
+     * @return oyuncunun xuid'i, isim bilinmiyorsa boş
      */
     Optional<String> lookupXuidByName(String name);
 
     /**
-     * Looks up a player's last known name by his xuid.
+     * Xuid'ine göre oyuncunun bilinen son ismini bulur.
      *
-     * @param xuid the xuid of the player
-     * @return the last known name of the player, or empty if the xuid is unknown
+     * @param xuid oyuncunun xuid'i
+     * @return oyuncunun bilinen son ismi, xuid bilinmiyorsa boş
      */
     Optional<String> lookupNameByXuid(String xuid);
 }

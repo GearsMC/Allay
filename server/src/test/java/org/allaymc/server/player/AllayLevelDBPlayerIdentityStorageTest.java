@@ -10,6 +10,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * @author Clexa
+ */
 class AllayLevelDBPlayerIdentityStorageTest {
 
     @TempDir
@@ -52,9 +55,9 @@ class AllayLevelDBPlayerIdentityStorageTest {
     @Test
     void testOldNameTakenByAnotherPlayerIsNotDeleted() {
         storage.rememberIdentity("1111", "Shared");
-        // Another player takes over the name before the first player logs in again
+        // İlk oyuncu tekrar giriş yapmadan önce ismi başka bir oyuncu alıyor
         storage.rememberIdentity("2222", "Shared");
-        // The first player renamed; his old name entry now belongs to the other player
+        // İlk oyuncu isim değiştirdi; eski isim kaydı artık diğer oyuncuya ait
         storage.rememberIdentity("1111", "Fresh");
 
         assertEquals(Optional.of("2222"), storage.lookupXuidByName("Shared"));

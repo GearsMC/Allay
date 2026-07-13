@@ -13,9 +13,11 @@ import java.util.Locale;
 import java.util.Optional;
 
 /**
- * A {@link PlayerIdentityStorage} implementation backed by LevelDB. Two key namespaces are used:
- * {@code xuid:<xuid>} which maps to the player's last known name, and {@code name:<lowercased name>}
- * which maps back to the player's xuid.
+ * LevelDB destekli {@link PlayerIdentityStorage} implementasyonu. İki anahtar alanı kullanılır:
+ * {@code xuid:<xuid>} oyuncunun bilinen son ismine, {@code name:<küçük harfli isim>} ise
+ * oyuncunun xuid'ine eşlenir.
+ *
+ * @author Clexa
  */
 @Slf4j
 public class AllayLevelDBPlayerIdentityStorage implements PlayerIdentityStorage {
@@ -39,8 +41,8 @@ public class AllayLevelDBPlayerIdentityStorage implements PlayerIdentityStorage 
         if (oldNameBytes != null) {
             var oldName = new String(oldNameBytes, StandardCharsets.UTF_8);
             if (!oldName.equalsIgnoreCase(name)) {
-                // Only delete the old name mapping if it still points to this player,
-                // as the old name may have been taken over by another player
+                // Eski isim başka bir oyuncu tarafından alınmış olabilir; bu yüzden eski isim
+                // eşlemesi yalnızca hâlâ bu oyuncuyu gösteriyorsa silinir
                 var oldNameOwner = db.get(nameKey(oldName));
                 if (oldNameOwner != null && xuid.equals(new String(oldNameOwner, StandardCharsets.UTF_8))) {
                     db.delete(nameKey(oldName));

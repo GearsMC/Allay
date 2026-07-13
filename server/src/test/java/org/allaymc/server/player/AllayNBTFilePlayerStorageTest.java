@@ -12,6 +12,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+/**
+ * @author Clexa
+ */
 class AllayNBTFilePlayerStorageTest {
 
     private static final String XUID = "2535466392945800";

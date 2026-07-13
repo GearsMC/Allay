@@ -45,7 +45,7 @@ public class LoginPacketProcessor extends ILoginPacketProcessor<LoginPacket> {
             return;
         }
 
-        // All player data is keyed by xuid, so a client without a xuid can never be accepted
+        // Tüm oyuncu verisi xuid ile anahtarlandığından xuid'i olmayan bir istemci asla kabul edilemez
         var xuid = loginData.getXuid();
         if (xuid == null || xuid.isEmpty()) {
             player.disconnect(TrKeys.MC_DISCONNECTIONSCREEN_NOTAUTHENTICATED);

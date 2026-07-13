@@ -102,10 +102,10 @@ public interface PlayerManager {
     }
 
     /**
-     * Find an online player by his xuid.
+     * Çevrimiçi bir oyuncuyu xuid'ine göre bulur.
      *
-     * @param xuid the xuid of the player
-     * @return the player if found, otherwise {@code null}
+     * @param xuid oyuncunun xuid'i
+     * @return bulunursa oyuncu, aksi halde {@code null}
      */
     default Player getPlayerByXuid(String xuid) {
         return getPlayers().values().stream()
@@ -115,19 +115,19 @@ public interface PlayerManager {
     }
 
     /**
-     * Get the player identity storage which maintains the persistent name to xuid index.
+     * Kalıcı isim→xuid indeksini tutan oyuncu kimlik deposunu döndürür.
      *
-     * @return the player identity storage
+     * @return oyuncu kimlik deposu
      */
     PlayerIdentityStorage getPlayerIdentityStorage();
 
     /**
-     * Resolve the given player name (or raw xuid) to a xuid. Online players are checked first,
-     * then the persistent identity index. If the input itself is a xuid (a long digit-only
-     * string), it is returned as is.
+     * Verilen oyuncu ismini (veya ham xuid'i) bir xuid'e çözümler. Önce çevrimiçi oyunculara,
+     * ardından kalıcı kimlik indeksine bakılır. Girdi zaten bir xuid ise (uzun ve yalnızca
+     * rakamlardan oluşan bir dize) olduğu gibi döndürülür.
      *
-     * @param nameOrXuid the name or xuid of the player
-     * @return the xuid of the player, or empty if the player is unknown to the server
+     * @param nameOrXuid oyuncunun ismi veya xuid'i
+     * @return oyuncunun xuid'i, oyuncu sunucu tarafından bilinmiyorsa boş
      */
     Optional<String> resolveXuid(String nameOrXuid);
 
