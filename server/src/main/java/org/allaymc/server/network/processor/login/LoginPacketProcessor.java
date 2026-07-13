@@ -40,19 +40,26 @@ public class LoginPacketProcessor extends ILoginPacketProcessor<LoginPacket> {
         allayPlayer.setLoginData(loginData);
 
         var server = Server.getInstance();
-        if (AllayServer.getSettings().genericSettings().enableWhitelist() && !server.getPlayerManager().isWhitelisted(player.getOriginName())) {
+        if (!loginData.isAuthed() && AllayServer.getSettings().networkSettings().xboxAuth()) {
+            player.disconnect(TrKeys.MC_DISCONNECTIONSCREEN_NOTAUTHENTICATED);
+            return;
+        }
+
+        // All player data is keyed by xuid, so a client without a xuid can never be accepted
+        var xuid = loginData.getXuid();
+        if (xuid == null || xuid.isEmpty()) {
+            player.disconnect(TrKeys.MC_DISCONNECTIONSCREEN_NOTAUTHENTICATED);
+            return;
+        }
+
+        if (AllayServer.getSettings().genericSettings().enableWhitelist() && !server.getPlayerManager().isWhitelisted(xuid)) {
             player.disconnect(TrKeys.MC_DISCONNECTIONSCREEN_NOTALLOWED);
             return;
         }
 
-        if (server.getPlayerManager().isBanned(player.getLoginData().getUuid().toString()) || server.getPlayerManager().isBanned(player.getOriginName())) {
+        if (server.getPlayerManager().isBanned(xuid)) {
             // TODO: I18n
             player.disconnect("You are banned!");
-            return;
-        }
-
-        if (!loginData.isAuthed() && AllayServer.getSettings().networkSettings().xboxAuth()) {
-            player.disconnect(TrKeys.MC_DISCONNECTIONSCREEN_NOTAUTHENTICATED);
             return;
         }
 
