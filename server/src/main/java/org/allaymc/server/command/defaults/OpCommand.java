@@ -18,19 +18,26 @@ public class OpCommand extends Command {
     @Override
     public void prepareCommandTree(CommandTree tree) {
         tree.getRoot().wildcardTarget("player").exec(context -> {
-            String player = context.getResult(0);
+            String input = context.getResult(0);
 
             var manager = Server.getInstance().getPlayerManager();
-            if (manager.isOperator(player)) {
-                context.addError("%" + TrKeys.MC_COMMANDS_OP_FAILED, player);
+            var xuid = manager.resolveXuid(input).orElse(null);
+            if (xuid == null) {
+                context.addError("%" + TrKeys.MC_COMMANDS_GENERIC_PLAYER_NOTFOUND);
                 return context.fail();
             }
 
-            manager.setOperator(player, true);
-            context.addOutput(TrKeys.MC_COMMANDS_OP_SUCCESS, player);
-            manager.getPlayers().values().stream()
-                    .filter(p -> p.getLoginData().getUuid().toString().equals(player) || p.getOriginName().equals(player))
-                    .forEach(p -> p.sendTranslatable(TrKeys.MC_COMMANDS_OP_MESSAGE));
+            if (manager.isOperator(xuid)) {
+                context.addError("%" + TrKeys.MC_COMMANDS_OP_FAILED, input);
+                return context.fail();
+            }
+
+            manager.setOperator(xuid, true);
+            context.addOutput(TrKeys.MC_COMMANDS_OP_SUCCESS, input);
+            var onlinePlayer = manager.getPlayerByXuid(xuid);
+            if (onlinePlayer != null) {
+                onlinePlayer.sendTranslatable(TrKeys.MC_COMMANDS_OP_MESSAGE);
+            }
             return context.success();
         });
     }

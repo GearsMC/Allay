@@ -200,7 +200,7 @@ public final class Dashboard {
                         boolean isOp = manager.isOperator(selectedPlayer);
                         JMenuItem opItem = new JMenuItem(I18n.get().tr(isOp ? TrKeys.ALLAY_GUI_PLAYER_DEOP : TrKeys.ALLAY_GUI_PLAYER_OP));
                         opItem.addActionListener($ -> {
-                            manager.setOperator(selectedPlayer.getOriginName(), !isOp);
+                            manager.setOperator(selectedPlayer.getXuid(), !isOp);
                             selectedPlayer.sendTranslatable(isOp ? TrKeys.MC_COMMANDS_DEOP_MESSAGE : TrKeys.MC_COMMANDS_OP_MESSAGE);
                         });
                         popupMenu.add(opItem);
