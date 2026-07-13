@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
 
 /**
@@ -105,7 +106,7 @@ public class AllayPlayerManager implements PlayerManager {
 
     @Override
     public boolean isBanned(String xuid) {
-        return banInfo.bannedPlayers().contains(xuid);
+        return banInfo.bannedPlayers().containsKey(xuid);
     }
 
     @Override
@@ -119,7 +120,7 @@ public class AllayPlayerManager implements PlayerManager {
             return false;
         }
 
-        banInfo.bannedPlayers().add(xuid);
+        banInfo.bannedPlayers().put(xuid, findLastKnownName(xuid));
         players.values().stream()
                 .filter(player -> player.getXuid().equals(xuid))
                 .forEach(player -> player.disconnect("You are banned!"));
@@ -144,7 +145,7 @@ public class AllayPlayerManager implements PlayerManager {
 
     @Override
     public Set<String> getBannedPlayers() {
-        return Collections.unmodifiableSet(banInfo.bannedPlayers());
+        return Collections.unmodifiableSet(banInfo.bannedPlayers().keySet());
     }
 
     @Override
@@ -213,7 +214,7 @@ public class AllayPlayerManager implements PlayerManager {
 
     @Override
     public boolean isWhitelisted(String xuid) {
-        return whitelist.whitelist().contains(xuid);
+        return whitelist.whitelist().containsKey(xuid);
     }
 
     @Override
@@ -227,7 +228,8 @@ public class AllayPlayerManager implements PlayerManager {
             return false;
         }
 
-        return whitelist.whitelist().add(xuid);
+        whitelist.whitelist().put(xuid, findLastKnownName(xuid));
+        return true;
     }
 
     @Override
@@ -250,12 +252,12 @@ public class AllayPlayerManager implements PlayerManager {
 
     @Override
     public @UnmodifiableView Set<String> getWhitelistedPlayers() {
-        return Collections.unmodifiableSet(whitelist.whitelist());
+        return Collections.unmodifiableSet(whitelist.whitelist().keySet());
     }
 
     @Override
     public boolean isOperator(String xuid) {
-        return operators.operators().contains(xuid);
+        return operators.operators().containsKey(xuid);
     }
 
     @Override
@@ -265,7 +267,7 @@ public class AllayPlayerManager implements PlayerManager {
         }
 
         if (value) {
-            operators.operators().add(xuid);
+            operators.operators().put(xuid, findLastKnownName(xuid));
         } else {
             operators.operators().remove(xuid);
         }
@@ -292,6 +294,31 @@ public class AllayPlayerManager implements PlayerManager {
         return playerIdentityStorage.lookupXuidByName(nameOrXuid);
     }
 
+    /**
+     * Xuid'e karşılık bilinen son ismi bulur. Bu isim yalnızca yml dosyalarının okunabilirliği
+     * içindir; tüm kontroller xuid ile yapılır.
+     */
+    protected String findLastKnownName(String xuid) {
+        var onlinePlayer = getPlayerByXuid(xuid);
+        if (onlinePlayer != null) {
+            return onlinePlayer.getOriginName();
+        }
+
+        return playerIdentityStorage.lookupNameByXuid(xuid).orElse("unknown");
+    }
+
+    /**
+     * Oyuncu ismini değiştirmiş olabileceğinden yml'lerdeki bilgilendirme amaçlı isimler
+     * girişte güncellenir. Oyuncu listelerde yoksa maliyeti üç map kontrolünden ibarettir.
+     */
+    protected void refreshLastKnownName(Player player) {
+        var xuid = player.getXuid();
+        var name = player.getOriginName();
+        banInfo.bannedPlayers().computeIfPresent(xuid, (k, v) -> name);
+        whitelist.whitelist().computeIfPresent(xuid, (k, v) -> name);
+        operators.operators().computeIfPresent(xuid, (k, v) -> name);
+    }
+
     public void startNetworkInterfaces() {
         this.networkManager.startAll();
     }
@@ -308,6 +335,7 @@ public class AllayPlayerManager implements PlayerManager {
         }
 
         this.playerIdentityStorage.rememberIdentity(player);
+        refreshLastKnownName(player);
         updatePlayerCount();
         Server.getInstance().getMessageChannel().addReceiver(player.getControlledEntity());
         broadcastPlayerListChange(player, true);
@@ -371,16 +399,16 @@ public class AllayPlayerManager implements PlayerManager {
     @Getter
     @Accessors(fluent = true)
     public static class Whitelist extends OkaeriConfig {
-        @Comment("Whitelisted player list. The value is the player's xuid")
-        private Set<String> whitelist = Sets.newConcurrentHashSet();
+        @Comment("Whitelisted players. Key is the player's xuid, value is the player's last known name (informational only)")
+        private Map<String, String> whitelist = new ConcurrentHashMap<>();
     }
 
     @Getter
     @Accessors(fluent = true)
     public static class BanInfo extends OkaeriConfig {
         @CustomKey("banned-players")
-        @Comment("Banned player list. The value is the player's xuid")
-        private Set<String> bannedPlayers = Sets.newConcurrentHashSet();
+        @Comment("Banned players. Key is the player's xuid, value is the player's last known name (informational only)")
+        private Map<String, String> bannedPlayers = new ConcurrentHashMap<>();
 
         @CustomKey("banned-ips")
         @Comment("Banned ip list")
@@ -391,7 +419,7 @@ public class AllayPlayerManager implements PlayerManager {
     @Accessors(fluent = true)
     public static class Operators extends OkaeriConfig {
         @CustomKey("operators")
-        @Comment("Operators list. The value is the player's xuid")
-        private Set<String> operators = Sets.newConcurrentHashSet();
+        @Comment("Operators. Key is the player's xuid, value is the player's last known name (informational only)")
+        private Map<String, String> operators = new ConcurrentHashMap<>();
     }
 }
