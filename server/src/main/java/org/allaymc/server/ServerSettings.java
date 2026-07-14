@@ -230,8 +230,13 @@ public class ServerSettings extends OkaeriConfig {
         @Comment("If set to true, the server will load chunks around the spawn point")
         @Comment("Which will reduce the time on joining server")
         @Comment("However, this will increase the server's memory usage")
+        @Comment("Also note that this adds a fake chunk loader, so these chunks will be")
+        @Comment("actively ticked (crop growth, redstone, etc.) even without any real")
+        @Comment("player nearby, for every world. Servers with many small/instanced worlds")
+        @Comment("(e.g. per-player islands) should keep this false to avoid idle worlds")
+        @Comment("simulating forever near their spawn point")
         @CustomKey("load-spawn-point-chunks")
-        private boolean loadSpawnPointChunks = true;
+        private boolean loadSpawnPointChunks = false;
 
         @Comment("Determines how many chunks around the spawn point will be loaded")
         @CustomKey("spawn-point-chunk-radius")
