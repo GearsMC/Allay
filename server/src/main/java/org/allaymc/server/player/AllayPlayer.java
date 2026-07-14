@@ -2426,11 +2426,11 @@ public class AllayPlayer implements Player {
                 );
             }
             case PlayerScorer scorer -> {
-                if (scorer.getUuid() == null) {
+                if (scorer.getXuid() == null) {
                     return null;
                 }
 
-                var player = Server.getInstance().getPlayerManager().getPlayers().get(scorer.getUuid());
+                var player = Server.getInstance().getPlayerManager().getPlayerByXuid(scorer.getXuid());
                 if (player == null) {
                     return null;
                 }
@@ -3465,7 +3465,7 @@ public class AllayPlayer implements Player {
             playerData.setDimension(currentDimension);
 
             // Save new player data back to storage
-            playerManager.getPlayerStorage().savePlayerData(this.loginData.getUuid(), playerData);
+            playerManager.getPlayerStorage().savePlayerData(this.loginData.getXuid(), playerData);
         } else {
             dimension = (AllayDimension) logOffDimension;
             currentPos = readVector3f(playerData.getNbt(), "Pos");
@@ -3521,7 +3521,7 @@ public class AllayPlayer implements Player {
             playerData.setWorld(currentWorldName);
             playerData.setDimension(currentDimension);
 
-            playerManager.getPlayerStorage().savePlayerData(this.getLoginData().getUuid(), playerData);
+            playerManager.getPlayerStorage().savePlayerData(this.getLoginData().getXuid(), playerData);
         }
 
         this.packetProcessorHolder.setClientState(ClientState.SPAWNED);

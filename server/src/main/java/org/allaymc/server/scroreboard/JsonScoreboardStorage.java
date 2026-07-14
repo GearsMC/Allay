@@ -116,7 +116,7 @@ public class JsonScoreboardStorage implements ScoreboardStorage {
             data.put("score", line.getScore());
             data.put("scorerType", line.getScorer().getScorerType().name());
             data.put("name", switch (line.getScorer()) {
-                case PlayerScorer player -> player.getUuid().toString();
+                case PlayerScorer player -> player.getXuid();
                 case EntityScorer entity -> "" + entity.getUniqueId();
                 case FakeScorer fake -> fake.getFakeName();
             });
@@ -138,7 +138,7 @@ public class JsonScoreboardStorage implements ScoreboardStorage {
             var score = ((Double) line.get("score")).intValue();
             var name = (String) line.get("name");
             var scorer = switch (ScoreInfo.ScorerType.valueOf(line.get("scorerType").toString())) {
-                case PLAYER -> new PlayerScorer(UUID.fromString(name));
+                case PLAYER -> new PlayerScorer(name);
                 case ENTITY -> new EntityScorer(Long.parseLong(name));
                 case FAKE -> new FakeScorer(name);
                 default -> throw new IllegalStateException("Unexpected value: " + line.get("scorerType"));

@@ -76,6 +76,14 @@ public class AllayLoginData implements LoginData {
             return null;
         }
 
+        // En yeni sürümlerde (1.26.30+) zincir verisi benzersiz kimlik (identity) alanını içermiyor;
+        // uuid, xuid mevcutsa xuid'den, değilse isimden türetilir. "xuid:" ve "xname:" önekleri
+        // çevrimiçi ve çevrimdışı hesaplar arasında çakışma olmamasını garanti eder.
+        var key = loginData.xuid != null && !loginData.xuid.isEmpty()
+                ? "xuid:" + loginData.xuid
+                : "xname:" + loginData.xname;
+        loginData.uuid = UUID.nameUUIDFromBytes(key.getBytes(StandardCharsets.UTF_8));
+
         return loginData;
     }
 
@@ -84,7 +92,6 @@ public class AllayLoginData implements LoginData {
 
         var extraData = result.identityClaims().extraData;
         this.xname = extraData.displayName;
-        this.uuid = extraData.identity;
         this.xuid = extraData.xuid;
         this.identityPublicKey = result.identityClaims().identityPublicKey;
 

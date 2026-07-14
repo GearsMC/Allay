@@ -1,70 +1,72 @@
 package org.allaymc.api.player;
 
-import java.util.UUID;
-
 /**
+ * PlayerStorage, her oyuncunun verisini oyuncunun xuid'i ile anahtarlayarak saklar. Xuid,
+ * oyuncu xbox hesabının ismini değiştirse bile asla değişmediğinden isim değişikliği sonrası
+ * hiçbir veri kaybolmaz.
+ *
  * @author daoge_cmd
  */
 public interface PlayerStorage {
 
     /**
-     * Reads the player data for the given UUID.
+     * Verilen xuid için oyuncu verisini okur.
      *
-     * @param uuid The UUID of the player
-     * @return The player data for the given UUID
+     * @param xuid oyuncunun xuid'i
+     * @return verilen xuid'e ait oyuncu verisi
      */
-    PlayerData readPlayerData(UUID uuid);
+    PlayerData readPlayerData(String xuid);
 
     /**
-     * Reads the player data for the given player.
+     * Verilen oyuncu için oyuncu verisini okur.
      *
-     * @param player The player
-     * @return The player data for the given player
+     * @param player oyuncu
+     * @return verilen oyuncuya ait oyuncu verisi
      */
     default PlayerData readPlayerData(Player player) {
-        return readPlayerData(player.getLoginData().getUuid());
+        return readPlayerData(player.getXuid());
     }
 
     /**
-     * Saves the player data for the given UUID.
+     * Verilen xuid için oyuncu verisini kaydeder.
      *
-     * @param uuid       The UUID of the player
-     * @param playerData The player data to save
+     * @param xuid       oyuncunun xuid'i
+     * @param playerData kaydedilecek oyuncu verisi
      */
-    void savePlayerData(UUID uuid, PlayerData playerData);
+    void savePlayerData(String xuid, PlayerData playerData);
 
     /**
-     * Saves the player data for the given player.
+     * Verilen oyuncu için oyuncu verisini kaydeder.
      *
-     * @param player The player
+     * @param player oyuncu
      */
     default void savePlayerData(Player player) {
-        savePlayerData(player.getLoginData().getUuid(), PlayerData.save(player));
+        savePlayerData(player.getXuid(), PlayerData.save(player));
     }
 
     /**
-     * Removes the player data for the given UUID.
+     * Verilen xuid için oyuncu verisini siler.
      *
-     * @param uuid The UUID of the player
-     * @return {@code true} if the player data was removed, {@code false} otherwise.
+     * @param xuid oyuncunun xuid'i
+     * @return oyuncu verisi silindiyse {@code true}, aksi halde {@code false}.
      */
-    boolean removePlayerData(UUID uuid);
+    boolean removePlayerData(String xuid);
 
     /**
-     * Checks if the player data exists for the given UUID.
+     * Verilen xuid için oyuncu verisinin var olup olmadığını kontrol eder.
      *
-     * @param uuid The UUID of the player
-     * @return {@code true} if the player data exists, {@code false} otherwise.
+     * @param xuid oyuncunun xuid'i
+     * @return oyuncu verisi varsa {@code true}, aksi halde {@code false}.
      */
-    boolean hasPlayerData(UUID uuid);
+    boolean hasPlayerData(String xuid);
 
     /**
-     * Checks if the player data exists for the given player.
+     * Verilen oyuncu için oyuncu verisinin var olup olmadığını kontrol eder.
      *
-     * @param player The player
-     * @return {@code true} if the player data exists, {@code false} otherwise.
+     * @param player oyuncu
+     * @return oyuncu verisi varsa {@code true}, aksi halde {@code false}.
      */
     default boolean hasPlayerData(Player player) {
-        return hasPlayerData(player.getLoginData().getUuid());
+        return hasPlayerData(player.getXuid());
     }
 }

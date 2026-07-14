@@ -26,8 +26,11 @@ import org.jetbrains.annotations.UnmodifiableView;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Pattern;
 
 /**
  * @author daoge_cmd
@@ -37,9 +40,13 @@ public class AllayPlayerManager implements PlayerManager {
     protected static final String BAN_INFO_FILE_NAME = "ban-info.yml";
     protected static final String WHITELIST_FILE_NAME = "whitelist.yml";
     protected static final String OPERATORS_FILE_NAME = "operators.yml";
+    protected static final String PLAYERS_META_FOLDER_NAME = "players-meta";
+    protected static final Pattern XUID_PATTERN = Pattern.compile("^\\d{14,20}$");
 
     @Getter
     protected final AllayPlayerStorage playerStorage;
+    @Getter
+    protected final AllayLevelDBPlayerIdentityStorage playerIdentityStorage;
     @Getter
     protected final AllayNetworkManager networkManager;
 
@@ -51,6 +58,7 @@ public class AllayPlayerManager implements PlayerManager {
 
     public AllayPlayerManager(AllayPlayerStorage playerStorage, AllayNetworkManager networkManager) {
         this.playerStorage = playerStorage;
+        this.playerIdentityStorage = new AllayLevelDBPlayerIdentityStorage(Path.of(PLAYERS_META_FOLDER_NAME));
         this.networkManager = networkManager;
         this.maxPlayerCount = AllayServer.getSettings().genericSettings().maxPlayerCount();
         this.players = new Object2ObjectOpenHashMap<>();
@@ -66,6 +74,7 @@ public class AllayPlayerManager implements PlayerManager {
 
     public void shutdown() {
         this.playerStorage.shutdown();
+        this.playerIdentityStorage.shutdown();
         this.banInfo.save();
         this.whitelist.save();
         this.operators.save();
@@ -96,47 +105,47 @@ public class AllayPlayerManager implements PlayerManager {
     }
 
     @Override
-    public boolean isBanned(String uuidOrName) {
-        return banInfo.bannedPlayers().contains(uuidOrName);
+    public boolean isBanned(String xuid) {
+        return banInfo.bannedPlayers().containsKey(xuid);
     }
 
     @Override
-    public boolean ban(String uuidOrName) {
-        if (isBanned(uuidOrName)) {
+    public boolean ban(String xuid) {
+        if (isBanned(xuid)) {
             return false;
         }
 
-        var event = new PlayerBanEvent(uuidOrName);
+        var event = new PlayerBanEvent(xuid);
         if (!event.call()) {
             return false;
         }
 
-        banInfo.bannedPlayers().add(uuidOrName);
+        banInfo.bannedPlayers().put(xuid, findLastKnownName(xuid));
         players.values().stream()
-                .filter(player -> player.getLoginData().getUuid().toString().equals(uuidOrName) || player.getOriginName().equals(uuidOrName))
+                .filter(player -> player.getXuid().equals(xuid))
                 .forEach(player -> player.disconnect("You are banned!"));
 
         return true;
     }
 
     @Override
-    public boolean unban(String uuidOrName) {
-        if (!isBanned(uuidOrName)) {
+    public boolean unban(String xuid) {
+        if (!isBanned(xuid)) {
             return false;
         }
 
-        var event = new PlayerUnbanEvent(uuidOrName);
+        var event = new PlayerUnbanEvent(xuid);
         if (!event.call()) {
             return false;
         }
 
-        banInfo.bannedPlayers().remove(uuidOrName);
+        banInfo.bannedPlayers().remove(xuid);
         return true;
     }
 
     @Override
     public Set<String> getBannedPlayers() {
-        return Collections.unmodifiableSet(banInfo.bannedPlayers());
+        return Collections.unmodifiableSet(banInfo.bannedPlayers().keySet());
     }
 
     @Override
@@ -204,68 +213,110 @@ public class AllayPlayerManager implements PlayerManager {
     }
 
     @Override
-    public boolean isWhitelisted(String uuidOrName) {
-        return whitelist.whitelist().contains(uuidOrName);
+    public boolean isWhitelisted(String xuid) {
+        return whitelist.whitelist().containsKey(xuid);
     }
 
     @Override
-    public boolean addToWhitelist(String uuidOrName) {
-        if (isWhitelisted(uuidOrName)) {
+    public boolean addToWhitelist(String xuid) {
+        if (isWhitelisted(xuid)) {
             return false;
         }
 
-        var event = new WhitelistAddPlayerEvent(uuidOrName);
+        var event = new WhitelistAddPlayerEvent(xuid);
         if (!event.call()) {
             return false;
         }
 
-        return whitelist.whitelist().add(uuidOrName);
+        whitelist.whitelist().put(xuid, findLastKnownName(xuid));
+        return true;
     }
 
     @Override
-    public boolean removeFromWhitelist(String uuidOrName) {
-        if (!isWhitelisted(uuidOrName)) {
+    public boolean removeFromWhitelist(String xuid) {
+        if (!isWhitelisted(xuid)) {
             return false;
         }
 
-        var event = new WhitelistRemovePlayerEvent(uuidOrName);
+        var event = new WhitelistRemovePlayerEvent(xuid);
         if (!event.call()) {
             return false;
         }
 
-        whitelist.whitelist().remove(uuidOrName);
+        whitelist.whitelist().remove(xuid);
         players.values().stream()
-                .filter(player -> player.getLoginData().getUuid().toString().equals(uuidOrName) || player.getOriginName().equals(uuidOrName))
+                .filter(player -> player.getXuid().equals(xuid))
                 .forEach(player -> player.disconnect(TrKeys.MC_DISCONNECTIONSCREEN_NOTALLOWED));
         return true;
     }
 
     @Override
     public @UnmodifiableView Set<String> getWhitelistedPlayers() {
-        return Collections.unmodifiableSet(whitelist.whitelist());
+        return Collections.unmodifiableSet(whitelist.whitelist().keySet());
     }
 
     @Override
-    public boolean isOperator(String uuidOrName) {
-        return operators.operators().contains(uuidOrName);
+    public boolean isOperator(String xuid) {
+        return operators.operators().containsKey(xuid);
     }
 
     @Override
-    public void setOperator(String uuidOrName, boolean value) {
-        if (value == isOperator(uuidOrName)) {
+    public void setOperator(String xuid, boolean value) {
+        if (value == isOperator(xuid)) {
             return;
         }
 
         if (value) {
-            operators.operators().add(uuidOrName);
+            operators.operators().put(xuid, findLastKnownName(xuid));
         } else {
-            operators.operators().remove(uuidOrName);
+            operators.operators().remove(xuid);
         }
 
         players.values().stream()
-                .filter(p -> p.getLoginData().getUuid().toString().equals(uuidOrName) || p.getOriginName().equals(uuidOrName))
+                .filter(p -> p.getXuid().equals(xuid))
                 .findFirst()
                 .ifPresent(player -> this.players.values().forEach(viewer -> viewer.viewPlayerAbilities(player)));
+    }
+
+    @Override
+    public Optional<String> resolveXuid(String nameOrXuid) {
+        if (XUID_PATTERN.matcher(nameOrXuid).matches()) {
+            return Optional.of(nameOrXuid);
+        }
+
+        var onlinePlayer = players.values().stream()
+                .filter(player -> player.getOriginName().equalsIgnoreCase(nameOrXuid))
+                .findFirst();
+        if (onlinePlayer.isPresent()) {
+            return Optional.of(onlinePlayer.get().getXuid());
+        }
+
+        return playerIdentityStorage.lookupXuidByName(nameOrXuid);
+    }
+
+    /**
+     * Xuid'e karşılık bilinen son ismi bulur. Bu isim yalnızca yml dosyalarının okunabilirliği
+     * içindir; tüm kontroller xuid ile yapılır.
+     */
+    protected String findLastKnownName(String xuid) {
+        var onlinePlayer = getPlayerByXuid(xuid);
+        if (onlinePlayer != null) {
+            return onlinePlayer.getOriginName();
+        }
+
+        return playerIdentityStorage.lookupNameByXuid(xuid).orElse("unknown");
+    }
+
+    /**
+     * Oyuncu ismini değiştirmiş olabileceğinden yml'lerdeki bilgilendirme amaçlı isimler
+     * girişte güncellenir. Oyuncu listelerde yoksa maliyeti üç map kontrolünden ibarettir.
+     */
+    protected void refreshLastKnownName(Player player) {
+        var xuid = player.getXuid();
+        var name = player.getOriginName();
+        banInfo.bannedPlayers().computeIfPresent(xuid, (k, v) -> name);
+        whitelist.whitelist().computeIfPresent(xuid, (k, v) -> name);
+        operators.operators().computeIfPresent(xuid, (k, v) -> name);
     }
 
     public void startNetworkInterfaces() {
@@ -283,6 +334,8 @@ public class AllayPlayerManager implements PlayerManager {
             previous.disconnect(TrKeys.MC_DISCONNECTIONSCREEN_BODY_LOGGEDINELSEWHERE);
         }
 
+        this.playerIdentityStorage.rememberIdentity(player);
+        refreshLastKnownName(player);
         updatePlayerCount();
         Server.getInstance().getMessageChannel().addReceiver(player.getControlledEntity());
         broadcastPlayerListChange(player, true);
@@ -346,16 +399,16 @@ public class AllayPlayerManager implements PlayerManager {
     @Getter
     @Accessors(fluent = true)
     public static class Whitelist extends OkaeriConfig {
-        @Comment("Whitelisted player list. The value can be player's name or uuid")
-        private Set<String> whitelist = Sets.newConcurrentHashSet();
+        @Comment("Whitelisted players. Key is the player's xuid, value is the player's last known name (informational only)")
+        private Map<String, String> whitelist = new ConcurrentHashMap<>();
     }
 
     @Getter
     @Accessors(fluent = true)
     public static class BanInfo extends OkaeriConfig {
         @CustomKey("banned-players")
-        @Comment("Banned player list. The value can be player's name or uuid")
-        private Set<String> bannedPlayers = Sets.newConcurrentHashSet();
+        @Comment("Banned players. Key is the player's xuid, value is the player's last known name (informational only)")
+        private Map<String, String> bannedPlayers = new ConcurrentHashMap<>();
 
         @CustomKey("banned-ips")
         @Comment("Banned ip list")
@@ -366,7 +419,7 @@ public class AllayPlayerManager implements PlayerManager {
     @Accessors(fluent = true)
     public static class Operators extends OkaeriConfig {
         @CustomKey("operators")
-        @Comment("Operators list. The value can be player's name or uuid")
-        private Set<String> operators = Sets.newConcurrentHashSet();
+        @Comment("Operators. Key is the player's xuid, value is the player's last known name (informational only)")
+        private Map<String, String> operators = new ConcurrentHashMap<>();
     }
 }

@@ -7,6 +7,7 @@ import org.allaymc.api.network.NetworkManager;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
@@ -101,28 +102,58 @@ public interface PlayerManager {
     }
 
     /**
+     * Çevrimiçi bir oyuncuyu xuid'ine göre bulur.
+     *
+     * @param xuid oyuncunun xuid'i
+     * @return bulunursa oyuncu, aksi halde {@code null}
+     */
+    default Player getPlayerByXuid(String xuid) {
+        return getPlayers().values().stream()
+                .filter(player -> player.getXuid().equals(xuid))
+                .findFirst()
+                .orElse(null);
+    }
+
+    /**
+     * Kalıcı isim→xuid indeksini tutan oyuncu kimlik deposunu döndürür.
+     *
+     * @return oyuncu kimlik deposu
+     */
+    PlayerIdentityStorage getPlayerIdentityStorage();
+
+    /**
+     * Verilen oyuncu ismini (veya ham xuid'i) bir xuid'e çözümler. Önce çevrimiçi oyunculara,
+     * ardından kalıcı kimlik indeksine bakılır. Girdi zaten bir xuid ise (uzun ve yalnızca
+     * rakamlardan oluşan bir dize) olduğu gibi döndürülür.
+     *
+     * @param nameOrXuid oyuncunun ismi veya xuid'i
+     * @return oyuncunun xuid'i, oyuncu sunucu tarafından bilinmiyorsa boş
+     */
+    Optional<String> resolveXuid(String nameOrXuid);
+
+    /**
      * Check if the player is banned.
      *
-     * @param uuidOrName the UUID or name of the player
+     * @param xuid the xuid of the player
      * @return {@code true} if the player is banned, otherwise {@code false}.
      */
-    boolean isBanned(String uuidOrName);
+    boolean isBanned(String xuid);
 
     /**
      * Ban the player.
      *
-     * @param uuidOrName the UUID or name of the player
+     * @param xuid the xuid of the player
      * @return {@code true} if the player is banned, otherwise {@code false}.
      */
-    boolean ban(String uuidOrName);
+    boolean ban(String xuid);
 
     /**
      * Unban the player.
      *
-     * @param uuidOrName the UUID or name of the player
+     * @param xuid the xuid of the player
      * @return {@code true} if the player is unbanned, otherwise {@code false}.
      */
-    boolean unban(String uuidOrName);
+    boolean unban(String xuid);
 
     /**
      * Get the banned players.
@@ -185,32 +216,32 @@ public interface PlayerManager {
      * @return {@code true} if the player is in the whitelist, otherwise {@code false}.
      */
     default boolean isWhitelisted(Player player) {
-        return isWhitelisted(player.getLoginData().getUuid().toString()) || isWhitelisted(player.getOriginName());
+        return isWhitelisted(player.getXuid());
     }
 
     /**
      * Check if the player is in the whitelist.
      *
-     * @param uuidOrName the UUID or name of the player
+     * @param xuid the xuid of the player
      * @return {@code true} if the player is in the whitelist, otherwise {@code false}.
      */
-    boolean isWhitelisted(String uuidOrName);
+    boolean isWhitelisted(String xuid);
 
     /**
      * Add the player to the whitelist.
      *
-     * @param uuidOrName the UUID or name of the player
+     * @param xuid the xuid of the player
      * @return {@code true} if the player is added to the whitelist, otherwise {@code false}.
      */
-    boolean addToWhitelist(String uuidOrName);
+    boolean addToWhitelist(String xuid);
 
     /**
      * Remove the player from the whitelist.
      *
-     * @param uuidOrName the UUID or name of the player
+     * @param xuid the xuid of the player
      * @return {@code true} if the player is removed from the whitelist, otherwise {@code false}.
      */
-    boolean removeFromWhitelist(String uuidOrName);
+    boolean removeFromWhitelist(String xuid);
 
     /**
      * Get the whitelisted players.
@@ -227,24 +258,24 @@ public interface PlayerManager {
      * @return {@code true} if the player is an operator, otherwise {@code false}
      */
     default boolean isOperator(Player player) {
-        return isOperator(player.getLoginData().getUuid().toString()) || isOperator(player.getOriginName());
+        return isOperator(player.getXuid());
     }
 
     /**
-     * Checks if the player, identified by their UUID or name, is an operator.
+     * Checks if the player, identified by their xuid, is an operator.
      *
-     * @param uuidOrName the UUID or name of the player
+     * @param xuid the xuid of the player
      * @return {@code true} if the player is an operator, otherwise {@code false}
      */
-    boolean isOperator(String uuidOrName);
+    boolean isOperator(String xuid);
 
     /**
-     * Sets the operator status for a specific player identified by their UUID or name.
+     * Sets the operator status for a specific player identified by their xuid.
      *
-     * @param uuidOrName the UUID or name of the player
-     * @param value      {@code true} to set the player as an operator, {@code false} to remove operator status
+     * @param xuid  the xuid of the player
+     * @param value {@code true} to set the player as an operator, {@code false} to remove operator status
      */
-    void setOperator(String uuidOrName, boolean value);
+    void setOperator(String xuid, boolean value);
 
     /**
      * Get the network manager that manages all network interfaces.

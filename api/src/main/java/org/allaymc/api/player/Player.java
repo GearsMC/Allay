@@ -69,6 +69,17 @@ public interface Player extends MessageReceiver, WorldViewer, ContainerViewer, B
     }
 
     /**
+     * İstemcinin xuid'ini döndürür. Xuid, oyuncu xbox hesabının ismini değiştirse bile asla
+     * değişmeyen XBOX Live kullanıcı kimliğidir; bu yüzden sunucudaki tüm kalıcı oyuncu
+     * verilerinin sabit anahtarı olarak kullanılır.
+     *
+     * @return istemcinin xuid'i
+     */
+    default String getXuid() {
+        return getLoginData().getXuid();
+    }
+
+    /**
      * Disconnect the client.
      */
     default void disconnect() {

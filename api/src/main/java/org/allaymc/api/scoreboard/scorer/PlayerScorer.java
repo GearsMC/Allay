@@ -5,8 +5,6 @@ import lombok.Getter;
 import org.allaymc.api.player.Player;
 import org.allaymc.api.server.Server;
 
-import java.util.UUID;
-
 /**
  * PlayerScorer is a scorer that represents a player.
  *
@@ -16,24 +14,19 @@ import java.util.UUID;
 @AllArgsConstructor
 public final class PlayerScorer implements Scorer {
 
-    // Use UUID instead of uniqueId for convenience in obtaining player objects
-    // This is essentially the same, as the player's uniqueId is generated from the UUID
-    private final UUID uuid;
-
-    public PlayerScorer(String uuid) {
-        this(UUID.fromString(uuid));
-    }
+    // Oyuncu ismini değiştirse bile skorlarının kaybolmaması için xuid ile anahtarlanır
+    private final String xuid;
 
     public PlayerScorer(Player player) {
-        this(player.getLoginData().getUuid());
+        this(player.getXuid());
     }
 
     public Player getPlayer() {
-        if (uuid == null) {
+        if (xuid == null) {
             return null;
         }
 
-        return Server.getInstance().getPlayerManager().getPlayers().get(uuid);
+        return Server.getInstance().getPlayerManager().getPlayerByXuid(xuid);
     }
 
     public boolean isOnline() {
@@ -47,21 +40,28 @@ public final class PlayerScorer implements Scorer {
 
     @Override
     public int hashCode() {
-        return uuid != null ? uuid.hashCode() : 0;
+        return xuid != null ? xuid.hashCode() : 0;
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof PlayerScorer playerScorer) {
-            return uuid.equals(playerScorer.uuid);
+            return xuid.equals(playerScorer.xuid);
         }
         return false;
     }
 
     @Override
     public String getName() {
-        var player = Server.getInstance().getPlayerManager().getPlayers().get(uuid);
-        return player == null ? String.valueOf(uuid.getMostSignificantBits()) : player.getOriginName();
+        var player = getPlayer();
+        if (player != null) {
+            return player.getOriginName();
+        }
+
+        // Oyuncu çevrimdışıysa bilinen son ismi kimlik indeksinden bulunur
+        return Server.getInstance().getPlayerManager().getPlayerIdentityStorage()
+                .lookupNameByXuid(xuid)
+                .orElse(xuid);
     }
 
 }

@@ -17,13 +17,21 @@ public class BanCommand extends Command {
 
     @Override
     public void prepareCommandTree(CommandTree tree) {
-        tree.getRoot().str("nameOrUUID").exec(context -> {
-            String nameOrUUID = context.getResult(0);
-            if (Server.getInstance().getPlayerManager().ban(nameOrUUID)) {
-                context.addOutput(TrKeys.MC_COMMANDS_BAN_SUCCESS, nameOrUUID);
+        tree.getRoot().str("name").exec(context -> {
+            String name = context.getResult(0);
+
+            var manager = Server.getInstance().getPlayerManager();
+            var xuid = manager.resolveXuid(name).orElse(null);
+            if (xuid == null) {
+                context.addError("%" + TrKeys.MC_COMMANDS_GENERIC_PLAYER_NOTFOUND);
+                return context.fail();
+            }
+
+            if (manager.ban(xuid)) {
+                context.addOutput(TrKeys.MC_COMMANDS_BAN_SUCCESS, name);
                 return context.success();
             } else {
-                context.addError("%" + TrKeys.MC_COMMANDS_BAN_FAILED, nameOrUUID);
+                context.addError("%" + TrKeys.MC_COMMANDS_BAN_FAILED, name);
                 return context.fail();
             }
         });
