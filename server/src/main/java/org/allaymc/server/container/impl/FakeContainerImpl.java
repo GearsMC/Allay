@@ -16,7 +16,11 @@ import org.joml.Vector3d;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
 
+import org.allaymc.api.item.ItemStack;
+import org.allaymc.api.item.type.ItemTypes;
+
 import java.util.*;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
 /**
@@ -30,6 +34,9 @@ public abstract class FakeContainerImpl extends BaseContainer implements FakeCon
     @Getter
     @Setter
     protected boolean interactable;
+    @Getter
+    @Setter
+    protected BiPredicate<Integer, ItemStack> itemValidator;
     protected Int2ObjectMap<Set<Runnable>> clickListeners;
     protected Map<ContainerViewer, Vector3ic[]> fakeBlockPositions;
 
@@ -97,6 +104,16 @@ public abstract class FakeContainerImpl extends BaseContainer implements FakeCon
 
     public void onClick(int slot) {
         this.clickListeners.getOrDefault(slot, Collections.emptySet()).forEach(Runnable::run);
+    }
+
+    /**
+     * Whether the given item may be placed into the given slot according to
+     * the item validator. Air (i.e. only taking items out) is always allowed.
+     */
+    public boolean canHoldItem(int slot, ItemStack item) {
+        return this.itemValidator == null || item == null
+                || item.getItemType() == ItemTypes.AIR
+                || this.itemValidator.test(slot, item);
     }
 
     protected abstract void sendFakeBlocks(Player player);

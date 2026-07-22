@@ -238,6 +238,12 @@ public record ContainerNetworkInfo(
             .mapAllSlotToType(ContainerSlotType.LEVEL_ENTITY)
             .build();
 
+    public static final ContainerNetworkInfo FAKE_HOPPER = builder()
+            .networkId(org.cloudburstmc.protocol.bedrock.data.inventory.ContainerType.HOPPER)
+            .type(ContainerTypes.FAKE_HOPPER)
+            .mapAllSlotToType(ContainerSlotType.LEVEL_ENTITY)
+            .build();
+
     public ContainerNetworkInfo(int networkId, ContainerType<?> type, ContainerSlotType[] slotTypeTable, Set<ContainerSlotType> heldSlotTypes, BiMap<Integer, Integer> networkSlotIndexMapper) {
         this.networkId = networkId;
         this.type = type;

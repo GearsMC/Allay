@@ -2,6 +2,7 @@ package org.allaymc.server.container.processor;
 
 import lombok.extern.slf4j.Slf4j;
 import org.allaymc.api.player.Player;
+import org.allaymc.server.container.impl.FakeContainerImpl;
 import org.cloudburstmc.protocol.bedrock.data.inventory.FullContainerName;
 import org.cloudburstmc.protocol.bedrock.data.inventory.itemstack.request.action.ItemStackRequestAction;
 import org.cloudburstmc.protocol.bedrock.data.inventory.itemstack.request.action.ItemStackRequestActionType;
@@ -27,6 +28,13 @@ public class SwapActionProcessor implements ContainerActionProcessor<SwapAction>
         var destinationSlot = ContainerActionProcessor.fromNetworkSlotIndex(destinationContainer, action.destination().slot());
 
         if (ContainerActionProcessor.tryHandleFakeContainer(sourceContainer, sourceSlot, destinationContainer, destinationSlot)) {
+            return error();
+        }
+
+        // On swap the destination's item also enters the source container, so the
+        // source side's item validator must accept it as well
+        if (sourceContainer instanceof FakeContainerImpl fakeContainer
+            && !fakeContainer.canHoldItem(sourceSlot, destinationContainer.getItemStack(destinationSlot))) {
             return error();
         }
 

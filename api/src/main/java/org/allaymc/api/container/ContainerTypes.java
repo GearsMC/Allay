@@ -171,4 +171,10 @@ public interface ContainerTypes {
      * Used by synthetic large chest windows created through the fake container system.
      */
     ContainerType<FakeContainer> FAKE_DOUBLE_CHEST = new ContainerType<>(54);
+    /**
+     * A UI-only hopper container type.
+     * Used by synthetic five-slot windows created through the fake container system,
+     * e.g. compact tool or filter menus that don't need a full chest grid.
+     */
+    ContainerType<FakeContainer> FAKE_HOPPER = new ContainerType<>(5);
 }

@@ -8,6 +8,7 @@ import org.allaymc.api.entity.interfaces.EntityPlayer;
 import org.allaymc.api.item.ItemStack;
 import org.allaymc.api.player.Player;
 
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
 /**
@@ -93,6 +94,26 @@ public interface FakeContainer extends Container {
      * @return {@code true} if real item movement is allowed
      */
     boolean isInteractable();
+
+    /**
+     * Sets a validator that decides which items players may place into this
+     * fake container. Only meaningful when the container is
+     * {@link #setInteractable(boolean) interactable}: whenever an item would
+     * enter the container (transfer or swap), the validator is asked with the
+     * target slot and the incoming item; returning {@code false} rejects the
+     * whole action, so the item stays where it was on the client. Taking items
+     * out is never affected.
+     *
+     * @param validator the validator, or {@code null} to accept every item
+     */
+    void setItemValidator(BiPredicate<Integer, ItemStack> validator);
+
+    /**
+     * Returns the item validator of this fake container.
+     *
+     * @return the validator, or {@code null} if every item is accepted
+     */
+    BiPredicate<Integer, ItemStack> getItemValidator();
 
     /**
      * Sets an {@link ItemStack} to a specific slot in the container and attaches a listener

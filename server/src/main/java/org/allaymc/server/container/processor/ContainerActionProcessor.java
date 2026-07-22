@@ -112,6 +112,8 @@ public interface ContainerActionProcessor<T extends ItemStackRequestAction> {
         if (destination instanceof FakeContainerImpl fakeContainer) {
             fakeContainer.onClick(destinationSlot);
             blocked |= !fakeContainer.isInteractable();
+            // The item validator may reject items entering an interactable fake container
+            blocked |= !fakeContainer.canHoldItem(destinationSlot, source.getItemStack(sourceSlot));
         }
 
         return blocked;

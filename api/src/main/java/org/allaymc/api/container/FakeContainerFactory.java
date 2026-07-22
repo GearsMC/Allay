@@ -29,4 +29,13 @@ public interface FakeContainerFactory {
      * @return A new double chest {@code FakeContainer} instance.
      */
     FakeContainer createFakeDoubleChestContainer();
+
+    /**
+     * Creates an instance of a hopper {@code FakeContainer}.
+     * A hopper container exposes exactly five slots, which suits compact menus
+     * that would otherwise waste most of a chest grid.
+     *
+     * @return A new hopper {@code FakeContainer} instance.
+     */
+    FakeContainer createFakeHopperContainer();
 }
