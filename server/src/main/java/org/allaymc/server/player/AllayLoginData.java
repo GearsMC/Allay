@@ -55,6 +55,7 @@ public class AllayLoginData implements LoginData {
     @MultiVersion(version = "*-NetEase", details = "NetEase clients use a different public key for login chain validation instead of Mojang's key")
     public static AllayLoginData decode(LoginPacket loginPacket, boolean isNetEaseClient) {
         var loginData = new AllayLoginData();
+
         try {
             ChainValidationResult result;
             if (isNetEaseClient) {
@@ -76,15 +77,32 @@ public class AllayLoginData implements LoginData {
             return null;
         }
 
-        // En yeni sürümlerde (1.26.30+) zincir verisi benzersiz kimlik (identity) alanını içermiyor;
-        // uuid, xuid mevcutsa xuid'den, değilse isimden türetilir. "xuid:" ve "xname:" önekleri
-        // çevrimiçi ve çevrimdışı hesaplar arasında çakışma olmamasını garanti eder.
-        var key = loginData.xuid != null && !loginData.xuid.isEmpty()
-                ? "xuid:" + loginData.xuid
-                : "xname:" + loginData.xname;
-        loginData.uuid = UUID.nameUUIDFromBytes(key.getBytes(StandardCharsets.UTF_8));
+        try {
+            loginData.uuid = resolveUuid(loginData.xuid, loginData.xname);
+        } catch (Throwable t) {
+            log.warn("Failed to resolve player UUID!", t);
+            return null;
+        }
 
         return loginData;
+    }
+
+    /**
+     * GearsMC fork: xuid tabanli depolama sistemi UUID'nin xuid'den deterministik
+     * uremesini bekler; ayrica en yeni surumlerde (1.26.30+) zincir verisindeki
+     * identity alanina guvenilemiyor. "xuid:" ve "xname:" onekleri cevrimici ve
+     * cevrimdisi hesaplar arasinda cakisma olmamasini garanti eder.
+     */
+    static UUID resolveUuid(String xuid, String xname) {
+        if (xuid != null && !xuid.isEmpty()) {
+            return UUID.nameUUIDFromBytes(("xuid:" + xuid).getBytes(StandardCharsets.UTF_8));
+        }
+        if (xname == null || xname.isBlank()) {
+            throw new IllegalArgumentException("Offline player name cannot be blank");
+        }
+
+        // Recent offline clients do not provide a stable identity in their authentication token.
+        return UUID.nameUUIDFromBytes(("xname:" + xname).getBytes(StandardCharsets.UTF_8));
     }
 
     private void decodeChainData(ChainValidationResult result, boolean isNetEaseClient) {
@@ -135,6 +153,11 @@ public class AllayLoginData implements LoginData {
             int deviceOS = skinMap.get("DeviceOS").getAsInt();
             int uiProfile = skinMap.get("UIProfile").getAsInt();
             this.deviceInfo = new DeviceInfo(deviceModel, deviceId, clientId, Device.from(deviceOS), UIProfile.from(uiProfile));
+        }
+
+        // Offline clients on latest versions report xname as empty in chain data, so this field should be used instead
+        if (!this.authed && (this.xname == null || this.xname.isBlank()) && skinMap.has("ThirdPartyName")) {
+            this.xname = skinMap.get("ThirdPartyName").getAsString();
         }
 
         if (skinMap.has("LanguageCode")) {

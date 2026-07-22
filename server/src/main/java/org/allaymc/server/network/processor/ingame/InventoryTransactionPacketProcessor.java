@@ -239,8 +239,8 @@ public class InventoryTransactionPacketProcessor extends PacketProcessor<Invento
                     return;
                 }
 
-                // 1.26.30 aksiyon listesinin sırasını değiştirdi: WORLD_INTERACTION artık CONTAINER'dan
-                // sonra geliyor. getFirst()/getLast() ile sabit sıra varsaymak yerine türe göre aranır.
+                // 1.26.30 reordered the action list: WORLD_INTERACTION now comes after CONTAINER.
+                // Instead of assuming a fixed order with getFirst()/getLast(), we search by type.
                 var worldInteractionAction = packet.getActions().stream()
                         .filter(action -> action.source().type().equals(InventorySource.Type.WORLD_INTERACTION))
                         .findFirst()
