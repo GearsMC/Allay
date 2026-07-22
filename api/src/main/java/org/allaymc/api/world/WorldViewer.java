@@ -5,6 +5,7 @@ import org.allaymc.api.block.type.BlockState;
 import org.allaymc.api.blockentity.BlockEntity;
 import org.allaymc.api.primitiveshape.PrimitiveShapeViewer;
 import org.allaymc.api.entity.Entity;
+import org.allaymc.api.item.ItemStack;
 import org.allaymc.api.entity.action.EntityAction;
 import org.allaymc.api.entity.component.EntityContainerHolderComponent;
 import org.allaymc.api.entity.component.EntityPhysicsComponent;
@@ -78,6 +79,20 @@ public interface WorldViewer extends PrimitiveShapeViewer {
      * @param entity the entity to view
      */
     <T extends Entity & EntityContainerHolderComponent> void viewEntityHand(T entity);
+
+    /**
+     * Displays an arbitrary item in the hand of any entity, regardless of
+     * whether the entity has a container component. Useful for plugin-driven
+     * companions whose inventories live outside the engine.
+     * <p>
+     * This is a purely visual update; the entity's actual state is not
+     * modified.
+     *
+     * @param entity    the entity whose held item should be displayed
+     * @param itemStack the item to display; air clears the hand
+     */
+    default void viewEntityHandItem(Entity entity, ItemStack itemStack) {
+    }
 
     /**
      * Views the item in offhand of the entity passed.

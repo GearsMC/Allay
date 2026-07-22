@@ -46,6 +46,7 @@ import org.allaymc.api.eventbus.event.server.PlayerSpawnEvent;
 import org.allaymc.api.form.type.CustomForm;
 import org.allaymc.api.form.type.Form;
 import org.allaymc.api.item.ItemHelper;
+import org.allaymc.api.item.ItemStack;
 import org.allaymc.api.item.enchantment.EnchantOption;
 import org.allaymc.api.item.interfaces.ItemAirStack;
 import org.allaymc.api.item.type.ItemType;
@@ -799,6 +800,17 @@ public class AllayPlayer implements Player {
             visibleEffects = (visibleEffects << 7) | ((long) effect.getType().getId() << 1) | (effect.isAmbient() ? 1 : 0);
         }
         return visibleEffects;
+    }
+
+    @Override
+    public void viewEntityHandItem(Entity entity, ItemStack itemStack) {
+        var packet = new MobEquipmentPacket();
+        packet.setRuntimeEntityId(entity.getRuntimeId());
+        packet.setContainerId(UnopenedContainerId.PLAYER_INVENTORY);
+        packet.setItem(toNetwork(itemStack));
+        packet.setInventorySlot(0);
+        packet.setHotbarSlot(0);
+        sendPacket(packet);
     }
 
     @Override
