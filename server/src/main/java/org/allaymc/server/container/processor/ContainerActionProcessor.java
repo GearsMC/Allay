@@ -101,17 +101,20 @@ public interface ContainerActionProcessor<T extends ItemStackRequestAction> {
     }
 
     static boolean tryHandleFakeContainer(Container source, int sourceSlot, Container destination, int destinationSlot) {
+        // Click listeners always fire; the transfer is only rejected when a
+        // non-interactable (menu-style) fake container is involved.
+        var blocked = false;
         if (source instanceof FakeContainerImpl fakeContainer) {
             fakeContainer.onClick(sourceSlot);
-            return true;
+            blocked |= !fakeContainer.isInteractable();
         }
 
         if (destination instanceof FakeContainerImpl fakeContainer) {
             fakeContainer.onClick(destinationSlot);
-            return true;
+            blocked |= !fakeContainer.isInteractable();
         }
 
-        return false;
+        return blocked;
     }
 
     static boolean canPlaceItemToSlot(Container container, int slot, ItemStack item) {

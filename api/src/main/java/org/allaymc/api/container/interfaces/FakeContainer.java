@@ -75,6 +75,26 @@ public interface FakeContainer extends Container {
     String getCustomName();
 
     /**
+     * Controls whether players can move items in and out of this fake container.
+     * <p>
+     * By default fake containers behave as click menus: every item transfer that
+     * touches them is rejected by the server and only the slot click listeners
+     * fire. When interactable is set to {@code true}, item transfers are
+     * processed like a regular container (drag and drop works), while click
+     * listeners keep firing as usual.
+     *
+     * @param interactable {@code true} to allow real item movement
+     */
+    void setInteractable(boolean interactable);
+
+    /**
+     * Returns whether players can move items in and out of this fake container.
+     *
+     * @return {@code true} if real item movement is allowed
+     */
+    boolean isInteractable();
+
+    /**
      * Sets an {@link ItemStack} to a specific slot in the container and attaches a listener
      * that will be notified when the item in the slot is clicked or interacted with by a {@link EntityPlayer}.
      *

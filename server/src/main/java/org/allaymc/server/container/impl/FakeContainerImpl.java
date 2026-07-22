@@ -27,6 +27,9 @@ public abstract class FakeContainerImpl extends BaseContainer implements FakeCon
     @Getter
     @Setter
     protected String customName;
+    @Getter
+    @Setter
+    protected boolean interactable;
     protected Int2ObjectMap<Set<Runnable>> clickListeners;
     protected Map<ContainerViewer, Vector3ic[]> fakeBlockPositions;
 
