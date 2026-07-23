@@ -1,6 +1,7 @@
 package org.allaymc.server.network.processor.login;
 
 import io.netty.buffer.Unpooled;
+import lombok.extern.slf4j.Slf4j;
 import org.allaymc.api.message.TrKeys;
 import org.allaymc.api.pack.Pack;
 import org.allaymc.api.player.Player;
@@ -16,16 +17,19 @@ import static org.cloudburstmc.protocol.bedrock.packet.BedrockPacketType.RESOURC
 /**
  * @author daoge_cmd
  */
+@Slf4j
 public class ResourcePackChunkRequestPacketProcessor extends ILoginPacketProcessor<ResourcePackChunkRequestPacket> {
     @Override
     public void handle(Player player, ResourcePackChunkRequestPacket packet) {
         var pack = Registries.PACKS.get(packet.getPackId());
         if (pack == null) {
+            log.warn("Chunk request for unknown pack {} index {}", packet.getPackId(), packet.getChunkIndex());
             player.disconnect(TrKeys.MC_DISCONNECTIONSCREEN_RESOURCEPACK);
             return;
         }
 
-        player.sendPacket(getChunkDataPacket(pack, packet.getChunkIndex()));
+        log.debug("Sending pack chunk {} index {} to {}", pack.getName(), packet.getChunkIndex(), player.getOriginName());
+        player.sendPacketImmediately(getChunkDataPacket(pack, packet.getChunkIndex()));
     }
 
     public ResourcePackChunkDataPacket getChunkDataPacket(Pack pack, int chunkIndex) {
@@ -34,7 +38,7 @@ public class ResourcePackChunkRequestPacketProcessor extends ILoginPacketProcess
         packet.setPackId(pack.getId());
         packet.setPackVersion(pack.getStringVersion());
         packet.setChunkIndex(chunkIndex);
-        packet.setData(Unpooled.wrappedBuffer(pack.getChunk(chunkSize * chunkIndex, chunkSize)));
+        packet.setData(Unpooled.copiedBuffer(pack.getChunk(Math.multiplyExact(chunkSize, chunkIndex), chunkSize)));
         packet.setProgress((long) chunkSize * chunkIndex);
         return packet;
     }

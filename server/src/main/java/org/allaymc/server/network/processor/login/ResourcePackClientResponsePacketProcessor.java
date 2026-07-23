@@ -1,5 +1,6 @@
 package org.allaymc.server.network.processor.login;
 
+import lombok.extern.slf4j.Slf4j;
 import org.allaymc.api.message.TrKeys;
 import org.allaymc.api.pack.Pack;
 import org.allaymc.api.player.Player;
@@ -20,15 +21,19 @@ import java.util.UUID;
 /**
  * @author daoge_cmd
  */
+@Slf4j
 public class ResourcePackClientResponsePacketProcessor extends ILoginPacketProcessor<ResourcePackClientResponsePacket> {
     @Override
     @MultiVersion(version = "*", details = "MultiVersionHelper is used")
     public void handle(Player player, ResourcePackClientResponsePacket packet) {
+        log.info("ResourcePackClientResponse from {}: status={}, packs={}",
+                player.getOriginName(), packet.getStatus(), packet.getPackIds());
         switch (packet.getStatus()) {
             case SEND_PACKS -> {
                 for (var packId : packet.getPackIds()) {
                     var pack = Registries.PACKS.get(UUID.fromString(packId.split("_")[0]));
                     if (pack == null) {
+                        log.warn("Client requested unknown pack {}", packId);
                         player.disconnect(TrKeys.MC_DISCONNECTIONSCREEN_RESOURCEPACK);
                         return;
                     }

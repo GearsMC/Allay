@@ -87,6 +87,7 @@ public final class PacketProcessorHolder {
         registerProcessor(ClientState.LOGGED_IN, new ClientCacheStatusPacketProcessor());
         registerProcessor(ClientState.LOGGED_IN, new ResourcePackClientResponsePacketProcessor());
         registerProcessor(ClientState.LOGGED_IN, new ResourcePackChunkRequestPacketProcessor());
+        registerProcessor(ClientState.LOGGED_IN, new ResourcePacksReadyForValidationPacketProcessor());
     }
 
     private void registerSpawnedPacketProcessors() {
