@@ -24,6 +24,10 @@
 .run/**
 !.run/Allay.run.xml
 
+# Local Windows launcher + Postgres helper (machine-specific)
+/start.cmd
+/ensure-postgres.ps1
+
 # Test working dir
 .test/**
 !.test/.keep
