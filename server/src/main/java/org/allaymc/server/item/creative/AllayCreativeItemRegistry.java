@@ -10,6 +10,8 @@ import org.allaymc.api.item.creative.CreativeItemCategory.Type;
 import org.allaymc.api.item.creative.CreativeItemEntry;
 import org.allaymc.api.item.creative.CreativeItemGroup;
 import org.allaymc.api.item.creative.CreativeItemRegistry;
+import org.allaymc.api.item.type.ItemType;
+import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.api.registry.Registries;
 import org.allaymc.api.utils.Utils;
 import org.allaymc.api.utils.identifier.Identifier;
@@ -86,6 +88,121 @@ public class AllayCreativeItemRegistry implements CreativeItemRegistry {
                 group.registerItem(itemStack);
             }
         }
+
+        // Education/chemistry content is missing from the Endstone creative dump used above.
+        registerChemistryItems();
+    }
+
+    /**
+     * Registers Education Edition chemistry blocks and items into the creative inventory.
+     * Vanilla {@code creative_items.nbt} comes from a non-Education export, so these never appear
+     * unless added here. Same placeable stubs PocketMine enables via chemistry resource packs.
+     */
+    private void registerChemistryItems() {
+        var construction = getCategory(Type.CONSTRUCTION);
+        var items = getCategory(Type.ITEMS);
+
+        var tables = construction.registerGroup("itemGroup.name.chemistryTables", stack(ItemTypes.COMPOUND_CREATOR, 0));
+        register(tables,
+                ItemTypes.COMPOUND_CREATOR,
+                ItemTypes.ELEMENT_CONSTRUCTOR,
+                ItemTypes.LAB_TABLE,
+                ItemTypes.MATERIAL_REDUCER,
+                ItemTypes.CHEMICAL_HEAT
+        );
+
+        var elements = construction.registerGroup("itemGroup.name.elements", stack(ItemTypes.ELEMENT_1, 0));
+        for (int atomicNumber = 0; atomicNumber <= 118; atomicNumber++) {
+            var elementType = Registries.ITEMS.get(new Identifier("minecraft:element_" + atomicNumber));
+            if (elementType != null) {
+                elements.registerItem(stack(elementType, 0));
+            }
+        }
+
+        var hardGlass = construction.registerGroup("itemGroup.name.hardGlass", stack(ItemTypes.HARD_GLASS, 0));
+        register(hardGlass,
+                ItemTypes.HARD_GLASS,
+                ItemTypes.HARD_GLASS_PANE,
+                ItemTypes.HARD_WHITE_STAINED_GLASS,
+                ItemTypes.HARD_ORANGE_STAINED_GLASS,
+                ItemTypes.HARD_MAGENTA_STAINED_GLASS,
+                ItemTypes.HARD_LIGHT_BLUE_STAINED_GLASS,
+                ItemTypes.HARD_YELLOW_STAINED_GLASS,
+                ItemTypes.HARD_LIME_STAINED_GLASS,
+                ItemTypes.HARD_PINK_STAINED_GLASS,
+                ItemTypes.HARD_GRAY_STAINED_GLASS,
+                ItemTypes.HARD_LIGHT_GRAY_STAINED_GLASS,
+                ItemTypes.HARD_CYAN_STAINED_GLASS,
+                ItemTypes.HARD_PURPLE_STAINED_GLASS,
+                ItemTypes.HARD_BLUE_STAINED_GLASS,
+                ItemTypes.HARD_BROWN_STAINED_GLASS,
+                ItemTypes.HARD_GREEN_STAINED_GLASS,
+                ItemTypes.HARD_RED_STAINED_GLASS,
+                ItemTypes.HARD_BLACK_STAINED_GLASS,
+                ItemTypes.HARD_WHITE_STAINED_GLASS_PANE,
+                ItemTypes.HARD_ORANGE_STAINED_GLASS_PANE,
+                ItemTypes.HARD_MAGENTA_STAINED_GLASS_PANE,
+                ItemTypes.HARD_LIGHT_BLUE_STAINED_GLASS_PANE,
+                ItemTypes.HARD_YELLOW_STAINED_GLASS_PANE,
+                ItemTypes.HARD_LIME_STAINED_GLASS_PANE,
+                ItemTypes.HARD_PINK_STAINED_GLASS_PANE,
+                ItemTypes.HARD_GRAY_STAINED_GLASS_PANE,
+                ItemTypes.HARD_LIGHT_GRAY_STAINED_GLASS_PANE,
+                ItemTypes.HARD_CYAN_STAINED_GLASS_PANE,
+                ItemTypes.HARD_PURPLE_STAINED_GLASS_PANE,
+                ItemTypes.HARD_BLUE_STAINED_GLASS_PANE,
+                ItemTypes.HARD_BROWN_STAINED_GLASS_PANE,
+                ItemTypes.HARD_GREEN_STAINED_GLASS_PANE,
+                ItemTypes.HARD_RED_STAINED_GLASS_PANE,
+                ItemTypes.HARD_BLACK_STAINED_GLASS_PANE
+        );
+
+        var torches = items.registerGroup("itemGroup.name.chemistryTorches", stack(ItemTypes.UNDERWATER_TORCH, 0));
+        register(torches,
+                ItemTypes.UNDERWATER_TORCH,
+                ItemTypes.COLORED_TORCH_BLUE,
+                ItemTypes.COLORED_TORCH_RED,
+                ItemTypes.COLORED_TORCH_GREEN,
+                ItemTypes.COLORED_TORCH_PURPLE,
+                ItemTypes.UNDERWATER_TNT
+        );
+
+        var chemistryItems = items.registerGroup("itemGroup.name.chemistryItems", stack(ItemTypes.BLEACH, 0));
+        register(chemistryItems,
+                ItemTypes.BLEACH,
+                ItemTypes.ICE_BOMB,
+                ItemTypes.RAPID_FERTILIZER,
+                ItemTypes.CAMERA,
+                ItemTypes.ALLOW,
+                ItemTypes.DENY,
+                ItemTypes.BORDER_BLOCK
+        );
+        // Compound / medicine / balloon / sparkler / glow stick use damage/meta variants.
+        for (int meta = 0; meta <= 37; meta++) {
+            chemistryItems.registerItem(stack(ItemTypes.COMPOUND, meta));
+        }
+        for (int meta = 0; meta <= 3; meta++) {
+            chemistryItems.registerItem(stack(ItemTypes.MEDICINE, meta));
+        }
+        for (int meta = 0; meta <= 15; meta++) {
+            chemistryItems.registerItem(stack(ItemTypes.BALLOON, meta));
+            chemistryItems.registerItem(stack(ItemTypes.SPARKLER, meta));
+            chemistryItems.registerItem(stack(ItemTypes.GLOW_STICK, meta));
+        }
+    }
+
+    private static void register(CreativeItemGroup group, ItemType<?>... types) {
+        for (var type : types) {
+            if (type != null) {
+                group.registerItem(stack(type, 0));
+            }
+        }
+    }
+
+    private static ItemStack stack(ItemType<?> type, int meta) {
+        return type.createItemStack(
+                ItemStackInitInfo.builder().count(1).meta(meta).assignUniqueId(false).build()
+        );
     }
 
     @Override

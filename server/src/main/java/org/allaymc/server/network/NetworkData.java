@@ -80,6 +80,16 @@ public final class NetworkData {
 
     public static final List<Recipe> INDEXED_RECIPES = new ArrayList<>();
 
+    private static final String[][] CHEMISTRY_RESOURCE_PACKS = {
+            {"b41c2785-c512-4a49-af56-3a87afd47c57", "1.21.30"},
+            {"a4df0cb3-17be-4163-88d7-fcf7002b935d", "1.21.20"},
+            {"d19adffe-a2e1-4b02-8436-ca4583368c89", "1.21.10"},
+            {"85d5603d-2824-4b21-8044-34f441f4fce1", "1.21.0"},
+            {"e977cd13-0a11-4618-96fb-03dfe9c43608", "1.20.60"},
+            {"0674721c-a0aa-41a1-9ba8-1ed33ea3e7ed", "1.20.50"},
+            {"0fba4063-dba1-4281-9b89-ff9390653530", "1.0.0"},
+    };
+
     public static List<ItemDefinition> encodeItemDefinitions() {
         return Registries.ITEMS.getContent().values().stream().map(NetworkHelper::toNetwork).toList();
     }
@@ -402,6 +412,11 @@ public final class NetworkData {
                 case RESOURCES -> packet.getResourcePacks().add(new ResourcePackStackPacket.Entry(pack.getId().toString(), pack.getStringVersion(), ""));
                 case DATA -> packet.getBehaviorPacks().add(new ResourcePackStackPacket.Entry(pack.getId().toString(), pack.getStringVersion(), ""));
             }
+        }
+
+        // Activate the client's built-in chemistry packs so Education blocks render correctly.
+        for (var chemistryPack : CHEMISTRY_RESOURCE_PACKS) {
+            packet.getResourcePacks().add(new ResourcePackStackPacket.Entry(chemistryPack[0], chemistryPack[1], ""));
         }
 
         return packet;

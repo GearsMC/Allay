@@ -6,10 +6,14 @@ import org.allaymc.api.item.type.ItemType;
 import org.allaymc.api.message.TrKeys;
 import org.allaymc.api.registry.Registries;
 import org.allaymc.api.utils.identifier.Identifier;
+import org.cloudburstmc.protocol.bedrock.data.command.CommandEnumConstraint;
 import org.cloudburstmc.protocol.bedrock.data.command.CommandEnumData;
 import org.cloudburstmc.protocol.bedrock.data.command.CommandParamData;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author daoge_cmd
@@ -40,10 +44,17 @@ public class ItemTypeNode extends BaseNode {
     public CommandParamData toNetworkData() {
         var data = super.toNetworkData();
         // NOTICE: The name must be "itemName", so that the client will show item list
-        // There is no need to send the full item list to the client
         data.setName("itemName");
-        // Also, there must be "Item"
-        data.setEnumData(new CommandEnumData("Item", new LinkedHashMap<>(), false));
+        // Soft "Item" enum: merge server-registered ids (including Education/chemistry)
+        // with the client's built-in suggestions. An empty hard enum hid chemistry ids
+        // because the client soft-list does not include Education content.
+        Map<String, Set<CommandEnumConstraint>> values = new LinkedHashMap<>();
+        for (var itemType : Registries.ITEMS.getContent().values()) {
+            var identifier = itemType.getIdentifier();
+            values.put(identifier.toString(), Collections.emptySet());
+            values.put(identifier.path(), Collections.emptySet());
+        }
+        data.setEnumData(new CommandEnumData("Item", values, true));
         return data;
     }
 }

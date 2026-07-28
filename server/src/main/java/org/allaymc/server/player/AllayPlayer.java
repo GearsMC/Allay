@@ -3612,10 +3612,6 @@ public class AllayPlayer implements Player {
         packet.setSpawnBiomeType(SpawnBiomeType.DEFAULT);
         packet.setCustomBiomeName("plains");
         packet.setEducationProductionId("");
-        // Education blocks (chemical_heat, hard_glass, lab_table, elements...) are part of the
-        // vanilla block palette, but the client only exposes their assets when the world declares
-        // "Minecraft Education features". Without this flag the client cannot render them and
-        // falls back to a missing texture. See https://minecraft.wiki/w/Heat_Block
         packet.setEduFeaturesEnabled(true);
         packet.setForceExperimentalGameplay(OptionalBoolean.empty());
         packet.setBlockNetworkIdsHashed(true);
