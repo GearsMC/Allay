@@ -1,6 +1,5 @@
 package org.allaymc.server.block.component.vine;
 
-import org.allaymc.server.block.component.BlockBaseComponentImpl;
 import org.allaymc.api.block.BlockBehavior;
 import org.allaymc.api.block.data.BlockFace;
 import org.allaymc.api.block.data.BlockTags;
@@ -17,11 +16,11 @@ import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.api.math.MathUtils;
 import org.allaymc.api.world.Dimension;
 import org.allaymc.api.world.particle.SimpleParticle;
-
-import java.util.List;
+import org.allaymc.server.block.component.BlockBaseComponentImpl;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
 
+import java.util.List;
 import java.util.Set;
 
 import static org.allaymc.api.block.property.type.BlockPropertyTypes.SEA_GRASS_TYPE;

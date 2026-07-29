@@ -8,8 +8,7 @@ import org.allaymc.api.block.type.BlockType;
 import org.allaymc.server.block.component.BlockStateDataComponentImpl;
 import org.allaymc.server.block.impl.BlockBehaviorImpl;
 import org.allaymc.server.block.type.AllayBlockType;
-import org.allaymc.server.block.type.BlockStateDefinition;
-import org.allaymc.server.block.type.CustomBlockDefinitionGenerator;
+import org.allaymc.server.block.type.CustomBlockStateDefinition;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -44,8 +43,9 @@ public class AllayCustomBlockFactory implements CustomBlockFactory {
                         BlockStateDataComponentImpl.IDENTIFIER,
                         BlockStateDataComponentImpl.ofGlobalStatic(stateData)))
                 .setBlockTags(collectBlockTags(definition))
-                .blockDefinitionGenerator(CustomBlockDefinitionGenerator.of(
-                        state -> buildStateDefinition(definition)))
+                // multi-version v2 sonrasi: uretici sinif kalkti, builder dogrudan
+                // durum -> tanim fonksiyonu aliyor. Davranis ayni kaldi.
+                .customBlockDefinition(state -> buildStateDefinition(definition))
                 .build();
     }
 
@@ -59,12 +59,13 @@ public class AllayCustomBlockFactory implements CustomBlockFactory {
      * @param definition the block being registered
      * @return the state definition to send to clients
      */
-    private static BlockStateDefinition buildStateDefinition(CustomBlockDefinition definition) {
-        var builder = BlockStateDefinition.builder()
-                .materials(BlockStateDefinition.Materials.builder()
-                        .any(definition.resolvedTexture()));
+    private static CustomBlockStateDefinition buildStateDefinition(CustomBlockDefinition definition) {
+        var builder = CustomBlockStateDefinition.builder()
+                .materials(CustomBlockStateDefinition.Materials.builder()
+                        .any(definition.resolvedTexture())
+                        .build());
         if (definition.geometry() != null && !definition.geometry().isBlank()) {
-            builder.geometry(BlockStateDefinition.Geometry.of(definition.geometry()));
+            builder.geometry(definition.geometry());
         }
         return builder.build();
     }

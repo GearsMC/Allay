@@ -1,15 +1,13 @@
 package org.allaymc.server.network.processor.login;
 
-import io.netty.buffer.Unpooled;
 import lombok.extern.slf4j.Slf4j;
 import org.allaymc.api.message.TrKeys;
-import org.allaymc.api.pack.Pack;
 import org.allaymc.api.player.Player;
 import org.allaymc.api.registry.Registries;
 import org.allaymc.server.AllayServer;
 import org.allaymc.server.network.processor.ingame.ILoginPacketProcessor;
+import org.allaymc.server.player.AllayPlayer;
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacketType;
-import org.cloudburstmc.protocol.bedrock.packet.ResourcePackChunkDataPacket;
 import org.cloudburstmc.protocol.bedrock.packet.ResourcePackChunkRequestPacket;
 
 import static org.cloudburstmc.protocol.bedrock.packet.BedrockPacketType.RESOURCE_PACK_CHUNK_REQUEST;
@@ -21,6 +19,8 @@ import static org.cloudburstmc.protocol.bedrock.packet.BedrockPacketType.RESOURC
 public class ResourcePackChunkRequestPacketProcessor extends ILoginPacketProcessor<ResourcePackChunkRequestPacket> {
     @Override
     public void handle(Player player, ResourcePackChunkRequestPacket packet) {
+        var allayPlayer = (AllayPlayer) player;
+        var protocol = allayPlayer.getProtocol();
         var pack = Registries.PACKS.get(packet.getPackId());
         if (pack == null) {
             log.warn("Chunk request for unknown pack {} index {}", packet.getPackId(), packet.getChunkIndex());
@@ -29,18 +29,20 @@ public class ResourcePackChunkRequestPacketProcessor extends ILoginPacketProcess
         }
 
         log.debug("Sending pack chunk {} index {} to {}", pack.getName(), packet.getChunkIndex(), player.getOriginName());
-        player.sendPacketImmediately(getChunkDataPacket(pack, packet.getChunkIndex()));
-    }
-
-    public ResourcePackChunkDataPacket getChunkDataPacket(Pack pack, int chunkIndex) {
-        var chunkSize = AllayServer.getSettings().resourcePackSettings().maxChunkSize() * 1024;
-        var packet = new ResourcePackChunkDataPacket();
-        packet.setPackId(pack.getId());
-        packet.setPackVersion(pack.getStringVersion());
-        packet.setChunkIndex(chunkIndex);
-        packet.setData(Unpooled.copiedBuffer(pack.getChunk(Math.multiplyExact(chunkSize, chunkIndex), chunkSize)));
-        packet.setProgress((long) chunkSize * chunkIndex);
-        return packet;
+        int chunkSize = AllayServer.getSettings()
+                .resourcePackSettings()
+                .maxChunkSize() * 1024;
+        try {
+            // Fork: sendPacketImmediately, not sendPacket. Pack chunks must not queue behind
+            // ordinary traffic — a delayed chunk stalls the whole download on the client.
+            allayPlayer.sendPacketImmediately(protocol.getEncoder().encodeResourcePackChunkData(
+                    pack,
+                    packet.getChunkIndex(),
+                    chunkSize
+            ));
+        } catch (IllegalArgumentException ignored) {
+            player.disconnect(TrKeys.MC_DISCONNECTIONSCREEN_RESOURCEPACK);
+        }
     }
 
     @Override

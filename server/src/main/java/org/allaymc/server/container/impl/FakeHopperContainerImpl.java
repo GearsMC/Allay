@@ -4,6 +4,7 @@ import org.allaymc.api.block.type.BlockTypes;
 import org.allaymc.api.container.ContainerTypes;
 import org.allaymc.api.player.Player;
 import org.allaymc.server.blockentity.data.BlockEntityId;
+import org.allaymc.server.player.AllayPlayer;
 import org.cloudburstmc.nbt.NbtMap;
 import org.cloudburstmc.protocol.bedrock.packet.BlockEntityDataPacket;
 import org.joml.Vector3ic;
@@ -36,7 +37,8 @@ public class FakeHopperContainerImpl extends FakeContainerImpl {
         var packet = new BlockEntityDataPacket();
         packet.setBlockPosition(toNetwork(pos));
         packet.setData(nbt.build());
-        player.sendPacket(packet);
+        // multi-version v2 sonrasi: sendPacket API'den kalkti, sunucu ici kaldi.
+        ((AllayPlayer) player).sendPacket(packet);
 
         this.fakeBlockPositions.put(player, new Vector3ic[]{pos});
     }

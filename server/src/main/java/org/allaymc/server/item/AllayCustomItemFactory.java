@@ -28,7 +28,6 @@ import org.allaymc.server.item.component.tool.ItemToolComponentImpl;
 import org.allaymc.server.item.component.ItemTrimmableComponentImpl;
 import org.allaymc.server.item.component.ItemWearableComponentImpl;
 import org.allaymc.server.item.type.AllayItemType;
-import org.allaymc.server.item.type.CustomItemDefinitionGenerator;
 
 import java.util.EnumMap;
 import java.util.HashSet;
@@ -87,12 +86,17 @@ public class AllayCustomItemFactory implements CustomItemFactory {
                 .identifier(new Identifier(definition.identifier()))
                 .itemData(itemData)
                 .setItemTags(collectItemTags(definition))
-                .itemDefinitionGenerator(CustomItemDefinitionGenerator.builder()
+                // multi-version v2 sonrasi: istemci tanimi artik surumden bagimsiz bir
+                // parametre nesnesi olarak tasiniyor, kodlamayi her protokol kendi
+                // PacketEncoder'inda yapiyor. API'mizin alan adlari degismedi, yalnizca
+                // hedef tip degisti: customComponents -> rawComponents,
+                // customProperties -> rawProperties.
+                .customItemDefinition(org.allaymc.server.item.type.CustomItemDefinition.builder()
                         .texture(definition.resolvedTexture())
                         .displayName(definition.displayName())
                         .foil(definition.foil())
-                        .customComponents(definition.customComponents())
-                        .customProperties(definition.customProperties())
+                        .rawComponents(definition.customComponents())
+                        .rawProperties(definition.customProperties())
                         .build());
         addBehaviorComponents(builder, definition);
         return builder.build();
