@@ -1,6 +1,6 @@
 [CmdletBinding(PositionalBinding = $false)]
 param (
-    [switch]$Build = $false,
+    [switch]$SkipBuild = $false,
     [switch]$Loop = $false,
     [string]$JavaHome = "",
     [string][Parameter(ValueFromRemainingArguments)]$ExtraArgs
@@ -51,14 +51,57 @@ $env:JAVA_HOME = $resolvedJavaHome
 $env:PATH = "$env:JAVA_HOME\bin;" + ($env:PATH -replace [regex]::Escape("$env:JAVA_HOME\bin;"), "")
 $java = Join-Path $env:JAVA_HOME "bin\java.exe"
 
-if ($Build) {
-    Write-Host "Allay derleniyor..."
-    & .\gradlew.bat :server:shadowJar --no-daemon
+$runDir = Join-Path $PSScriptRoot ".run"
+$pluginsDir = Join-Path $runDir "plugins"
+$pluginProjectDir = Join-Path $pluginsDir "SkyblockA"
+
+if (-not $SkipBuild) {
+    Write-Host ""
+    Write-Host "=== [1/3] AllayMC derleniyor ==="
+    & .\gradlew.bat :api:publishToMavenLocal :server:shadowJar --quiet
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "Derleme basarisiz."
+        Write-Host "AllayMC derlemesi basarisiz."
         pause
         exit $LASTEXITCODE
     }
+
+    Write-Host ""
+    Write-Host "=== [2/3] GearsCore plugin derleniyor ==="
+    if (-not (Test-Path (Join-Path $pluginProjectDir "gradlew.bat"))) {
+        Write-Host "Plugin projesi bulunamadi: $pluginProjectDir"
+        pause
+        exit 1
+    }
+
+    Push-Location -LiteralPath $pluginProjectDir
+    try {
+        & .\gradlew.bat jar --quiet
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "GearsCore derlemesi basarisiz."
+            pause
+            exit $LASTEXITCODE
+        }
+    } finally {
+        Pop-Location
+    }
+
+    $pluginJar = Get-ChildItem (Join-Path $pluginProjectDir "build\libs\GearsCore-*.jar") -ErrorAction SilentlyContinue |
+        Sort-Object LastWriteTime -Descending |
+        Select-Object -First 1
+
+    if (-not $pluginJar) {
+        Write-Host "GearsCore JAR bulunamadi."
+        pause
+        exit 1
+    }
+
+    if (-not (Test-Path $pluginsDir)) {
+        New-Item -ItemType Directory -Path $pluginsDir | Out-Null
+    }
+
+    $pluginDest = Join-Path $pluginsDir "GearsCore-1.0.0.jar"
+    Copy-Item -LiteralPath $pluginJar.FullName -Destination $pluginDest -Force
+    Write-Host "Plugin guncellendi: $pluginDest"
 }
 
 $jar = Get-ChildItem "server\build\libs\allay-server-*-shaded.jar" -ErrorAction SilentlyContinue |
@@ -66,23 +109,32 @@ $jar = Get-ChildItem "server\build\libs\allay-server-*-shaded.jar" -ErrorAction 
     Select-Object -First 1
 
 if (-not $jar) {
-    Write-Host "Shaded JAR bulunamadi. Once derleyin:"
-    Write-Host "  .\start.ps1 -Build"
-    Write-Host "veya"
-    Write-Host "  .\gradlew.bat :server:shadowJar"
+    Write-Host "Shaded JAR bulunamadi. Once derleyin (SkipBuild kullanmadan start edin)."
     pause
     exit 1
 }
 
-$runDir = Join-Path $PSScriptRoot ".run"
 if (-not (Test-Path $runDir)) {
     New-Item -ItemType Directory -Path $runDir | Out-Null
 }
 
 function Start-AllayServer {
+    Write-Host ""
+    Write-Host "=== Sunucu baslatiliyor ==="
     Write-Host "Java: $env:JAVA_HOME"
     Write-Host "JAR : $($jar.FullName)"
     Write-Host "CWD : $runDir"
+
+    $ensurePostgres = Join-Path $PSScriptRoot "ensure-postgres.ps1"
+    if (Test-Path $ensurePostgres) {
+        & powershell -NoProfile -ExecutionPolicy Bypass -File $ensurePostgres
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "PostgreSQL baslatilamadi."
+            pause
+            exit 1
+        }
+    }
+
     Set-Location -LiteralPath $runDir
     $jvmArgs = @(
         "-Dfile.encoding=UTF-8",
