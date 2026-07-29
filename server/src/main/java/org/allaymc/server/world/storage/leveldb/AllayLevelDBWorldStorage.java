@@ -349,23 +349,16 @@ public class AllayLevelDBWorldStorage implements WorldStorage {
         var idsBuf = ByteBufAllocator.DEFAULT.buffer();
         try {
             var idsKey = LevelDBKey.createEntityIdsKey(chunkX, chunkZ, dimensionType);
-
-            // Delete old entity data for this chunk
-            var oldIds = this.db.get(idsKey);
-            if (oldIds != null) {
-                var oldIdsBuf = Unpooled.wrappedBuffer(oldIds);
-                for (int i = 0; i < oldIds.length; i += Long.BYTES) {
-                    writeBatch.delete(LevelDBKey.indexEntity(oldIdsBuf.readLongLE()));
-                }
-            }
-
-            // Write new entities
             for (var entry : entities.entrySet()) {
                 idsBuf.writeLongLE(entry.getKey());
                 writeBatch.put(LevelDBKey.indexEntity(entry.getKey()), AllayNBTUtils.nbtToBytesLE(entry.getValue().saveNBT()));
             }
 
-            writeBatch.put(idsKey, ByteBufUtil.getBytes(idsBuf));
+            if (idsBuf.isReadable()) {
+                writeBatch.put(idsKey, ByteBufUtil.getBytes(idsBuf));
+            } else {
+                writeBatch.delete(idsKey);
+            }
         } finally {
             idsBuf.release();
         }
@@ -383,29 +376,53 @@ public class AllayLevelDBWorldStorage implements WorldStorage {
 
     @Override
     public Map<Long, Entity> readEntitiesSync(int chunkX, int chunkZ, DimensionType dimensionType) {
-        var ids = this.db.get(LevelDBKey.createEntityIdsKey(chunkX, chunkZ, dimensionType));
+        var idsKey = LevelDBKey.createEntityIdsKey(chunkX, chunkZ, dimensionType);
+        var ids = this.db.get(idsKey);
         if (ids == null) {
             // Try to load entities through the old method
             return readEntitiesOldSync(chunkX, chunkZ, dimensionType);
         }
 
         var map = new Long2ObjectOpenHashMap<Entity>();
-        var idsBuf = Unpooled.wrappedBuffer(ids);
-        for (var i = 0; i < ids.length; i += Long.BYTES) {
-            var id = idsBuf.readLongLE();
-            var nbt = this.db.get(LevelDBKey.indexEntity(id));
-            if (nbt == null) {
-                log.error("NBT data for existing entity unique id {} is missing!", id);
-                continue;
+        var validIdsBuf = ByteBufAllocator.DEFAULT.buffer();
+        var orphanCount = 0;
+        try {
+            var idsBuf = Unpooled.wrappedBuffer(ids);
+            for (var i = 0; i < ids.length; i += Long.BYTES) {
+                var id = idsBuf.readLongLE();
+                var nbt = this.db.get(LevelDBKey.indexEntity(id));
+                if (nbt == null) {
+                    orphanCount++;
+                    continue;
+                }
+
+                var entity = NBTIO.getAPI().fromEntityNBT(world.getDimension(dimensionType), AllayNBTUtils.bytesToNbtLE(nbt));
+                if (entity == null) {
+                    log.error("Failed to load entity from NBT in chunk ({}, {}); removing unique id {}", chunkX, chunkZ, id);
+                    this.db.delete(LevelDBKey.indexEntity(id));
+                    orphanCount++;
+                    continue;
+                }
+
+                validIdsBuf.writeLongLE(id);
+                map.put(entity.getUniqueId().getLeastSignificantBits(), entity);
             }
 
-            var entity = NBTIO.getAPI().fromEntityNBT(world.getDimension(dimensionType), AllayNBTUtils.bytesToNbtLE(nbt));
-            if (entity == null) {
-                log.error("Failed to load entity from NBT {} in chunk ({}, {})", nbt, chunkX, chunkZ);
-                continue;
+            if (orphanCount > 0) {
+                try (var writeBatch = this.db.createWriteBatch()) {
+                    if (validIdsBuf.isReadable()) {
+                        writeBatch.put(idsKey, ByteBufUtil.getBytes(validIdsBuf));
+                    } else {
+                        writeBatch.delete(idsKey);
+                    }
+                    this.db.write(writeBatch);
+                } catch (IOException e) {
+                    throw new WorldStorageException(e);
+                }
+                log.debug("Removed {} orphan entity id(s) from chunk ({}, {})", orphanCount, chunkX, chunkZ);
             }
-
-            map.put(entity.getUniqueId().getLeastSignificantBits(), entity);
+        } finally {
+            validIdsBuf.release();
         }
 
         return map;
@@ -438,29 +455,26 @@ public class AllayLevelDBWorldStorage implements WorldStorage {
 
     protected CompletableFuture<Void> writeEntities0(int chunkX, int chunkZ, DimensionType dimensionType, Map<Long, Entity> entities, boolean asyncWrite) {
         var idsBuf = ByteBufAllocator.DEFAULT.buffer();
-        try (var writeBatch = this.db.createWriteBatch()) {
+        WriteBatch writeBatch = null;
+        try {
+            writeBatch = this.db.createWriteBatch();
             var idsKey = LevelDBKey.createEntityIdsKey(chunkX, chunkZ, dimensionType);
-
-            // Delete the old entities in this chunk
-            var oldIds = this.db.get(idsKey);
-            if (oldIds != null) {
-                var oldIdsBuf = Unpooled.wrappedBuffer(oldIds);
-                for (var i = 0; i < oldIds.length; i += Long.BYTES) {
-                    writeBatch.delete(LevelDBKey.indexEntity(oldIdsBuf.readLongLE()));
-                }
-            }
-
-            // Write the new entities
             for (var entry : entities.entrySet()) {
                 var entity = entry.getValue();
                 idsBuf.writeLongLE(entry.getKey());
                 writeBatch.put(LevelDBKey.indexEntity(entry.getKey()), AllayNBTUtils.nbtToBytesLE(entity.saveNBT()));
             }
 
-            writeBatch.put(idsKey, ByteBufUtil.getBytes(idsBuf));
+            if (idsBuf.isReadable()) {
+                writeBatch.put(idsKey, ByteBufUtil.getBytes(idsBuf));
+            } else {
+                writeBatch.delete(idsKey);
+            }
+
             return handleEntitiesWriteBatch(chunkX, chunkZ, writeBatch, asyncWrite);
-        } catch (IOException e) {
-            throw new WorldStorageException(e);
+        } catch (RuntimeException e) {
+            closeQuietly(writeBatch);
+            throw e;
         } finally {
             idsBuf.release();
         }
@@ -469,15 +483,36 @@ public class AllayLevelDBWorldStorage implements WorldStorage {
     protected CompletableFuture<Void> handleEntitiesWriteBatch(int chunkX, int chunkZ, WriteBatch writeBatch, boolean asyncWrite) {
         if (asyncWrite) {
             return CompletableFuture
-                    .runAsync(() -> this.db.write(writeBatch), Server.getInstance().getVirtualThreadPool())
+                    .runAsync(() -> {
+                        try {
+                            this.db.write(writeBatch);
+                        } finally {
+                            closeQuietly(writeBatch);
+                        }
+                    }, Server.getInstance().getVirtualThreadPool())
                     .exceptionally(t -> {
                         log.error("Failed to write entities in chunk ({}, {})", chunkX, chunkZ, t);
                         return null;
                     });
         }
 
-        this.db.write(writeBatch);
+        try {
+            this.db.write(writeBatch);
+        } finally {
+            closeQuietly(writeBatch);
+        }
         return CompletableFuture.completedFuture(null);
+    }
+
+    private static void closeQuietly(WriteBatch writeBatch) {
+        if (writeBatch == null) {
+            return;
+        }
+        try {
+            writeBatch.close();
+        } catch (IOException e) {
+            // ignored
+        }
     }
 
     @Override
