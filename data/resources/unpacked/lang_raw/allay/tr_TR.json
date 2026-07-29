@@ -1,4 +1,21 @@
 {
   "tile.chemical_heat.name": "Isı Bloğu",
-  "tile.hard_glass.name": "Sertleşmiş Cam"
+  "tile.hard_black_stained_glass.name": "Sertleşmiş Siyah Cam",
+  "tile.hard_blue_stained_glass.name": "Sertleşmiş Mavi Cam",
+  "tile.hard_brown_stained_glass.name": "Sertleşmiş Kahverengi Cam",
+  "tile.hard_cyan_stained_glass.name": "Sertleşmiş Camgöbeği Cam",
+  "tile.hard_glass.name": "Sertleşmiş Cam",
+  "tile.hard_gray_stained_glass.name": "Sertleşmiş Gri Cam",
+  "tile.hard_green_stained_glass.name": "Sertleşmiş Yeşil Cam",
+  "tile.hard_light_blue_stained_glass.name": "Sertleşmiş Açık Mavi Cam",
+  "tile.hard_light_gray_stained_glass.name": "Sertleşmiş Açık Gri Cam",
+  "tile.hard_lime_stained_glass.name": "Sertleşmiş Limon Yeşili Cam",
+  "tile.hard_magenta_stained_glass.name": "Sertleşmiş Macenta Cam",
+  "tile.hard_orange_stained_glass.name": "Sertleşmiş Turuncu Cam",
+  "tile.hard_pink_stained_glass.name": "Sertleşmiş Pembe Cam",
+  "tile.hard_purple_stained_glass.name": "Sertleşmiş Mor Cam",
+  "tile.hard_red_stained_glass.name": "Sertleşmiş Kırmızı Cam",
+  "tile.hard_stained_glass.name": "Sertleşmiş Renkli Cam",
+  "tile.hard_white_stained_glass.name": "Sertleşmiş Beyaz Cam",
+  "tile.hard_yellow_stained_glass.name": "Sertleşmiş Sarı Cam"
 }

@@ -28,6 +28,21 @@ public interface CustomItemFactory {
     }
 
     /**
+     * Registers a custom item.
+     *
+     * <p>The definition covers every kind of custom item, from a plain currency token to a tool or
+     * an armour piece. A plugin declares what the item <i>is</i>
+     * ({@link CustomItemDefinition#behavior()}) and the engine picks the matching item stack
+     * implementation and contributes the item tags the vanilla rules read — tool kind, tool tier
+     * and armour tier are all item tags in Allay, so a tool registered this way is a real tool:
+     * it harvests the blocks its tier allows, at the speed the tier gives, and wears down.</p>
+     *
+     * @param definition the item to register
+     * @return the registered item type
+     */
+    ItemType<?> registerItem(CustomItemDefinition definition);
+
+    /**
      * Registers a simple stackable custom item (no tool/armor/food behaviour).
      *
      * <p>Suitable for material/token items such as currencies, tickets, keys and
@@ -42,5 +57,14 @@ public interface CustomItemFactory {
      * @param foil         whether the item always shows the enchantment glint
      * @return the registered item type
      */
-    ItemType<?> registerSimpleItem(String identifier, String texture, String displayName, int maxStackSize, boolean foil);
+    default ItemType<?> registerSimpleItem(String identifier, String texture, String displayName,
+                                           int maxStackSize, boolean foil) {
+        return registerItem(CustomItemDefinition.builder()
+                .identifier(identifier)
+                .texture(texture)
+                .displayName(displayName)
+                .maxStackSize(maxStackSize)
+                .foil(foil)
+                .build());
+    }
 }
