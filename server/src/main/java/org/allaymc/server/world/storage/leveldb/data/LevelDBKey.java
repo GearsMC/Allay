@@ -138,6 +138,64 @@ public enum LevelDBKey {
         return org.allaymc.server.utils.Utils.appendBytes(ENTITY_DIGEST_PREFIX, indexChunk(chunkX, chunkZ, dimensionType));
     }
 
+    /**
+     * The prefix shared by every stored entity record.
+     * <p>
+     * LevelDB keeps keys in byte-lexicographic order, so seeking to this prefix walks exactly the
+     * entity records and nothing else.
+     *
+     * @return a copy of the entity key prefix
+     */
+    public static byte[] entityKeyPrefix() {
+        return ENTITY_PREFIX.clone();
+    }
+
+    /**
+     * The prefix shared by every per-chunk entity id list.
+     *
+     * @return a copy of the entity digest key prefix
+     */
+    public static byte[] entityDigestKeyPrefix() {
+        return ENTITY_DIGEST_PREFIX.clone();
+    }
+
+    /**
+     * Reads back the unique id an entity key was built from.
+     *
+     * @param key an entity key produced by {@link #indexEntity(long)}
+     * @return the entity unique id
+     * @throws IllegalArgumentException if the key is not an entity key
+     */
+    public static long entityIdFromKey(byte[] key) {
+        if (key == null || key.length != ENTITY_PREFIX.length + Long.BYTES || !startsWith(key, ENTITY_PREFIX)) {
+            throw new IllegalArgumentException("Not an entity key");
+        }
+        long value = 0;
+        for (int i = Long.BYTES - 1; i >= 0; i--) {
+            value = (value << 8) | (key[ENTITY_PREFIX.length + i] & 0xffL);
+        }
+        return value;
+    }
+
+    /**
+     * Whether the given key starts with the given prefix.
+     *
+     * @param key the key to test
+     * @param prefix the prefix to look for
+     * @return {@code true} when the key begins with the prefix
+     */
+    public static boolean startsWith(byte[] key, byte[] prefix) {
+        if (key == null || key.length < prefix.length) {
+            return false;
+        }
+        for (int i = 0; i < prefix.length; i++) {
+            if (key[i] != prefix[i]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     private static byte[] intToBytes(int value) {
         return new byte[]{
                 (byte) (value & 0xff),

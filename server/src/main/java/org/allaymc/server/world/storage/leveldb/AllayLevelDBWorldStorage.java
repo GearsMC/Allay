@@ -5,6 +5,7 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
 import lombok.extern.slf4j.Slf4j;
 import org.allaymc.api.entity.Entity;
 import org.allaymc.api.server.Server;
@@ -103,6 +104,11 @@ public class AllayLevelDBWorldStorage implements WorldStorage {
         this.batchEntityRequests = new LinkedHashMap<>();
         this.batchLock = new ReentrantLock();
         this.batchMode = false;
+
+        var purged = purgeOrphanEntities();
+        if (purged > 0) {
+            log.info("Reclaimed {} orphan entity record(s) in world {}", purged, this.worldName);
+        }
     }
 
     @Override
@@ -502,6 +508,80 @@ public class AllayLevelDBWorldStorage implements WorldStorage {
             closeQuietly(writeBatch);
         }
         return CompletableFuture.completedFuture(null);
+    }
+
+    /**
+     * Deletes entity records that no chunk references any more.
+     * <p>
+     * Writing a chunk only rewrites that chunk's id list; it deliberately does not delete the
+     * entity records that dropped out of the list, because entity records are keyed globally and an
+     * entity that moved to another chunk would have its record destroyed by the chunk it left. The
+     * cost of that safety is that legitimately removed entities — a mob that died, an item that
+     * despawned — leave their record behind forever. This reclaims them.
+     * <p>
+     * Only records unreachable from every id list are removed, so an entity that is still owned by
+     * some chunk is never touched. Entities held in the pre-digest storage format live under a
+     * different key entirely and are therefore unaffected.
+     * <p>
+     * Must run while nothing else writes to the database, otherwise a record written after the id
+     * lists were scanned would look unreferenced. It is called once during construction, before the
+     * world is in service.
+     *
+     * @return the number of records deleted
+     */
+    private int purgeOrphanEntities() {
+        var digestPrefix = LevelDBKey.entityDigestKeyPrefix();
+        var referenced = new LongOpenHashSet();
+        try (var iterator = this.db.iterator()) {
+            iterator.seek(digestPrefix);
+            while (iterator.hasNext()) {
+                var entry = iterator.next();
+                if (!LevelDBKey.startsWith(entry.getKey(), digestPrefix)) {
+                    break;
+                }
+                var ids = entry.getValue();
+                if (ids == null) {
+                    continue;
+                }
+                var idsBuf = Unpooled.wrappedBuffer(ids);
+                for (var i = 0; i + Long.BYTES <= ids.length; i += Long.BYTES) {
+                    referenced.add(idsBuf.readLongLE());
+                }
+            }
+        }
+
+        var entityPrefix = LevelDBKey.entityKeyPrefix();
+        var orphans = new ArrayList<byte[]>();
+        try (var iterator = this.db.iterator()) {
+            iterator.seek(entityPrefix);
+            while (iterator.hasNext()) {
+                var key = iterator.next().getKey();
+                if (!LevelDBKey.startsWith(key, entityPrefix)) {
+                    break;
+                }
+                if (key.length != entityPrefix.length + Long.BYTES) {
+                    // Not a key this storage wrote; leave it alone.
+                    continue;
+                }
+                if (!referenced.contains(LevelDBKey.entityIdFromKey(key))) {
+                    orphans.add(key);
+                }
+            }
+        }
+
+        if (orphans.isEmpty()) {
+            return 0;
+        }
+
+        try (var writeBatch = this.db.createWriteBatch()) {
+            for (var key : orphans) {
+                writeBatch.delete(key);
+            }
+            this.db.write(writeBatch);
+        } catch (IOException e) {
+            throw new WorldStorageException(e);
+        }
+        return orphans.size();
     }
 
     private static void closeQuietly(WriteBatch writeBatch) {
