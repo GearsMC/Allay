@@ -15,7 +15,10 @@ import java.util.stream.Collectors;
 public class TagCommand extends Command {
 
     public TagCommand() {
-        super("tag", TrKeys.MC_COMMANDS_TAG_DESCRIPTION, Permissions.COMMAND_TAG);
+        // GearsMC forkunda ad "allaytag": /tag adi sunucunun kendi rozet menusune
+        // aittir. Ayni adla kayit yapilsaydi biri digerinin uzerine sessizce
+        // yazacak ve varlik etiketleme komutu erisilemez hale gelecekti.
+        super("allaytag", TrKeys.MC_COMMANDS_TAG_DESCRIPTION, Permissions.COMMAND_TAG);
     }
 
     @Override
