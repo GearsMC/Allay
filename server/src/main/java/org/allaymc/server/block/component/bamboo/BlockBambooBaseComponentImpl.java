@@ -17,6 +17,8 @@ import org.allaymc.api.math.MathUtils;
 import org.allaymc.api.world.Dimension;
 import org.allaymc.api.world.particle.SimpleParticle;
 import org.allaymc.server.block.component.BlockBaseComponentImpl;
+
+import java.util.List;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
 
@@ -97,8 +99,8 @@ public class BlockBambooBaseComponentImpl extends BlockBaseComponentImpl {
     }
 
     @Override
-    public void onBreak(Block block, ItemStack usedItem, Entity entity) {
-        super.onBreak(block, usedItem, entity);
+    public void onBreak(Block block, ItemStack usedItem, Entity entity, List<ItemStack> drops) {
+        super.onBreak(block, usedItem, entity, drops);
 
         // Reset age bit of bamboo below
         var belowPos = BlockFace.DOWN.offsetPos(block.getPosition());

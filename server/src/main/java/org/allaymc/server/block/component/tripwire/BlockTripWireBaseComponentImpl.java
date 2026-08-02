@@ -12,6 +12,8 @@ import org.allaymc.api.item.ItemStack;
 import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.api.world.Dimension;
 import org.allaymc.server.block.component.BlockBaseComponentImpl;
+
+import java.util.List;
 import org.joml.Vector3ic;
 
 import java.time.Duration;
@@ -108,7 +110,7 @@ public class BlockTripWireBaseComponentImpl extends BlockBaseComponentImpl {
     }
 
     @Override
-    public void onBreak(Block block, ItemStack usedItem, Entity entity) {
+    public void onBreak(Block block, ItemStack usedItem, Entity entity, List<ItemStack> drops) {
         Dimension dimension = block.getDimension();
         Vector3ic pos = block.getPosition();
 
@@ -126,7 +128,7 @@ public class BlockTripWireBaseComponentImpl extends BlockBaseComponentImpl {
             updateAdjacentHooks(updatedBlock);
         }
 
-        super.onBreak(block, usedItem, entity);
+        super.onBreak(block, usedItem, entity, drops);
     }
 
     @Override

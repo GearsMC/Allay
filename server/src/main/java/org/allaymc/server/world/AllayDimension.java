@@ -303,10 +303,8 @@ public class AllayDimension implements Dimension {
             return false;
         }
 
-        var event = new BlockBreakEvent(
-                new Block(block, new Position3i(x, y, z, this), 0),
-                usedItem, entity
-        );
+        var blockDto = new Block(block, new Position3i(x, y, z, this), 0);
+        var event = new BlockBreakEvent(blockDto, usedItem, entity);
         if (!event.call()) {
             return false;
         }
@@ -315,10 +313,13 @@ public class AllayDimension implements Dimension {
             addParticle(x + 0.5f, y + 0.5f, z + 0.5f, new BlockBreakParticle(block));
         }
 
-        block.getBehavior().onBreak(
-                new Block(block, new Position3i(x, y, z, this), 0),
-                usedItem, entity
-        );
+        // Only hand the event's drop list down when a listener actually looked at it;
+        // otherwise the block resolves its own drops exactly as it did before.
+        if (event.isDropsResolved()) {
+            block.getBehavior().onBreak(blockDto, usedItem, entity, event.getDrops());
+        } else {
+            block.getBehavior().onBreak(blockDto, usedItem, entity);
+        }
 
         setBlockState(x, y, z, AIR.getDefaultState());
 

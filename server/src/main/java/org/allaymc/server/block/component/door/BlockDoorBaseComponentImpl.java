@@ -15,6 +15,8 @@ import org.allaymc.api.math.position.Position3i;
 import org.allaymc.api.world.Dimension;
 import org.allaymc.api.world.sound.DoorSound;
 import org.allaymc.server.block.component.BlockBaseComponentImpl;
+
+import java.util.List;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
 
@@ -155,11 +157,11 @@ public class BlockDoorBaseComponentImpl extends BlockBaseComponentImpl {
     }
 
     @Override
-    public void onBreak(Block block, ItemStack usedItem, Entity entity) {
+    public void onBreak(Block block, ItemStack usedItem, Entity entity, List<ItemStack> drops) {
         if (block.getPropertyValue(UPPER_BLOCK_BIT)) {
             block.getDimension().breakBlock(BlockFace.DOWN.offsetPos(block.getPosition()), null, entity);
         }
-        super.onBreak(block, usedItem, entity);
+        super.onBreak(block, usedItem, entity, drops);
     }
 
     @Override

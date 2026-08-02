@@ -24,6 +24,8 @@ import org.allaymc.api.world.data.Weather;
 import org.allaymc.api.world.explosion.Explosion;
 import org.allaymc.api.world.gamerule.GameRule;
 import org.allaymc.server.component.annotation.Dependency;
+
+import java.util.List;
 import org.joml.Vector3ic;
 
 import java.util.Set;
@@ -161,7 +163,7 @@ public class BlockBedBaseComponentImpl extends BlockBaseComponentImpl {
     }
 
     @Override
-    public void onBreak(Block block, ItemStack usedItem, Entity entity) {
+    public void onBreak(Block block, ItemStack usedItem, Entity entity, List<ItemStack> drops) {
         // Wake up any entity sleeping in this bed
         if (block.getPropertyValue(BlockPropertyTypes.HEAD_PIECE_BIT)) {
             wakeSleeper(block);
@@ -171,7 +173,7 @@ public class BlockBedBaseComponentImpl extends BlockBaseComponentImpl {
             var headBlock = getPairBlock(block);
             wakeSleeper(headBlock);
         }
-        super.onBreak(block, usedItem, entity);
+        super.onBreak(block, usedItem, entity, drops);
     }
 
     private void wakeSleeper(Block headBlock) {

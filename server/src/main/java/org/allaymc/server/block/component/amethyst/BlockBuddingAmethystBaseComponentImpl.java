@@ -10,6 +10,8 @@ import org.allaymc.api.entity.Entity;
 import org.allaymc.api.item.ItemStack;
 import org.allaymc.server.block.component.BlockBaseComponentImpl;
 
+import java.util.List;
+
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.allaymc.api.block.property.type.BlockPropertyTypes.MINECRAFT_BLOCK_FACE;
@@ -86,7 +88,14 @@ public class BlockBuddingAmethystBaseComponentImpl extends BlockBaseComponentImp
     }
 
     @Override
-    public void onBreak(Block block, ItemStack usedItem, Entity entity) {
+    public void onBreak(Block block, ItemStack usedItem, Entity entity, List<ItemStack> drops) {
         // Budding amethyst drops nothing, not even with silk touch
+    }
+
+    @Override
+    public List<ItemStack> resolveDrops(Block block, ItemStack usedItem, Entity entity) {
+        // Reported as empty as well, so that a listener inspecting the break is not
+        // told about a silk touch drop that onBreak then refuses to spawn.
+        return List.of();
     }
 }

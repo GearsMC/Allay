@@ -17,6 +17,8 @@ import org.allaymc.api.math.MathUtils;
 import org.allaymc.api.math.position.Position3i;
 import org.allaymc.api.world.Dimension;
 import org.allaymc.api.world.particle.SimpleParticle;
+
+import java.util.List;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
 
@@ -125,8 +127,8 @@ public class BlockKelpBaseComponentImpl extends BlockBaseComponentImpl {
     }
 
     @Override
-    public void onBreak(Block block, ItemStack usedItem, Entity entity) {
-        super.onBreak(block, usedItem, entity);
+    public void onBreak(Block block, ItemStack usedItem, Entity entity, List<ItemStack> drops) {
+        super.onBreak(block, usedItem, entity, drops);
 
         // Randomize age of kelp below
         var belowPos = BlockFace.DOWN.offsetPos(block.getPosition());

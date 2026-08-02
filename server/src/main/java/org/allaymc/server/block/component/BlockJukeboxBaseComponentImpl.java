@@ -14,6 +14,8 @@ import org.allaymc.api.math.position.Position3i;
 import org.allaymc.api.world.Dimension;
 import org.allaymc.server.component.annotation.Dependency;
 
+import java.util.List;
+
 /**
  * @author IWareQ
  */
@@ -49,8 +51,8 @@ public class BlockJukeboxBaseComponentImpl extends BlockBaseComponentImpl {
     }
 
     @Override
-    public void onBreak(Block block, ItemStack usedItem, Entity entity) {
-        super.onBreak(block, usedItem, entity);
+    public void onBreak(Block block, ItemStack usedItem, Entity entity, List<ItemStack> drops) {
+        super.onBreak(block, usedItem, entity, drops);
         var blockEntity = blockEntityHolderComponent.getBlockEntity(block.getPosition());
         if (blockEntity instanceof BlockEntityJukebox jukebox) {
             jukebox.stop();

@@ -27,6 +27,13 @@ public class BlockBeetrootBaseComponentImpl extends BlockCropsBaseComponentImpl 
             return Set.of(ItemTypes.BEETROOT_SEEDS.createItemStack());
         }
 
-        return Set.of(ItemTypes.BEETROOT_SEEDS.createItemStack(), ItemTypes.BEETROOT.createItemStack(FortuneDropHelper.binomial(usedItem, 0)));
+        // A mature crop always yields exactly one beetroot, plus a variable amount of
+        // seeds. The seed amount is the fortune-affected roll, not the beetroot amount.
+        var seedCount = FortuneDropHelper.binomial(usedItem, 0);
+        if (seedCount <= 0) {
+            return Set.of(ItemTypes.BEETROOT.createItemStack());
+        }
+
+        return Set.of(ItemTypes.BEETROOT.createItemStack(), ItemTypes.BEETROOT_SEEDS.createItemStack(seedCount));
     }
 }

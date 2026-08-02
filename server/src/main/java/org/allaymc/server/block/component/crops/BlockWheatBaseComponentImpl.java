@@ -27,6 +27,13 @@ public class BlockWheatBaseComponentImpl extends BlockCropsBaseComponentImpl {
             return Set.of(ItemTypes.WHEAT_SEEDS.createItemStack());
         }
 
-        return Set.of(ItemTypes.WHEAT_SEEDS.createItemStack(), ItemTypes.WHEAT.createItemStack(FortuneDropHelper.binomial(usedItem, 0)));
+        // A mature crop always yields exactly one wheat, plus a variable amount of
+        // seeds. The seed amount is the fortune-affected roll, not the wheat amount.
+        var seedCount = FortuneDropHelper.binomial(usedItem, 0);
+        if (seedCount <= 0) {
+            return Set.of(ItemTypes.WHEAT.createItemStack());
+        }
+
+        return Set.of(ItemTypes.WHEAT.createItemStack(), ItemTypes.WHEAT_SEEDS.createItemStack(seedCount));
     }
 }

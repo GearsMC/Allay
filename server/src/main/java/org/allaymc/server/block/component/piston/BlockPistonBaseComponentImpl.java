@@ -458,8 +458,8 @@ public class BlockPistonBaseComponentImpl extends BlockBaseComponentImpl {
     }
 
     @Override
-    public void onBreak(Block block, ItemStack usedItem, Entity entity) {
-        super.onBreak(block, usedItem, entity);
+    public void onBreak(Block block, ItemStack usedItem, Entity entity, List<ItemStack> drops) {
+        super.onBreak(block, usedItem, entity, drops);
 
         // Only cascade when directly broken by player/entity, not when broken by code
         // This prevents infinite recursion between piston and piston arm

@@ -9,11 +9,13 @@ import org.allaymc.api.block.type.BlockType;
 import org.allaymc.api.entity.Entity;
 import org.allaymc.api.entity.interfaces.EntityProjectile;
 import org.allaymc.api.item.ItemStack;
+import org.allaymc.api.item.enchantment.EnchantmentTypes;
 import org.allaymc.api.world.Dimension;
 import org.jetbrains.annotations.ApiStatus;
 import org.joml.Vector3dc;
 import org.joml.Vector3ic;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -177,14 +179,60 @@ public interface BlockBaseComponent extends BlockComponent {
     void onPunch(Block block, BlockFace blockFace, ItemStack usedItem, Entity entity);
 
     /**
-     * Handles when a block is broken by a non-creative entity.
+     * Handles when a block is broken by a non-creative entity, resolving the drops
+     * from the block itself.
+     * <p>
+     * This is a convenience entry point. Implementations must override
+     * {@link #onBreak(Block, ItemStack, Entity, List)} instead, otherwise a caller
+     * that supplies its own drop list will bypass the override.
      *
      * @param block    the block that was broken
      * @param usedItem the item used to break the block, can be {@code null}
      * @param entity   the entity that broke the block, can be {@code null}
      */
+    default void onBreak(Block block, ItemStack usedItem, Entity entity) {
+        onBreak(block, usedItem, entity, resolveDrops(block, usedItem, entity));
+    }
+
+    /**
+     * Handles when a block is broken by a non-creative entity, using a drop list that
+     * has already been resolved by the caller.
+     * <p>
+     * The list is passed in rather than recomputed so that a caller sitting between
+     * {@link #resolveDrops(Block, ItemStack, Entity)} and this method - most notably
+     * {@code BlockBreakEvent} - can add to, filter, or clear what the block yields.
+     *
+     * @param block    the block that was broken
+     * @param usedItem the item used to break the block, can be {@code null}
+     * @param entity   the entity that broke the block, can be {@code null}
+     * @param drops    the item stacks the break should yield, possibly empty
+     */
     @ApiStatus.OverrideOnly
-    void onBreak(Block block, ItemStack usedItem, Entity entity);
+    void onBreak(Block block, ItemStack usedItem, Entity entity, List<ItemStack> drops);
+
+    /**
+     * Resolves what this block yields when broken, taking the creative game mode, the
+     * required tool and the silk touch enchantment into account.
+     * <p>
+     * Unlike {@link #getDrops(Block, ItemStack, Entity)} this is the final word on the
+     * matter: an empty list means the break yields nothing at all.
+     *
+     * @param block    the block being broken
+     * @param usedItem the item used to break the block, can be {@code null}
+     * @param entity   the entity breaking the block, can be {@code null}
+     * @return the item stacks the break should yield, possibly empty
+     */
+    default List<ItemStack> resolveDrops(Block block, ItemStack usedItem, Entity entity) {
+        if (!isDroppable(block, usedItem, entity)) {
+            return List.of();
+        }
+
+        if (usedItem != null && usedItem.hasEnchantment(EnchantmentTypes.SILK_TOUCH)) {
+            return List.of(getSilkTouchDrop(block));
+        }
+
+        return List.copyOf(getDrops(block, usedItem, entity));
+    }
 
     /**
      * Called when a block receives a scheduled update.

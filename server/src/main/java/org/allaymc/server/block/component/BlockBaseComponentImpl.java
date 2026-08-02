@@ -27,6 +27,7 @@ import org.allaymc.server.component.annotation.Manager;
 import org.allaymc.server.registry.InternalRegistries;
 import org.joml.Vector3ic;
 
+import java.util.List;
 import java.util.Set;
 
 import static org.allaymc.api.item.ItemHelper.isSword;
@@ -207,22 +208,18 @@ public class BlockBaseComponentImpl implements BlockBaseComponent {
     }
 
     @Override
-    public void onBreak(Block block, ItemStack usedItem, Entity entity) {
-        if (!isDroppable(block, usedItem, entity)) {
-            return;
-        }
-
+    public void onBreak(Block block, ItemStack usedItem, Entity entity, List<ItemStack> drops) {
         var dropPos = MathUtils.center(block.getPosition());
         var dimension = block.getDimension();
-        if (usedItem != null && usedItem.hasEnchantment(EnchantmentTypes.SILK_TOUCH)) {
-            // Silk Touch, directly drop the block itself
-            dimension.dropItem(getSilkTouchDrop(block), dropPos);
-            return;
-        }
-
-        var drops = getDrops(block, usedItem, entity);
         for (var drop : drops) {
             dimension.dropItem(drop, dropPos);
+        }
+
+        // A break that yields nothing drops no experience either, and neither does a
+        // silk touch harvest, which takes the block itself instead of its contents.
+        if (!isDroppable(block, usedItem, entity) ||
+            (usedItem != null && usedItem.hasEnchantment(EnchantmentTypes.SILK_TOUCH))) {
+            return;
         }
 
         var dropXpAmount = getDropXpAmount(block, usedItem, entity);
