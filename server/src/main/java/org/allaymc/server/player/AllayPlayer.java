@@ -1889,6 +1889,11 @@ public class AllayPlayer implements Player {
             case SimpleParticle.BREEZE_WIND_EXPLOSION -> packet.setType(ParticleType.BREEZE_WIND_EXPLOSION);
             case SimpleParticle.WATER_WAKE -> packet.setType(ParticleType.WATER_WAKE);
             case SimpleParticle.BUBBLE -> packet.setType(ParticleType.BUBBLE);
+            case SimpleParticle.VILLAGER_HAPPY -> packet.setType(ParticleType.VILLAGER_HAPPY);
+            case SimpleParticle.END_ROD -> packet.setType(ParticleType.END_ROD);
+            case SimpleParticle.CAMPFIRE_SMOKE -> packet.setType(ParticleType.CAMPFIRE_SMOKE);
+            case SimpleParticle.CHERRY_LEAVES -> packet.setType(ParticleType.CHERRY_LEAVES);
+            case SimpleParticle.PALE_OAK_LEAVES -> packet.setType(ParticleType.PALE_OAK_LEAVES);
             case ShootParticle pa -> {
                 packet.setType(LevelEvent.PARTICLE_SHOOT);
                 int data = 0;

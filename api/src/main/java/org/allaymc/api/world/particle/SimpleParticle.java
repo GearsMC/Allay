@@ -43,5 +43,15 @@ public enum SimpleParticle implements Particle {
     /// WATER_WAKE is a particle shown when a fish is attracted to a fishing hook.
     WATER_WAKE,
     /// BUBBLE is a particle shown when a fish bites the fishing hook.
-    BUBBLE
+    BUBBLE,
+    /// VILLAGER_HAPPY is a particle shown when a villager is pleased, and when bone meal is used on a crop.
+    VILLAGER_HAPPY,
+    /// END_ROD is a particle that trails from an end rod.
+    END_ROD,
+    /// CAMPFIRE_SMOKE is a particle that rises from a campfire.
+    CAMPFIRE_SMOKE,
+    /// CHERRY_LEAVES is a particle that falls from cherry leaves.
+    CHERRY_LEAVES,
+    /// PALE_OAK_LEAVES is a particle that falls from pale oak leaves.
+    PALE_OAK_LEAVES
 }
