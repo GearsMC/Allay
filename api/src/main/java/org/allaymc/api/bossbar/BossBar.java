@@ -7,6 +7,7 @@ import org.jetbrains.annotations.UnmodifiableView;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -71,7 +72,9 @@ public class BossBar {
      * Remove all viewers from the boss bar.
      */
     public void removeAllViewers() {
-        getViewers().forEach(this::removeViewer);
+        // Iterate over a snapshot: getViewers() is an unmodifiable *view* of the
+        // live set, so removing through it throws ConcurrentModificationException.
+        List.copyOf(viewers).forEach(this::removeViewer);
     }
 
     /**
