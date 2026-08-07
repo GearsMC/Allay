@@ -46,3 +46,6 @@
 /server/operators.yml
 /server/server-settings.yml
 /server/whitelist.yml
+
+# Sunucu calisma gunlukleri (runShadow bunlari repo kokune yaziyor)
+logs/
