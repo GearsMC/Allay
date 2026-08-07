@@ -496,6 +496,8 @@ public class PlayerAuthInputPacketProcessor extends PacketProcessor<PlayerAuthIn
             case TOUCH -> InputMode.TOUCH;
             case GAMEPAD -> InputMode.GAMEPAD;
             case MOTION_CONTROLLER -> InputMode.MOTION_CONTROLLER;
+            // v2168 added a COUNT sentinel to the protocol enum; it is not a real input mode.
+            case COUNT -> InputMode.UNDEFINED;
         };
         var oldInputMode = player.getInputMode();
 
@@ -516,6 +518,8 @@ public class PlayerAuthInputPacketProcessor extends PacketProcessor<PlayerAuthIn
             case TOUCH -> InputInteractionModel.TOUCH;
             case CROSSHAIR -> InputInteractionModel.CROSSHAIR;
             case CLASSIC -> InputInteractionModel.CLASSIC;
+            // v2168 sentinel, see above.
+            case COUNT -> InputInteractionModel.TOUCH;
         };
         var oldInteractionModel = player.getInputInteractionModel();
 

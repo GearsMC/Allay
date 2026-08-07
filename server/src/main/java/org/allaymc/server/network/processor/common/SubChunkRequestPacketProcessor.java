@@ -128,7 +128,7 @@ public class SubChunkRequestPacketProcessor extends PacketProcessor<SubChunkRequ
                     }
                 } else {
                     // SUCCESS_ALL_AIR or error results
-                    subChunkData.setBlobId(0);
+                    subChunkData.setBlobId(0L);
                     subChunkData.setData(Unpooled.EMPTY_BUFFER);
                 }
 

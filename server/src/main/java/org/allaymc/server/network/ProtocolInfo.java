@@ -9,6 +9,7 @@ import org.allaymc.updater.item.ItemStateUpdater_1_21_110;
 import org.allaymc.updater.item.ItemStateUpdater_1_26_20;
 import org.cloudburstmc.protocol.bedrock.codec.BedrockCodec;
 import org.cloudburstmc.protocol.bedrock.codec.v1001.Bedrock_v1001;
+import org.cloudburstmc.protocol.bedrock.codec.v2168.Bedrock_v2168;
 import org.cloudburstmc.protocol.bedrock.codec.v818.Bedrock_v818;
 import org.cloudburstmc.protocol.bedrock.codec.v819.Bedrock_v819;
 import org.cloudburstmc.protocol.bedrock.codec.v827.Bedrock_v827;
@@ -35,6 +36,7 @@ public final class ProtocolInfo {
      */
     public static final List<BedrockCodec> SUPPORTED_VERSIONS = List.of(
             // Order is important. The first codec is the latest supported version.
+            Bedrock_v2168.CODEC,
             Bedrock_v1001.CODEC,
             Bedrock_v975.CODEC,
             Bedrock_v944.CODEC,
@@ -51,6 +53,10 @@ public final class ProtocolInfo {
     /**
      * Feature version is the version of the game from which vanilla features will be used.
      */
+    // NOTE: intentionally NOT v2168. Feature version selects the game data the
+    // server ships (block palette, items, recipes, creative contents) and that
+    // data is still 1.26.30. v2168 is listed above only so 1.26.40 clients can
+    // connect; they receive 1.26.30 content until the data set is regenerated.
     public static final BedrockCodec FEATURE_VERSION = Bedrock_v1001.CODEC;
 
     /**
