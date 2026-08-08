@@ -39,7 +39,12 @@ public enum CustomItemBehavior {
     /** Worn on the legs. */
     LEGGINGS(Set.of(), ArmorType.LEGGINGS),
     /** Worn on the feet. */
-    BOOTS(Set.of(), ArmorType.BOOTS);
+    BOOTS(Set.of(), ArmorType.BOOTS),
+    /**
+     * A food or drink item. The nutrition values come from the definition's
+     * {@code foodPoints} / {@code saturationPoints} fields.
+     */
+    EDIBLE(Set.of(), null);
 
     private final Set<ItemTag> itemTags;
     private final ArmorType armorType;

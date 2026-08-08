@@ -84,6 +84,31 @@ public class CustomItemDefinition {
     /** Whether the item always shows the enchantment glint. */
     @Builder.Default
     private final boolean foil = false;
+    /**
+     * Hunger points restored when eaten. Only used by {@link CustomItemBehavior#EDIBLE}.
+     */
+    @Builder.Default
+    private final int foodPoints = 0;
+    /**
+     * Saturation restored when eaten. Only used by {@link CustomItemBehavior#EDIBLE}.
+     */
+    @Builder.Default
+    private final float saturationPoints = 0f;
+    /**
+     * How long the use animation runs, in game ticks.
+     */
+    @Builder.Default
+    private final int eatingTime = 31;
+    /**
+     * Whether the item is drunk rather than eaten; changes the use animation.
+     */
+    @Builder.Default
+    private final boolean drink = false;
+    /**
+     * Whether the item can be consumed with a full hunger bar.
+     */
+    @Builder.Default
+    private final boolean canBeAlwaysEaten = false;
 
     /**
      * The item type this item can be repaired with in an anvil.

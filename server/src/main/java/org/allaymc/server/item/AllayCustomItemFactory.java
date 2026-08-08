@@ -19,6 +19,7 @@ import org.allaymc.server.item.impl.ItemShovelStackImpl;
 import org.allaymc.server.item.impl.ItemStackImpl;
 import org.allaymc.server.item.impl.ItemSwordStackImpl;
 import org.allaymc.server.item.component.ItemArmorBaseComponentImpl;
+import org.allaymc.server.item.component.edible.ItemEdibleComponentImpl;
 import org.allaymc.server.item.component.ItemRepairableComponentImpl;
 import org.allaymc.server.item.component.tool.ItemHoeToolComponentImpl;
 import org.allaymc.server.item.component.tool.ItemSwordToolComponentImpl;
@@ -60,6 +61,9 @@ public class AllayCustomItemFactory implements CustomItemFactory {
         BEHAVIOR_CLASSES.put(CustomItemBehavior.CHESTPLATE, ItemChestplateStackImpl.class);
         BEHAVIOR_CLASSES.put(CustomItemBehavior.LEGGINGS, ItemLeggingsStackImpl.class);
         BEHAVIOR_CLASSES.put(CustomItemBehavior.BOOTS, ItemBootsStackImpl.class);
+        // Food has no dedicated stack implementation in Allay: the edible component
+        // carries all the behaviour, so the plain stack is enough.
+        BEHAVIOR_CLASSES.put(CustomItemBehavior.EDIBLE, ItemStackImpl.class);
     }
 
     @Override
@@ -100,6 +104,15 @@ public class AllayCustomItemFactory implements CustomItemFactory {
     private static void addBehaviorComponents(AllayItemType.Builder builder, CustomItemDefinition definition) {
         var behavior = definition.behavior();
         if (behavior == CustomItemBehavior.SIMPLE) {
+            return;
+        }
+
+        if (behavior == CustomItemBehavior.EDIBLE) {
+            builder.addComponent(() -> new ItemEdibleComponentImpl(
+                            definition.foodPoints(), definition.saturationPoints(),
+                            definition.eatingTime(), definition.drink(),
+                            definition.canBeAlwaysEaten()),
+                    ItemEdibleComponentImpl.class);
             return;
         }
 
