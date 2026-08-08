@@ -172,6 +172,9 @@ public class EntityLivingComponentImpl implements EntityLivingComponent {
 
         // Call the event in advance, as it may return early due to a short circuit later
         this.manager.callEvent(CEntityAfterDamageEvent.INSTANCE);
+        // The public counterpart: unlike EntityDamageEvent this is called once every
+        // modifier has run, so listeners see the damage the entity actually took.
+        new EntityAfterDamageEvent(thisEntity, damage).call();
 
         if (damage.getAttacker() instanceof Entity entity) {
             ((ComponentClass) entity).getManager().callEvent(CEntityAttackEvent.INSTANCE);
