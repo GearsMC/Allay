@@ -1340,6 +1340,9 @@ public class AllayPlayer implements Player {
 
         switch (sound) {
             case SimpleSound.SHIELD_BLOCK -> packet.setSound(SoundEvent.SHIELD_BLOCK);
+            case SimpleSound.ENCHANT_LUNGE_1 -> packet.setSound(SoundEvent.LUNGE_1);
+            case SimpleSound.ENCHANT_LUNGE_2 -> packet.setSound(SoundEvent.LUNGE_2);
+            case SimpleSound.ENCHANT_LUNGE_3 -> packet.setSound(SoundEvent.LUNGE_3);
             case SimpleSound.WOODEN_SPEAR_ATTACK_HIT -> packet.setSound(SoundEvent.WOODEN_SPEAR_ATTACK_HIT);
             case SimpleSound.WOODEN_SPEAR_ATTACK_MISS -> packet.setSound(SoundEvent.WOODEN_SPEAR_ATTACK_MISS);
             case SimpleSound.WOODEN_SPEAR_USE -> packet.setSound(SoundEvent.WOODEN_SPEAR_USE);

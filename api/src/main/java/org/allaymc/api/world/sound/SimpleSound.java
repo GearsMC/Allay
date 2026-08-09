@@ -181,6 +181,12 @@ public enum SimpleSound implements Sound {
     MACE_SMASH_HEAVY_GROUND,
     /// SHIELD_BLOCK is a sound played when a shield successfully blocks damage.
     SHIELD_BLOCK,
+    /// ENCHANT_LUNGE_1 is played when a Lunge 1 enchantment launches its wielder forward.
+    ENCHANT_LUNGE_1,
+    /// ENCHANT_LUNGE_2 is played when a Lunge 2 enchantment launches its wielder forward.
+    ENCHANT_LUNGE_2,
+    /// ENCHANT_LUNGE_3 is played when a Lunge 3 enchantment launches its wielder forward.
+    ENCHANT_LUNGE_3,
     /// WOODEN_SPEAR_ATTACK_HIT is played when a wooden spear lands a hit.
     WOODEN_SPEAR_ATTACK_HIT,
     /// WOODEN_SPEAR_ATTACK_MISS is played when a wooden spear misses.

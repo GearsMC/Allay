@@ -8,6 +8,7 @@ import org.allaymc.api.entity.interfaces.EntityPlayer;
 import org.allaymc.api.item.ItemHelper;
 import org.allaymc.api.item.ItemStack;
 import org.allaymc.api.item.data.ToolTier;
+import org.allaymc.api.item.enchantment.EnchantmentTypes;
 import org.allaymc.api.math.MathUtils;
 import org.allaymc.api.player.GameMode;
 import org.allaymc.api.world.Dimension;
@@ -76,6 +77,24 @@ public final class SpearJab {
     /** Below this share of the speed window a charge deals nothing. */
     private static final double CHARGE_MIN_RATIO = 0.05d;
 
+    /** Extra jab damage each Lunge level grants. */
+    private static final double LUNGE_DAMAGE_PER_LEVEL = 1.5d;
+
+    /** Base forward push of a lunge, before the per-level part. */
+    private static final double LUNGE_BASE_PUSH = 0.5d;
+
+    /** How much further each Lunge level pushes. */
+    private static final double LUNGE_PUSH_PER_LEVEL = 0.4d;
+
+    /** A lunge needs at least this much food to fire. */
+    private static final int LUNGE_MINIMUM_FOOD = 6;
+
+    /** Exhaustion each Lunge level costs. */
+    private static final float LUNGE_EXHAUSTION_PER_LEVEL = 6.0f;
+
+    /** Durability a lunge spends, on top of the jab's own cost. */
+    private static final int LUNGE_DURABILITY_COST = 4;
+
     /**
      * Per-player charge bookkeeping. Transient by design: a charge is a momentary
      * state, so nothing here needs to survive a restart.
@@ -103,6 +122,7 @@ public final class SpearJab {
 
         clearCharge(attacker);
         attacker.setCooldown(spear.getItemType(), jabCooldownTicks(spear));
+        applyLunge(attacker, spear);
 
         Vector3d eye = eyeOf(attacker);
         Vector3d direction = directionOf(attacker);
@@ -114,7 +134,8 @@ public final class SpearJab {
             return false;
         }
 
-        float damage = attackDamageOf(spear);
+        float damage = attackDamageOf(spear)
+                + (float) (lungeLevel(spear) * LUNGE_DAMAGE_PER_LEVEL);
         boolean hit = ((EntityLivingComponent) target).attack(DamageContainer.entityAttack(attacker, damage));
         if (!hit) {
             dimension.addSound(eye, missSound(tier));
@@ -277,6 +298,81 @@ public final class SpearJab {
         return nearest;
     }
 
+    // ==================== lunge ====================
+
+    /**
+     * Launches the player forward when the spear carries the Lunge enchantment.
+     *
+     * <p>A lunge is what turns a jab into a gap-closer: the player is pushed along their
+     * look direction, which costs food and extra durability. It does nothing while
+     * gliding, swimming or submerged, where a forward shove would be nonsense, and
+     * nothing on an empty stomach.</p>
+     *
+     * @param attacker the player jabbing
+     * @param spear    the spear used
+     */
+    private static void applyLunge(EntityPlayer attacker, ItemStack spear) {
+        int level = lungeLevel(spear);
+        if (level <= 0 || !canLunge(attacker)) {
+            return;
+        }
+
+        Vector3d direction = directionOf(attacker);
+        Vector3d push = new Vector3d(direction.x, 0, direction.z);
+        if (push.lengthSquared() <= 1.0e-10) {
+            return;
+        }
+        push.normalize().mul(LUNGE_BASE_PUSH + level * LUNGE_PUSH_PER_LEVEL);
+        attacker.addMotion(push);
+
+        Dimension dimension = attacker.getDimension();
+        if (dimension != null) {
+            dimension.addSound(eyeOf(attacker), lungeSound(level));
+        }
+
+        spear.tryIncreaseDamage(LUNGE_DURABILITY_COST);
+        syncHeldItem(attacker, spear);
+        if (consumesResources(attacker)) {
+            attacker.exhaust(LUNGE_EXHAUSTION_PER_LEVEL * level);
+        }
+    }
+
+    /**
+     * Whether the player is in a state where a lunge may fire.
+     *
+     * @param attacker the player
+     * @return {@code true} when the lunge may fire
+     */
+    private static boolean canLunge(EntityPlayer attacker) {
+        if (attacker.isGliding() || attacker.isSwimming() || attacker.isEyesInWater()) {
+            return false;
+        }
+        return !consumesResources(attacker) || attacker.getFoodLevel() >= LUNGE_MINIMUM_FOOD;
+    }
+
+    /**
+     * Whether the player's game mode spends food and durability.
+     *
+     * @param attacker the player
+     * @return {@code true} in survival and adventure
+     */
+    private static boolean consumesResources(EntityPlayer attacker) {
+        GameMode mode = attacker.getGameMode();
+        return mode == GameMode.SURVIVAL || mode == GameMode.ADVENTURE;
+    }
+
+    private static int lungeLevel(ItemStack spear) {
+        return spear.getEnchantmentLevel(EnchantmentTypes.LUNGE);
+    }
+
+    private static SimpleSound lungeSound(int level) {
+        return switch (Math.max(1, Math.min(3, level))) {
+            case 1 -> SimpleSound.ENCHANT_LUNGE_1;
+            case 2 -> SimpleSound.ENCHANT_LUNGE_2;
+            default -> SimpleSound.ENCHANT_LUNGE_3;
+        };
+    }
+
     // ==================== charge maths ====================
 
     /**
@@ -427,6 +523,20 @@ public final class SpearJab {
 
     private static void consumeDurability(EntityPlayer attacker, ItemStack spear) {
         spear.tryIncreaseDamage(DURABILITY_COST);
+        syncHeldItem(attacker, spear);
+    }
+
+    /**
+     * Writes the spear back to the hand slot so wear reaches the client.
+     *
+     * <p>Every path that spends durability must call this, including a jab that
+     * misses: a lunge costs its durability whether or not the jab lands, and
+     * without the write-back that cost would be silently lost.</p>
+     *
+     * @param attacker the player holding the spear
+     * @param spear    the spear to persist
+     */
+    private static void syncHeldItem(EntityPlayer attacker, ItemStack spear) {
         var inventory = attacker.getContainer(ContainerTypes.INVENTORY);
         if (inventory != null) {
             inventory.setItemStack(inventory.getHandSlot(), spear);
