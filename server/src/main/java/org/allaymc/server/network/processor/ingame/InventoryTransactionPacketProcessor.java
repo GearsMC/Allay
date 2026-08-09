@@ -10,6 +10,8 @@ import org.allaymc.api.entity.damage.DamageContainer;
 import org.allaymc.api.entity.interfaces.EntityPlayer;
 import org.allaymc.api.eventbus.event.player.*;
 import org.allaymc.api.item.ItemStack;
+import org.allaymc.api.item.interfaces.ItemSpearStack;
+import org.allaymc.server.item.SpearJab;
 import org.allaymc.api.player.Player;
 import org.allaymc.api.world.sound.AttackSound;
 import org.allaymc.server.network.NetworkHelper;
@@ -32,6 +34,14 @@ public class InventoryTransactionPacketProcessor extends PacketProcessor<Invento
     public static final int ITEM_USE_CLICK_BLOCK = 0;
     public static final int ITEM_USE_CLICK_AIR = 1;
     public static final int ITEM_USE_BREAK_BLOCK = 2;
+    /**
+     * The client reports a melee swing it wants the server to resolve. Sent for spears,
+     * whose reach and hitbox rules differ from an ordinary attack, so the client does not
+     * name a target and leaves hit detection to the server.
+     */
+    public static final int ITEM_USE_AS_ATTACK = 3;
+    /** The dedicated spear jab action. Same handling as {@link #ITEM_USE_AS_ATTACK}. */
+    public static final int ITEM_USE_SPEAR_JAB = 6;
 
     public static final int ITEM_USE_ON_ENTITY_INTERACT = 0;
     public static final int ITEM_USE_ON_ENTITY_ATTACK = 1;
@@ -70,6 +80,11 @@ public class InventoryTransactionPacketProcessor extends PacketProcessor<Invento
                 var blockFace = BlockFace.fromIndex(packet.getBlockFace());
                 var world = entity.getLocation().dimension();
                 switch (packet.getActionType()) {
+                    case ITEM_USE_AS_ATTACK, ITEM_USE_SPEAR_JAB -> {
+                        if (itemInHand instanceof ItemSpearStack) {
+                            SpearJab.performJab(entity, itemInHand);
+                        }
+                    }
                     case ITEM_USE_CLICK_BLOCK -> {
                         if (entity.isUsingItemInAir()) {
                             break;

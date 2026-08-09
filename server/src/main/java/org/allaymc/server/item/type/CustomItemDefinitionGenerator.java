@@ -61,7 +61,12 @@ public class CustomItemDefinitionGenerator implements ItemDefinitionGenerator {
      */
     protected final Integer cooldown;
 
-    protected final Map<String, NbtMap> customProperties;
+    /**
+     * Extra entries merged into {@code item_properties}. Properties are plain values —
+     * ints, floats, strings — not compounds, so this is deliberately not a map of NbtMap.
+     */
+    protected final Map<String, Object> customProperties;
+    /** Extra components merged into the definition, each a compound payload. */
     protected final Map<String, NbtMap> customComponents;
 
     @Override

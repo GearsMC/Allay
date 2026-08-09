@@ -181,6 +181,48 @@ public enum SimpleSound implements Sound {
     MACE_SMASH_HEAVY_GROUND,
     /// SHIELD_BLOCK is a sound played when a shield successfully blocks damage.
     SHIELD_BLOCK,
+    /// WOODEN_SPEAR_ATTACK_HIT is played when a wooden spear lands a hit.
+    WOODEN_SPEAR_ATTACK_HIT,
+    /// WOODEN_SPEAR_ATTACK_MISS is played when a wooden spear misses.
+    WOODEN_SPEAR_ATTACK_MISS,
+    /// WOODEN_SPEAR_USE is played when a wooden spear is raised.
+    WOODEN_SPEAR_USE,
+    /// STONE_SPEAR_ATTACK_HIT is played when a stone spear lands a hit.
+    STONE_SPEAR_ATTACK_HIT,
+    /// STONE_SPEAR_ATTACK_MISS is played when a stone spear misses.
+    STONE_SPEAR_ATTACK_MISS,
+    /// STONE_SPEAR_USE is played when a stone spear is raised.
+    STONE_SPEAR_USE,
+    /// COPPER_SPEAR_ATTACK_HIT is played when a copper spear lands a hit.
+    COPPER_SPEAR_ATTACK_HIT,
+    /// COPPER_SPEAR_ATTACK_MISS is played when a copper spear misses.
+    COPPER_SPEAR_ATTACK_MISS,
+    /// COPPER_SPEAR_USE is played when a copper spear is raised.
+    COPPER_SPEAR_USE,
+    /// IRON_SPEAR_ATTACK_HIT is played when a iron spear lands a hit.
+    IRON_SPEAR_ATTACK_HIT,
+    /// IRON_SPEAR_ATTACK_MISS is played when a iron spear misses.
+    IRON_SPEAR_ATTACK_MISS,
+    /// IRON_SPEAR_USE is played when a iron spear is raised.
+    IRON_SPEAR_USE,
+    /// GOLDEN_SPEAR_ATTACK_HIT is played when a golden spear lands a hit.
+    GOLDEN_SPEAR_ATTACK_HIT,
+    /// GOLDEN_SPEAR_ATTACK_MISS is played when a golden spear misses.
+    GOLDEN_SPEAR_ATTACK_MISS,
+    /// GOLDEN_SPEAR_USE is played when a golden spear is raised.
+    GOLDEN_SPEAR_USE,
+    /// DIAMOND_SPEAR_ATTACK_HIT is played when a diamond spear lands a hit.
+    DIAMOND_SPEAR_ATTACK_HIT,
+    /// DIAMOND_SPEAR_ATTACK_MISS is played when a diamond spear misses.
+    DIAMOND_SPEAR_ATTACK_MISS,
+    /// DIAMOND_SPEAR_USE is played when a diamond spear is raised.
+    DIAMOND_SPEAR_USE,
+    /// NETHERITE_SPEAR_ATTACK_HIT is played when a netherite spear lands a hit.
+    NETHERITE_SPEAR_ATTACK_HIT,
+    /// NETHERITE_SPEAR_ATTACK_MISS is played when a netherite spear misses.
+    NETHERITE_SPEAR_ATTACK_MISS,
+    /// NETHERITE_SPEAR_USE is played when a netherite spear is raised.
+    NETHERITE_SPEAR_USE,
     /// TRIDENT_THROW is a sound played when a trident is thrown.
     TRIDENT_THROW,
     /// TRIDENT_HIT is a sound played when a trident hits an entity.

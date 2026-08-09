@@ -149,6 +149,23 @@ public class CustomItemDefinition {
     private final Map<String, NbtMap> customComponents = Map.of();
 
     /**
+     * Extra client item properties sent verbatim inside {@code item_properties}.
+     * <p>
+     * Properties drive how the client treats the item before any behaviour runs. The most
+     * consequential is {@code use_duration}: an item with a positive value is "held to use",
+     * so holding the button aims it, while an item without one is "held to mine", so holding
+     * breaks blocks. A weapon that is meant to be charged therefore needs it declared here or
+     * it will dig instead.
+     * <p>
+     * Values are ints, floats, strings or compounds, matching what the client expects for the
+     * property. Anything set here is merged last and wins over the generated properties.
+     *
+     * @return the extra properties, empty when the item needs none
+     */
+    @Builder.Default
+    private final Map<String, Object> customProperties = Map.of();
+
+    /**
      * The texture short-name, falling back to the identifier when not set.
      *
      * @return the texture to use

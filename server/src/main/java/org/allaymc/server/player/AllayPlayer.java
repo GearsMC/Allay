@@ -1340,6 +1340,27 @@ public class AllayPlayer implements Player {
 
         switch (sound) {
             case SimpleSound.SHIELD_BLOCK -> packet.setSound(SoundEvent.SHIELD_BLOCK);
+            case SimpleSound.WOODEN_SPEAR_ATTACK_HIT -> packet.setSound(SoundEvent.WOODEN_SPEAR_ATTACK_HIT);
+            case SimpleSound.WOODEN_SPEAR_ATTACK_MISS -> packet.setSound(SoundEvent.WOODEN_SPEAR_ATTACK_MISS);
+            case SimpleSound.WOODEN_SPEAR_USE -> packet.setSound(SoundEvent.WOODEN_SPEAR_USE);
+            case SimpleSound.STONE_SPEAR_ATTACK_HIT -> packet.setSound(SoundEvent.STONE_SPEAR_ATTACK_HIT);
+            case SimpleSound.STONE_SPEAR_ATTACK_MISS -> packet.setSound(SoundEvent.STONE_SPEAR_ATTACK_MISS);
+            case SimpleSound.STONE_SPEAR_USE -> packet.setSound(SoundEvent.STONE_SPEAR_USE);
+            case SimpleSound.COPPER_SPEAR_ATTACK_HIT -> packet.setSound(SoundEvent.COPPER_SPEAR_ATTACK_HIT);
+            case SimpleSound.COPPER_SPEAR_ATTACK_MISS -> packet.setSound(SoundEvent.COPPER_SPEAR_ATTACK_MISS);
+            case SimpleSound.COPPER_SPEAR_USE -> packet.setSound(SoundEvent.COPPER_SPEAR_USE);
+            case SimpleSound.IRON_SPEAR_ATTACK_HIT -> packet.setSound(SoundEvent.IRON_SPEAR_ATTACK_HIT);
+            case SimpleSound.IRON_SPEAR_ATTACK_MISS -> packet.setSound(SoundEvent.IRON_SPEAR_ATTACK_MISS);
+            case SimpleSound.IRON_SPEAR_USE -> packet.setSound(SoundEvent.IRON_SPEAR_USE);
+            case SimpleSound.GOLDEN_SPEAR_ATTACK_HIT -> packet.setSound(SoundEvent.GOLDEN_SPEAR_ATTACK_HIT);
+            case SimpleSound.GOLDEN_SPEAR_ATTACK_MISS -> packet.setSound(SoundEvent.GOLDEN_SPEAR_ATTACK_MISS);
+            case SimpleSound.GOLDEN_SPEAR_USE -> packet.setSound(SoundEvent.GOLDEN_SPEAR_USE);
+            case SimpleSound.DIAMOND_SPEAR_ATTACK_HIT -> packet.setSound(SoundEvent.DIAMOND_SPEAR_ATTACK_HIT);
+            case SimpleSound.DIAMOND_SPEAR_ATTACK_MISS -> packet.setSound(SoundEvent.DIAMOND_SPEAR_ATTACK_MISS);
+            case SimpleSound.DIAMOND_SPEAR_USE -> packet.setSound(SoundEvent.DIAMOND_SPEAR_USE);
+            case SimpleSound.NETHERITE_SPEAR_ATTACK_HIT -> packet.setSound(SoundEvent.NETHERITE_SPEAR_ATTACK_HIT);
+            case SimpleSound.NETHERITE_SPEAR_ATTACK_MISS -> packet.setSound(SoundEvent.NETHERITE_SPEAR_ATTACK_MISS);
+            case SimpleSound.NETHERITE_SPEAR_USE -> packet.setSound(SoundEvent.NETHERITE_SPEAR_USE);
             case SimpleSound.FIREWORK_LAUNCH -> packet.setSound(SoundEvent.LAUNCH);
             case SimpleSound.FIREWORK_HUGE_BLAST -> packet.setSound(SoundEvent.LARGE_BLAST);
             case SimpleSound.FIREWORK_BLAST -> packet.setSound(SoundEvent.BLAST);

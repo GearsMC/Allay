@@ -1058,11 +1058,13 @@ public final class ItemTypeInitializer {
         ItemTypes.WOODEN_SPEAR = buildSpear(ItemId.WOODEN_SPEAR, ItemId.PLANKS);
     }
 
-    // TODO: implement spear
+    // Both spear attacks are resolved server-side; see SpearJab. Still missing: the
+    // Lunge enchantment, which should launch the player forward on use.
     private static ItemType<ItemSpearStack> buildSpear(ItemId itemId, ItemId repairItemId) {
         return AllayItemType
                 .builder(ItemSpearStackImpl.class)
                 .vanillaItem(itemId)
+                .addComponent(ItemToolComponentImpl::new, ItemToolComponentImpl.class)
                 .addComponent(() -> new ItemRepairableComponentImpl(repairItemId), ItemRepairableComponentImpl.class)
                 .build();
     }
