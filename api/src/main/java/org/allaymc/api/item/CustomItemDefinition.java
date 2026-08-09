@@ -5,9 +5,11 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import org.allaymc.api.item.data.ArmorTier;
 import org.allaymc.api.item.data.ItemTag;
+import org.cloudburstmc.nbt.NbtMap;
 import org.allaymc.api.item.data.ToolTier;
 import org.allaymc.api.message.MayContainTrKey;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -127,6 +129,24 @@ public class CustomItemDefinition {
      */
     @Builder.Default
     private final Set<ItemTag> extraItemTags = Set.of();
+
+    /**
+     * Extra client item components sent verbatim in the item definition.
+     * <p>
+     * The generated definition already covers what every custom item needs — icon, display
+     * name, durability, tags, armour and food. Bedrock also has families whose behaviour lives
+     * entirely on the client and is driven by components the server only declares, such as a
+     * spear's {@code minecraft:kinetic_weapon} and {@code minecraft:piercing_weapon}. Those
+     * cannot be derived from a behaviour alone because their tuning is per item, so they are
+     * passed through here.
+     * <p>
+     * Keys are component names ({@code minecraft:swing_duration}); values are their payloads.
+     * Anything set here is merged last and therefore wins over the generated components.
+     *
+     * @return the extra components, empty when the item needs none
+     */
+    @Builder.Default
+    private final Map<String, NbtMap> customComponents = Map.of();
 
     /**
      * The texture short-name, falling back to the identifier when not set.

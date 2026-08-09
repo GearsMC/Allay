@@ -91,6 +91,7 @@ public class AllayCustomItemFactory implements CustomItemFactory {
                         .texture(definition.resolvedTexture())
                         .displayName(definition.displayName())
                         .foil(definition.foil())
+                        .customComponents(definition.customComponents())
                         .build());
         addBehaviorComponents(builder, definition);
         return builder.build();
