@@ -16,6 +16,7 @@ import org.allaymc.server.item.impl.ItemHoeStackImpl;
 import org.allaymc.server.item.impl.ItemLeggingsStackImpl;
 import org.allaymc.server.item.impl.ItemPickaxeStackImpl;
 import org.allaymc.server.item.impl.ItemShovelStackImpl;
+import org.allaymc.server.item.impl.ItemSpearStackImpl;
 import org.allaymc.server.item.impl.ItemStackImpl;
 import org.allaymc.server.item.impl.ItemSwordStackImpl;
 import org.allaymc.server.item.component.ItemArmorBaseComponentImpl;
@@ -57,6 +58,7 @@ public class AllayCustomItemFactory implements CustomItemFactory {
         BEHAVIOR_CLASSES.put(CustomItemBehavior.SHOVEL, ItemShovelStackImpl.class);
         BEHAVIOR_CLASSES.put(CustomItemBehavior.HOE, ItemHoeStackImpl.class);
         BEHAVIOR_CLASSES.put(CustomItemBehavior.SWORD, ItemSwordStackImpl.class);
+        BEHAVIOR_CLASSES.put(CustomItemBehavior.SPEAR, ItemSpearStackImpl.class);
         BEHAVIOR_CLASSES.put(CustomItemBehavior.HELMET, ItemHelmetStackImpl.class);
         BEHAVIOR_CLASSES.put(CustomItemBehavior.CHESTPLATE, ItemChestplateStackImpl.class);
         BEHAVIOR_CLASSES.put(CustomItemBehavior.LEGGINGS, ItemLeggingsStackImpl.class);
@@ -71,7 +73,11 @@ public class AllayCustomItemFactory implements CustomItemFactory {
         var behavior = definition.behavior();
         var itemData = ItemData.builder()
                 .maxStackSize(definition.resolvedMaxStackSize())
-                .isDamageable(behavior.isDamageable() && definition.maxDamage() > 0)
+                // A declared max damage is what makes an item damageable, whatever its
+                // behaviour: a plain item can be a limited-use charm just as a tool can
+                // wear out. Simple items default to 0, so nothing changes for them
+                // unless the definition asks for durability explicitly.
+                .isDamageable(definition.maxDamage() > 0)
                 .maxDamage(definition.maxDamage())
                 .attackDamage(definition.attackDamage())
                 .armorValue(definition.armorValue())
@@ -118,6 +124,10 @@ public class AllayCustomItemFactory implements CustomItemFactory {
 
         if (behavior == CustomItemBehavior.SWORD) {
             builder.addComponent(ItemSwordToolComponentImpl::new, ItemSwordToolComponentImpl.class);
+        } else if (behavior == CustomItemBehavior.SPEAR) {
+            // Vanilla spears carry no tool component: ItemTypeInitializer.buildSpear
+            // only adds the repairable component, which is appended below.
+            builder.addComponent(ItemToolComponentImpl::new, ItemToolComponentImpl.class);
         } else if (behavior == CustomItemBehavior.HOE) {
             builder.addComponent(ItemHoeToolComponentImpl::new, ItemHoeToolComponentImpl.class);
         } else if (behavior.armorType() == null) {

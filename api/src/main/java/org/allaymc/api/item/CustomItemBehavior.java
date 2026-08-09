@@ -32,6 +32,8 @@ public enum CustomItemBehavior {
     HOE(Set.of(ItemTags.IS_HOE), null),
     /** A melee weapon. */
     SWORD(Set.of(ItemTags.IS_SWORD), null),
+    /** A thrown and melee polearm; behaves like the vanilla spear family. */
+    SPEAR(Set.of(ItemTags.IS_SPEAR), null),
     /** Worn on the head. */
     HELMET(Set.of(), ArmorType.HELMET),
     /** Worn on the chest. */
