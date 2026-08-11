@@ -8,6 +8,7 @@ import org.allaymc.api.command.selector.EntitySelectorAPI;
 import org.allaymc.api.command.tree.CommandNodeFactory;
 import org.allaymc.api.command.tree.CommandTree;
 import org.allaymc.api.container.FakeContainerFactory;
+import org.allaymc.api.block.CustomBlockFactory;
 import org.allaymc.api.item.CustomItemFactory;
 import org.allaymc.api.eventbus.EventBus;
 import org.allaymc.api.message.I18n;
@@ -175,6 +176,7 @@ public final class AllayAPI {
         requireImpl(NBTIO.class, NBTIO.API::set);
         requireImpl(FakeContainerFactory.class, FakeContainerFactory.FACTORY::set);
         requireImpl(CustomItemFactory.class, CustomItemFactory.FACTORY::set);
+        requireImpl(CustomBlockFactory.class, CustomBlockFactory.FACTORY::set);
     }
 
     /**
