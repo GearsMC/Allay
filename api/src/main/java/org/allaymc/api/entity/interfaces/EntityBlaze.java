@@ -1,7 +1,7 @@
 package org.allaymc.api.entity.interfaces;
 
-import org.allaymc.api.entity.Entity;
+import org.allaymc.api.entity.component.EntityHeadYawComponent;
 
-public interface EntityBlaze extends Entity {
+public interface EntityBlaze extends EntityIntelligent, EntityHeadYawComponent {
 
 }

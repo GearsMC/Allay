@@ -2,8 +2,10 @@ package org.allaymc.server.entity.type;
 
 import lombok.experimental.UtilityClass;
 import org.allaymc.api.block.type.BlockTypes;
+import org.allaymc.api.container.ContainerTypes;
 import org.allaymc.api.entity.ai.memory.MemoryTypes;
 import org.allaymc.api.entity.component.EntityBabyComponent;
+import org.allaymc.api.entity.component.EntityContainerHolderComponent;
 import org.allaymc.api.entity.component.EntityLivingComponent;
 import org.allaymc.api.entity.damage.DamageContainer;
 import org.allaymc.api.entity.damage.DamageType;
@@ -21,6 +23,7 @@ import org.allaymc.api.world.sound.SimpleSound;
 import org.allaymc.server.entity.ai.behavior.BehaviorImpl;
 import org.allaymc.server.entity.ai.behaviorgroup.BehaviorGroupImpl;
 import org.allaymc.server.entity.ai.controller.FluctuateController;
+import org.allaymc.server.entity.ai.controller.FlyController;
 import org.allaymc.server.entity.ai.controller.LookController;
 import org.allaymc.server.entity.ai.controller.WalkController;
 import org.allaymc.server.entity.ai.evaluator.BlockCheckEvaluator;
@@ -29,14 +32,18 @@ import org.allaymc.server.entity.ai.evaluator.PassByTimeEvaluator;
 import org.allaymc.server.entity.ai.evaluator.ProbabilityEvaluator;
 import org.allaymc.server.entity.ai.executor.*;
 import org.allaymc.server.entity.ai.route.finder.FlatAStarRouteFinder;
+import org.allaymc.server.entity.ai.route.finder.SpaceAStarRouteFinder;
+import org.allaymc.server.entity.ai.route.posevaluator.FlyingPosEvaluator;
 import org.allaymc.server.entity.ai.route.posevaluator.WalkingPosEvaluator;
 import org.allaymc.server.entity.ai.sensor.NearestFeedingPlayerSensor;
 import org.allaymc.server.entity.ai.sensor.NearestPlayerSensor;
 import org.allaymc.server.entity.component.*;
 import org.allaymc.server.entity.component.animal.*;
+import org.allaymc.server.entity.component.humanlike.EntityArmedBaseComponentImpl;
 import org.allaymc.server.entity.component.humanlike.EntityHumanLikeBaseComponentImpl;
 import org.allaymc.server.entity.component.humanlike.EntityHumanLikeContainerHolderComponentImpl;
 import org.allaymc.server.entity.component.humanlike.EntityHumanPhysicsComponentImpl;
+import org.allaymc.server.entity.component.humanlike.EntityPiglinBaseComponentImpl;
 import org.allaymc.server.entity.component.item.*;
 import org.allaymc.server.entity.component.player.EntityPlayerBaseComponentImpl;
 import org.allaymc.server.entity.component.player.EntityPlayerContainerHolderComponentImpl;
@@ -58,6 +65,54 @@ import static org.allaymc.server.entity.ai.evaluator.LogicHelper.any;
 @SuppressWarnings("unused")
 @UtilityClass
 public final class EntityTypeInitializer {
+
+    /**
+     * Chase speeds, expressed the same way as the zombie's {@code 0.1f} baseline. Wolves and
+     * endermites are noticeably quicker than a zombie, endermen and piglins slightly quicker.
+     */
+    private static final float WOLF_SPEED = 0.3f;
+    private static final float ENDERMITE_SPEED = 0.28f;
+    private static final float ENDERMAN_SPEED = 0.15f;
+    private static final float PIGLIN_SPEED = 0.13f;
+    private static final float BLAZE_SPEED = 0.14f;
+
+    /**
+     * Blaze fireball rhythm, taken from vanilla: it winds up for about a second, spits three
+     * fireballs a few ticks apart, then stays quiet for roughly five seconds. It also refuses to
+     * fight nose to nose — closer than {@link #BLAZE_MIN_RANGE} it drifts back out.
+     */
+    private static final double BLAZE_PREFERRED_RANGE = 12;
+    private static final double BLAZE_MIN_RANGE = 5;
+    private static final int BLAZE_CHARGE_TIME = 20;
+    private static final int BLAZE_COOLDOWN = 100;
+    private static final int BLAZE_BURST_SIZE = 3;
+
+    private static final float SKELETON_SPEED = 0.12f;
+    private static final double SKELETON_PREFERRED_RANGE = 10;
+    private static final double SKELETON_MIN_RANGE = 4;
+    private static final int SKELETON_COOLDOWN = 40;
+
+    private static final float PILLAGER_SPEED = 0.13f;
+    private static final double PILLAGER_PREFERRED_RANGE = 12;
+    private static final double PILLAGER_MIN_RANGE = 5;
+    private static final int PILLAGER_COOLDOWN = 60;
+
+    private static final float VINDICATOR_SPEED = 0.18f;
+
+    private static final float WITCH_SPEED = 0.11f;
+    private static final double WITCH_PREFERRED_RANGE = 8;
+    private static final double WITCH_MIN_RANGE = 3;
+    private static final int WITCH_COOLDOWN = 60;
+
+    /**
+     * Creeper timing. It only lights the fuse inside {@link #CREEPER_FUSE_RANGE} and needs
+     * {@link #CREEPER_FUSE_TIME} ticks to go off, which is the window a player has to run.
+     */
+    private static final float CREEPER_SPEED = 0.15f;
+    private static final double CREEPER_FUSE_RANGE = 3;
+    private static final int CREEPER_FUSE_TIME = 30;
+    private static final float CREEPER_EXPLOSION_SIZE = 3;
+
     public static void initFallingBlock() {
         EntityTypes.FALLING_BLOCK = AllayEntityType
                 .builder(EntityFallingBlockImpl.class)
@@ -210,7 +265,7 @@ public final class EntityTypeInitializer {
                                     .executor(new MeleeAttackExecutor(MemoryTypes.ATTACK_TARGET, 0.1f, 40, true, 30))
                                     .evaluator(all(
                                             new MemoryCheckNotEmptyEvaluator(MemoryTypes.ATTACK_TARGET),
-                                            entity -> isValidZombieTarget(entity, entity.getMemoryStorage().get(MemoryTypes.ATTACK_TARGET))
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.ATTACK_TARGET))
                                     ))
                                     .priority(3)
                                     .build())
@@ -218,7 +273,7 @@ public final class EntityTypeInitializer {
                                     .executor(new MeleeAttackExecutor(MemoryTypes.NEAREST_PLAYER, 0.1f, 40, 30))
                                     .evaluator(all(
                                             new MemoryCheckNotEmptyEvaluator(MemoryTypes.NEAREST_PLAYER),
-                                            entity -> isValidZombieTarget(entity, entity.getMemoryStorage().get(MemoryTypes.NEAREST_PLAYER))
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.NEAREST_PLAYER))
                                     ))
                                     .priority(2)
                                     .build())
@@ -236,6 +291,508 @@ public final class EntityTypeInitializer {
                     return new EntityAIComponentImpl(behaviorGroup);
                 }, EntityAIComponentImpl.class)
                 .build();
+    }
+
+    public static void initWolf() {
+        EntityTypes.WOLF = AllayEntityType
+                .builder(EntityWolfImpl.class)
+                .vanillaEntity(EntityId.WOLF)
+                .addComponent(EntityWolfBaseComponentImpl::new, EntityWolfBaseComponentImpl.class)
+                .addComponent(EntityWolfLivingComponentImpl::new, EntityWolfLivingComponentImpl.class)
+                .addComponent(EntityMobPhysicsComponentImpl::new, EntityMobPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> {
+                    var behaviorGroup = BehaviorGroupImpl.builder()
+                            .sensor(new NearestPlayerSensor(16, 0, 20))
+                            // Priority 3: chase whoever hurt us
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new MeleeAttackExecutor(MemoryTypes.ATTACK_TARGET, WOLF_SPEED, 32, true, 20))
+                                    .evaluator(all(
+                                            new MemoryCheckNotEmptyEvaluator(MemoryTypes.ATTACK_TARGET),
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.ATTACK_TARGET))
+                                    ))
+                                    .priority(3)
+                                    .build())
+                            // Priority 2: attack the nearest player on sight
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new MeleeAttackExecutor(MemoryTypes.NEAREST_PLAYER, WOLF_SPEED, 32, 20))
+                                    .evaluator(all(
+                                            new MemoryCheckNotEmptyEvaluator(MemoryTypes.NEAREST_PLAYER),
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.NEAREST_PLAYER))
+                                    ))
+                                    .priority(2)
+                                    .build())
+                            // Priority 1 (lowest): random wandering
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new FlatRandomRoamExecutor(0.12f, 12, 100, false, -1, true, 10))
+                                    .evaluator(entity -> true)
+                                    .priority(1)
+                                    .build())
+                            .controller(new WalkController())
+                            .controller(new FluctuateController())
+                            .controller(new LookController(true, true))
+                            .routeFinder(new FlatAStarRouteFinder(new WalkingPosEvaluator()))
+                            .build();
+
+                    return new EntityAIComponentImpl(behaviorGroup);
+                }, EntityAIComponentImpl.class)
+                .build();
+    }
+
+    public static void initEndermite() {
+        EntityTypes.ENDERMITE = AllayEntityType
+                .builder(EntityEndermiteImpl.class)
+                .vanillaEntity(EntityId.ENDERMITE)
+                .addComponent(EntityEndermiteBaseComponentImpl::new, EntityEndermiteBaseComponentImpl.class)
+                .addComponent(EntityEndermiteLivingComponentImpl::new, EntityEndermiteLivingComponentImpl.class)
+                .addComponent(EntityMobPhysicsComponentImpl::new, EntityMobPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> {
+                    var behaviorGroup = BehaviorGroupImpl.builder()
+                            .sensor(new NearestPlayerSensor(16, 0, 20))
+                            .behavior(BehaviorImpl.builder()
+                                    // Short attack range: the endermite is tiny and has to get right up to you.
+                                    .executor(new MeleeAttackExecutor(MemoryTypes.ATTACK_TARGET, ENDERMITE_SPEED, 32, true, 20, 1.2))
+                                    .evaluator(all(
+                                            new MemoryCheckNotEmptyEvaluator(MemoryTypes.ATTACK_TARGET),
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.ATTACK_TARGET))
+                                    ))
+                                    .priority(3)
+                                    .build())
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new MeleeAttackExecutor(MemoryTypes.NEAREST_PLAYER, ENDERMITE_SPEED, 32, 20, 1.2))
+                                    .evaluator(all(
+                                            new MemoryCheckNotEmptyEvaluator(MemoryTypes.NEAREST_PLAYER),
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.NEAREST_PLAYER))
+                                    ))
+                                    .priority(2)
+                                    .build())
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new FlatRandomRoamExecutor(0.1f, 8, 100, false, -1, true, 10))
+                                    .evaluator(entity -> true)
+                                    .priority(1)
+                                    .build())
+                            .controller(new WalkController())
+                            .controller(new FluctuateController())
+                            .controller(new LookController(true, true))
+                            .routeFinder(new FlatAStarRouteFinder(new WalkingPosEvaluator()))
+                            .build();
+
+                    return new EntityAIComponentImpl(behaviorGroup);
+                }, EntityAIComponentImpl.class)
+                .build();
+    }
+
+    public static void initEnderman() {
+        EntityTypes.ENDERMAN = AllayEntityType
+                .builder(EntityEndermanImpl.class)
+                .vanillaEntity(EntityId.ENDERMAN)
+                .addComponent(EntityEndermanBaseComponentImpl::new, EntityEndermanBaseComponentImpl.class)
+                .addComponent(EntityEndermanLivingComponentImpl::new, EntityEndermanLivingComponentImpl.class)
+                .addComponent(EntityMobPhysicsComponentImpl::new, EntityMobPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> {
+                    var behaviorGroup = BehaviorGroupImpl.builder()
+                            // Endermen notice you from much further away than other mobs.
+                            .sensor(new NearestPlayerSensor(64, 0, 20))
+                            // Priority 4 (highest): blink away shortly after being hurt.
+                            // The period matters as much as the probability here: the teleport
+                            // finishes in a single tick, so without it the enderman would be
+                            // re-evaluated every tick and vanish dozens of times per second.
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new TeleportAwayExecutor())
+                                    .evaluator(all(
+                                            new PassByTimeEvaluator(EntityIntelligent::getLastDamageTime, 0, 40),
+                                            new ProbabilityEvaluator(1, 4)
+                                    ))
+                                    .priority(4)
+                                    .period(10)
+                                    .build())
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new MeleeAttackExecutor(MemoryTypes.ATTACK_TARGET, ENDERMAN_SPEED, 64, true, 20))
+                                    .evaluator(all(
+                                            new MemoryCheckNotEmptyEvaluator(MemoryTypes.ATTACK_TARGET),
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.ATTACK_TARGET))
+                                    ))
+                                    .priority(3)
+                                    .build())
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new MeleeAttackExecutor(MemoryTypes.NEAREST_PLAYER, ENDERMAN_SPEED, 64, 20))
+                                    .evaluator(all(
+                                            new MemoryCheckNotEmptyEvaluator(MemoryTypes.NEAREST_PLAYER),
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.NEAREST_PLAYER))
+                                    ))
+                                    .priority(2)
+                                    .build())
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new FlatRandomRoamExecutor(0.1f, 12, 100, false, -1, true, 10))
+                                    .evaluator(entity -> true)
+                                    .priority(1)
+                                    .build())
+                            .controller(new WalkController())
+                            .controller(new FluctuateController())
+                            .controller(new LookController(true, true))
+                            .routeFinder(new FlatAStarRouteFinder(new WalkingPosEvaluator()))
+                            .build();
+
+                    return new EntityAIComponentImpl(behaviorGroup);
+                }, EntityAIComponentImpl.class)
+                .build();
+    }
+
+    public static void initPiglin() {
+        EntityTypes.PIGLIN = AllayEntityType
+                .builder(EntityPiglinImpl.class)
+                .vanillaEntity(EntityId.PIGLIN)
+                .addComponent(EntityPiglinBaseComponentImpl::new, EntityPiglinBaseComponentImpl.class)
+                .addComponent(EntityHumanLikeContainerHolderComponentImpl::new, EntityHumanLikeContainerHolderComponentImpl.class)
+                .addComponent(EntityPiglinLivingComponentImpl::new, EntityPiglinLivingComponentImpl.class)
+                .addComponent(EntityHumanPhysicsComponentImpl::new, EntityHumanPhysicsComponentImpl.class)
+                .addComponent(EntityBabyComponentImpl::new, EntityBabyComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> {
+                    var behaviorGroup = BehaviorGroupImpl.builder()
+                            .sensor(new NearestPlayerSensor(40, 0, 20))
+                            // Ranged and melee behaviors are both registered at the same priority and
+                            // picked apart by the held-weapon evaluator. The weapon is rolled during
+                            // NBT load, which happens after this component is built, and a player can
+                            // change it later — so the choice has to be made per tick, not here.
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new RangedAttackExecutor(MemoryTypes.ATTACK_TARGET, PIGLIN_SPEED, 40, 12, 5, true, 40))
+                                    .evaluator(all(
+                                            new MemoryCheckNotEmptyEvaluator(MemoryTypes.ATTACK_TARGET),
+                                            EntityTypeInitializer::holdsCrossbow,
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.ATTACK_TARGET))
+                                    ))
+                                    .priority(3)
+                                    .build())
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new MeleeAttackExecutor(MemoryTypes.ATTACK_TARGET, PIGLIN_SPEED, 40, true, 30))
+                                    .evaluator(all(
+                                            new MemoryCheckNotEmptyEvaluator(MemoryTypes.ATTACK_TARGET),
+                                            entity -> !holdsCrossbow(entity),
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.ATTACK_TARGET))
+                                    ))
+                                    .priority(3)
+                                    .build())
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new RangedAttackExecutor(MemoryTypes.NEAREST_PLAYER, PIGLIN_SPEED, 40, 12, 5, false, 40))
+                                    .evaluator(all(
+                                            new MemoryCheckNotEmptyEvaluator(MemoryTypes.NEAREST_PLAYER),
+                                            EntityTypeInitializer::holdsCrossbow,
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.NEAREST_PLAYER))
+                                    ))
+                                    .priority(2)
+                                    .build())
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new MeleeAttackExecutor(MemoryTypes.NEAREST_PLAYER, PIGLIN_SPEED, 40, 30))
+                                    .evaluator(all(
+                                            new MemoryCheckNotEmptyEvaluator(MemoryTypes.NEAREST_PLAYER),
+                                            entity -> !holdsCrossbow(entity),
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.NEAREST_PLAYER))
+                                    ))
+                                    .priority(2)
+                                    .build())
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new FlatRandomRoamExecutor(0.1f, 12, 100, false, -1, true, 10))
+                                    .evaluator(entity -> true)
+                                    .priority(1)
+                                    .build())
+                            .controller(new WalkController())
+                            .controller(new FluctuateController())
+                            .controller(new LookController(true, true))
+                            .routeFinder(new FlatAStarRouteFinder(new WalkingPosEvaluator()))
+                            .build();
+
+                    return new EntityAIComponentImpl(behaviorGroup);
+                }, EntityAIComponentImpl.class)
+                .build();
+    }
+
+    public static void initBlaze() {
+        EntityTypes.BLAZE = AllayEntityType
+                .builder(EntityBlazeImpl.class)
+                .vanillaEntity(EntityId.BLAZE)
+                .addComponent(EntityBlazeBaseComponentImpl::new, EntityBlazeBaseComponentImpl.class)
+                .addComponent(EntityBlazeLivingComponentImpl::new, EntityBlazeLivingComponentImpl.class)
+                .addComponent(EntityFlyingPhysicsComponentImpl::new, EntityFlyingPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> {
+                    var behaviorGroup = BehaviorGroupImpl.builder()
+                            .sensor(new NearestPlayerSensor(48, 0, 20))
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new FireballAttackExecutor(
+                                            MemoryTypes.ATTACK_TARGET, BLAZE_SPEED, 48,
+                                            BLAZE_PREFERRED_RANGE, BLAZE_MIN_RANGE, true,
+                                            BLAZE_CHARGE_TIME, BLAZE_COOLDOWN, BLAZE_BURST_SIZE))
+                                    .evaluator(all(
+                                            new MemoryCheckNotEmptyEvaluator(MemoryTypes.ATTACK_TARGET),
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.ATTACK_TARGET))
+                                    ))
+                                    .priority(3)
+                                    .build())
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new FireballAttackExecutor(
+                                            MemoryTypes.NEAREST_PLAYER, BLAZE_SPEED, 48,
+                                            BLAZE_PREFERRED_RANGE, BLAZE_MIN_RANGE, false,
+                                            BLAZE_CHARGE_TIME, BLAZE_COOLDOWN, BLAZE_BURST_SIZE))
+                                    .evaluator(all(
+                                            new MemoryCheckNotEmptyEvaluator(MemoryTypes.NEAREST_PLAYER),
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.NEAREST_PLAYER))
+                                    ))
+                                    .priority(2)
+                                    .build())
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new FlatRandomRoamExecutor(0.1f, 10, 100, false, -1, false, 10))
+                                    .evaluator(entity -> true)
+                                    .priority(1)
+                                    .build())
+                            // No WalkController: the blaze is airborne, so movement in all three
+                            // axes comes from FlyController instead. No FluctuateController either
+                            // — water hurts a blaze, it must never be nudged to bob in it.
+                            .controller(new FlyController())
+                            .controller(new LookController(true, true))
+                            .routeFinder(new SpaceAStarRouteFinder(new FlyingPosEvaluator()))
+                            .build();
+
+                    return new EntityAIComponentImpl(behaviorGroup);
+                }, EntityAIComponentImpl.class)
+                .build();
+    }
+
+    public static void initCreeper() {
+        EntityTypes.CREEPER = AllayEntityType
+                .builder(EntityCreeperImpl.class)
+                .vanillaEntity(EntityId.CREEPER)
+                .addComponent(EntityCreeperBaseComponentImpl::new, EntityCreeperBaseComponentImpl.class)
+                .addComponent(EntityCreeperLivingComponentImpl::new, EntityCreeperLivingComponentImpl.class)
+                .addComponent(EntityMobPhysicsComponentImpl::new, EntityMobPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> {
+                    var behaviorGroup = BehaviorGroupImpl.builder()
+                            .sensor(new NearestPlayerSensor(16, 0, 20))
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new SwellAndExplodeExecutor(
+                                            MemoryTypes.ATTACK_TARGET, CREEPER_SPEED, 32,
+                                            CREEPER_FUSE_RANGE, true, CREEPER_FUSE_TIME, CREEPER_EXPLOSION_SIZE))
+                                    .evaluator(all(
+                                            new MemoryCheckNotEmptyEvaluator(MemoryTypes.ATTACK_TARGET),
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.ATTACK_TARGET))
+                                    ))
+                                    .priority(3)
+                                    .build())
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new SwellAndExplodeExecutor(
+                                            MemoryTypes.NEAREST_PLAYER, CREEPER_SPEED, 32,
+                                            CREEPER_FUSE_RANGE, false, CREEPER_FUSE_TIME, CREEPER_EXPLOSION_SIZE))
+                                    .evaluator(all(
+                                            new MemoryCheckNotEmptyEvaluator(MemoryTypes.NEAREST_PLAYER),
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.NEAREST_PLAYER))
+                                    ))
+                                    .priority(2)
+                                    .build())
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new FlatRandomRoamExecutor(0.1f, 12, 100, false, -1, true, 10))
+                                    .evaluator(entity -> true)
+                                    .priority(1)
+                                    .build())
+                            .controller(new WalkController())
+                            .controller(new FluctuateController())
+                            .controller(new LookController(true, true))
+                            .routeFinder(new FlatAStarRouteFinder(new WalkingPosEvaluator()))
+                            .build();
+
+                    return new EntityAIComponentImpl(behaviorGroup);
+                }, EntityAIComponentImpl.class)
+                .build();
+    }
+
+    public static void initWitch() {
+        EntityTypes.WITCH = AllayEntityType
+                .builder(EntityWitchImpl.class)
+                .vanillaEntity(EntityId.WITCH)
+                .addComponent(EntityWitchBaseComponentImpl::new, EntityWitchBaseComponentImpl.class)
+                .addComponent(EntityWitchLivingComponentImpl::new, EntityWitchLivingComponentImpl.class)
+                .addComponent(EntityHumanPhysicsComponentImpl::new, EntityHumanPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> {
+                    var behaviorGroup = BehaviorGroupImpl.builder()
+                            .sensor(new NearestPlayerSensor(16, 0, 20))
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new PotionAttackExecutor(
+                                            MemoryTypes.ATTACK_TARGET, WITCH_SPEED, 32,
+                                            WITCH_PREFERRED_RANGE, WITCH_MIN_RANGE, true, WITCH_COOLDOWN))
+                                    .evaluator(all(
+                                            new MemoryCheckNotEmptyEvaluator(MemoryTypes.ATTACK_TARGET),
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.ATTACK_TARGET))
+                                    ))
+                                    .priority(3)
+                                    .build())
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new PotionAttackExecutor(
+                                            MemoryTypes.NEAREST_PLAYER, WITCH_SPEED, 32,
+                                            WITCH_PREFERRED_RANGE, WITCH_MIN_RANGE, false, WITCH_COOLDOWN))
+                                    .evaluator(all(
+                                            new MemoryCheckNotEmptyEvaluator(MemoryTypes.NEAREST_PLAYER),
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.NEAREST_PLAYER))
+                                    ))
+                                    .priority(2)
+                                    .build())
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new FlatRandomRoamExecutor(0.1f, 12, 100, false, -1, true, 10))
+                                    .evaluator(entity -> true)
+                                    .priority(1)
+                                    .build())
+                            .controller(new WalkController())
+                            .controller(new FluctuateController())
+                            .controller(new LookController(true, true))
+                            .routeFinder(new FlatAStarRouteFinder(new WalkingPosEvaluator()))
+                            .build();
+
+                    return new EntityAIComponentImpl(behaviorGroup);
+                }, EntityAIComponentImpl.class)
+                .build();
+    }
+
+    public static void initSkeleton() {
+        EntityTypes.SKELETON = AllayEntityType
+                .builder(EntitySkeletonImpl.class)
+                .vanillaEntity(EntityId.SKELETON)
+                .addComponent(initInfo -> new EntityArmedBaseComponentImpl(initInfo, () -> ItemTypes.BOW, 0.6, 1.99),
+                        EntityArmedBaseComponentImpl.class)
+                .addComponent(EntityHumanLikeContainerHolderComponentImpl::new, EntityHumanLikeContainerHolderComponentImpl.class)
+                .addComponent(EntitySkeletonLivingComponentImpl::new, EntitySkeletonLivingComponentImpl.class)
+                .addComponent(EntityUndeadComponentImpl::new, EntityUndeadComponentImpl.class)
+                .addComponent(EntityHumanPhysicsComponentImpl::new, EntityHumanPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> buildRangedBehaviorGroup(SKELETON_SPEED, 16, 40,
+                        SKELETON_PREFERRED_RANGE, SKELETON_MIN_RANGE, SKELETON_COOLDOWN),
+                        EntityAIComponentImpl.class)
+                .build();
+    }
+
+    public static void initPillager() {
+        EntityTypes.PILLAGER = AllayEntityType
+                .builder(EntityPillagerImpl.class)
+                .vanillaEntity(EntityId.PILLAGER)
+                .addComponent(initInfo -> new EntityArmedBaseComponentImpl(initInfo, () -> ItemTypes.CROSSBOW, 0.6, 1.95),
+                        EntityArmedBaseComponentImpl.class)
+                .addComponent(EntityHumanLikeContainerHolderComponentImpl::new, EntityHumanLikeContainerHolderComponentImpl.class)
+                .addComponent(EntityIllagerLivingComponentImpl::new, EntityIllagerLivingComponentImpl.class)
+                .addComponent(EntityHumanPhysicsComponentImpl::new, EntityHumanPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> buildRangedBehaviorGroup(PILLAGER_SPEED, 16, 40,
+                        PILLAGER_PREFERRED_RANGE, PILLAGER_MIN_RANGE, PILLAGER_COOLDOWN),
+                        EntityAIComponentImpl.class)
+                .build();
+    }
+
+    public static void initVindicator() {
+        EntityTypes.VINDICATOR = AllayEntityType
+                .builder(EntityVindicatorImpl.class)
+                .vanillaEntity(EntityId.VINDICATOR)
+                .addComponent(initInfo -> new EntityArmedBaseComponentImpl(initInfo, () -> ItemTypes.IRON_AXE, 0.6, 1.95),
+                        EntityArmedBaseComponentImpl.class)
+                .addComponent(EntityHumanLikeContainerHolderComponentImpl::new, EntityHumanLikeContainerHolderComponentImpl.class)
+                .addComponent(EntityIllagerLivingComponentImpl::new, EntityIllagerLivingComponentImpl.class)
+                .addComponent(EntityHumanPhysicsComponentImpl::new, EntityHumanPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> {
+                    var behaviorGroup = BehaviorGroupImpl.builder()
+                            .sensor(new NearestPlayerSensor(16, 0, 20))
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new MeleeAttackExecutor(MemoryTypes.ATTACK_TARGET, VINDICATOR_SPEED, 40, true, 20))
+                                    .evaluator(all(
+                                            new MemoryCheckNotEmptyEvaluator(MemoryTypes.ATTACK_TARGET),
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.ATTACK_TARGET))
+                                    ))
+                                    .priority(3)
+                                    .build())
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new MeleeAttackExecutor(MemoryTypes.NEAREST_PLAYER, VINDICATOR_SPEED, 40, 20))
+                                    .evaluator(all(
+                                            new MemoryCheckNotEmptyEvaluator(MemoryTypes.NEAREST_PLAYER),
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.NEAREST_PLAYER))
+                                    ))
+                                    .priority(2)
+                                    .build())
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new FlatRandomRoamExecutor(0.1f, 12, 100, false, -1, true, 10))
+                                    .evaluator(entity -> true)
+                                    .priority(1)
+                                    .build())
+                            .controller(new WalkController())
+                            .controller(new FluctuateController())
+                            .controller(new LookController(true, true))
+                            .routeFinder(new FlatAStarRouteFinder(new WalkingPosEvaluator()))
+                            .build();
+
+                    return new EntityAIComponentImpl(behaviorGroup);
+                }, EntityAIComponentImpl.class)
+                .build();
+    }
+
+    /**
+     * Builds the behavior group shared by the plain bow/crossbow users: shoot whoever hurt you,
+     * otherwise shoot whoever walks into sight, otherwise wander.
+     */
+    private static EntityAIComponentImpl buildRangedBehaviorGroup(float speed, double sightRange, double senseRange,
+                                                                  double preferredRange, double minRange, int coolDown) {
+        var behaviorGroup = BehaviorGroupImpl.builder()
+                .sensor(new NearestPlayerSensor(sightRange, 0, 20))
+                .behavior(BehaviorImpl.builder()
+                        .executor(new RangedAttackExecutor(MemoryTypes.ATTACK_TARGET, speed, senseRange,
+                                preferredRange, minRange, true, coolDown))
+                        .evaluator(all(
+                                new MemoryCheckNotEmptyEvaluator(MemoryTypes.ATTACK_TARGET),
+                                entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.ATTACK_TARGET))
+                        ))
+                        .priority(3)
+                        .build())
+                .behavior(BehaviorImpl.builder()
+                        .executor(new RangedAttackExecutor(MemoryTypes.NEAREST_PLAYER, speed, senseRange,
+                                preferredRange, minRange, false, coolDown))
+                        .evaluator(all(
+                                new MemoryCheckNotEmptyEvaluator(MemoryTypes.NEAREST_PLAYER),
+                                entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.NEAREST_PLAYER))
+                        ))
+                        .priority(2)
+                        .build())
+                .behavior(BehaviorImpl.builder()
+                        .executor(new FlatRandomRoamExecutor(0.1f, 12, 100, false, -1, true, 10))
+                        .evaluator(entity -> true)
+                        .priority(1)
+                        .build())
+                .controller(new WalkController())
+                .controller(new FluctuateController())
+                .controller(new LookController(true, true))
+                .routeFinder(new FlatAStarRouteFinder(new WalkingPosEvaluator()))
+                .build();
+
+        return new EntityAIComponentImpl(behaviorGroup);
+    }
+
+    /**
+     * Tells whether the entity is currently holding a crossbow, which is what separates a ranged
+     * piglin from a melee one.
+     */
+    private static boolean holdsCrossbow(EntityIntelligent entity) {
+        if (!(entity instanceof EntityContainerHolderComponent containerHolder)) {
+            return false;
+        }
+
+        var handContainer = containerHolder.getContainer(ContainerTypes.ENTITY_HAND);
+        return handContainer != null && handContainer.getItemInHand().getItemType() == ItemTypes.CROSSBOW;
     }
 
     public static void initXBOrb() {
@@ -912,7 +1469,12 @@ public final class EntityTypeInitializer {
                 .build();
     }
 
-    private static boolean isValidZombieTarget(EntityIntelligent entity, long targetId) {
+    /**
+     * Tells whether a remembered target is still worth attacking: it has to be alive, be something
+     * that can take damage, not be the attacker itself, and — for players — not be in creative or
+     * spectator mode.
+     */
+    private static boolean isValidHostileTarget(EntityIntelligent entity, long targetId) {
         var target = entity.getDimension().getEntityManager().getEntity(targetId);
         if (!(target instanceof EntityLivingComponent) || target == entity || !target.isAlive()) {
             return false;

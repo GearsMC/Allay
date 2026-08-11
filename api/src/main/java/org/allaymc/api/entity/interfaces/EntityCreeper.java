@@ -1,7 +1,8 @@
 package org.allaymc.api.entity.interfaces;
 
-import org.allaymc.api.entity.Entity;
+import org.allaymc.api.entity.component.EntityCreeperBaseComponent;
+import org.allaymc.api.entity.component.EntityHeadYawComponent;
 
-public interface EntityCreeper extends Entity {
+public interface EntityCreeper extends EntityIntelligent, EntityCreeperBaseComponent, EntityHeadYawComponent {
 
 }

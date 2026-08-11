@@ -36,6 +36,7 @@ import org.allaymc.api.entity.Entity;
 import org.allaymc.api.entity.action.*;
 import org.allaymc.api.entity.component.*;
 import org.allaymc.api.entity.data.EntityAnimation;
+import org.allaymc.api.entity.data.WeaponStance;
 import org.allaymc.api.entity.effect.EffectInstance;
 import org.allaymc.api.entity.interfaces.*;
 import org.allaymc.api.entity.type.EntityTypes;
@@ -98,6 +99,7 @@ import org.allaymc.server.container.impl.FakeContainerImpl;
 import org.allaymc.server.container.impl.UnopenedContainerId;
 import org.allaymc.server.container.processor.ContainerActionProcessor;
 import org.allaymc.server.ddui.AllayDDUIScreenSession;
+import org.allaymc.server.entity.component.EntityAngerableBaseComponentImpl;
 import org.allaymc.server.entity.component.player.EntityPlayerBaseComponentImpl;
 import org.allaymc.server.entity.impl.EntityPlayerImpl;
 import org.allaymc.server.eventbus.event.network.PacketReceiveEvent;
@@ -698,6 +700,29 @@ public class AllayPlayer implements Player {
      * the type of the entity, this method updates the metadata to reflect the entity's specific state,
      * attributes, and flags.
      */
+    /**
+     * Writes the flags that drive weapon animations on armed mobs.
+     *
+     * <p>Holding an item is not enough for the client. An illager keeps its weapon lowered until
+     * {@link EntityFlag#ANGRY} is set — which is why a vindicator looks empty-handed without it —
+     * and bows and crossbows only play their draw animation while the charging flags are on.</p>
+     */
+    protected void addWeaponStanceMetadata(EntityWeaponStanceComponent armed, EntityDataMap map) {
+        map.setFlag(EntityFlag.ANGRY, armed.isAggressive());
+
+        var stance = armed.getWeaponStance();
+        if (stance == WeaponStance.IDLE) {
+            return;
+        }
+
+        // Aiming pose: body squared up on the target with the weapon raised.
+        map.setFlag(EntityFlag.USING_ITEM, true);
+        map.setFlag(EntityFlag.FACING_TARGET_TO_RANGE_ATTACK, true);
+        // CHARGING plays the pull animation, CHARGED holds the fully drawn pose.
+        map.setFlag(EntityFlag.CHARGING, stance == WeaponStance.CHARGING);
+        map.setFlag(EntityFlag.CHARGED, stance == WeaponStance.READY);
+    }
+
     protected void addTypeSpecificMetadata(Entity entity, EntityDataMap map) {
         switch (entity) {
             case EntityTnt tnt -> {
@@ -727,6 +752,26 @@ public class AllayPlayer implements Player {
             case EntityArrow arrow -> {
                 map.setFlag(EntityFlag.CRITICAL, arrow.isCritical());
             }
+            // Wolves and endermen have a distinct hostile look (bared teeth, open mouth) that the
+            // client only shows while the ANGRY flag is set.
+            case EntityWolf wolf -> {
+                map.setFlag(EntityFlag.ANGRY, EntityAngerableBaseComponentImpl.isHunting(wolf));
+            }
+            case EntityEnderman enderman -> {
+                map.setFlag(EntityFlag.ANGRY, EntityAngerableBaseComponentImpl.isHunting(enderman));
+            }
+            // The blaze's flames are part of its own model, so ON_FIRE is deliberately left alone —
+            // setting it would stack a second burning overlay on top. CHARGED is the flare it puts
+            // on once it has locked on and is winding up a fireball burst.
+            case EntityBlaze blaze -> {
+                map.setFlag(EntityFlag.FIRE_IMMUNE, true);
+                map.setFlag(EntityFlag.CHARGED, EntityAngerableBaseComponentImpl.isHunting(blaze));
+            }
+            // IGNITED is what makes the creeper flash white and swell up before it goes off.
+            case EntityCreeper creeper -> {
+                map.setFlag(EntityFlag.IGNITED, creeper.isSwelling());
+            }
+            case EntityWeaponStanceComponent armed -> addWeaponStanceMetadata(armed, map);
             case EntityThrownTrident trident -> {
                 map.setFlag(EntityFlag.RETURN_TRIDENT, trident.isReturning());
                 if (trident.isReturning()) {
