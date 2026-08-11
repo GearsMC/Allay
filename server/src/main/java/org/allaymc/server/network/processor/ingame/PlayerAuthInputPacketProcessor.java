@@ -6,11 +6,9 @@ import org.allaymc.api.block.action.SimpleBlockAction;
 import org.allaymc.api.block.action.StartBreakAction;
 import org.allaymc.api.block.data.BlockFace;
 import org.allaymc.api.block.dto.Block;
-import org.allaymc.api.block.dto.PlayerInteractInfo;
 import org.allaymc.api.block.type.BlockState;
 import org.allaymc.api.block.type.BlockTypes;
 import org.allaymc.api.eventbus.event.block.BlockBreakEvent;
-import org.allaymc.api.eventbus.event.player.PlayerInteractBlockEvent;
 import org.allaymc.api.eventbus.event.server.PlayerControlModeUpdateEvent;
 import org.allaymc.api.eventbus.event.player.PlayerJumpEvent;
 import org.allaymc.api.eventbus.event.player.PlayerPunchAirEvent;
@@ -157,19 +155,6 @@ public class PlayerAuthInputPacketProcessor extends PacketProcessor<PlayerAuthIn
 
         if (this.breakingPosX == x && this.breakingPosY == y && this.breakingPosZ == z) {
             log.debug("Player {} tried to start breaking the same block twice", player.getOriginName());
-            return;
-        }
-
-        // Left clicking a block is the only signal plugins get for "the player hit this
-        // block"; without firing it here PlayerInteractBlockEvent.Action.LEFT_CLICK would
-        // be declared but never emitted. Cancelling it also cancels the break, which is
-        // what a tool that repurposes left click needs.
-        var clickedFace = BlockFace.fromIndex(blockFaceId);
-        var leftClickInfo = new PlayerInteractInfo(
-                entity, new Vector3i(x, y, z), new org.joml.Vector3f(),
-                clickedFace == null ? BlockFace.DOWN : clickedFace);
-        if (!new PlayerInteractBlockEvent(
-                entity, leftClickInfo, PlayerInteractBlockEvent.Action.LEFT_CLICK).call()) {
             return;
         }
 
