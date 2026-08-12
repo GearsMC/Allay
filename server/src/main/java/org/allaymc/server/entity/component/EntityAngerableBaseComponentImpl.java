@@ -9,12 +9,13 @@ import org.allaymc.server.component.annotation.Dependency;
 import org.allaymc.server.entity.component.event.CEntityTickEvent;
 
 /**
- * Base component for mobs whose client-side model changes while they are hunting something.
+ * Bir seyin pesindeyken istemci tarafindaki gorunumu degisen moblar icin temel bilesen.
  *
- * <p>The angry look is driven by an entity flag, and flags only reach the client when entity state
- * is broadcast. Nothing broadcasts on its own when a target is acquired or lost, so this component
- * watches the target memory and pushes an update on the tick it flips — checking a memory slot
- * every tick is cheap, re-sending metadata every tick would not be.</p>
+ * <p>Ofkeli gorunumu bir varlik bayragi surukluyor ve bayraklar istemciye ancak varlik durumu
+ * yayinlandiginda ulasiyor. Hedef bulundugunda ya da kaybedildiginde kendiliginden bir yayin
+ * yapan hicbir sey yok; bu yuzden bu bilesen hedef hafizasini izleyip degistigi tick'te
+ * guncellemeyi kendisi gonderiyor — her tick bir hafiza gozu okumak ucuz, her tick metadata
+ * yeniden gondermek degil.</p>
  */
 public abstract class EntityAngerableBaseComponentImpl extends EntityBaseComponentImpl {
 
@@ -28,12 +29,12 @@ public abstract class EntityAngerableBaseComponentImpl extends EntityBaseCompone
     }
 
     /**
-     * Tells whether a mob is currently after something — either it was provoked, or a player walked
-     * into its sight range. Shared with the metadata writer so the flag on the wire and the flag
-     * that triggers the broadcast can never disagree.
+     * Bir mobun su an bir seyin pesinde olup olmadigini soyler — ya tahrik edilmistir, ya da
+     * gorus alanina bir oyuncu girmistir. Metadata yazan tarafla paylasilir ki tel uzerindeki
+     * bayrak ile yayini tetikleyen bayrak asla birbirinden ayrilmasin.
      *
-     * @param entity the mob to inspect.
-     * @return whether the mob should be shown in its angry pose.
+     * @param entity incelenecek mob
+     * @return mobun ofkeli pozunda gosterilip gosterilmeyecegi
      */
     public static boolean isHunting(EntityIntelligent entity) {
         var memory = entity.getMemoryStorage();
@@ -41,7 +42,7 @@ public abstract class EntityAngerableBaseComponentImpl extends EntityBaseCompone
     }
 
     /**
-     * @return whether the mob currently has something it wants to attack.
+     * @return mobun su an saldirmak istedigi bir sey olup olmadigi
      */
     public boolean isAngry() {
         return angry;

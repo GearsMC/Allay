@@ -11,17 +11,17 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Living component implementation for blazes.
+ * Blaze icin canli varlik bileseni.
  *
- * <p>Two vanilla traits live here rather than in the behavior group, because they hold whether or
- * not the blaze is doing anything: it cannot be burned, and water hurts it.</p>
+ * <p>Iki vanilla ozelligi davranis grubunda degil burada duruyor, cunku blaze bir sey yapiyor
+ * olsa da olmasa da gecerliler: yakilamaz, ve su ona zarar verir.</p>
  */
 public class EntityBlazeLivingComponentImpl extends EntityHostileLivingComponentImpl {
 
-    /** Damage per water tick, matching vanilla. */
+    /** Vanilla ile ayni: su icinde her seferinde verilen hasar. */
     protected static final float WATER_DAMAGE = 1;
 
-    /** Ticks between two water damage applications. */
+    /** Iki su hasari arasindaki tick sayisi. */
     protected static final int WATER_DAMAGE_INTERVAL = 10;
 
     protected int waterDamageCooldown;
@@ -37,7 +37,7 @@ public class EntityBlazeLivingComponentImpl extends EntityHostileLivingComponent
 
     @Override
     public boolean hasFallDamage() {
-        // Blazes fly; they never land hard enough to be hurt by it.
+        // Blaze ucar; hicbir zaman canini yakacak kadar sert inmez.
         return false;
     }
 
@@ -54,8 +54,8 @@ public class EntityBlazeLivingComponentImpl extends EntityHostileLivingComponent
         }
 
         waterDamageCooldown = WATER_DAMAGE_INTERVAL;
-        // Ignore the invulnerability window: vanilla water damage ticks steadily rather than
-        // being swallowed by the half-second grace period after each hit.
+        // Dokunulmazlik penceresi yok sayiliyor: vanilla'da su hasari duzenli araliklarla isler,
+        // her vurustan sonraki yarim saniyelik koruma tarafindan yutulmaz.
         attack(DamageContainer.magicEffect(WATER_DAMAGE), true);
     }
 

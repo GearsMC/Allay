@@ -15,14 +15,14 @@ import org.allaymc.api.world.sound.SimpleSound;
 import org.joml.Vector3d;
 
 /**
- * Creeper attack: walk up to the target, hiss, swell, and detonate.
+ * Creeper saldirisi: hedefe yurur, tislar, siser ve patlar.
  *
- * <p>The fuse only burns while the target stays close. Step out of {@code fuseRange} and the
- * creeper calms down and resumes the chase, exactly like vanilla — that back-off is what makes a
- * creeper survivable at all.</p>
+ * <p>Fitil yalnizca hedef yakinda kaldigi surece yanar. {@code fuseRange} disina cikildiginda
+ * creeper sakinlesir ve kovalamaya geri doner; vanilla'daki gibi. Creeper'i hayatta kalinabilir
+ * kilan sey tam olarak bu geri cekilmedir.</p>
  *
- * <p>The explosion is created with block destruction switched off. It still hurts and throws
- * entities; it just leaves the terrain intact, which is what a skyblock island needs.</p>
+ * <p>Patlama, blok tahribati kapali olarak olusturulur. Varliklara hala hasar verir ve onlari
+ * savurur; sadece arazi bozulmaz — bir skyblock adasinin ihtiyaci olan da budur.</p>
  */
 public class SwellAndExplodeExecutor implements BehaviorExecutor {
 
@@ -38,15 +38,15 @@ public class SwellAndExplodeExecutor implements BehaviorExecutor {
     protected Vector3d lastTargetPos;
 
     /**
-     * Creates a creeper-style explode executor.
+     * Creeper tarzi bir patlama executor'u olusturur.
      *
-     * @param targetIdMemory the memory entry that stores the target entity runtime id.
-     * @param speed the movement speed while chasing the target.
-     * @param maxSenseRange the maximum target tracking range in blocks.
-     * @param fuseRange the distance within which the fuse burns, in blocks.
-     * @param clearTargetAfterLose whether to clear the target memory when the behavior stops.
-     * @param fuseTime how many ticks the fuse burns before detonating.
-     * @param explosionSize the explosion radius.
+     * @param targetIdMemory hedef varligin calisma zamani kimligini tutan hafiza gozu
+     * @param speed hedefi kovalarken kullanilan hareket hizi
+     * @param maxSenseRange hedefin takip edilebilecegi en fazla mesafe (blok)
+     * @param fuseRange fitilin yandigi mesafe (blok)
+     * @param clearTargetAfterLose davranis durdugunda hedef hafizasinin temizlenip temizlenmeyecegi
+     * @param fuseTime patlamadan once fitilin kac tick yanacagi
+     * @param explosionSize patlama yaricapi
      */
     public SwellAndExplodeExecutor(MemoryType<Long> targetIdMemory, float speed, double maxSenseRange,
                                    double fuseRange, boolean clearTargetAfterLose,
@@ -98,7 +98,7 @@ public class SwellAndExplodeExecutor implements BehaviorExecutor {
         ));
 
         if (distanceSquared > fuseRangeSquared) {
-            // Target got away: stop swelling and go back to chasing.
+            // Hedef uzaklasti: sismeyi birak ve kovalamaya geri don.
             fuseTick = 0;
             setSwelling(entity, false);
 
@@ -111,7 +111,7 @@ public class SwellAndExplodeExecutor implements BehaviorExecutor {
             return true;
         }
 
-        // Close enough — stand still and burn the fuse down.
+        // Yeterince yakin: yerinde dur ve fitili yak.
         EntityControlHelper.removeRouteTarget(entity);
         lastTargetPos = null;
 
@@ -150,7 +150,7 @@ public class SwellAndExplodeExecutor implements BehaviorExecutor {
 
     protected void explode(EntityIntelligent entity) {
         var explosion = new Explosion(explosionSize);
-        // The whole point: hurt whoever is standing there, leave the island standing.
+        // Butun mesele bu: orada duranin canini yak, adayi ayakta birak.
         explosion.setDestroyBlocks(false);
         explosion.setSpawnFire(false);
         explosion.setEntity(entity);
@@ -168,8 +168,8 @@ public class SwellAndExplodeExecutor implements BehaviorExecutor {
     }
 
     /**
-     * Mirrors the fuse onto the entity so the client can play the swelling animation. The component
-     * only broadcasts when the value actually flips, so calling this every tick is free.
+     * Fitili varliga yansitir ki istemci sisme animasyonunu oynatabilsin. Bilesen yalnizca deger
+     * gercekten degistiginde yayin yaptigi icin bunu her tick cagirmak bedavadir.
      */
     protected void setSwelling(EntityIntelligent entity, boolean swelling) {
         if (entity instanceof EntityCreeperBaseComponent creeper) {

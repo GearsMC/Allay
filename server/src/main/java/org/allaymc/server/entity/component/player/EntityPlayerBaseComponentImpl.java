@@ -679,6 +679,12 @@ public class EntityPlayerBaseComponentImpl extends EntityBaseComponentImpl imple
 
     @Override
     public void spawnTo(WorldViewer viewer) {
+        // Bu oyuncuyu zaten goren bir izleyiciye hicbir sey yeniden gonderilmemeli; tekrarlanan bir
+        // dogurmanin neden tamamen etkisiz kalmasi gerektigi icin temel uygulamaya bakin.
+        if (getViewers().contains(viewer)) {
+            return;
+        }
+
         if (this.controller != viewer && shouldBeVisibleTo(viewer)) {
             super.spawnTo(viewer);
             viewer.viewEntityArmors(thisPlayer);

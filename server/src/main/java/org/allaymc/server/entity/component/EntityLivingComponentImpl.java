@@ -369,8 +369,12 @@ public class EntityLivingComponentImpl implements EntityLivingComponent {
                 }
             }
 
-            if (attacker instanceof EntityPhysicsComponent component) {
-                damage.setCritical(component.canCriticalAttack());
+            // Kritik vurus bir oyuncu mekanigidir. Dusen her varlik canCriticalAttack() kosulunu
+            // sagliyor ve yurume kontrolcusu moblari bloklarin ustunden ziplattigi icin moblar
+            // surekli havada oluyor; bu kontrol olmadan vindicator sadece yolda bir basamak
+            // atladigi icin kritik parcaciklariyla 1.5 kat hasar vuruyor.
+            if (attacker instanceof EntityPlayer player) {
+                damage.setCritical(player.canCriticalAttack());
             }
         }
 

@@ -1,10 +1,10 @@
 package org.allaymc.server.entity.component;
 
 /**
- * Physics component for walking mobs that are neither human-like nor breedable animals.
+ * Ne insansi ne de ureyebilen hayvan olan, yuruyen moblar icin fizik bileseni.
  *
- * <p>The only thing it changes is the step height: the default is {@code 0.0}, which would leave a
- * pathfinding mob stuck against the first slab or single block in its way.</p>
+ * <p>Tek degistirdigi sey adim yuksekligi: varsayilan {@code 0.0}, ve bu deger yol bulan bir
+ * mobu onune cikan ilk yarim blokta ya da tek bloklik basamakta takili birakir.</p>
  */
 public class EntityMobPhysicsComponentImpl extends EntityPhysicsComponentImpl {
 

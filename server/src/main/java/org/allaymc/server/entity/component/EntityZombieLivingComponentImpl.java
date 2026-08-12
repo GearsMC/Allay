@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Living component implementation for zombies.
+ * Zombi icin canli varlik bileseni.
  */
 public class EntityZombieLivingComponentImpl extends EntityHostileLivingComponentImpl {
 

@@ -10,13 +10,14 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Living component implementation for witches.
+ * Cadi icin canli varlik bileseni.
  */
 public class EntityWitchLivingComponentImpl extends EntityHostileLivingComponentImpl {
 
     /**
-     * Fraction of magic damage a witch actually takes. Vanilla witches shrug off 85% of it, which
-     * is why throwing a harming potion back at one barely scratches it.
+     * Cadinin buyu hasarindan gercekten aldigi pay. Vanilla cadilari bu hasarin %85'ini
+     * savusturur; kendi zarar iksirini ona geri atmanin neredeyse hicbir ise yaramamasinin
+     * sebebi budur.
      */
     protected static final float MAGIC_DAMAGE_MULTIPLIER = 0.15f;
 
@@ -25,9 +26,8 @@ public class EntityWitchLivingComponentImpl extends EntityHostileLivingComponent
     }
 
     /**
-     * Applies the witch's magic resistance last, after armor and effects have had their say. This
-     * is the point where the engine has finished computing the damage and has not yet subtracted
-     * it from health.
+     * Cadinin buyu direncini en sona, zirh ve efektler payini aldiktan sonra uygular. Motorun
+     * hasari hesaplamayi bitirdigi ama henuz candan dusmedigi an burasidir.
      */
     @Override
     protected void applyVictim(DamageContainer damage) {
@@ -42,7 +42,7 @@ public class EntityWitchLivingComponentImpl extends EntityHostileLivingComponent
     public List<ItemStack> getDrops(int lootingLevel) {
         var drops = new ArrayList<ItemStack>();
         var rand = ThreadLocalRandom.current();
-        // Vanilla rolls a handful of stacks and re-picks the item type for each one.
+        // Vanilla birkac yigin atar ve her biri icin esya turunu yeniden secer.
         int rolls = rand.nextInt(4) + (lootingLevel > 0 ? rand.nextInt(lootingLevel + 1) : 0);
         for (int i = 0; i < rolls; i++) {
             var itemType = switch (rand.nextInt(6)) {

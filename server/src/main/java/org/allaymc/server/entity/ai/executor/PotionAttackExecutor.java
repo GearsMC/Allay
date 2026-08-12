@@ -19,32 +19,32 @@ import org.joml.Vector3d;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Witch attack: lob splash potions at the target.
+ * Cadi saldirisi: hedefe atilabilir iksir firlatir.
  *
- * <p>Which potion gets thrown follows vanilla's ladder rather than a coin flip, because that is
- * what makes a witch feel deliberate: it slows down anyone keeping their distance, poisons healthy
- * targets, weakens whoever is in melee range, and falls back on straight damage otherwise. It never
- * throws the same debuff twice — a potion that would only refresh an effect the target already has
- * is skipped in favour of the next option down.</p>
+ * <p>Hangi iksirin atilacagi yazi tura degil vanilla'nin siralamasini izler, cunku cadiyi bilincli
+ * hissettiren sey budur: mesafesini koruyani yavaslatir, sagligi yerinde hedefi zehirler, yakin
+ * dovuse gireni gucsuzlestirir, geri kalan durumlarda duz hasara doner. Ayni etkiyi iki kez
+ * atmaz; hedefte zaten var olan bir etkiyi yalnizca tazeleyecek iksir atlanip bir alt secenege
+ * gecilir.</p>
  *
- * <p>Splash potions are thrown in an arc, so the aim is lifted above the target by an amount that
- * grows with distance; throwing flat would drop every potion short.</p>
+ * <p>Atilabilir iksirler yay cizerek gider, bu yuzden nisan hedefin uzerine mesafeyle birlikte
+ * buyuyen bir miktar kaydirilir; duz atmak her iksiri hedefin onune dusururdu.</p>
  */
 public class PotionAttackExecutor implements BehaviorExecutor {
 
-    /** Launch speed of a thrown potion. */
+    /** Firlatilan iksirin cikis hizi. */
     protected static final float POTION_SPEED = 0.5f;
 
-    /** Extra upward aim per block of horizontal distance, to compensate for the arc. */
+    /** Yayi telafi etmek icin her yatay blok basina eklenen yukari nisan payi. */
     protected static final double ARC_LIFT_PER_BLOCK = 0.22;
 
-    /** Below this health the target is considered hurt enough that poison is a waste. */
+    /** Bu canin altinda hedef zehir harcamaya degmeyecek kadar yarali sayilir. */
     protected static final float POISON_HEALTH_THRESHOLD = 8;
 
-    /** Distance beyond which the witch prefers to slow the target down. */
+    /** Otesinde cadinin hedefi yavaslatmayi tercih ettigi mesafe. */
     protected static final double SLOWNESS_RANGE = 8;
 
-    /** Distance within which the witch prefers to weaken the target. */
+    /** Icinde cadinin hedefi gucsuzlestirmeyi tercih ettigi mesafe. */
     protected static final double WEAKNESS_RANGE = 3;
 
     protected final MemoryType<Long> targetIdMemory;
@@ -59,15 +59,15 @@ public class PotionAttackExecutor implements BehaviorExecutor {
     protected Vector3d lastMoveTarget;
 
     /**
-     * Creates a potion attack executor.
+     * Bir iksir saldiri executor'u olusturur.
      *
-     * @param targetIdMemory the memory entry that stores the target entity runtime id.
-     * @param speed the movement speed while repositioning.
-     * @param maxSenseRange the maximum target tracking range in blocks.
-     * @param preferredRange the distance the witch tries to throw from, in blocks.
-     * @param minRange the distance below which the witch backs off, in blocks.
-     * @param clearTargetAfterLose whether to clear the target memory when the behavior stops.
-     * @param coolDown ticks between two throws.
+     * @param targetIdMemory hedef varligin calisma zamani kimligini tutan hafiza gozu
+     * @param speed konum degistirirken kullanilan hareket hizi
+     * @param maxSenseRange hedefin takip edilebilecegi en fazla mesafe (blok)
+     * @param preferredRange cadinin atmaya calistigi mesafe (blok)
+     * @param minRange altina inilince cadinin geri cekildigi mesafe (blok)
+     * @param clearTargetAfterLose davranis durdugunda hedef hafizasinin temizlenip temizlenmeyecegi
+     * @param coolDown iki atis arasindaki bekleme (tick)
      */
     public PotionAttackExecutor(MemoryType<Long> targetIdMemory, float speed, double maxSenseRange,
                                 double preferredRange, double minRange,
@@ -150,7 +150,7 @@ public class PotionAttackExecutor implements BehaviorExecutor {
     }
 
     /**
-     * Picks the potion vanilla would pick for this target, skipping any debuff already on it.
+     * Bu hedef icin vanilla'nin sececegi iksiri secer; hedefte zaten olan bir etkiyi atlar.
      */
     protected PotionType choosePotion(EntityLivingComponent target, double distance) {
         if (distance > SLOWNESS_RANGE && !target.hasEffect(EffectTypes.SLOWNESS)) {
@@ -207,7 +207,7 @@ public class PotionAttackExecutor implements BehaviorExecutor {
         double dx = targetLoc.x() - throwPos.x();
         double dz = targetLoc.z() - throwPos.z();
         double horizontalDistance = Math.sqrt(dx * dx + dz * dz);
-        // Aim above the target; potions fall on the way, so the further away it is the higher we throw.
+        // Hedefin ustune nisan al; iksirler yolda duser, yani hedef uzaklastikca daha yukari atariz.
         double dy = targetLoc.y() - throwPos.y() + horizontalDistance * ARC_LIFT_PER_BLOCK;
 
         var direction = new Vector3d(dx, dy, dz);

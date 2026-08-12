@@ -9,11 +9,12 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Living component shared by the illagers implemented here — pillager and vindicator.
+ * Buradaki illager'larin — pillager ve vindicator — paylastigi canli varlik bileseni.
  *
- * <p>Both have the same health and experience, and both drop only the weapon they carry, and only
- * rarely. The drop chance is kept at vanilla's level on purpose: these spawn in waves from GearsCore
- * mob blocks, so a guaranteed drop would flood the server with crossbows and iron axes.</p>
+ * <p>Ikisinin de cani ve deneyimi ayni, ve ikisi de yalnizca tasidiklari silahi, o da nadiren
+ * dusurur. Dusurme sansi bilerek vanilla seviyesinde tutuldu: bu moblar GearsCore mob
+ * bloklarindan dalgalar halinde cikiyor, garanti bir dusurme sunucuyu arbalet ve demir baltayla
+ * doldururdu.</p>
  */
 public class EntityIllagerLivingComponentImpl extends EntityHostileLivingComponentImpl {
 

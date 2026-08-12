@@ -5,11 +5,11 @@ import org.joml.primitives.AABBd;
 import org.joml.primitives.AABBdc;
 
 /**
- * Wolf base behavior: hitbox only.
+ * Kurdun temel davranisi: yalnizca carpisma kutusu.
  *
- * <p>Only the hostile side of the wolf is implemented — taming, sitting and collar colours are
- * deliberately left out, since wolves currently reach the world through the GearsCore mob block
- * as plain enemies.</p>
+ * <p>Kurdun sadece saldirgan tarafi islendi; evcillestirme, oturma ve tasma rengi bilerek
+ * disarida birakildi, cunku kurtlar dunyaya GearsCore mob blogundan duz birer dusman olarak
+ * geliyor.</p>
  */
 public class EntityWolfBaseComponentImpl extends EntityAngerableBaseComponentImpl {
 

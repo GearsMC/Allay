@@ -1,33 +1,37 @@
 package org.allaymc.server.entity.ai.executor;
 
+import org.allaymc.api.container.ContainerTypes;
 import org.allaymc.api.entity.Entity;
 import org.allaymc.api.entity.EntityInitInfo;
 import org.allaymc.api.entity.action.SimpleEntityAction;
 import org.allaymc.api.entity.ai.behavior.BehaviorExecutor;
 import org.allaymc.api.entity.ai.memory.MemoryType;
 import org.allaymc.api.entity.ai.memory.MemoryTypes;
+import org.allaymc.api.entity.component.EntityContainerHolderComponent;
 import org.allaymc.api.entity.component.EntityWeaponStanceComponent;
 import org.allaymc.api.entity.data.WeaponStance;
 import org.allaymc.api.entity.interfaces.EntityIntelligent;
 import org.allaymc.api.entity.interfaces.EntityLiving;
 import org.allaymc.api.entity.interfaces.EntityPlayer;
 import org.allaymc.api.entity.type.EntityTypes;
+import org.allaymc.api.item.component.ItemCrossbowBaseComponent;
+import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.api.math.MathUtils;
 import org.allaymc.api.player.GameMode;
 import org.allaymc.api.world.sound.SimpleSound;
 import org.joml.Vector3d;
 
 /**
- * Executes a ranged chase-and-shoot behavior against a target entity stored in memory.
+ * Hafizada tutulan hedefe karsi menzilli kovala-ve-ates-et davranisini yurutur.
  *
- * <p>Counterpart of {@link MeleeAttackExecutor} for mobs that fight with a bow or crossbow.
- * Instead of closing all the way in, the mob keeps the target inside a distance band: it walks
- * closer when the target is beyond {@code preferredRange} and backs away when the target gets
- * closer than {@code minRange}, so a player cannot simply walk up to it and stand there.</p>
+ * <p>Yay ya da arbaletle dovusen moblar icin {@link MeleeAttackExecutor} karsiligidir. Mob
+ * sonuna kadar yaklasmak yerine hedefi bir mesafe bandi icinde tutar: hedef
+ * {@code preferredRange} otesindeyse yaklasir, {@code minRange} degerinden yakina girerse geri
+ * cekilir; boylece oyuncu oylece yanina yurup dikilemez.</p>
  */
 public class RangedAttackExecutor implements BehaviorExecutor {
 
-    /** Ticks the weapon is held fully drawn on target before the shot goes off. */
+    /** Atis yapilmadan once silahin hedefe tam gerilmis halde tutuldugu tick sayisi. */
     protected static final int AIM_TIME = 10;
 
     protected final MemoryType<Long> targetIdMemory;
@@ -44,15 +48,15 @@ public class RangedAttackExecutor implements BehaviorExecutor {
     protected Vector3d lastTargetPos;
 
     /**
-     * Creates a ranged attack executor.
+     * Bir menzilli saldiri executor'u olusturur.
      *
-     * @param targetIdMemory the memory entry that stores the target entity runtime id.
-     * @param speed the movement speed while repositioning.
-     * @param maxSenseRange the maximum target tracking range in blocks.
-     * @param preferredRange the distance the mob tries to shoot from, in blocks.
-     * @param minRange the distance below which the mob backs away, in blocks.
-     * @param clearTargetAfterLose whether to clear the target memory when the behavior stops.
-     * @param coolDown the shoot cooldown in ticks.
+     * @param targetIdMemory hedef varligin calisma zamani kimligini tutan hafiza gozu
+     * @param speed konum degistirirken kullanilan hareket hizi
+     * @param maxSenseRange hedefin takip edilebilecegi en fazla mesafe (blok)
+     * @param preferredRange mobun ates etmeye calistigi mesafe (blok)
+     * @param minRange altina inilince mobun geri cekildigi mesafe (blok)
+     * @param clearTargetAfterLose davranis durdugunda hedef hafizasinin temizlenip temizlenmeyecegi
+     * @param coolDown atislar arasindaki bekleme (tick)
      */
     public RangedAttackExecutor(MemoryType<Long> targetIdMemory, float speed, double maxSenseRange,
                                 double preferredRange, double minRange,
@@ -61,17 +65,17 @@ public class RangedAttackExecutor implements BehaviorExecutor {
     }
 
     /**
-     * Creates a ranged attack executor with custom projectile values.
+     * Ozel mermi degerleriyle bir menzilli saldiri executor'u olusturur.
      *
-     * @param targetIdMemory the memory entry that stores the target entity runtime id.
-     * @param speed the movement speed while repositioning.
-     * @param maxSenseRange the maximum target tracking range in blocks.
-     * @param preferredRange the distance the mob tries to shoot from, in blocks.
-     * @param minRange the distance below which the mob backs away, in blocks.
-     * @param clearTargetAfterLose whether to clear the target memory when the behavior stops.
-     * @param coolDown the shoot cooldown in ticks.
-     * @param arrowVelocity the speed the fired arrow is launched with.
-     * @param arrowBaseDamage the base damage of the fired arrow.
+     * @param targetIdMemory hedef varligin calisma zamani kimligini tutan hafiza gozu
+     * @param speed konum degistirirken kullanilan hareket hizi
+     * @param maxSenseRange hedefin takip edilebilecegi en fazla mesafe (blok)
+     * @param preferredRange mobun ates etmeye calistigi mesafe (blok)
+     * @param minRange altina inilince mobun geri cekildigi mesafe (blok)
+     * @param clearTargetAfterLose davranis durdugunda hedef hafizasinin temizlenip temizlenmeyecegi
+     * @param coolDown atislar arasindaki bekleme (tick)
+     * @param arrowVelocity firlatilan okun cikis hizi
+     * @param arrowBaseDamage firlatilan okun taban hasari
      */
     public RangedAttackExecutor(MemoryType<Long> targetIdMemory, float speed, double maxSenseRange,
                                 double preferredRange, double minRange,
@@ -125,23 +129,26 @@ public class RangedAttackExecutor implements BehaviorExecutor {
             entity.setMovementSpeed(speed);
         }
 
-        // Always face the target, even while standing still or retreating.
+        // Yerinde dururken ya da geri cekilirken bile hep hedefe don.
         EntityControlHelper.setLookTarget(entity, new Vector3d(
                 targetLoc.x(), targetLoc.y() + targetEntity.getEyeHeight(), targetLoc.z()
         ));
 
         updateMovement(entity, entityLoc.x(), entityLoc.z(), targetLoc.x(), targetLoc.y(), targetLoc.z(), distanceSquared);
 
-        // Charge, hold on target, then loose. The hold phase exists so the client has time to show
-        // the fully-drawn pose — firing the instant the charge completes reads as a twitch.
+        // Ger, hedefte tut, sonra birak. Tutma asamasi istemcinin tam gerilmis pozu gosterebilmesi
+        // icin var; germe biter bitmez ates etmek ekranda bir segirme gibi gorunuyor.
         if (attackTick < coolDown) {
             setWeaponStance(entity, WeaponStance.CHARGING);
+            setCrossbowLoaded(entity, false);
         } else if (attackTick < coolDown + AIM_TIME) {
             setWeaponStance(entity, WeaponStance.READY);
+            setCrossbowLoaded(entity, true);
         } else {
             shoot(entity, targetEntity);
             attackTick = 0;
             setWeaponStance(entity, WeaponStance.CHARGING);
+            setCrossbowLoaded(entity, false);
         }
 
         return true;
@@ -154,8 +161,9 @@ public class RangedAttackExecutor implements BehaviorExecutor {
         entity.setPitchEnabled(false);
         entity.setMovementSpeed(MemoryTypes.MOVEMENT_SPEED.defaultData().get());
         lastTargetPos = null;
-        // Lower the weapon; otherwise the mob wanders off still holding a fully drawn bow.
+        // Silahi indir; yoksa mob tam gerilmis yayla dolasmaya devam eder.
         setWeaponStance(entity, WeaponStance.IDLE);
+        setCrossbowLoaded(entity, false);
         if (clearTargetAfterLose) {
             entity.getMemoryStorage().clear(targetIdMemory);
         }
@@ -167,8 +175,8 @@ public class RangedAttackExecutor implements BehaviorExecutor {
     }
 
     /**
-     * Walks toward the target when it is too far, away from it when it is too close, and stops
-     * moving while the target sits inside the comfortable band between the two.
+     * Hedef cok uzaksa ona dogru, cok yakinsa ondan uzaga yurur; hedef ikisinin arasindaki rahat
+     * bantta durdugu surece hareket etmez.
      */
     protected void updateMovement(EntityIntelligent entity, double entityX, double entityZ,
                                   double targetX, double targetY, double targetZ, double distanceSquared) {
@@ -176,12 +184,12 @@ public class RangedAttackExecutor implements BehaviorExecutor {
         if (distanceSquared > preferredRangeSquared) {
             moveTarget = new Vector3d(targetX, targetY, targetZ);
         } else if (distanceSquared < minRangeSquared) {
-            // Step directly away from the target, keeping the same distance we would have closed.
+            // Hedeften dogruca uzaga adim at, kapatacagimiz mesafeyi koruyarak.
             var dx = entityX - targetX;
             var dz = entityZ - targetZ;
             var length = Math.sqrt(dx * dx + dz * dz);
             if (length < 1e-4) {
-                // Standing exactly on top of the target: any direction works, pick one.
+                // Tam hedefin ustunde duruyoruz: her yon olur, birini sec.
                 dx = 1;
                 dz = 0;
                 length = 1;
@@ -189,7 +197,7 @@ public class RangedAttackExecutor implements BehaviorExecutor {
             var retreat = Math.sqrt(preferredRangeSquared);
             moveTarget = new Vector3d(entityX + dx / length * retreat, targetY, entityZ + dz / length * retreat);
         } else {
-            // Comfortable distance: hold position and just keep shooting.
+            // Rahat mesafe: yerinde kal ve ates etmeye devam et.
             EntityControlHelper.removeRouteTarget(entity);
             lastTargetPos = null;
             return;
@@ -207,7 +215,7 @@ public class RangedAttackExecutor implements BehaviorExecutor {
         var location = entity.getLocation();
         var shootPos = new Vector3d(location.x(), location.y() + entity.getEyeHeight() - 0.1, location.z());
 
-        // Aim at the target's eyes instead of its feet, otherwise every arrow lands short.
+        // Ayaklarina degil gozlerine nisan al; yoksa her ok hedefin onune duser.
         var targetLoc = target.getLocation();
         var direction = new Vector3d(
                 targetLoc.x() - shootPos.x(),
@@ -230,22 +238,68 @@ public class RangedAttackExecutor implements BehaviorExecutor {
         );
         arrow.setShooter(entity);
         arrow.setBaseDamage(arrowBaseDamage);
-        // Mob arrows are not lootable, otherwise a mob farm buries the floor in arrows.
+        // Mob oklari toplanamaz; yoksa bir mob ciftligi yeri oka bogar.
         arrow.setPickUpDisabled(true);
         dimension.getEntityManager().addEntity(arrow);
 
         entity.applyAction(SimpleEntityAction.SWING_ARM);
-        dimension.addSound(shootPos, SimpleSound.CROSSBOW_SHOOT);
+        // Yay geren bir iskelet, arbalet mandalinin birakilmasi gibi ses cikarmamali.
+        dimension.addSound(shootPos, holdsCrossbow(entity) ? SimpleSound.CROSSBOW_SHOOT : SimpleSound.BOW_SHOOT);
     }
 
     /**
-     * Mirrors the weapon phase onto the entity so the client can animate it. The component only
-     * broadcasts when the value actually flips, so calling this every tick is free.
+     * @return mobun yay yerine arbalet kullanip kullanmadigi. Hem atis sesine hem de yuklenecek
+     * bir arbalet olup olmadigina bu karar verir.
+     */
+    protected boolean holdsCrossbow(EntityIntelligent entity) {
+        return heldCrossbow(entity) != null;
+    }
+
+    /**
+     * @return mobun tuttugu arbalet; baska bir sey tutuyorsa {@code null}
+     */
+    protected ItemCrossbowBaseComponent heldCrossbow(EntityIntelligent entity) {
+        if (!(entity instanceof EntityContainerHolderComponent containerHolder)) {
+            return null;
+        }
+
+        var handContainer = containerHolder.getContainer(ContainerTypes.ENTITY_HAND);
+        if (handContainer == null) {
+            return null;
+        }
+
+        return handContainer.getItemInHand() instanceof ItemCrossbowBaseComponent crossbow ? crossbow : null;
+    }
+
+    /**
+     * Silah asamasini varliga yansitir ki istemci canlandirabilsin. Bilesen yalnizca deger
+     * gercekten degistiginde yayin yaptigi icin bunu her tick cagirmak bedavadir.
      */
     protected void setWeaponStance(EntityIntelligent entity, WeaponStance stance) {
         if (entity instanceof EntityWeaponStanceComponent weaponStance) {
             weaponStance.setWeaponStance(stance);
         }
+    }
+
+    /**
+     * Mobun tuttugu arbaleti doldurur ya da bosaltir.
+     *
+     * <p>Varlik bayraklari tek basina bir arbaleti gerilmis gostermeye yetmez: buna istemci
+     * esyanin kendisine bakarak karar verir ve arbalet ancak uzerinde {@code chargedItem} etiketi
+     * varken dolu cizilir. Yani mob kurmayi bitirdiginde ok gercekten arbaletine konmali, ates
+     * ettiginde de geri alinmali; aksi halde silah butun dovus boyunca gevsek gorunur.</p>
+     *
+     * <p>Yigini yerinde degistirmek el konteynerinin slot dinleyicisini calistirmadigi icin yeni
+     * esyanin izleyicilere gitmesi adina slot acikca bildiriliyor.</p>
+     */
+    protected void setCrossbowLoaded(EntityIntelligent entity, boolean loaded) {
+        var crossbow = heldCrossbow(entity);
+        if (crossbow == null || crossbow.isLoaded() == loaded) {
+            return;
+        }
+
+        crossbow.setLoadedProjectile(loaded ? ItemTypes.ARROW.createItemStack() : null);
+        ((EntityContainerHolderComponent) entity).getContainer(ContainerTypes.ENTITY_HAND).notifySlotChange(0);
     }
 
     protected boolean isInDifferentBlock(Vector3d oldTargetPos, Vector3d newTargetPos) {

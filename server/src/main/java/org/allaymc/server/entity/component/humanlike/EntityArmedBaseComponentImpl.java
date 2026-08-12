@@ -19,23 +19,24 @@ import org.joml.primitives.AABBdc;
 import java.util.function.Supplier;
 
 /**
- * Base component for human-like mobs that spawn holding a fixed weapon — skeleton with its bow,
- * pillager with its crossbow, vindicator with its axe.
+ * Sabit bir silahla dogan insansi moblar icin temel bilesen — yayiyla iskelet, arbaletiyle
+ * pillager, baltasiyla vindicator.
  *
- * <p>The weapon is only handed out when the hand is still empty. The hand slot is written to NBT as
- * {@code Mainhand} by {@link EntityHumanLikeContainerHolderComponentImpl}, so a mob loaded back
- * from disk already carries its weapon — and possibly a different one, if a plugin or a player
- * changed it. Re-arming it on every load would undo that.</p>
+ * <p>Silah yalnizca el hala bossa verilir. El gozu {@link EntityHumanLikeContainerHolderComponentImpl}
+ * tarafindan NBT'ye {@code Mainhand} olarak yazildigi icin diskten yuklenen bir mob silahini
+ * zaten tasiyor olur — ustelik bir eklenti ya da oyuncu degistirdiyse baska bir silahi. Her
+ * yuklemede yeniden silahlandirmak bunu bozardi.</p>
  *
- * <p>This component also carries the combat state the client needs to animate the weapon. Holding
- * an item is not enough: an illager keeps its weapon lowered until it is aggressive, and a bow or
- * crossbow only plays its draw animation while the mob is in the matching {@link WeaponStance}.
- * Both are pushed with an entity state broadcast, and only when they actually change.</p>
+ * <p>Bu bilesen ayrica istemcinin silahi canlandirmak icin ihtiyac duydugu savas durumunu da
+ * tasir. Elde esya tutmak yetmiyor: bir illager saldirgan hale gelene kadar silahini indirik
+ * tutar, yay ve arbalet de yalnizca mob uygun {@link WeaponStance} icindeyken cekme
+ * animasyonunu oynatir. Ikisi de varlik durumu yayiniyla, ve yalnizca gercekten degistiklerinde
+ * gonderilir.</p>
  *
- * <p>It cannot extend {@link EntityAngerableBaseComponentImpl} even though it wants the same
- * aggression tracking, because it needs {@link EntityHumanLikeBaseComponentImpl}'s spawn logic —
- * that is what sends the held item and armor to a new viewer in the first place. The shared part is
- * reused through {@link EntityAngerableBaseComponentImpl#isHunting}.</p>
+ * <p>Ayni ofke takibini istemesine ragmen {@link EntityAngerableBaseComponentImpl}'i
+ * genisletemez, cunku {@link EntityHumanLikeBaseComponentImpl}'in dogma mantigina ihtiyaci var —
+ * eldeki esyayi ve zirhi yeni bir izleyiciye gonderen sey odur. Ortak kisim
+ * {@link EntityAngerableBaseComponentImpl#isHunting} uzerinden yeniden kullaniliyor.</p>
  */
 public class EntityArmedBaseComponentImpl extends EntityHumanLikeBaseComponentImpl implements EntityWeaponStanceComponent {
 
@@ -49,11 +50,11 @@ public class EntityArmedBaseComponentImpl extends EntityHumanLikeBaseComponentIm
     protected boolean aggressive;
 
     /**
-     * @param initInfo the entity init info.
-     * @param weaponSupplier supplies the weapon type to spawn with; resolved lazily because
-     *                       {@code ItemTypes} fields are still null while types are registered.
-     * @param width the hitbox width in blocks.
-     * @param height the hitbox height in blocks.
+     * @param initInfo varlik baslatma bilgisi
+     * @param weaponSupplier dogarken verilecek silah turunu saglar; gec cozulur cunku
+     *                       {@code ItemTypes} alanlari turler kaydedilirken hala null'dur
+     * @param width carpisma kutusu genisligi (blok)
+     * @param height carpisma kutusu yuksekligi (blok)
      */
     public EntityArmedBaseComponentImpl(EntityInitInfo initInfo, Supplier<ItemType<?>> weaponSupplier,
                                         double width, double height) {

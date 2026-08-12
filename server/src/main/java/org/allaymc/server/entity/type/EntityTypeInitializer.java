@@ -6,7 +6,6 @@ import org.allaymc.api.container.ContainerTypes;
 import org.allaymc.api.entity.ai.memory.MemoryTypes;
 import org.allaymc.api.entity.component.EntityBabyComponent;
 import org.allaymc.api.entity.component.EntityContainerHolderComponent;
-import org.allaymc.api.entity.component.EntityLivingComponent;
 import org.allaymc.api.entity.damage.DamageContainer;
 import org.allaymc.api.entity.damage.DamageType;
 import org.allaymc.api.entity.interfaces.EntityAnimal;
@@ -67,8 +66,8 @@ import static org.allaymc.server.entity.ai.evaluator.LogicHelper.any;
 public final class EntityTypeInitializer {
 
     /**
-     * Chase speeds, expressed the same way as the zombie's {@code 0.1f} baseline. Wolves and
-     * endermites are noticeably quicker than a zombie, endermen and piglins slightly quicker.
+     * Kovalama hizlari; zombinin {@code 0.1f} taban degeriyle ayni birimde. Kurt ve endermite
+     * zombiden belirgin sekilde hizli, enderman ve piglin bir tik hizli.
      */
     private static final float WOLF_SPEED = 0.3f;
     private static final float ENDERMITE_SPEED = 0.28f;
@@ -77,9 +76,9 @@ public final class EntityTypeInitializer {
     private static final float BLAZE_SPEED = 0.14f;
 
     /**
-     * Blaze fireball rhythm, taken from vanilla: it winds up for about a second, spits three
-     * fireballs a few ticks apart, then stays quiet for roughly five seconds. It also refuses to
-     * fight nose to nose — closer than {@link #BLAZE_MIN_RANGE} it drifts back out.
+     * Blaze'in ates topu ritmi, vanilla'dan alindi: yaklasik bir saniye sarj eder, birkac tick
+     * arayla uc ates topu savurur, sonra kabaca bes saniye susar. Ayrica burun buruna dovusmeyi
+     * reddeder; {@link #BLAZE_MIN_RANGE} degerinden yakina girilirse geri suzulur.
      */
     private static final double BLAZE_PREFERRED_RANGE = 12;
     private static final double BLAZE_MIN_RANGE = 5;
@@ -105,8 +104,8 @@ public final class EntityTypeInitializer {
     private static final int WITCH_COOLDOWN = 60;
 
     /**
-     * Creeper timing. It only lights the fuse inside {@link #CREEPER_FUSE_RANGE} and needs
-     * {@link #CREEPER_FUSE_TIME} ticks to go off, which is the window a player has to run.
+     * Creeper zamanlamasi. Fitili yalnizca {@link #CREEPER_FUSE_RANGE} icinde yakar ve patlamasi
+     * {@link #CREEPER_FUSE_TIME} tick surer; oyuncunun kacmak icin sahip oldugu sure budur.
      */
     private static final float CREEPER_SPEED = 0.15f;
     private static final double CREEPER_FUSE_RANGE = 3;
@@ -305,7 +304,7 @@ public final class EntityTypeInitializer {
                 .addComponent(() -> {
                     var behaviorGroup = BehaviorGroupImpl.builder()
                             .sensor(new NearestPlayerSensor(16, 0, 20))
-                            // Priority 3: chase whoever hurt us
+                            // Oncelik 3: bizi yaralayani kovala
                             .behavior(BehaviorImpl.builder()
                                     .executor(new MeleeAttackExecutor(MemoryTypes.ATTACK_TARGET, WOLF_SPEED, 32, true, 20))
                                     .evaluator(all(
@@ -314,7 +313,7 @@ public final class EntityTypeInitializer {
                                     ))
                                     .priority(3)
                                     .build())
-                            // Priority 2: attack the nearest player on sight
+                            // Oncelik 2: goz onundeki en yakin oyuncuya saldir
                             .behavior(BehaviorImpl.builder()
                                     .executor(new MeleeAttackExecutor(MemoryTypes.NEAREST_PLAYER, WOLF_SPEED, 32, 20))
                                     .evaluator(all(
@@ -323,7 +322,7 @@ public final class EntityTypeInitializer {
                                     ))
                                     .priority(2)
                                     .build())
-                            // Priority 1 (lowest): random wandering
+                            // Oncelik 1 (en dusuk): rastgele dolasma
                             .behavior(BehaviorImpl.builder()
                                     .executor(new FlatRandomRoamExecutor(0.12f, 12, 100, false, -1, true, 10))
                                     .evaluator(entity -> true)
@@ -353,7 +352,7 @@ public final class EntityTypeInitializer {
                     var behaviorGroup = BehaviorGroupImpl.builder()
                             .sensor(new NearestPlayerSensor(16, 0, 20))
                             .behavior(BehaviorImpl.builder()
-                                    // Short attack range: the endermite is tiny and has to get right up to you.
+                                    // Kisa saldiri menzili: endermite minicik, tam dibine gelmesi gerekiyor.
                                     .executor(new MeleeAttackExecutor(MemoryTypes.ATTACK_TARGET, ENDERMITE_SPEED, 32, true, 20, 1.2))
                                     .evaluator(all(
                                             new MemoryCheckNotEmptyEvaluator(MemoryTypes.ATTACK_TARGET),
@@ -396,12 +395,12 @@ public final class EntityTypeInitializer {
                 .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
                 .addComponent(() -> {
                     var behaviorGroup = BehaviorGroupImpl.builder()
-                            // Endermen notice you from much further away than other mobs.
+                            // Enderman seni diger moblardan cok daha uzaktan fark eder.
                             .sensor(new NearestPlayerSensor(64, 0, 20))
-                            // Priority 4 (highest): blink away shortly after being hurt.
-                            // The period matters as much as the probability here: the teleport
-                            // finishes in a single tick, so without it the enderman would be
-                            // re-evaluated every tick and vanish dozens of times per second.
+                            // Oncelik 4 (en yuksek): yaralandiktan kisa sure sonra isinlanip kacar.
+                            // Burada periyot en az olasilik kadar onemli: isinlanma tek bir tick'te
+                            // bitiyor, bu olmadan enderman her tick yeniden degerlendirilir ve
+                            // saniyede onlarca kez yok olurdu.
                             .behavior(BehaviorImpl.builder()
                                     .executor(new TeleportAwayExecutor())
                                     .evaluator(all(
@@ -457,10 +456,10 @@ public final class EntityTypeInitializer {
                 .addComponent(() -> {
                     var behaviorGroup = BehaviorGroupImpl.builder()
                             .sensor(new NearestPlayerSensor(40, 0, 20))
-                            // Ranged and melee behaviors are both registered at the same priority and
-                            // picked apart by the held-weapon evaluator. The weapon is rolled during
-                            // NBT load, which happens after this component is built, and a player can
-                            // change it later — so the choice has to be made per tick, not here.
+                            // Menzilli ve yakin dovus davranislari ayni oncelikte kayitli; aralarindaki
+                            // secimi eldeki silaha bakan evaluator yapiyor. Silah NBT yuklenirken
+                            // atiliyor, yani bu bilesen kurulduktan sonra, ustelik bir oyuncu sonradan
+                            // degistirebilir; bu yuzden secim burada degil her tick yapilmali.
                             .behavior(BehaviorImpl.builder()
                                     .executor(new RangedAttackExecutor(MemoryTypes.ATTACK_TARGET, PIGLIN_SPEED, 40, 12, 5, true, 40))
                                     .evaluator(all(
@@ -552,9 +551,9 @@ public final class EntityTypeInitializer {
                                     .evaluator(entity -> true)
                                     .priority(1)
                                     .build())
-                            // No WalkController: the blaze is airborne, so movement in all three
-                            // axes comes from FlyController instead. No FluctuateController either
-                            // — water hurts a blaze, it must never be nudged to bob in it.
+                            // WalkController yok: blaze havada, bu yuzden uc eksendeki hareket
+                            // FlyController'dan geliyor. FluctuateController da yok; su blaze'e zarar
+                            // veriyor, onu suda sallanmaya itmek olmaz.
                             .controller(new FlyController())
                             .controller(new LookController(true, true))
                             .routeFinder(new SpaceAStarRouteFinder(new FlyingPosEvaluator()))
@@ -743,8 +742,8 @@ public final class EntityTypeInitializer {
     }
 
     /**
-     * Builds the behavior group shared by the plain bow/crossbow users: shoot whoever hurt you,
-     * otherwise shoot whoever walks into sight, otherwise wander.
+     * Duz yay/arbalet kullanicilarinin paylastigi davranis grubunu kurar: seni yaralayana ates et,
+     * yoksa gorus alanina gireni vur, o da yoksa dolas.
      */
     private static EntityAIComponentImpl buildRangedBehaviorGroup(float speed, double sightRange, double senseRange,
                                                                   double preferredRange, double minRange, int coolDown) {
@@ -783,8 +782,8 @@ public final class EntityTypeInitializer {
     }
 
     /**
-     * Tells whether the entity is currently holding a crossbow, which is what separates a ranged
-     * piglin from a melee one.
+     * Varligin su an arbalet tutup tutmadigini soyler; menzilli piglin ile yakin dovus piglinini
+     * ayiran sey budur.
      */
     private static boolean holdsCrossbow(EntityIntelligent entity) {
         if (!(entity instanceof EntityContainerHolderComponent containerHolder)) {
@@ -1450,7 +1449,7 @@ public final class EntityTypeInitializer {
                                     .priority(2)
                                     .period(100)
                                     .build())
-                            // Priority 1 (lowest): random wandering
+                            // Oncelik 1 (en dusuk): rastgele dolasma
                             .behavior(BehaviorImpl.builder()
                                     .executor(new FlatRandomRoamExecutor(0.1f, 12, 100, false, -1, true, 10))
                                     .evaluator(entity -> true)
@@ -1470,23 +1469,23 @@ public final class EntityTypeInitializer {
     }
 
     /**
-     * Tells whether a remembered target is still worth attacking: it has to be alive, be something
-     * that can take damage, not be the attacker itself, and — for players — not be in creative or
-     * spectator mode.
+     * Hatirlanan bir hedefin hala saldirmaya deger olup olmadigini soyler: yasayan bir oyuncu
+     * olmali, mobun kendisi olmamali ve yaratici ya da izleyici modda bulunmamali.
+     *
+     * <p>Oyuncu olmayanlar dogrudan reddedilir. Buradaki moblarin birbiriyle dovusmemesi gerekiyor
+     * (nedeni icin {@code EntityHostileLivingComponentImpl}) ve onlari hedef dogrulamasi asamasinda
+     * da reddetmek, basibos bir hedef kimliginin bir mob dalgasini kendi icine dondurmesini
+     * tumden imkansiz kiliyor.</p>
      */
     private static boolean isValidHostileTarget(EntityIntelligent entity, long targetId) {
         var target = entity.getDimension().getEntityManager().getEntity(targetId);
-        if (!(target instanceof EntityLivingComponent) || target == entity || !target.isAlive()) {
+        if (!(target instanceof EntityPlayer player) || target == entity || !target.isAlive()) {
             return false;
         }
 
-        if (target instanceof EntityPlayer player) {
-            return switch (player.getGameMode()) {
-                case SURVIVAL, ADVENTURE -> true;
-                case CREATIVE, SPECTATOR -> false;
-            };
-        }
-
-        return true;
+        return switch (player.getGameMode()) {
+            case SURVIVAL, ADVENTURE -> true;
+            case CREATIVE, SPECTATOR -> false;
+        };
     }
 }

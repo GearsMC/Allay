@@ -1,9 +1,9 @@
 package org.allaymc.server.entity.component;
 
 /**
- * Living component implementation for endermites.
+ * Endermite icin canli varlik bileseni.
  *
- * <p>Endermites drop no items, only experience.</p>
+ * <p>Endermite esya dusurmez, yalnizca deneyim birakir.</p>
  */
 public class EntityEndermiteLivingComponentImpl extends EntityHostileLivingComponentImpl {
 
