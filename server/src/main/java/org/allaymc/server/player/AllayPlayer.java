@@ -68,6 +68,7 @@ import org.allaymc.api.world.World;
 import org.allaymc.api.world.chunk.Chunk;
 import org.allaymc.api.world.data.Weather;
 import org.allaymc.api.world.dimension.DimensionType;
+import org.allaymc.api.world.gamerule.GameRule;
 import org.allaymc.api.world.gamerule.GameRules;
 import org.allaymc.api.world.particle.Particle;
 import org.allaymc.api.world.sound.Sound;
@@ -1227,6 +1228,16 @@ public class AllayPlayer implements Player {
         sendPacket(getProtocol().getEncoder().encodeDimensionChangeSuccess(
                 this.controlledEntity.getRuntimeId()
         ));
+    }
+
+    @Override
+    public void setPersonalGameRule(GameRule rule, Object value) {
+        Objects.requireNonNull(rule, "rule");
+        // Dunyanin kural haritasina dokunulmaz: paket yalnizca bu oyuncuya gider,
+        // dolayisiyla degisiklik de yalnizca onun istemcisinde gecerli olur.
+        var packet = new GameRulesChangedPacket();
+        packet.getGameRules().addAll(NetworkHelper.toNetwork(Map.of(rule, value)));
+        sendPacket(packet);
     }
 
     /**

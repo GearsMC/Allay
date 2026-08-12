@@ -11,6 +11,7 @@ import org.allaymc.api.message.MessageReceiver;
 import org.allaymc.api.message.TrKeys;
 import org.allaymc.api.scoreboard.ScoreboardViewer;
 import org.allaymc.api.utils.tuple.Pair;
+import org.allaymc.api.world.gamerule.GameRule;
 import org.allaymc.api.world.WorldViewer;
 import org.allaymc.api.world.dimension.DimensionType;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -720,5 +721,23 @@ public interface Player extends MessageReceiver, WorldViewer, ContainerViewer, B
      * or to dismiss the loading screen if the teleport fails.
      */
     void completeDimensionChange();
+
+    /**
+     * GearsMC fork: yalnizca bu oyuncuya bir oyun kurali uygular.
+     *
+     * <p>Dunyanin kuralini degistirmez; istemciye kural degisikligi bildirilir ve
+     * etki o oyuncuyla sinirli kalir. Koordinat gostergesini oyuncu bazinda acip
+     * kapatmak icin kullanilir.</p>
+     *
+     * <p>Bu metot fork'a ozeldir. multi-version v2 oncesi eklentiler ayni isi
+     * {@code sendPacket} ile ham paket gondererek yapiyordu; upstream paket
+     * gonderimini API'den kaldirdi cunku paketin sekli artik protokol surumune
+     * gore degisiyor. Ham paket yerine niyeti tarif eden bir metot koyduk:
+     * paketi hangi surume gore kuracagina sunucu karar verir.</p>
+     *
+     * @param rule  uygulanacak kural
+     * @param value kuralin bu oyuncu icin alacagi deger
+     */
+    void setPersonalGameRule(GameRule rule, Object value);
 
 }
