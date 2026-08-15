@@ -25,5 +25,7 @@ public enum SimpleEntityAction implements EntityAction {
     /// IN_LOVE makes an entity display love (heart) particles to viewers
     IN_LOVE,
     /// EAT_GRASS makes an entity display the grass eating animation to viewers (used by sheep)
-    EAT_GRASS
+    EAT_GRASS,
+    /// JUMP makes an entity play its jump animation (used by cube mobs that hop instead of walking)
+    JUMP
 }

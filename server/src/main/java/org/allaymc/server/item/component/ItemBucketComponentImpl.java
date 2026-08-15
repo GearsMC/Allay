@@ -111,15 +111,19 @@ public class ItemBucketComponentImpl implements ItemBucketComponent {
         }
 
         Vector3ic liquidPlacedPos = event.getPlaceBlockPos();
-        if (clickedBlockState.getBlockStateData().canContainLiquidSource()) {
-            dimension.setBlockState(interactInfo.clickedBlockPos(), getLiquidType().getDefaultState(), 1);
-            liquidPlacedPos = interactInfo.clickedBlockPos();
-        } else {
-            var blockOnPlacePos = dimension.getBlockState(event.getPlaceBlockPos());
-            if (blockOnPlacePos.getBlockType() == BlockTypes.AIR || blockOnPlacePos.getBlockType().hasBlockTag(BlockTags.REPLACEABLE)) {
-                dimension.setBlockState(event.getPlaceBlockPos(), getLiquidType().getDefaultState(), 0);
-            } else if (blockOnPlacePos.getBlockStateData().canContainLiquidSource()) {
-                dimension.setBlockState(event.getPlaceBlockPos(), getLiquidType().getDefaultState(), 1);
+        // Sivisiz kovalar da var: sulfur kupu kovasi yalnizca varligi birakir, hicbir blok koymaz.
+        // Bu ayrim olmadan "sivi" olarak hava yerlestirilir ve tiklanan blok silinirdi.
+        if (getLiquidType() != BlockTypes.AIR) {
+            if (clickedBlockState.getBlockStateData().canContainLiquidSource()) {
+                dimension.setBlockState(interactInfo.clickedBlockPos(), getLiquidType().getDefaultState(), 1);
+                liquidPlacedPos = interactInfo.clickedBlockPos();
+            } else {
+                var blockOnPlacePos = dimension.getBlockState(event.getPlaceBlockPos());
+                if (blockOnPlacePos.getBlockType() == BlockTypes.AIR || blockOnPlacePos.getBlockType().hasBlockTag(BlockTags.REPLACEABLE)) {
+                    dimension.setBlockState(event.getPlaceBlockPos(), getLiquidType().getDefaultState(), 0);
+                } else if (blockOnPlacePos.getBlockStateData().canContainLiquidSource()) {
+                    dimension.setBlockState(event.getPlaceBlockPos(), getLiquidType().getDefaultState(), 1);
+                }
             }
         }
 

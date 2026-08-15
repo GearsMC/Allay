@@ -747,7 +747,8 @@ public final class ItemTypeInitializer {
         ItemTypes.POWDER_SNOW_BUCKET = buildBucket(ItemId.POWDER_SNOW_BUCKET, BlockId.POWDER_SNOW, null);
         ItemTypes.PUFFERFISH_BUCKET = buildBucket(ItemId.PUFFERFISH_BUCKET, BlockId.WATER, EntityId.PUFFERFISH);
         ItemTypes.SALMON_BUCKET = buildBucket(ItemId.SALMON_BUCKET, BlockId.WATER, EntityId.SALMON);
-        ItemTypes.SULFUR_CUBE_BUCKET = buildBucket(ItemId.SULFUR_CUBE_BUCKET, BlockId.WATER, EntityId.SULFUR_CUBE);
+        // Sivi yok: sulfur kupu balik degil, kovadan cikarken yanina su dokulmemeli.
+        ItemTypes.SULFUR_CUBE_BUCKET = buildBucket(ItemId.SULFUR_CUBE_BUCKET, BlockId.AIR, EntityId.SULFUR_CUBE);
         ItemTypes.TADPOLE_BUCKET = buildBucket(ItemId.TADPOLE_BUCKET, BlockId.WATER, EntityId.TADPOLE);
         ItemTypes.TROPICAL_FISH_BUCKET = buildBucket(ItemId.TROPICAL_FISH_BUCKET, BlockId.WATER, EntityId.TROPICALFISH);
         ItemTypes.WATER_BUCKET = buildBucket(ItemId.WATER_BUCKET, BlockId.WATER, null);
