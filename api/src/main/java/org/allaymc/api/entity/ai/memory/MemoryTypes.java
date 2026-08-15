@@ -96,6 +96,20 @@ public final class MemoryTypes {
             new MemoryType<>(new Identifier("minecraft:nearest_feeding_player"));
 
     /**
+     * Emilebilir bir blok tasiyan en yakin varligin calisma zamani kimligi: yerdeki bir esya ya da
+     * o blogu elinde tutan bir oyuncu. {@code NearestAbsorbableSensor} tarafindan yazilir.
+     */
+    public static final MemoryType<Long> NEAREST_ABSORBABLE =
+            new MemoryType<>(new Identifier("minecraft:nearest_absorbable"));
+
+    /**
+     * En yakin baligin calisma zamani kimligi.
+     * {@code NearestFishSensor} tarafindan yazilir.
+     */
+    public static final MemoryType<Long> NEAREST_FISH =
+            new MemoryType<>(new Identifier("minecraft:nearest_fish"));
+
+    /**
      * Runtime ID of the nearest player.
      * Written by {@code NearestPlayerSensor}.
      */

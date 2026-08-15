@@ -6,6 +6,7 @@ import org.allaymc.api.container.ContainerTypes;
 import org.allaymc.api.entity.ai.memory.MemoryTypes;
 import org.allaymc.api.entity.component.EntityBabyComponent;
 import org.allaymc.api.entity.component.EntityContainerHolderComponent;
+import org.allaymc.api.entity.component.EntitySulfurCubeBaseComponent;
 import org.allaymc.api.entity.damage.DamageContainer;
 import org.allaymc.api.entity.damage.DamageType;
 import org.allaymc.api.entity.interfaces.EntityAnimal;
@@ -23,6 +24,8 @@ import org.allaymc.server.entity.ai.behavior.BehaviorImpl;
 import org.allaymc.server.entity.ai.behaviorgroup.BehaviorGroupImpl;
 import org.allaymc.server.entity.ai.controller.FluctuateController;
 import org.allaymc.server.entity.ai.controller.FlyController;
+import org.allaymc.server.entity.ai.controller.CubeJumpController;
+import org.allaymc.server.entity.ai.controller.SwimController;
 import org.allaymc.server.entity.ai.controller.LookController;
 import org.allaymc.server.entity.ai.controller.WalkController;
 import org.allaymc.server.entity.ai.evaluator.BlockCheckEvaluator;
@@ -33,11 +36,17 @@ import org.allaymc.server.entity.ai.executor.*;
 import org.allaymc.server.entity.ai.route.finder.FlatAStarRouteFinder;
 import org.allaymc.server.entity.ai.route.finder.SpaceAStarRouteFinder;
 import org.allaymc.server.entity.ai.route.posevaluator.FlyingPosEvaluator;
+import org.allaymc.server.entity.ai.route.posevaluator.SwimmingPosEvaluator;
 import org.allaymc.server.entity.ai.route.posevaluator.WalkingPosEvaluator;
 import org.allaymc.server.entity.ai.sensor.NearestFeedingPlayerSensor;
+import org.allaymc.server.entity.ai.sensor.NearestFishSensor;
+import org.allaymc.server.entity.ai.sensor.NearestAbsorbableSensor;
 import org.allaymc.server.entity.ai.sensor.NearestPlayerSensor;
 import org.allaymc.server.entity.component.*;
 import org.allaymc.server.entity.component.animal.*;
+import org.allaymc.server.entity.component.aquatic.*;
+import org.allaymc.server.entity.component.cube.*;
+import org.allaymc.server.entity.component.sulfurcube.*;
 import org.allaymc.server.entity.component.humanlike.EntityArmedBaseComponentImpl;
 import org.allaymc.server.entity.component.humanlike.EntityHumanLikeBaseComponentImpl;
 import org.allaymc.server.entity.component.humanlike.EntityHumanLikeContainerHolderComponentImpl;
@@ -107,6 +116,49 @@ public final class EntityTypeInitializer {
      * Creeper zamanlamasi. Fitili yalnizca {@link #CREEPER_FUSE_RANGE} icinde yakar ve patlamasi
      * {@link #CREEPER_FUSE_TIME} tick surer; oyuncunun kacmak icin sahip oldugu sure budur.
      */
+    /**
+     * Sulfur kupunun sicrayis olculeri (buyuk kup icin; kucuk kup bunlarin dortte ucunu alir).
+     *
+     * <p>Dikey deger, motorun yercekimiyle birlikte yaklasik bir bloklik bir sicrayis veriyor —
+     * yani kup zorlanarak tek blogu asiyor, ustunden atlamiyor. Once denenen {@code 0.52} bunun
+     * bir buçuk katiydi ve kup gorunur sekilde fazla yukseliyordu; o deger bir evcil hayvan
+     * uygulamasindan gelmisti ve sahibine yetisebilmek icin bilerek abartilmisti.</p>
+     */
+    private static final float SULFUR_CUBE_JUMP_SPEED = 0.24f;
+    private static final float SULFUR_CUBE_JUMP_HEIGHT = 0.42f;
+    private static final int SULFUR_CUBE_JUMP_INTERVAL = 10;
+    private static final int SULFUR_CUBE_JUMP_ANIMATION_TICKS = 8;
+
+    /** Sulfur kupunun taban hizi ve emilebilir blok arama menzili. */
+    private static final float SULFUR_CUBE_SPEED = 0.12f;
+    private static final double SULFUR_CUBE_SEEK_RANGE = 16;
+
+    /** Kup moblarinin (balcik, magma kupu) kovalama hizi ve vurus araligi. */
+    private static final float CUBE_SPEED = 0.12f;
+    private static final int CUBE_ATTACK_COOLDOWN = 20;
+
+    /** Balik ve akselot hizlari; su icinde kara moblarindan daha akici hareket ederler. */
+    // Balik hizlari resmi davranis paketindeki tur basina "minecraft:movement" degerleri; dordunde
+    // de "minecraft:underwater_movement" ayni sayiyi tekrarliyor, yani suda ve disarida ayni hiz.
+    private static final float COD_SPEED = 0.1f;
+    private static final float SALMON_SPEED = 0.12f;
+    private static final float TROPICALFISH_SPEED = 0.12f;
+    private static final float PUFFERFISH_SPEED = 0.13f;
+
+    // Kacis mesafesi resmi "behavior.avoid_mob_type" bileseninin max_dist degeri. Somon digerlerinden
+    // daha gec urkuyor.
+    private static final double FISH_FLEE_RANGE = 6;
+    private static final double SALMON_FLEE_RANGE = 3;
+
+    /**
+     * Akselotun suda kullandigi hiz.
+     *
+     * <p>Resmi tanimda karada {@code 0.1}, suda {@code 0.2}. Akselotun buradaki gezinme mantigi
+     * tumuyle su icinde calistigi icin gecerli olan deger su altindaki.</p>
+     */
+    private static final float AXOLOTL_SPEED = 0.2f;
+    private static final double AXOLOTL_HUNT_RANGE = 16;
+
     private static final float CREEPER_SPEED = 0.15f;
     private static final double CREEPER_FUSE_RANGE = 3;
     private static final int CREEPER_FUSE_TIME = 30;
@@ -779,6 +831,253 @@ public final class EntityTypeInitializer {
                 .build();
 
         return new EntityAIComponentImpl(behaviorGroup);
+    }
+
+    public static void initSulfurCube() {
+        EntityTypes.SULFUR_CUBE = AllayEntityType
+                .builder(EntitySulfurCubeImpl.class)
+                .vanillaEntity(EntityId.SULFUR_CUBE)
+                // Kupun icinin nasil gorunecegi bu property'den okunuyor; kaydedilmezse istemci
+                // kupu her zaman bos cizer.
+                .setProperties(EntityPropertyTypes.SULFUR_CUBE_ARCHETYPE)
+                .addComponent(EntitySulfurCubeBaseComponentImpl::new, EntitySulfurCubeBaseComponentImpl.class)
+                .addComponent(EntitySulfurCubeLivingComponentImpl::new, EntitySulfurCubeLivingComponentImpl.class)
+                .addComponent(EntitySulfurCubePhysicsComponentImpl::new, EntitySulfurCubePhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> {
+                    var behaviorGroup = BehaviorGroupImpl.builder()
+                            .sensor(new NearestAbsorbableSensor(SULFUR_CUBE_SEEK_RANGE, 20))
+                            // Oncelik 2: emilebilir bir bloga ya da onu tutan oyuncuya git
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new AbsorbBlockExecutor(SULFUR_CUBE_SPEED, SULFUR_CUBE_SEEK_RANGE))
+                                    .evaluator(new MemoryCheckNotEmptyEvaluator(MemoryTypes.NEAREST_ABSORBABLE))
+                                    .priority(2)
+                                    .build())
+                            // Oncelik 1 (en dusuk): amacsizca ziplayarak dolas. Blok tasiyan kup
+                            // yerinde durur; wiki "emince hareket etmeyi birakir" diyor.
+                            .behavior(BehaviorImpl.builder()
+                                    // Blok emen kup durur; bunu evaluator degil executor yapmali,
+                                    // cunku calisan bir davranisin evaluator'u bir daha bakilmiyor.
+                                    .executor(new SulfurCubeRoamExecutor(SULFUR_CUBE_SPEED, 8, 120, false, -1, true, 10))
+                                    .evaluator(entity -> !(entity instanceof EntitySulfurCubeBaseComponent cube)
+                                                         || cube.getAbsorbedBlock() == null)
+                                    .priority(1)
+                                    .build())
+                            // Yurume degil ziplama: kup yerde bekleyip araliklarla sicriyor ve
+                            // havadayken yonunu degistiremiyor.
+                            .controller(new CubeJumpController(SULFUR_CUBE_JUMP_SPEED, SULFUR_CUBE_JUMP_HEIGHT,
+                                    SULFUR_CUBE_JUMP_INTERVAL, SULFUR_CUBE_JUMP_ANIMATION_TICKS))
+                            .controller(new FluctuateController())
+                            .controller(new LookController(true, true))
+                            .routeFinder(new FlatAStarRouteFinder(new WalkingPosEvaluator()))
+                            .build();
+
+                    return new EntityAIComponentImpl(behaviorGroup);
+                }, EntityAIComponentImpl.class)
+                .build();
+    }
+
+    /**
+     * Bir kup mobunun davranis grubunu kurar: gordugu oyuncuya ziplayarak gider.
+     *
+     * <p>Balcik ve magma kupu tek farkla ayni sekilde dovusur: ikisi de dokundugu oyuncuya hasar
+     * verir, o da yakin dovus executor'unun isi. Ziplayan hareketi ayrica modellemeye gerek yok,
+     * yurume kontrolcusu engel gordugunde zaten ziplatiyor.</p>
+     *
+     * @param speed kovalama hizi
+     * @param coolDown vuruslar arasindaki bekleme (tick)
+     */
+    private static EntityAIComponentImpl buildCubeBehaviorGroup(float speed, int coolDown) {
+        var behaviorGroup = BehaviorGroupImpl.builder()
+                .sensor(new NearestPlayerSensor(16, 0, 20))
+                .behavior(BehaviorImpl.builder()
+                        .executor(new MeleeAttackExecutor(MemoryTypes.ATTACK_TARGET, speed, 32, true, coolDown))
+                        .evaluator(all(
+                                new MemoryCheckNotEmptyEvaluator(MemoryTypes.ATTACK_TARGET),
+                                entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.ATTACK_TARGET))
+                        ))
+                        .priority(3)
+                        .build())
+                .behavior(BehaviorImpl.builder()
+                        .executor(new MeleeAttackExecutor(MemoryTypes.NEAREST_PLAYER, speed, 32, coolDown))
+                        .evaluator(all(
+                                new MemoryCheckNotEmptyEvaluator(MemoryTypes.NEAREST_PLAYER),
+                                entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.NEAREST_PLAYER))
+                        ))
+                        .priority(2)
+                        .build())
+                .behavior(BehaviorImpl.builder()
+                        .executor(new FlatRandomRoamExecutor(0.1f, 12, 100, false, -1, true, 10))
+                        .evaluator(entity -> true)
+                        .priority(1)
+                        .build())
+                .controller(new WalkController())
+                .controller(new FluctuateController())
+                .controller(new LookController(true, true))
+                .routeFinder(new FlatAStarRouteFinder(new WalkingPosEvaluator()))
+                .build();
+
+        return new EntityAIComponentImpl(behaviorGroup);
+    }
+
+    public static void initSlime() {
+        EntityTypes.SLIME = AllayEntityType
+                .builder(EntitySlimeImpl.class)
+                .vanillaEntity(EntityId.SLIME)
+                .addComponent(EntityCubeBaseComponentImpl::new, EntityCubeBaseComponentImpl.class)
+                .addComponent(() -> new EntityCubeLivingComponentImpl(
+                        () -> EntityTypes.SLIME, () -> ItemTypes.SLIME_BALL, true),
+                        EntityCubeLivingComponentImpl.class)
+                .addComponent(EntityMobPhysicsComponentImpl::new, EntityMobPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> buildCubeBehaviorGroup(CUBE_SPEED, CUBE_ATTACK_COOLDOWN), EntityAIComponentImpl.class)
+                .build();
+    }
+
+    public static void initMagmaCube() {
+        EntityTypes.MAGMA_CUBE = AllayEntityType
+                .builder(EntityMagmaCubeImpl.class)
+                .vanillaEntity(EntityId.MAGMA_CUBE)
+                .addComponent(EntityCubeBaseComponentImpl::new, EntityCubeBaseComponentImpl.class)
+                .addComponent(() -> new EntityCubeLivingComponentImpl(
+                        () -> EntityTypes.MAGMA_CUBE, () -> ItemTypes.MAGMA_CREAM, false) {
+                    @Override
+                    public boolean isFireproof() {
+                        // Nether'in kupu kendi elementinden zarar gormez.
+                        return true;
+                    }
+                }, EntityCubeLivingComponentImpl.class)
+                .addComponent(EntityMobPhysicsComponentImpl::new, EntityMobPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> buildCubeBehaviorGroup(CUBE_SPEED, CUBE_ATTACK_COOLDOWN), EntityAIComponentImpl.class)
+                .build();
+    }
+
+    /**
+     * Yuzen bir mobun davranis grubunu kurar: oyuncu yaklasirsa kac, yoksa suda dolas.
+     *
+     * <p>Balik ve akselotun ortak iskeleti. Kara moblarindan iki noktada ayriliyor: rotayi
+     * {@link SpaceAStarRouteFinder} uc boyutlu kuruyor ve hareketi {@link SwimController}
+     * uyguluyor, cunku duz yol bulma ile yurume kontrolcusu bir baligi girdigi derinlikte
+     * birakirdi. {@code FluctuateController} da yok — o su yuzeyine dogru itiyor ve yuzen bir mobu
+     * surekli yuzeye cikarirdi.</p>
+     *
+     * @param speed yuzme hizi
+     * @param fleeRange oyuncuyu bu mesafede fark edip kacar (blok)
+     */
+    private static EntityAIComponentImpl buildSwimmingBehaviorGroup(float speed, double fleeRange) {
+        var posEvaluator = new SwimmingPosEvaluator();
+        var behaviorGroup = BehaviorGroupImpl.builder()
+                .sensor(new NearestPlayerSensor(fleeRange, 0, 20))
+                // Oncelik 2: yaklasan oyuncudan uzaklas
+                .behavior(BehaviorImpl.builder()
+                        .executor(new SpaceRandomRoamExecutor(speed * 2, 10, 4, 1, 12, posEvaluator))
+                        .evaluator(new MemoryCheckNotEmptyEvaluator(MemoryTypes.NEAREST_PLAYER))
+                        .priority(2)
+                        .build())
+                // Oncelik 1 (en dusuk): sakin sakin dolas
+                .behavior(BehaviorImpl.builder()
+                        .executor(new SpaceRandomRoamExecutor(speed, 8, 3, 40, 12, posEvaluator))
+                        .evaluator(entity -> true)
+                        .priority(1)
+                        .build())
+                .controller(new SwimController())
+                .controller(new LookController(true, true))
+                .routeFinder(new SpaceAStarRouteFinder(posEvaluator))
+                .build();
+
+        return new EntityAIComponentImpl(behaviorGroup);
+    }
+
+    public static void initCod() {
+        EntityTypes.COD = AllayEntityType
+                .builder(EntityCodImpl.class)
+                .vanillaEntity(EntityId.COD)
+                .addComponent(initInfo -> new EntityFishBaseComponentImpl(initInfo, 0.6, 0.3), EntityFishBaseComponentImpl.class)
+                .addComponent(() -> new EntityFishLivingComponentImpl(3, () -> ItemTypes.COD), EntityFishLivingComponentImpl.class)
+                .addComponent(EntityFishPhysicsComponentImpl::new, EntityFishPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> buildSwimmingBehaviorGroup(COD_SPEED, FISH_FLEE_RANGE), EntityAIComponentImpl.class)
+                .build();
+    }
+
+    public static void initSalmon() {
+        EntityTypes.SALMON = AllayEntityType
+                .builder(EntitySalmonImpl.class)
+                .vanillaEntity(EntityId.SALMON)
+                .addComponent(initInfo -> new EntityFishBaseComponentImpl(initInfo, 0.5, 0.5), EntityFishBaseComponentImpl.class)
+                .addComponent(() -> new EntityFishLivingComponentImpl(3, () -> ItemTypes.SALMON), EntityFishLivingComponentImpl.class)
+                .addComponent(EntityFishPhysicsComponentImpl::new, EntityFishPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> buildSwimmingBehaviorGroup(SALMON_SPEED, SALMON_FLEE_RANGE), EntityAIComponentImpl.class)
+                .build();
+    }
+
+    public static void initTropicalfish() {
+        EntityTypes.TROPICALFISH = AllayEntityType
+                .builder(EntityTropicalfishImpl.class)
+                .vanillaEntity(EntityId.TROPICALFISH)
+                .addComponent(initInfo -> new EntityFishBaseComponentImpl(initInfo, 0.4, 0.4), EntityFishBaseComponentImpl.class)
+                .addComponent(() -> new EntityFishLivingComponentImpl(3, () -> ItemTypes.TROPICAL_FISH), EntityFishLivingComponentImpl.class)
+                .addComponent(EntityFishPhysicsComponentImpl::new, EntityFishPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> buildSwimmingBehaviorGroup(TROPICALFISH_SPEED, FISH_FLEE_RANGE), EntityAIComponentImpl.class)
+                .build();
+    }
+
+    public static void initPufferfish() {
+        EntityTypes.PUFFERFISH = AllayEntityType
+                .builder(EntityPufferfishImpl.class)
+                .vanillaEntity(EntityId.PUFFERFISH)
+                .addComponent(initInfo -> new EntityFishBaseComponentImpl(initInfo, 0.8, 0.8), EntityFishBaseComponentImpl.class)
+                .addComponent(() -> new EntityFishLivingComponentImpl(3, () -> ItemTypes.PUFFERFISH), EntityFishLivingComponentImpl.class)
+                .addComponent(EntityFishPhysicsComponentImpl::new, EntityFishPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> buildSwimmingBehaviorGroup(PUFFERFISH_SPEED, FISH_FLEE_RANGE), EntityAIComponentImpl.class)
+                .build();
+    }
+
+    public static void initAxolotl() {
+        EntityTypes.AXOLOTL = AllayEntityType
+                .builder(EntityAxolotlImpl.class)
+                .vanillaEntity(EntityId.AXOLOTL)
+                .addComponent(EntityAxolotlBaseComponentImpl::new, EntityAxolotlBaseComponentImpl.class)
+                .addComponent(EntityAxolotlLivingComponentImpl::new, EntityAxolotlLivingComponentImpl.class)
+                .addComponent(EntityAquaticPhysicsComponentImpl::new, EntityAquaticPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> {
+                    var posEvaluator = new SwimmingPosEvaluator();
+                    var behaviorGroup = BehaviorGroupImpl.builder()
+                            // Akselot oyuncuyu umursamaz, balik arar.
+                            .sensor(new NearestFishSensor(AXOLOTL_HUNT_RANGE, 20))
+                            // Oncelik 2: gordugu baligin pesine dus
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new MeleeAttackExecutor(MemoryTypes.NEAREST_FISH, AXOLOTL_SPEED, 16, 20, 1.5))
+                                    .evaluator(new MemoryCheckNotEmptyEvaluator(MemoryTypes.NEAREST_FISH))
+                                    .priority(2)
+                                    .build())
+                            // Oncelik 1 (en dusuk): suda dolas
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new SpaceRandomRoamExecutor(AXOLOTL_SPEED, 8, 3, 40, 12, posEvaluator))
+                                    .evaluator(entity -> true)
+                                    .priority(1)
+                                    .build())
+                            .controller(new SwimController())
+                            .controller(new LookController(true, true))
+                            .routeFinder(new SpaceAStarRouteFinder(posEvaluator))
+                            .build();
+
+                    return new EntityAIComponentImpl(behaviorGroup);
+                }, EntityAIComponentImpl.class)
+                .build();
     }
 
     /**

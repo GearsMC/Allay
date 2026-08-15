@@ -101,6 +101,8 @@ import org.allaymc.server.container.impl.UnopenedContainerId;
 import org.allaymc.server.container.processor.ContainerActionProcessor;
 import org.allaymc.server.ddui.AllayDDUIScreenSession;
 import org.allaymc.server.entity.component.EntityAngerableBaseComponentImpl;
+import org.allaymc.server.entity.component.aquatic.EntityAxolotlBaseComponentImpl;
+import org.allaymc.server.entity.impl.EntityImpl;
 import org.allaymc.server.entity.component.player.EntityPlayerBaseComponentImpl;
 import org.allaymc.server.entity.impl.EntityPlayerImpl;
 import org.allaymc.server.eventbus.event.network.PacketReceiveEvent;
@@ -755,6 +757,19 @@ public class AllayPlayer implements Player {
         return target != null ? target.getUniqueId().getLeastSignificantBits() : -1L;
     }
 
+    /**
+     * Akselotun renk varyantini okur. Varyant temel bilesende tutuluyor ve API arayuzunde yer
+     * almiyor, cunku baska hicbir yerden okunmasi gerekmiyor; yalnizca bu metadata icin var.
+     *
+     * @return renk varyanti; okunamazsa varsayilan olarak pembe
+     */
+    protected int axolotlVariantOf(EntityAxolotl axolotl) {
+        var baseComponent = ((EntityImpl) axolotl).getBaseComponent();
+        return baseComponent instanceof EntityAxolotlBaseComponentImpl axolotlBase
+                ? axolotlBase.getVariant()
+                : 0;
+    }
+
     protected void addTypeSpecificMetadata(Entity entity, EntityDataMap map) {
         switch (entity) {
             case EntityTnt tnt -> {
@@ -861,6 +876,29 @@ public class AllayPlayer implements Player {
             }
             case EntitySheep sheep -> {
                 map.setFlag(EntityFlag.SHEARED, sheep.isSheared());
+            }
+            // Kupun boyutu istemcide olcekle cizilir; VARIANT ise modelin hangi boyuta ait
+            // parcalari kullanacagini soyler.
+            case EntityCubeBaseComponent cube -> {
+                map.put(EntityDataTypes.VARIANT, cube.getCubeSize());
+                map.put(EntityDataTypes.SCALE, (float) cube.getCubeSize());
+            }
+            case EntityAxolotl axolotl -> {
+                map.put(EntityDataTypes.VARIANT, axolotlVariantOf(axolotl));
+            }
+            // Kupun icinin nasil gorunecegi metadata ile degil, iki ayri yoldan belirleniyor:
+            // kisilik property'si sulfur cekirdegini gizler, yutulan blok ise kupun *elindeki
+            // esya* olarak cizilir. Bu yuzden burada yalnizca boyut, fitil ve ziplama var.
+            case EntitySulfurCube sulfurCube -> {
+                // Resmi davranis paketinde kucuk kup 1, buyuk kup 2. Sifir hicbir boyuta karsilik
+                // gelmiyor; kucuge 0 gondermek istemciye tanimsiz bir durum birakiyordu.
+                map.put(EntityDataTypes.VARIANT, sulfurCube.isLarge() ? 2 : 1);
+                map.setFlag(EntityFlag.IGNITED, sulfurCube.isIgnited());
+                // Ziplama animasyonu: bayrak animasyonu baslatir, sure ise ne kadar oynayacagini
+                // soyler. Sure bir bayta sigmali.
+                map.setFlag(EntityFlag.JUMP_GOAL_JUMP, sulfurCube.isJumping());
+                map.put(EntityDataTypes.JUMP_DURATION,
+                        (byte) Math.max(0, Math.min(255, sulfurCube.getJumpDurationTicks())));
             }
             default -> {
             }
@@ -1099,6 +1137,12 @@ public class AllayPlayer implements Player {
                     packet.setRuntimeEntityId(entity.getRuntimeId());
                     sendPacket(packet);
                 }
+            }
+            case SimpleEntityAction.JUMP -> {
+                var packet = new EntityEventPacket();
+                packet.setType(EntityEventType.JUMP);
+                packet.setRuntimeEntityId(entity.getRuntimeId());
+                sendPacket(packet);
             }
             case SimpleEntityAction.HURT -> {
                 var packet = new EntityEventPacket();

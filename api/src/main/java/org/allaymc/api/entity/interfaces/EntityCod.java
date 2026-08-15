@@ -1,7 +1,7 @@
 package org.allaymc.api.entity.interfaces;
 
-import org.allaymc.api.entity.Entity;
+import org.allaymc.api.entity.component.EntityHeadYawComponent;
 
-public interface EntityCod extends Entity {
+public interface EntityCod extends EntityIntelligent, EntityHeadYawComponent {
 
 }
