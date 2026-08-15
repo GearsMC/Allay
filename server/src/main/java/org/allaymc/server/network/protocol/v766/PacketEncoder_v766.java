@@ -673,6 +673,15 @@ public class PacketEncoder_v766 extends PacketEncoder {
             case SimpleParticle.WATER_DRIP -> packet.setType(ParticleType.DRIP_WATER);
             case SimpleParticle.LAVA_DRIP -> packet.setType(ParticleType.DRIP_LAVA);
             case SimpleParticle.LAVA -> packet.setType(ParticleType.LAVA);
+            // GearsMC fork: bes parcacik fork'ta eklenmisti (fff6d752d) ve multi-version
+            // gecisinde upstream'in listesiyle yeniden yazilirken dusmustu. CHERRY_LEAVES
+            // mevsim atmosferinde kullaniliyor; eksik olunca encodeParticle istisna atip
+            // hava servisinin tick gorevini dusuruyordu.
+            case SimpleParticle.VILLAGER_HAPPY -> packet.setType(ParticleType.VILLAGER_HAPPY);
+            case SimpleParticle.END_ROD -> packet.setType(ParticleType.END_ROD);
+            case SimpleParticle.CAMPFIRE_SMOKE -> packet.setType(ParticleType.CAMPFIRE_SMOKE);
+            case SimpleParticle.CHERRY_LEAVES -> packet.setType(ParticleType.CHERRY_LEAVES);
+            case SimpleParticle.PALE_OAK_LEAVES -> packet.setType(ParticleType.PALE_OAK_LEAVES);
             case SimpleParticle.DUST_PLUME -> packet.setType(ParticleType.DUST_PLUME);
             case SimpleParticle.WHITE_SMOKE -> packet.setType(ParticleType.WHITE_SMOKE);
             case SimpleParticle.FIREWORK_CONTRAIL -> packet.setType(ParticleType.FIREWORKS);

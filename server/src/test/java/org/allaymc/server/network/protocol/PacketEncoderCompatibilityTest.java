@@ -152,6 +152,37 @@ class PacketEncoderCompatibilityTest {
         }
     }
 
+    /**
+     * Her {@link SimpleParticle} sabitinin kodlanabildigini dogrular.
+     *
+     * <p>Bu test bir gerilemeden dogdu: fork'un ekledigi bes parcacik
+     * (VILLAGER_HAPPY, END_ROD, CAMPFIRE_SMOKE, CHERRY_LEAVES, PALE_OAK_LEAVES)
+     * multi-version gecisinde upstream'in listesiyle yeniden yazilirken dustu.
+     * {@code encodeParticle} taninmayan sabitte istisna attigi icin mevsim
+     * atmosferi hava servisinin tick gorevini dusuruyordu ve bu ancak bir oyuncu
+     * girdiginde ortaya cikiyordu. Tek tek sabit denemek yerine enum'un TAMAMI
+     * gezilir; boylece enum'a eklenip encoder'a eklenmeyen her sabit yakalanir.</p>
+     */
+    @Test
+    void everySimpleParticleIsEncodable() {
+        var position = new org.joml.Vector3d(3, 64, -5);
+        for (var protocol : List.of(
+                protocol(ClientVariant.NETEASE, 766),
+                protocol(ClientVariant.INTERNATIONAL, 1001),
+                protocol(ClientVariant.INTERNATIONAL, 2168)
+        )) {
+            var encoder = protocol.getEncoder();
+            for (var particle : SimpleParticle.values()) {
+                var packets = assertDoesNotThrow(
+                        () -> encoder.encodeParticle(particle, position, 0),
+                        () -> particle + " kodlanamiyor (" + protocol + ")"
+                );
+                assertFalse(packets.isEmpty(), () -> particle + " bos paket listesi dondurdu");
+                packets.forEach(packet -> assertPacketEncodes(protocol, packet));
+            }
+        }
+    }
+
     @Test
     void worldEncodersReturnFreshCodecCompatiblePackets() {
         var position = new org.joml.Vector3i(3, 64, -5);
