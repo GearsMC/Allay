@@ -34,11 +34,11 @@ public class FakeHopperContainerImpl extends FakeContainerImpl {
             nbt.putString("CustomName", this.customName);
         }
 
-        var packet = new BlockEntityDataPacket();
-        packet.setBlockPosition(toNetwork(pos));
-        packet.setData(nbt.build());
-        // multi-version v2 sonrasi: sendPacket API'den kalkti, sunucu ici kaldi.
-        ((AllayPlayer) player).sendPacket(packet);
+        // multi-version v2 sonrasi paket burada kurulmaz: her protokol surumu kendi
+        // kodlayicisiyla uretir, sendPacket de API'den cikip sunucu icinde kaldi.
+        var allayPlayer = (AllayPlayer) player;
+        allayPlayer.sendPacket(allayPlayer.getProtocol().getEncoder()
+                .encodeBlockEntityData(pos, nbt.build()));
 
         this.fakeBlockPositions.put(player, new Vector3ic[]{pos});
     }

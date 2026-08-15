@@ -53,6 +53,7 @@ import org.allaymc.api.world.chunk.OperationType;
 import org.allaymc.api.world.data.Weather;
 import org.allaymc.api.world.dimension.DimensionType;
 import org.allaymc.api.world.explosion.FireworkExplosion;
+import org.allaymc.api.world.gamerule.GameRule;
 import org.allaymc.api.world.gamerule.GameRules;
 import org.allaymc.api.world.particle.*;
 import org.allaymc.api.world.sound.*;
@@ -509,6 +510,14 @@ public class PacketEncoder_v766 extends PacketEncoder {
         Objects.requireNonNull(gameRules, "gameRules");
         var packet = new GameRulesChangedPacket();
         packet.getGameRules().addAll(NetworkHelper.toNetwork(gameRules.getGameRules()));
+        return packet;
+    }
+
+    @Override
+    public GameRulesChangedPacket encodeGameRule(GameRule rule, Object value) {
+        Objects.requireNonNull(rule, "rule");
+        var packet = new GameRulesChangedPacket();
+        packet.getGameRules().addAll(NetworkHelper.toNetwork(Map.of(rule, value)));
         return packet;
     }
 

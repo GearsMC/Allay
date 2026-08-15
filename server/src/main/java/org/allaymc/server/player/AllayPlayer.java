@@ -1235,9 +1235,8 @@ public class AllayPlayer implements Player {
         Objects.requireNonNull(rule, "rule");
         // Dunyanin kural haritasina dokunulmaz: paket yalnizca bu oyuncuya gider,
         // dolayisiyla degisiklik de yalnizca onun istemcisinde gecerli olur.
-        var packet = new GameRulesChangedPacket();
-        packet.getGameRules().addAll(NetworkHelper.toNetwork(Map.of(rule, value)));
-        sendPacket(packet);
+        // Paket burada kurulmaz; protokol surumune gore kodlayici uretir.
+        sendPacket(getProtocol().getEncoder().encodeGameRule(rule, value));
     }
 
     /**

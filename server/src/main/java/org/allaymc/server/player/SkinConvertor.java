@@ -1,16 +1,19 @@
 package org.allaymc.server.player;
 
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 import org.allaymc.api.player.Skin;
 import org.cloudburstmc.protocol.bedrock.data.skin.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
  * SkinConvertor is a utility class to convert between the API's Skin object and the protocol's SerializedSkin object.
  */
+@Slf4j
 @UtilityClass
 public final class SkinConvertor {
     /**
@@ -34,13 +37,8 @@ public final class SkinConvertor {
 
         // Convert list of persona pieces
         List<PersonaPieceData> serializedPersonaPieces = skin.personaPieces().stream()
-                .map(piece -> new PersonaPieceData(
-                        piece.pieceId(),
-                        piece.pieceType(),
-                        piece.packId(),
-                        piece.isDefault(),
-                        piece.productId()
-                ))
+                .map(SkinConvertor::convertPersonaPiece)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         // Convert list of persona piece tint colors
@@ -74,6 +72,36 @@ public final class SkinConvertor {
                 .tintColors(serializedTintColors)
                 .overridingPlayerAppearance(skin.overrideAppearance())
                 .build();
+    }
+
+    /**
+     * GearsMC fork: bir persona parcasini protokol nesnesine cevirir, cevrilemezse
+     * {@code null} doner.
+     *
+     * <p>v2168'den once {@code PersonaPieceData} her string'i kabul eden bir record'du.
+     * Artik kurucu {@code packId}'yi {@code UUID.fromString} ile ayristiriyor ve parca
+     * tipini {@code PersonaPieceType.fromName} ile cozuyor; ikisi de taniyamazsa
+     * istisna atiyor. Bu veri dogrudan istemciden geldigi icin bozuk ya da bilinmeyen
+     * bir parca butun girisi dusururdu — tek parcayi atlamak deri gorunumunde kucuk
+     * bir eksiklige, atlamamak ise oyuncunun sunucuya hic girememesine mal olur.</p>
+     *
+     * @param piece istemciden gelen parca
+     * @return protokol nesnesi, ya da veri gecersizse {@code null}
+     */
+    private static PersonaPieceData convertPersonaPiece(Skin.PersonaPieces piece) {
+        try {
+            return new PersonaPieceData(
+                    piece.pieceId(),
+                    piece.pieceType(),
+                    piece.packId(),
+                    piece.isDefault(),
+                    piece.productId()
+            );
+        } catch (IllegalArgumentException | NullPointerException exception) {
+            log.debug("Skipping unusable persona piece (type={}, packId={}): {}",
+                    piece.pieceType(), piece.packId(), exception.getMessage());
+            return null;
+        }
     }
 
     /**

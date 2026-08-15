@@ -39,7 +39,8 @@ class ProtocolRegistryTest {
         assertInstanceOf(Protocol_v819_NetEase.class, registry.resolve(ClientVariant.NETEASE, 819));
         assertNull(registry.resolve(ClientVariant.NETEASE, 818));
         assertEquals(818, registry.getLowest(ClientVariant.INTERNATIONAL).getProtocolVersion());
-        assertEquals(1001, registry.getLatest(ClientVariant.INTERNATIONAL).getProtocolVersion());
+        // GearsMC fork: en yeni surum v2168 (1.26.40), upstream v1001'de kalmisti.
+        assertEquals(2168, registry.getLatest(ClientVariant.INTERNATIONAL).getProtocolVersion());
         assertEquals(766, registry.getLowest(ClientVariant.NETEASE).getProtocolVersion());
         assertEquals(819, registry.getLatest(ClientVariant.NETEASE).getProtocolVersion());
     }

@@ -29,6 +29,7 @@ import org.allaymc.api.world.WorldViewer.BlockUpdate;
 import org.allaymc.api.world.chunk.Chunk;
 import org.allaymc.api.world.data.Weather;
 import org.allaymc.api.world.dimension.DimensionType;
+import org.allaymc.api.world.gamerule.GameRule;
 import org.allaymc.api.world.gamerule.GameRules;
 import org.allaymc.api.world.particle.Particle;
 import org.allaymc.api.world.sound.Sound;
@@ -210,6 +211,20 @@ public abstract class PacketEncoder {
 
     /** Encodes the complete set of current game rule values. */
     public GameRulesChangedPacket encodeGameRules(GameRules gameRules) {
+        return null;
+    }
+
+    /**
+     * GearsMC fork: tek bir oyun kuralini kodlar.
+     *
+     * <p>Dunya genelindeki kural kumesini degil yalnizca bir kurali tasir; tek bir
+     * oyuncuya gonderilerek o oyuncuya ozel ayar yapmak icin kullanilir.</p>
+     *
+     * @param rule  kural
+     * @param value kuralin degeri
+     * @return kural degisikligi paketi
+     */
+    public GameRulesChangedPacket encodeGameRule(GameRule rule, Object value) {
         return null;
     }
 
