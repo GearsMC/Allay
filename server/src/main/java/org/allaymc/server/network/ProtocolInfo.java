@@ -24,10 +24,19 @@ public final class ProtocolInfo {
     /**
      * Feature version is the version of the game from which vanilla features will be used.
      */
-    // NOT: bilerek v2168 DEGIL. Ozellik surumu, sunucunun dagittigi oyun verisini
-    // secer (blok paleti, esyalar, tarifler, creative icerigi) ve o veri hala
-    // 1.26.30. v2168 istemcileri ProtocolRegistry'deki Protocol_v2168 kaydi
-    // uzerinden baglanir; veri seti yeniden uretilene kadar 1.26.30 icerigi alirlar.
+    // NOT: bilerek v2168 DEGIL, ama bu sabit oyun verisini SECMIYOR — yalnizca
+    // beyan ediyor. Istemciye giden blok/esya tanimlari Registries.BLOCKS ve
+    // Registries.ITEMS'tan uretilir (bkz. Protocol#createBlockDefinitions,
+    // #createItemDefinitions); o kayit defterleri de data/resources altindaki
+    // statik dosyalardan yuklenir. FEATURE_VERSION o zincirin hicbir yerinde
+    // gecmez, dolayisiyla burayi tek basina yukseltmek hicbir veriyi
+    // degistirmez — sadece asagidaki damgayi yalan yapar. Once
+    // data/resources yeniden uretilmeli (bkz. unpacked/staging-1.26.40/README.md).
+    //
+    // Sabitin tek gercek etkisi dunya deposu kapisi (WorldDataCodec): level.dat'a
+    // NetworkVersion damgasini bu yazar ve bundan yeni damgali bir dunyayi acmayi
+    // REDDEDER. Yani yukseltmek tek yonlu; damgalanan dunyalar eski degere geri
+    // donuldugunde acilmaz.
     public static final BedrockCodec FEATURE_VERSION = Bedrock_v1001.CODEC;
 
     /**
