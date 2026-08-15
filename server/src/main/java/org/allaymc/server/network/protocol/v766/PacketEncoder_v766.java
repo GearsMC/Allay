@@ -17,12 +17,15 @@ import org.allaymc.api.dialog.ModelSettings;
 import org.allaymc.api.entity.Entity;
 import org.allaymc.api.entity.action.*;
 import org.allaymc.api.entity.component.*;
+import org.allaymc.api.entity.component.EntityCubeBaseComponent;
 import org.allaymc.api.entity.ai.memory.MemoryTypes;
 import org.allaymc.api.entity.data.EntityAnimation;
 import org.allaymc.api.entity.data.WeaponStance;
 import org.allaymc.server.entity.component.EntityAngerableBaseComponentImpl;
 import org.allaymc.api.entity.effect.EffectInstance;
 import org.allaymc.api.entity.interfaces.*;
+import org.allaymc.api.entity.interfaces.EntityAxolotl;
+import org.allaymc.api.entity.interfaces.EntitySulfurCube;
 import org.allaymc.api.entity.property.type.BooleanPropertyType;
 import org.allaymc.api.entity.property.type.EnumPropertyType;
 import org.allaymc.api.entity.property.type.FloatPropertyType;
@@ -62,6 +65,8 @@ import org.allaymc.server.AllayServer;
 import org.allaymc.server.container.ContainerNetworkInfo;
 import org.allaymc.server.container.impl.UnopenedContainerId;
 import org.allaymc.server.container.processor.ContainerActionProcessor;
+import org.allaymc.server.entity.component.aquatic.EntityAxolotlBaseComponentImpl;
+import org.allaymc.server.entity.impl.EntityImpl;
 import org.allaymc.server.network.NetworkHelper;
 import org.allaymc.server.network.protocol.PacketEncoder;
 import org.allaymc.server.network.protocol.ProtocolData;
@@ -1341,9 +1346,44 @@ public class PacketEncoder_v766 extends PacketEncoder {
                 }
             }
             case EntitySheep sheep -> metadata.setFlag(EntityFlag.SHEARED, sheep.isSheared());
+            // Kupun boyutu istemcide olcekle cizilir; VARIANT ise modelin hangi boyuta ait
+            // parcalari kullanacagini soyler.
+            case EntityCubeBaseComponent cube -> {
+                metadata.put(EntityDataTypes.VARIANT, cube.getCubeSize());
+                metadata.put(EntityDataTypes.SCALE, (float) cube.getCubeSize());
+            }
+            case EntityAxolotl axolotl -> metadata.put(EntityDataTypes.VARIANT, axolotlVariantOf(axolotl));
+            // Kupun icinin nasil gorunecegi metadata ile degil, iki ayri yoldan belirleniyor:
+            // kisilik property'si sulfur cekirdegini gizler, yutulan blok ise kupun *elindeki
+            // esya* olarak cizilir. Bu yuzden burada yalnizca boyut, fitil ve ziplama var.
+            case EntitySulfurCube sulfurCube -> {
+                // Resmi davranis paketinde kucuk kup 1, buyuk kup 2. Sifir hicbir boyuta karsilik
+                // gelmiyor; kucuge 0 gondermek istemciye tanimsiz bir durum birakiyordu.
+                metadata.put(EntityDataTypes.VARIANT, sulfurCube.isLarge() ? 2 : 1);
+                metadata.setFlag(EntityFlag.IGNITED, sulfurCube.isIgnited());
+                // Ziplama animasyonu: bayrak animasyonu baslatir, sure ise ne kadar oynayacagini
+                // soyler. Sure bir bayta sigmali.
+                metadata.setFlag(EntityFlag.JUMP_GOAL_JUMP, sulfurCube.isJumping());
+                metadata.put(EntityDataTypes.JUMP_DURATION,
+                        (byte) Math.max(0, Math.min(255, sulfurCube.getJumpDurationTicks())));
+            }
             default -> {
             }
         }
+    }
+
+    /**
+     * Akselotun renk varyantini okur. Varyant temel bilesende tutuluyor ve API arayuzunde yer
+     * almiyor, cunku baska hicbir yerden okunmasi gerekmiyor; yalnizca bu metadata icin var.
+     *
+     * @param axolotl varyanti okunacak akselot
+     * @return renk varyanti; okunamazsa varsayilan olarak pembe
+     */
+    protected static int axolotlVariantOf(EntityAxolotl axolotl) {
+        var baseComponent = ((EntityImpl) axolotl).getBaseComponent();
+        return baseComponent instanceof EntityAxolotlBaseComponentImpl axolotlBase
+                ? axolotlBase.getVariant()
+                : 0;
     }
 
     private static long encodeVisibleEffects(Collection<EffectInstance> effects) {
@@ -1535,6 +1575,8 @@ public class PacketEncoder_v766 extends PacketEncoder {
                 }
                 yield List.of(createEntityEventPacket(entity, EntityEventType.ATTACK_START, 0));
             }
+            case SimpleEntityAction.JUMP ->
+                    List.of(createEntityEventPacket(entity, EntityEventType.JUMP, 0));
             case SimpleEntityAction.HURT ->
                     List.of(createEntityEventPacket(entity, EntityEventType.HURT, 0));
             case SimpleEntityAction.DEATH ->
