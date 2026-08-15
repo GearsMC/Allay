@@ -10,7 +10,7 @@ import org.allaymc.updater.item.ItemStateUpdater;
 import org.allaymc.updater.item.ItemStateUpdater_1_26_20;
 import org.cloudburstmc.protocol.bedrock.codec.BedrockCodec;
 import org.cloudburstmc.protocol.bedrock.codec.v1001.Bedrock_v1001;
-import org.cloudburstmc.protocol.bedrock.codec.v2168.Bedrock_v2168;
+import org.cloudburstmc.protocol.bedrock.codec.v2168.Bedrock_v2168_hotfix4;
 import org.cloudburstmc.protocol.bedrock.codec.v818.Bedrock_v818;
 
 /**
@@ -69,7 +69,9 @@ public final class ProtocolInfo {
         // GearsMC fork: bootstrap degeri de v2168. Acilis banner'i registry kurulmadan
         // once basiliyor; upstream'in v1001'i burada kalirsa sunucu desteklemedigi bir
         // ust sinir bildirir ("1.26.30'a kadar") ve 1.26.40 oyuncusu yanlis bilgilenir.
-        return Bedrock_v2168.CODEC;
+        // Protocol_v2168 ile ayni kodek kullanilir ki banner'daki surum dizesi
+        // registry kurulduktan sonraki gercek degerle ayni kalsin.
+        return Bedrock_v2168_hotfix4.CODEC;
     }
 
     /**
