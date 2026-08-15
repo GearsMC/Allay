@@ -40,6 +40,7 @@ import org.allaymc.api.eventbus.event.server.PlayerLoginEvent;
 import org.allaymc.api.eventbus.event.server.PlayerSpawnEvent;
 import org.allaymc.api.form.type.CustomForm;
 import org.allaymc.api.form.type.Form;
+import org.allaymc.api.item.ItemStack;
 import org.allaymc.api.item.enchantment.EnchantOption;
 import org.allaymc.api.math.location.Location3d;
 import org.allaymc.api.math.location.Location3dc;
@@ -372,6 +373,20 @@ public class AllayPlayer implements Player {
     @Override
     public <T extends Entity & EntityContainerHolderComponent> void viewEntityHand(T entity) {
         sendPacket(getProtocol().getEncoder().encodeEntityHand(entity));
+    }
+
+    /**
+     * GearsMC fork: varligin elinde salt gorsel bir esya gosterir.
+     *
+     * <p>{@code viewEntityHand}'in aksine container gerektirmez; container bileseni
+     * olmayan varliklar icin var (yardimci Allay'in aleti, sulfur kupunun yuttugu blok).
+     * Fork'a ozel oldugu icin multi-version gecisinde upstream'in yeniden yaziminda
+     * karsiligi yoktu ve sessizce dusmustu — {@code WorldViewer}'daki bos default govde
+     * calisiyor, cagri hicbir sey yapmiyordu.</p>
+     */
+    @Override
+    public void viewEntityHandItem(Entity entity, ItemStack itemStack) {
+        sendPacket(getProtocol().getEncoder().encodeEntityHandItem(entity, itemStack));
     }
 
     @Override

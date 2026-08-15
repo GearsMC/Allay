@@ -408,6 +408,22 @@ public abstract class PacketEncoder {
         return null;
     }
 
+    /**
+     * GearsMC fork: bir varligin elinde SALT GORSEL olarak gosterilecek esyayi kodlar.
+     *
+     * <p>{@link #encodeEntityHand} varligin container'indan okur; bu ise verilen esyayi
+     * dogrudan gosterir ve container gerektirmez. Container bileseni olmayan varliklar
+     * icin gerekli: yardimci Allay'in aleti ve sulfur kupunun yuttugu blok boyle
+     * ciziliyor.</p>
+     *
+     * @param entity esyanin gosterilecegi varlik
+     * @param itemStack gosterilecek esya; hava eli bosaltir
+     * @return ekipman paketi
+     */
+    public MobEquipmentPacket encodeEntityHandItem(Entity entity, ItemStack itemStack) {
+        return null;
+    }
+
     /** Encodes the item held in an entity's offhand. */
     public <T extends Entity & EntityContainerHolderComponent> MobEquipmentPacket encodeEntityOffhand(T entity) {
         return null;

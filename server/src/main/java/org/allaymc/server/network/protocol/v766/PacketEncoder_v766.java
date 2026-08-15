@@ -32,6 +32,7 @@ import org.allaymc.api.entity.property.type.FloatPropertyType;
 import org.allaymc.api.entity.property.type.IntPropertyType;
 import org.allaymc.api.form.type.Form;
 import org.allaymc.api.item.ItemHelper;
+import org.allaymc.api.item.ItemStack;
 import org.allaymc.api.item.enchantment.EnchantOption;
 import org.allaymc.api.item.interfaces.ItemAirStack;
 import org.allaymc.api.item.type.ItemType;
@@ -1443,6 +1444,18 @@ public class PacketEncoder_v766 extends PacketEncoder {
             packet.setInventorySlot(handSlot);
             packet.setHotbarSlot(handSlot);
         }
+        return packet;
+    }
+
+    @Override
+    public MobEquipmentPacket encodeEntityHandItem(Entity entity, ItemStack itemStack) {
+        Objects.requireNonNull(entity, "entity");
+        var packet = new MobEquipmentPacket();
+        packet.setRuntimeEntityId(entity.getRuntimeId());
+        packet.setContainerId(UnopenedContainerId.PLAYER_INVENTORY);
+        packet.setItem(encodeItemStack(itemStack));
+        packet.setInventorySlot(0);
+        packet.setHotbarSlot(0);
         return packet;
     }
 
