@@ -9,14 +9,14 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Living component implementation for piglins.
+ * Piglin icin canli varlik bileseni.
  */
 public class EntityPiglinLivingComponentImpl extends EntityHostileLivingComponentImpl {
 
     /**
-     * Chance to drop the carried weapon, matching vanilla. Kept low on purpose: piglins spawn in
-     * waves from GearsCore nether mob blocks, and a guaranteed drop would flood the economy with
-     * golden swords and crossbows.
+     * Tasidigi silahi dusurme sansi; vanilla ile ayni. Bilerek dusuk tutuldu: piglin'ler
+     * GearsCore nether mob bloklarindan dalgalar halinde cikiyor ve garanti bir dusurme
+     * ekonomiyi altin kilic ve arbaletle bogardi.
      */
     protected static final float WEAPON_DROP_CHANCE = 0.085f;
 

@@ -54,6 +54,7 @@ import org.joml.primitives.AABBd;
 import org.joml.primitives.AABBdc;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.allaymc.api.utils.AllayNBTUtils.readVector2f;
@@ -146,8 +147,17 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
         this.runtimeId = RUNTIME_ID_COUNTER.getAndIncrement();
         this.propertyValues = new HashMap<>();
         this.entityType = info.getEntityType();
-        this.viewers = new HashSet<>();
-        this.primitiveShapes = new HashSet<>();
+        // Duz HashSet degil, es zamanli: varlik hareketi compute thread havuzunda calisiyor
+        // (AllayEntityPhysicsEngine varliklari paralel tickliyor) ve chunk sinirini gecmek o
+        // worker thread'inden izleyici ekleyip cikariyor; ayni anda AI tick'ini calistiran diger
+        // worker'lar ve ana thread hareketi, durumu ve eylemleri yayinlamak icin ayni seti
+        // dolasiyor. Senkronize olmayan bir set bu yarista eleman kaybediyor, ve kaybolan bir
+        // izleyici demek istemcinin o varliktan bir daha haberdar edilmemesi, ustelik duzgun bir
+        // kaldirma da almamasi demek: mob oylece yok oluyor. Mob ne kadar hizliysa o kadar cok
+        // chunk siniri geciyor, yani yarisa o kadar sik giriyor; kurtlarda bunun bu kadar sik
+        // gorulmesinin sebebi bu.
+        this.viewers = ConcurrentHashMap.newKeySet();
+        this.primitiveShapes = ConcurrentHashMap.newKeySet();
         this.state = EntityState.DESPAWNED;
         this.displayName = AllayStringUtils.snakeCaseToTitleCase(entityType.getIdentifier().path());
         this.scale = 1.0;
@@ -470,16 +480,39 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
         return Collections.unmodifiableSet(viewers);
     }
 
+    /**
+     * Bu varligi, onu zaten goremeyen bir izleyiciye dogurur.
+     *
+     * <p>Bu koruma, metodun ayni anda birkac yerden cagrilmasini guvenli kilan sey; ve her cagri
+     * yerinde degil burada olmasi gerekiyor. Dogurma uc bagimsiz yoldan isteniyor: varlik
+     * eklendiginde varlik yoneticisinden, bir chunk oyuncuya ulastiginda {@code viewChunk}'tan ve
+     * varlik chunk sinirini gectiginde {@link #setLocation}'dan. Chunk yolu bir sonraki tick'e
+     * kuyruklandigi icin, gonderilmekte olan bir chunk'a o sirada yuruyen bir varlik iki kez
+     * isteniyor. Istemcinin zaten bildigi bir calisma zamani kimligi icin ikinci bir ekleme paketi
+     * gitmesi, istemcinin varligi dusurmesine yol aciyor: mob sunucuda canli ve tehlikeli kalirken
+     * gorunmez oluyor. Hizli moblar chunk sinirlarini en sik gecenler oldugu icin bu en cok
+     * kurtlarda karsimiza cikiyor.</p>
+     */
     @Override
     public void spawnTo(WorldViewer viewer) {
-        viewers.add(viewer);
+        if (!viewers.add(viewer)) {
+            return;
+        }
+
         viewer.viewEntity(thisEntity);
         viewer.viewEntityState(thisEntity);
     }
 
+    /**
+     * Bu varligi, onu su an gorebilen bir izleyiciden kaldirir. Hic gormemis izleyicileri atlamak,
+     * baibos bir kaldirmanin istemcinin dogru sekilde cizdigi bir varligi silmesini onler.
+     */
     @Override
     public void despawnFrom(WorldViewer viewer) {
-        viewers.remove(viewer);
+        if (!viewers.remove(viewer)) {
+            return;
+        }
+
         viewer.removeEntity(thisEntity);
     }
 

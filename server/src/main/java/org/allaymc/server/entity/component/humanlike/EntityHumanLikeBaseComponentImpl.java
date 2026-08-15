@@ -16,6 +16,12 @@ public class EntityHumanLikeBaseComponentImpl extends EntityBaseComponentImpl {
 
     @Override
     public void spawnTo(WorldViewer viewer) {
+        // Bu varligi zaten goren bir izleyiciye hicbir sey yeniden gonderilmemeli; tekrarlanan bir
+        // dogurmanin neden tamamen etkisiz kalmasi gerektigi icin temel uygulamaya bakin.
+        if (getViewers().contains(viewer)) {
+            return;
+        }
+
         super.spawnTo(viewer);
         viewer.viewEntityHand((Entity & EntityContainerHolderComponent) thisEntity);
         viewer.viewEntityOffhand((Entity & EntityContainerHolderComponent) thisEntity);

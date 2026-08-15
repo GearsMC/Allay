@@ -3,37 +3,36 @@ package org.allaymc.api.entity.component;
 import org.allaymc.api.entity.data.WeaponStance;
 
 /**
- * Shared component for mobs that visibly wind up a weapon before attacking.
+ * Saldirmadan once silahini gozle gorulur sekilde hazirlayan moblar icin ortak bilesen.
  *
- * <p>The stance is server state that only exists to reach the client: it decides which of the
- * bow/crossbow animations plays. Implementations broadcast entity state when it changes.</p>
- *
- * @author daoge_cmd
+ * <p>Durus, yalnizca istemciye ulasmak icin var olan sunucu verisidir: yay/arbalet
+ * animasyonlarindan hangisinin oynayacagina karar verir. Uygulamalar deger degistiginde varlik
+ * durumunu yayinlar.</p>
  */
 public interface EntityWeaponStanceComponent extends EntityBaseComponent {
 
     /**
-     * @return the phase of weapon use this mob is currently in.
+     * @return mobun su an icinde bulundugu silah kullanma asamasi
      */
     WeaponStance getWeaponStance();
 
     /**
-     * Set the phase of weapon use. Setting the value it already has does nothing.
+     * Silah kullanma asamasini ayarlar. Zaten sahip oldugu degeri vermek hicbir sey yapmaz.
      *
-     * @param stance the new stance
+     * @param stance yeni durus
      */
     void setWeaponStance(WeaponStance stance);
 
     /**
-     * @return whether this mob currently has something it wants to attack. Drives the aggressive
-     * pose, and on illagers it is what makes them raise their weapon at all.
+     * @return mobun su an saldirmak istedigi bir sey olup olmadigi. Saldirgan duruşu surukler,
+     * ve illager'larda silahi kaldirmalarini saglayan sey de budur.
      */
     boolean isAggressive();
 
     /**
-     * Set whether this mob is going after a target.
+     * Mobun bir hedefin pesinde olup olmadigini ayarlar.
      *
-     * @param aggressive whether the mob has a target
+     * @param aggressive mobun hedefi varsa {@code true}
      */
     void setAggressive(boolean aggressive);
 }

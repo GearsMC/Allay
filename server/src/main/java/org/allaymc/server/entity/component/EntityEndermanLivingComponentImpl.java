@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Living component implementation for endermen.
+ * Enderman icin canli varlik bileseni.
  */
 public class EntityEndermanLivingComponentImpl extends EntityHostileLivingComponentImpl {
 

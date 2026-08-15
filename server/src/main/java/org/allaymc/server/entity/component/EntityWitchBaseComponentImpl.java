@@ -5,10 +5,10 @@ import org.joml.primitives.AABBd;
 import org.joml.primitives.AABBdc;
 
 /**
- * Witch base behavior: hitbox only.
+ * Cadinin temel davranisi: yalnizca carpisma kutusu.
  *
- * <p>Unlike the other illagers the witch carries nothing in its hand — it pulls potions out of thin
- * air — so it gets no container holder.</p>
+ * <p>Diger illager'larin aksine cadi elinde bir sey tasimaz — iksirleri yoktan cikarir — bu
+ * yuzden ona konteyner bileseni verilmedi.</p>
  */
 public class EntityWitchBaseComponentImpl extends EntityBaseComponentImpl {
 

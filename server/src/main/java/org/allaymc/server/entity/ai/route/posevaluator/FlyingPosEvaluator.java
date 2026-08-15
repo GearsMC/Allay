@@ -5,14 +5,15 @@ import org.allaymc.api.entity.interfaces.EntityIntelligent;
 import org.joml.Vector3dc;
 
 /**
- * Evaluates midair positions for flying entities.
+ * Ucan varliklar icin havadaki konumlari degerlendirir.
  *
- * <p>The route finder only guarantees that the block a node sits in has no collision, which is not
- * enough for a mob taller than one block — it would happily route a blaze through a one-block gap
- * and leave its head inside the ceiling. So the whole column the entity occupies is checked here.</p>
+ * <p>Yol bulucu yalnizca dugumun bulundugu blogun carpismasiz oldugunu garanti eder; bu, bir
+ * bloktan uzun bir mob icin yeterli degildir — blaze'i tek bloklik bir aralikta gecirip kafasini
+ * tavanin icinde birakirdi. Bu yuzden varligin kaplayacagi sutunun tamami burada kontrol
+ * ediliyor.</p>
  *
- * <p>Liquids are rejected as well. They have no collision shape, so without this a blaze would be
- * routed straight through water, which is the one thing that actually kills it.</p>
+ * <p>Sivilar da reddediliyor. Carpisma sekilleri olmadigi icin bu olmadan blaze dogruca suyun
+ * icinden gecirilirdi — ki onu gercekten olduren tek sey odur.</p>
  */
 public class FlyingPosEvaluator implements SpacePosEvaluator {
 
@@ -20,8 +21,7 @@ public class FlyingPosEvaluator implements SpacePosEvaluator {
     public boolean evaluate(EntityIntelligent entity, Vector3dc pos) {
         var aabb = entity.getAABB();
         var height = aabb.maxY() - aabb.minY();
-        // The node's own block is already known to be free; check every further block the entity
-        // would stick up into.
+        // Dugumun kendi blogunun bos oldugu zaten biliniyor; varligin tastigi diger her blogu kontrol et.
         var blocksTall = (int) Math.ceil(height);
 
         var dimension = entity.getDimension();

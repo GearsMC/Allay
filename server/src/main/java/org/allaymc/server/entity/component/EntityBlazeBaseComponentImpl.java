@@ -5,10 +5,11 @@ import org.joml.primitives.AABBd;
 import org.joml.primitives.AABBdc;
 
 /**
- * Blaze base behavior: hitbox and the angry/charged look.
+ * Blaze'in temel davranisi: carpisma kutusu ve ofkeli gorunum.
  *
- * <p>Extends the angerable base so the client is told when the blaze has locked on — that is what
- * makes its rods spin up and flare, the same cue vanilla gives before a fireball burst.</p>
+ * <p>Ofkelenebilir temel bileseni genisletir, boylece blaze bir hedefe kilitlendiginde istemci
+ * haberdar olur: cubuklarinin hizlanip parlamasini saglayan sey budur, vanilla'nin ates topu
+ * serisinden once verdigi isaretin aynisi.</p>
  */
 public class EntityBlazeBaseComponentImpl extends EntityAngerableBaseComponentImpl {
 

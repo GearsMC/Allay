@@ -6,11 +6,11 @@ import org.joml.primitives.AABBd;
 import org.joml.primitives.AABBdc;
 
 /**
- * Creeper base behavior: hitbox and fuse state.
+ * Creeper'in temel davranisi: carpisma kutusu ve fitil durumu.
  *
- * <p>The fuse lives here rather than inside the attack executor because the client has to be told
- * about it — the swelling animation is driven by an entity flag, and flags only travel with an
- * entity state broadcast.</p>
+ * <p>Fitil saldiri executor'unun icinde degil burada tutuluyor, cunku istemcinin bundan
+ * haberdar olmasi gerek: sisme animasyonunu bir varlik bayragi surukluyor ve bayraklar
+ * yalnizca varlik durumu yayinlandiginda karsi tarafa gidiyor.</p>
  */
 public class EntityCreeperBaseComponentImpl extends EntityBaseComponentImpl implements EntityCreeperBaseComponent {
 

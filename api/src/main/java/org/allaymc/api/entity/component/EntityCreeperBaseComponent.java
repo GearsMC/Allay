@@ -1,23 +1,22 @@
 package org.allaymc.api.entity.component;
 
 /**
- * Shared component for creeper entities that track whether the fuse is burning.
- *
- * @author daoge_cmd
+ * Fitilinin yanip yanmadigini takip eden creeper varliklari icin ortak bilesen.
  */
 public interface EntityCreeperBaseComponent extends EntityBaseComponent {
 
     /**
-     * Check if this creeper is currently swelling up to explode.
+     * Bu creeper'in su an patlamak uzere sisip sismedigini kontrol eder.
      *
-     * @return {@code true} if the fuse is burning
+     * @return fitil yaniyorsa {@code true}
      */
     boolean isSwelling();
 
     /**
-     * Set whether this creeper's fuse is burning. Drives the swelling animation on the client.
+     * Bu creeper'in fitilinin yanip yanmadigini ayarlar. Istemcideki sisme animasyonunu bu
+     * suruklerdir.
      *
-     * @param swelling {@code true} to start the fuse
+     * @param swelling fitili yakmak icin {@code true}
      */
     void setSwelling(boolean swelling);
 }

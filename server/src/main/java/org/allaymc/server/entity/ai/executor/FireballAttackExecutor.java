@@ -14,26 +14,26 @@ import org.allaymc.api.world.sound.SimpleSound;
 import org.joml.Vector3d;
 
 /**
- * Blaze-style fireball attack: hover near the target and spit a burst of small fireballs at it.
+ * Blaze tarzi ates topu saldirisi: hedefin yakininda havada durup ona kucuk ates topu serisi savurur.
  *
- * <p>The rhythm is what makes a blaze recognisable, so it is modelled explicitly: after the target
- * has been in range for {@code chargeTime} ticks the mob fires {@code burstSize} fireballs a few
- * ticks apart, then goes quiet for {@code coolDown} ticks before charging again. The mob also keeps
- * a distance band like a bow user and floats above its target rather than dropping to its feet —
- * being airborne is the blaze's whole advantage.</p>
+ * <p>Blaze'i taninir kilan sey bu ritim oldugu icin acikca modellendi: hedef {@code chargeTime}
+ * tick boyunca menzilde kaldiktan sonra mob birkac tick arayla {@code burstSize} kadar ates topu
+ * atar, sonra yeniden sarj etmeden once {@code coolDown} tick susar. Mob ayrica yay kullanan
+ * moblar gibi bir mesafe bandi korur ve hedefin ayaklarina inmek yerine ustunde suzulur; havada
+ * olmak blaze'in butun avantajidir.</p>
  *
- * <p>The projectile itself needs no work here: {@code SMALL_FIREBALL} already deals its damage,
- * sets the victim alight and starts fires where it lands.</p>
+ * <p>Merminin kendisi icin burada is yok: {@code SMALL_FIREBALL} hasarini zaten veriyor, kurbani
+ * tutusturuyor ve dustugu yerde yangin cikariyor.</p>
  */
 public class FireballAttackExecutor implements BehaviorExecutor {
 
-    /** Ticks between the individual fireballs of one burst. */
+    /** Bir serideki ates toplari arasindaki tick sayisi. */
     protected static final int SHOT_INTERVAL = 6;
 
-    /** How far above the target the mob tries to hover, in blocks. */
+    /** Mobun hedefin kac blok ustunde durmaya calistigi. */
     protected static final double HOVER_HEIGHT = 2.0;
 
-    /** Launch speed of a fireball. */
+    /** Ates topunun cikis hizi. */
     protected static final float FIREBALL_SPEED = 0.6f;
 
     protected final MemoryType<Long> targetIdMemory;
@@ -52,17 +52,17 @@ public class FireballAttackExecutor implements BehaviorExecutor {
     protected Vector3d lastMoveTarget;
 
     /**
-     * Creates a fireball attack executor.
+     * Bir ates topu saldiri executor'u olusturur.
      *
-     * @param targetIdMemory the memory entry that stores the target entity runtime id.
-     * @param speed the flight speed while repositioning.
-     * @param maxSenseRange the maximum target tracking range in blocks.
-     * @param preferredRange the distance the mob tries to attack from, in blocks.
-     * @param minRange the distance below which the mob backs off, in blocks.
-     * @param clearTargetAfterLose whether to clear the target memory when the behavior stops.
-     * @param chargeTime ticks spent winding up before a burst.
-     * @param coolDown ticks of silence after a burst.
-     * @param burstSize how many fireballs one burst contains.
+     * @param targetIdMemory hedef varligin calisma zamani kimligini tutan hafiza gozu
+     * @param speed konum degistirirken kullanilan ucus hizi
+     * @param maxSenseRange hedefin takip edilebilecegi en fazla mesafe (blok)
+     * @param preferredRange mobun saldirmaya calistigi mesafe (blok)
+     * @param minRange altina inilince mobun geri cekildigi mesafe (blok)
+     * @param clearTargetAfterLose davranis durdugunda hedef hafizasinin temizlenip temizlenmeyecegi
+     * @param chargeTime seri oncesi sarj icin harcanan tick sayisi
+     * @param coolDown seriden sonraki sessizlik (tick)
+     * @param burstSize bir serideki ates topu sayisi
      */
     public FireballAttackExecutor(MemoryType<Long> targetIdMemory, float speed, double maxSenseRange,
                                   double preferredRange, double minRange, boolean clearTargetAfterLose,
@@ -154,8 +154,8 @@ public class FireballAttackExecutor implements BehaviorExecutor {
     }
 
     /**
-     * Closes in when the target is far, drifts back when it is too close, and otherwise holds
-     * station — always aiming for a point above the target rather than level with it.
+     * Hedef uzaksa yaklasir, cok yakinsa geri suzulur, arada ise yerini korur; her zaman hedefin
+     * hizasini degil ustundeki bir noktayi hedefler.
      */
     protected void updateMovement(EntityIntelligent entity, double entityX, double entityZ,
                                   double targetX, double targetY, double targetZ, double distanceSquared) {
@@ -176,7 +176,7 @@ public class FireballAttackExecutor implements BehaviorExecutor {
             var retreat = Math.sqrt(preferredRangeSquared);
             moveTarget = new Vector3d(entityX + dx / length * retreat, hoverY, entityZ + dz / length * retreat);
         } else {
-            // Holding the firing position, but still climbing to hover height if we drifted down.
+            // Atis pozisyonu korunuyor, ama asagi kaydiysak suzulme yuksekligine geri tirmaniliyor.
             moveTarget = new Vector3d(entityX, hoverY, entityZ);
         }
 

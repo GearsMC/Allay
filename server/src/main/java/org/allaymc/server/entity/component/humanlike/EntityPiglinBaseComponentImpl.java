@@ -6,15 +6,15 @@ import org.allaymc.api.item.type.ItemTypes;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Piglin base behavior: hitbox, weapon variant and combat animation state.
+ * Piglin'in temel davranisi: carpisma kutusu, silah varyanti ve savas animasyonu durumu.
  *
- * <p>A piglin spawns holding either a crossbow or a golden sword, split evenly. The choice drives
- * the behavior group too — the crossbow variant shoots from a distance while the sword variant
- * charges in, both selected at runtime by reading the hand slot.</p>
+ * <p>Piglin ya arbaletle ya da altin kilicla dogar, yari yariya. Bu secim davranis grubunu da
+ * belirler — arbaletli varyant mesafeden ates eder, kiliclisi ustune kosar; ikisi de calisma
+ * aninda el gozune bakilarak secilir.</p>
  *
- * <p>Everything else — only arming an empty hand so a stored weapon survives a restart, and
- * carrying the stance the client needs to animate the crossbow — comes from
- * {@link EntityArmedBaseComponentImpl}, which the other armed mobs use as well.</p>
+ * <p>Geri kalan her sey — yalnizca bos eli silahlandirip kayitli bir silahin yeniden baslatmayi
+ * atlatmasini saglamak ve istemcinin arbaleti canlandirmak icin ihtiyac duydugu durumu tasimak —
+ * diger silahli moblarin da kullandigi {@link EntityArmedBaseComponentImpl}'den geliyor.</p>
  */
 public class EntityPiglinBaseComponentImpl extends EntityArmedBaseComponentImpl {
 

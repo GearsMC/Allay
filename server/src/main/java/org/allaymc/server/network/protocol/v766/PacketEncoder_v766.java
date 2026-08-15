@@ -17,6 +17,7 @@ import org.allaymc.api.dialog.ModelSettings;
 import org.allaymc.api.entity.Entity;
 import org.allaymc.api.entity.action.*;
 import org.allaymc.api.entity.component.*;
+import org.allaymc.api.entity.ai.memory.MemoryTypes;
 import org.allaymc.api.entity.data.EntityAnimation;
 import org.allaymc.api.entity.data.WeaponStance;
 import org.allaymc.server.entity.component.EntityAngerableBaseComponentImpl;
@@ -1182,26 +1183,58 @@ public class PacketEncoder_v766 extends PacketEncoder {
     }
 
     /**
-     * Writes the flags that drive weapon animations on armed mobs.
+     * Silahli moblarda silah animasyonlarini suruklen bayraklari yazar.
      *
-     * <p>Holding an item is not enough for the client. An illager keeps its weapon lowered until
-     * {@link EntityFlag#ANGRY} is set — which is why a vindicator looks empty-handed without it —
-     * and bows and crossbows only play their draw animation while the charging flags are on.</p>
+     * <p>Istemci icin elde esya tutmak yeterli degil. Bir illager {@link EntityFlag#ANGRY}
+     * ayarlanana kadar silahini indirik tutar; vindicator'un bu bayrak olmadan eli bos gorunmesinin
+     * sebebi budur. Yay ve arbalet de cekme animasyonunu yalnizca germe bayraklari aciksa oynatir.</p>
      */
     private static void addWeaponStanceMetadata(EntityWeaponStanceComponent armed, EntityDataMap metadata) {
         metadata.setFlag(EntityFlag.ANGRY, armed.isAggressive());
 
         var stance = armed.getWeaponStance();
         if (stance == WeaponStance.IDLE) {
+            // Hedefi acikca temizle. Bayraklar her yayinda sifirdan kuruldugu icin kendiliginden
+            // duser, ama paketin atladigi duz bir alan istemcinin en son gordugu degeri saklar; ve
+            // hala birini gosteren bir mob ates etmeyi biraktiktan cok sonra bile silahini kalkik
+            // tutar, cunku yakinda duran bir oyuncu bile algilanmaya yetiyor.
+            metadata.put(EntityDataTypes.TARGET_EID, -1L);
             return;
         }
 
-        // Aiming pose: body squared up on the target with the weapon raised.
+        metadata.put(EntityDataTypes.TARGET_EID, targetUniqueIdOf(armed));
+        // Nisan pozu: govde hedefe donuk, silah kalkik.
         metadata.setFlag(EntityFlag.USING_ITEM, true);
         metadata.setFlag(EntityFlag.FACING_TARGET_TO_RANGE_ATTACK, true);
-        // CHARGING plays the pull animation, CHARGED holds the fully drawn pose.
+        // CHARGING cekme animasyonunu oynatir, CHARGED tam gerilmis pozu tutar.
         metadata.setFlag(EntityFlag.CHARGING, stance == WeaponStance.CHARGING);
         metadata.setFlag(EntityFlag.CHARGED, stance == WeaponStance.READY);
+    }
+
+    /**
+     * Silahli bir mobun kime nisan aldigini bildirir; olta kancasinin neye taktigini bildirmesiyle
+     * ayni sekilde. Istemcinin nisan alma animasyonlari buna gore yazilmis: gosterecegi bir hedef
+     * olmadan, silah cektigi isaretlenen bir mobun silahini dogrultacagi bir sey kalmiyor.
+     *
+     * @param armed silahli mob
+     * @return hedefin benzersiz kimligi; mob kimsenin pesinde degilse {@code -1}
+     */
+    private static long targetUniqueIdOf(EntityWeaponStanceComponent armed) {
+        if (!(armed instanceof EntityIntelligent intelligent)) {
+            return -1L;
+        }
+
+        var memory = intelligent.getMemoryStorage();
+        var targetId = memory.get(MemoryTypes.ATTACK_TARGET);
+        if (targetId == null) {
+            targetId = memory.get(MemoryTypes.NEAREST_PLAYER);
+        }
+        if (targetId == null) {
+            return -1L;
+        }
+
+        var target = intelligent.getDimension().getEntityManager().getEntity(targetId);
+        return target != null ? target.getUniqueId().getLeastSignificantBits() : -1L;
     }
 
     private static void addTypeSpecificMetadata(Entity entity, EntityDataMap metadata) {

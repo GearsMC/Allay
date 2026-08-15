@@ -5,11 +5,11 @@ import org.joml.primitives.AABBd;
 import org.joml.primitives.AABBdc;
 
 /**
- * Endermite base behavior: hitbox only.
+ * Endermite'in temel davranisi: yalnizca carpisma kutusu.
  *
- * <p><strong>Deliberate deviation:</strong> a vanilla endermite despawns roughly two minutes
- * after spawning. Endermites here come from GearsCore mob blocks and are meant to be fought,
- * so the self-destruct timer is not implemented.</p>
+ * <p><strong>Bilincli sapma:</strong> vanilla endermite dogduktan yaklasik iki dakika sonra
+ * kendini yok eder. Buradaki endermite'lar GearsCore mob bloklarindan cikiyor ve dovusulmek
+ * icin varlar, bu yuzden kendini yok etme sayaci eklenmedi.</p>
  */
 public class EntityEndermiteBaseComponentImpl extends EntityBaseComponentImpl {
 

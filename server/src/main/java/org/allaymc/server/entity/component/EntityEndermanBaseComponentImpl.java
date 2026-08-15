@@ -5,10 +5,10 @@ import org.joml.primitives.AABBd;
 import org.joml.primitives.AABBdc;
 
 /**
- * Enderman base behavior: hitbox only.
+ * Enderman'in temel davranisi: yalnizca carpisma kutusu.
  *
- * <p>The enderman is by far the tallest mob implemented here; the hitbox has to be set explicitly
- * or it would inherit the 1.8-block default and let players hit thin air above its head.</p>
+ * <p>Enderman buradaki en uzun boylu mob; carpisma kutusu acikca verilmezse 1.8 bloklik
+ * varsayilani devralir ve oyuncular kafasinin hizasinda bosluga vurur.</p>
  */
 public class EntityEndermanBaseComponentImpl extends EntityAngerableBaseComponentImpl {
 

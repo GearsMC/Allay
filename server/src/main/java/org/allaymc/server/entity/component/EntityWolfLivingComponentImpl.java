@@ -3,10 +3,10 @@ package org.allaymc.server.entity.component;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Living component implementation for wolves.
+ * Kurt icin canli varlik bileseni.
  *
- * <p>Wild wolves drop nothing, so only the health and experience values differ from the
- * hostile default.</p>
+ * <p>Vahsi kurtlar esya dusurmez; bu yuzden saldirgan varsayilandan yalnizca can ve deneyim
+ * degerleri farklidir.</p>
  */
 public class EntityWolfLivingComponentImpl extends EntityHostileLivingComponentImpl {
 

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Living component implementation for skeletons.
+ * Iskelet icin canli varlik bileseni.
  */
 public class EntitySkeletonLivingComponentImpl extends EntityHostileLivingComponentImpl {
 

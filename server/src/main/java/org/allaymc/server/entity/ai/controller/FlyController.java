@@ -4,18 +4,18 @@ import org.allaymc.api.entity.ai.controller.Controller;
 import org.allaymc.api.entity.interfaces.EntityIntelligent;
 
 /**
- * Free-flight movement controller, the airborne counterpart of {@link WalkController}.
+ * Serbest ucus hareket kontrolcusu; {@link WalkController}'in havadaki karsiligi.
  *
- * <p>Where the walk controller only drives horizontal motion and jumps over obstacles, this one
- * steers straight at the waypoint in all three axes. It is meant to be paired with a route finder
- * that produces 3D routes and with physics that apply no gravity — otherwise the entity would sink
- * between waypoints.</p>
+ * <p>Yurume kontrolcusu yalnizca yatay hareketi surukleyip engellerin ustunden ziplatirken, bu
+ * kontrolcu hedef noktaya uc eksende birden yonelir. Uc boyutlu rota ureten bir yol bulucuyla ve
+ * yercekimi uygulamayan bir fizikle birlikte kullanilmak uzere tasarlandi — aksi halde varlik
+ * ara noktalar arasinda asagi duserdi.</p>
  */
 public class FlyController implements Controller {
 
     /**
-     * Squared-speed multiplier above which external motion (knockback, explosions) is left alone
-     * instead of being overwritten. Mirrors the threshold {@link WalkController} uses.
+     * Bunun uzerindeki kare-hiz carpaninda dis kaynakli hareket (geri tepme, patlama) ezilmez,
+     * kendi haline birakilir. {@link WalkController}'in kullandigi esigin aynisi.
      */
     protected static final double EXTERNAL_MOTION_THRESHOLD = 0.4756;
 
@@ -32,7 +32,7 @@ public class FlyController implements Controller {
 
         var motion = entity.getMotion();
         float speed = entity.getMovementSpeed();
-        // Let knockback play out rather than fighting it.
+        // Geri tepmeye karsi koymak yerine etkisini gostermesine izin ver.
         if (motion.lengthSquared() > speed * speed * EXTERNAL_MOTION_THRESHOLD) {
             return false;
         }
@@ -43,12 +43,12 @@ public class FlyController implements Controller {
         double dz = end.z() - loc.z();
         double distance = Math.sqrt(dx * dx + dy * dy + dz * dz);
 
-        // Already there — updateRoute() advances to the next waypoint next tick.
+        // Zaten varildi — updateRoute() bir sonraki tick'te siradaki ara noktaya gecer.
         if (distance < 0.01) {
             return false;
         }
 
-        // Clamp near the waypoint so the entity settles instead of oscillating past it.
+        // Ara noktaya yaklasinca kirp ki varlik noktayi asip salinmak yerine yerine otursun.
         double factor = Math.min(speed, distance) / distance;
         entity.addMotion(
                 dx * factor - motion.x(),
