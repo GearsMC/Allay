@@ -8,6 +8,7 @@ import org.allaymc.api.entity.component.EntityBabyComponent;
 import org.allaymc.api.entity.component.EntityContainerHolderComponent;
 import org.allaymc.api.entity.component.EntitySulfurCubeBaseComponent;
 import org.allaymc.api.entity.damage.DamageContainer;
+import org.allaymc.api.entity.effect.EffectTypes;
 import org.allaymc.api.entity.damage.DamageType;
 import org.allaymc.api.entity.interfaces.*;
 import org.allaymc.api.entity.property.type.EntityPropertyTypes;
@@ -1771,8 +1772,23 @@ public final class EntityTypeInitializer {
      * (nedeni icin {@code EntityHostileLivingComponentImpl}) ve onlari hedef dogrulamasi asamasinda
      * da reddetmek, basibos bir hedef kimliginin bir mob dalgasini kendi icine dondurmesini
      * tumden imkansiz kiliyor.</p>
+     *
+     * <h2>GearsMC sapmasi: bulanti saldiriyi keser</h2>
+     * <p>Bulanti etkisi altindaki mob hicbir hedefi gecerli saymaz. Vanilla'da boyle bir kural
+     * yok; bu HeartCore'un Axii Tasi davranisidir ({@code MobEntity::attemptAttack}, bulanti
+     * varsa erken donuyordu). Kural motora tasindi cunku Allay'de mob yapay zekasi motorun
+     * kendisinde: hedef dogrulamasi hem hatirlanan hedefi (oncelik 3) hem de sensorun buldugu
+     * en yakin oyuncuyu (oncelik 2) geciyor, ikisi de elenince mob {@code FlatRandomRoamExecutor}
+     * dalina dusuyor — PHP'de de bulantili mob amacsizca dolasiyordu.</p>
+     *
+     * <p>Vanilla oyunda mobun bulanti kapmasinin bir yolu olmadigi icin bu kural yalnizca
+     * eklentinin bilerek verdigi bulantida devreye girer.</p>
      */
     private static boolean isValidHostileTarget(EntityIntelligent entity, long targetId) {
+        if (entity.hasEffect(EffectTypes.NAUSEA)) {
+            return false;
+        }
+
         var target = entity.getDimension().getEntityManager().getEntity(targetId);
         if (!(target instanceof EntityPlayer player) || target == entity || !target.isAlive()) {
             return false;
