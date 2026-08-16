@@ -490,16 +490,18 @@ public class PlayerAuthInputPacketProcessor extends PacketProcessor<PlayerAuthIn
     }
 
     protected void updatePlayerInputState(AllayPlayer player, PlayerAuthInputPacket packet) {
+        var oldInputMode = player.getInputMode();
         var newInputMode = switch (packet.getInputMode()) {
             case UNDEFINED -> InputMode.UNDEFINED;
             case MOUSE -> InputMode.MOUSE;
             case TOUCH -> InputMode.TOUCH;
             case GAMEPAD -> InputMode.GAMEPAD;
             case MOTION_CONTROLLER -> InputMode.MOTION_CONTROLLER;
-            // v2168 added a COUNT sentinel to the protocol enum; it is not a real input mode.
-            case COUNT -> InputMode.UNDEFINED;
+            // COUNT protokol enum'unun sayac sentineli, gercek bir giris modu
+            // degil. UNDEFINED'a dusurmek sahte bir "mod degisti" olayi
+            // tetikliyordu; onceki mod korunuyor.
+            case COUNT -> oldInputMode;
         };
-        var oldInputMode = player.getInputMode();
 
         var newPlayMode = switch (packet.getPlayMode()) {
             case NORMAL -> ClientPlayMode.NORMAL;
@@ -514,14 +516,14 @@ public class PlayerAuthInputPacketProcessor extends PacketProcessor<PlayerAuthIn
         };
         var oldPlayMode = player.getPlayMode();
 
+        var oldInteractionModel = player.getInputInteractionModel();
         var newInteractionModel = switch (packet.getInputInteractionModel()) {
             case TOUCH -> InputInteractionModel.TOUCH;
             case CROSSHAIR -> InputInteractionModel.CROSSHAIR;
             case CLASSIC -> InputInteractionModel.CLASSIC;
-            // v2168 sentinel, see above.
-            case COUNT -> InputInteractionModel.TOUCH;
+            // Sentinel, yukaridaki gibi: onceki model korunuyor.
+            case COUNT -> oldInteractionModel;
         };
-        var oldInteractionModel = player.getInputInteractionModel();
 
         var changed = newInputMode != oldInputMode ||
                       newPlayMode != oldPlayMode ||
