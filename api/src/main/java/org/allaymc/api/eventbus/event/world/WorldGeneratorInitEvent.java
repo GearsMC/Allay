@@ -18,8 +18,8 @@ import org.allaymc.api.world.generator.function.PostProcessor;
  * {@link PostProcessor}s to any registered generator. {@link GenerateFunction#init(String)}
  * is called automatically on each added function.
  * <p>
- * This event is fired once per dimension per world load. Use {@link #getDimensionType()} and
- * {@link #getGenerator()}'s name to selectively target generators.
+ * This event is fired once per dimension per world load. Use {@link #dimensionType} and
+ * {@link #generator}'s name to selectively target generators.
  *
  * @author daoge_cmd
  */

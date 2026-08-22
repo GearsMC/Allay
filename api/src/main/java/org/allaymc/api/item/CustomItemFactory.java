@@ -32,7 +32,7 @@ public interface CustomItemFactory {
      *
      * <p>The definition covers every kind of custom item, from a plain currency token to a tool or
      * an armour piece. A plugin declares what the item <i>is</i>
-     * ({@link CustomItemDefinition#behavior()}) and the engine picks the matching item stack
+     * ({@link CustomItemDefinition#behavior}) and the engine picks the matching item stack
      * implementation and contributes the item tags the vanilla rules read — tool kind, tool tier
      * and armour tier are all item tags in Allay, so a tool registered this way is a real tool:
      * it harvests the blocks its tier allows, at the speed the tier gives, and wears down.</p>

@@ -10,7 +10,7 @@ import org.allaymc.api.entity.damage.DamageContainer;
  * Called right after damage has been applied to an entity.
  * <p>
  * Unlike {@link EntityDamageEvent}, which is called before armour, effects and enchantment
- * modifiers run, this event is called once the damage is final: {@link DamageContainer#getFinalDamage()}
+ * modifiers run, this event is called once the damage is final: {@link DamageContainer#finalDamage}
  * is the amount of health the entity actually lost, and the entity's health already reflects it.
  * Listeners that need the real damage dealt — damage leaderboards, life steal, thorns-like
  * effects — belong here.

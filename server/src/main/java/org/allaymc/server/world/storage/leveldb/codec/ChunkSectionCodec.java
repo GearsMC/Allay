@@ -75,7 +75,8 @@ public final class ChunkSectionCodec {
                     // Currently only two layers are used in minecraft, so that might mean this chunk is corrupted
                     // However we can still load it c:
                     log.warn("Loading chunk section ({}, {}, {}) with {} layers, which might mean that this chunk is corrupted!", chunkX, sectionY, chunkZ, layers);
-                    @SuppressWarnings("rawtypes") Palette[] palettes = new Palette[layers];
+                    @SuppressWarnings("unchecked")
+                    Palette<BlockState>[] palettes = (Palette<BlockState>[]) new Palette<?>[layers];
                     Arrays.fill(palettes, new Palette<>(BlockTypes.AIR.getDefaultState()));
                     section = new AllayChunkSection((byte) sectionY, palettes);
                 }

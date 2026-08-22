@@ -14,7 +14,7 @@ import java.util.Set;
  * separate concepts in Allay — they are item tags, and every rule that depends on them
  * ({@link ItemHelper#getToolTier}, {@link ItemHelper#isPickaxe}, block break time, correct-tool
  * checks) reads those tags. Declaring the behaviour therefore has to contribute the kind tag; the
- * tier tag comes from {@link CustomItemDefinition#toolTier()}.
+ * tier tag comes from {@link CustomItemDefinition#toolTier}.
  *
  * @author GearsMC
  */
