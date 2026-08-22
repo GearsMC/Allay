@@ -1,5 +1,6 @@
 package org.allaymc.server.world.storage.leveldb.codec;
 
+import org.allaymc.api.world.biome.BiomeTypes;
 import org.allaymc.api.world.dimension.DimensionTypes;
 import org.allaymc.server.world.chunk.AllayChunkSection;
 import org.allaymc.testutils.AllayTestExtension;
@@ -55,6 +56,18 @@ class ChunkSectionCodecTest {
         for (int i = 0; i < sections.length; i++) {
             assertNotNull(sections[i], "Section at index " + i + " should not be null after fill");
             assertEquals((byte) (i + dimensionType.minSectionY()), sections[i].sectionY());
+            assertEquals(BiomeTypes.PLAINS, sections[i].getBiomeType(0, 0, 0));
         }
+    }
+
+    @Test
+    void testFillNullSectionsUsesDimensionDefaultBiome() {
+        var netherSections = new AllayChunkSection[DimensionTypes.NETHER.chunkSectionCount()];
+        ChunkSectionCodec.fillNullSections(netherSections, DimensionTypes.NETHER);
+        assertEquals(BiomeTypes.HELL, netherSections[0].getBiomeType(0, 0, 0));
+
+        var endSections = new AllayChunkSection[DimensionTypes.THE_END.chunkSectionCount()];
+        ChunkSectionCodec.fillNullSections(endSections, DimensionTypes.THE_END);
+        assertEquals(BiomeTypes.THE_END, endSections[0].getBiomeType(0, 0, 0));
     }
 }

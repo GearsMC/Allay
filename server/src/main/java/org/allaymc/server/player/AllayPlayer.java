@@ -93,6 +93,7 @@ import org.allaymc.server.network.processor.login.RequestNetworkSettingsPacketPr
 import org.allaymc.server.network.protocol.Protocol;
 import org.allaymc.server.network.protocol.ProtocolSession;
 import org.allaymc.server.world.AllayDimension;
+import org.allaymc.server.world.dimension.DimensionEffects;
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.cloudburstmc.protocol.bedrock.data.Ability;
 import org.cloudburstmc.protocol.bedrock.data.AttributeData;
@@ -186,6 +187,7 @@ public class AllayPlayer implements Player {
 
     // Fog
     protected final List<String> fogStack = new ArrayList<>();
+    protected String dimensionFogId;
 
     // Abilities
     protected final EnumSet<PlayerAbility> abilities;
@@ -318,6 +320,7 @@ public class AllayPlayer implements Player {
         sendFoodLevel(this.controlledEntity.getFoodLevel());
         sendFoodSaturationLevel(this.controlledEntity.getFoodSaturationLevel());
         sendFoodExhaustionLevel(this.controlledEntity.getFoodExhaustionLevel());
+        syncDimensionFog();
 
         // Save player data the first time it joins
         playerManager.getPlayerStorage().savePlayerData(this);
@@ -1220,8 +1223,36 @@ public class AllayPlayer implements Player {
     public void removeAllFogs() {
         if (!fogStack.isEmpty()) {
             fogStack.clear();
+            this.dimensionFogId = null;
             sendFogStack();
         }
+    }
+    
+    protected void syncDimensionFog() {
+        if (this.controlledEntity == null) {
+            return;
+        }
+
+        var dimension = this.controlledEntity.getDimension();
+        var nextFogId = dimension == null ? null : DimensionEffects.fogIdentifier(dimension.getDimensionType());
+        if (Objects.equals(this.dimensionFogId, nextFogId) && (nextFogId == null || this.fogStack.contains(nextFogId))) {
+            return;
+        }
+
+        if (this.dimensionFogId != null) {
+            for (int i = this.fogStack.size() - 1; i >= 0; i--) {
+                if (this.fogStack.get(i).equals(this.dimensionFogId)) {
+                    this.fogStack.remove(i);
+                    break;
+                }
+            }
+            this.dimensionFogId = null;
+        }
+        if (nextFogId != null) {
+            this.fogStack.add(nextFogId);
+            this.dimensionFogId = nextFogId;
+        }
+        sendFogStack();
     }
 
     protected void sendFogStack() {
@@ -1243,6 +1274,7 @@ public class AllayPlayer implements Player {
         sendPacket(getProtocol().getEncoder().encodeDimensionChangeSuccess(
                 this.controlledEntity.getRuntimeId()
         ));
+        syncDimensionFog();
     }
 
     @Override

@@ -15,6 +15,7 @@ import org.allaymc.server.datastruct.palette.PaletteException;
 import org.allaymc.server.datastruct.palette.PaletteUtils;
 import org.allaymc.server.network.ProtocolInfo;
 import org.allaymc.server.world.chunk.AllayChunkSection;
+import org.allaymc.server.world.dimension.DimensionEffects;
 import org.allaymc.server.world.storage.leveldb.LevelDBUtils;
 import org.allaymc.updater.block.BlockStateUpdaters;
 import org.cloudburstmc.nbt.NBTInputStream;
@@ -126,9 +127,10 @@ public final class ChunkSectionCodec {
     }
 
     public static AllayChunkSection[] fillNullSections(AllayChunkSection[] sections, DimensionType dimensionType) {
+        var defaultBiome = DimensionEffects.defaultBiome(dimensionType);
         for (int i = 0; i < sections.length; i++) {
             if (sections[i] == null) {
-                sections[i] = new AllayChunkSection((byte) (i + dimensionType.minSectionY()));
+                sections[i] = new AllayChunkSection((byte) (i + dimensionType.minSectionY()), defaultBiome);
             }
         }
         return sections;

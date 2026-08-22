@@ -6,6 +6,7 @@ import org.allaymc.api.blockentity.BlockEntity;
 import org.allaymc.api.world.chunk.ChunkState;
 import org.allaymc.api.world.dimension.DimensionType;
 import org.allaymc.api.world.poi.PoiType;
+import org.allaymc.server.world.dimension.DimensionEffects;
 import org.jctools.maps.NonBlockingHashMap;
 
 /**
@@ -32,9 +33,10 @@ public class AllayChunkBuilder {
     }
 
     private static AllayChunkSection[] createEmptySections(DimensionType dimensionType) {
+        var defaultBiome = DimensionEffects.defaultBiome(dimensionType);
         var sections = new AllayChunkSection[dimensionType.chunkSectionCount()];
         for (int i = 0; i < sections.length; i++) {
-            sections[i] = new AllayChunkSection((byte) (i + dimensionType.minSectionY()));
+            sections[i] = new AllayChunkSection((byte) (i + dimensionType.minSectionY()), defaultBiome);
         }
         return sections;
     }

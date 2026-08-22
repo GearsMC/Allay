@@ -80,6 +80,16 @@ class AllayChunkTest {
     }
 
     @Test
+    void testVoidChunkUsesDimensionDefaultBiome() {
+        var netherChunk = AllayUnsafeChunk.builder().voidChunk(0, 0, DimensionTypes.NETHER).toSafeChunk();
+        var endChunk = AllayUnsafeChunk.builder().voidChunk(0, 0, DimensionTypes.THE_END).toSafeChunk();
+
+        assertEquals(BiomeTypes.PLAINS, chunk.getBiome(0, 0, 0));
+        assertEquals(BiomeTypes.HELL, netherChunk.getBiome(0, 0, 0));
+        assertEquals(BiomeTypes.THE_END, endChunk.getBiome(0, 0, 0));
+    }
+
+    @Test
     void testUpdateHeight() {
         assertEquals(-64, chunk.getHeight(1, 1));
         chunk.setBlockState(1, 1, 1, OAK_WOOD.getDefaultState());

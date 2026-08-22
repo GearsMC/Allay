@@ -23,9 +23,17 @@ public record AllayChunkSection(
     public static final int LAYER_COUNT = 2;
     public static final int CURRENT_CHUNK_SECTION_VERSION = ChunkSectionVersion.PALETTED_MULTI_WITH_OFFSET.ordinal();
 
-    @SuppressWarnings("unchecked")
     public AllayChunkSection(byte sectionY) {
-        this(sectionY, new Palette[]{new Palette<>(AIR.getDefaultState()), new Palette<>(AIR.getDefaultState())}, new Palette<>(BiomeTypes.PLAINS));
+        this(sectionY, BiomeTypes.PLAINS);
+    }
+
+    @SuppressWarnings("unchecked")
+    public AllayChunkSection(byte sectionY, BiomeType defaultBiome) {
+        this(
+                sectionY,
+                new Palette[]{new Palette<>(AIR.getDefaultState()), new Palette<>(AIR.getDefaultState())},
+                new Palette<>(defaultBiome == null ? BiomeTypes.PLAINS : defaultBiome)
+        );
     }
 
     public AllayChunkSection(byte sectionY, Palette<BlockState>[] blockLayer) {
