@@ -86,6 +86,18 @@ public class CustomItemDefinition {
     /** Whether the item always shows the enchantment glint. */
     @Builder.Default
     private final boolean foil = false;
+
+    /**
+     * Bekleme suresi (saniye); bekleme yoksa {@code null}.
+     *
+     * <p>Yalnizca istemcideki bekleme kaplamasini — esya ikonunun uzerinden gecen gri
+     * suzulme — bildirir; beklemeyi <b>uygulamaz</b>. Sayaci baslatan
+     * {@link org.allaymc.api.entity.component.EntityPlayerBaseComponent#setCooldown(String, int, boolean)}
+     * cagrisidir ve orada gecilen kategori esyanin kimligiyle ayni olmalidir; istemci
+     * kaplamayi kategoriye gore eslestirir. Kullanimi gercekten reddetmek sunucunun
+     * isidir.</p>
+     */
+    private final Integer cooldownSeconds;
     /**
      * Hunger points restored when eaten. Only used by {@link CustomItemBehavior#EDIBLE}.
      */

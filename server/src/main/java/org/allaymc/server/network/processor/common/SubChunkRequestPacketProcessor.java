@@ -16,6 +16,8 @@ import org.allaymc.server.world.chunk.AllayChunkSection;
 import org.allaymc.server.world.chunk.ChunkEncoder;
 import org.cloudburstmc.math.vector.Vector3i;
 import org.cloudburstmc.nbt.NbtUtils;
+import org.cloudburstmc.protocol.bedrock.codec.BedrockCodec;
+import org.cloudburstmc.protocol.bedrock.codec.v2168.Bedrock_v2168;
 import org.cloudburstmc.protocol.bedrock.data.HeightMapDataType;
 import org.cloudburstmc.protocol.bedrock.data.SubChunkData;
 import org.cloudburstmc.protocol.bedrock.data.SubChunkRequestResult;
@@ -114,7 +116,7 @@ public class SubChunkRequestPacketProcessor extends PacketProcessor<SubChunkRequ
                     }
                 } else {
                     // SUCCESS_ALL_AIR or error results
-                    subChunkData.setBlobId(0L);
+                    subChunkData.setBlobId(getEmptyBlobId(allayPlayer.getProtocol().getCodec()));
                     subChunkData.setData(Unpooled.EMPTY_BUFFER);
                 }
 
@@ -152,6 +154,22 @@ public class SubChunkRequestPacketProcessor extends PacketProcessor<SubChunkRequ
                 responseData
         ));
         return PacketSignal.HANDLED;
+    }
+
+    /**
+     * Bos ya da hatali bir alt yigin icin yazilacak onbellek blob kimligini secer.
+     *
+     * <p>v2168 bu alani opsiyonel yapti: {@code SubChunkSerializer_v2168} artik
+     * {@code writeOptionalNull} kullaniyor, yani {@code null} gecilirse tek bir
+     * "yok" bayragi yaziliyor. {@code 0L} gecmek "var, degeri 0" demek olur ve
+     * her hava alt yigininda gereksiz sekiz byte tasinir. Daha eski
+     * serializer'lar alani kosulsuz yazdigi icin onlarda yer tutucu sart.</p>
+     *
+     * @param codec baglantinin kodeki
+     * @return v2168 ve sonrasi icin {@code null}, oncesi icin {@code 0L}
+     */
+    static Long getEmptyBlobId(BedrockCodec codec) {
+        return codec.getProtocolVersion() >= Bedrock_v2168.CODEC.getProtocolVersion() ? null : 0L;
     }
 
     /**
