@@ -22,7 +22,8 @@ public class EntityAgeComponentImpl implements EntityAgeComponent {
 
     protected static final String TAG_AGE = "Age";
     @Getter
-    protected final int maxAge;
+    @Setter
+    protected int maxAge;
     @ComponentObject
     protected Entity thisEntity;
     @Getter

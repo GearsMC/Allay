@@ -26,4 +26,11 @@ public interface EntityAgeComponent extends EntityComponent {
      * @return the max age
      */
     int getMaxAge();
+
+    /**
+     * Set the max age of this entity, that is, the age at which it despawns.
+     *
+     * @param maxAge the max age
+     */
+    void setMaxAge(int maxAge);
 }
