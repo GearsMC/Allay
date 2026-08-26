@@ -169,7 +169,8 @@ class PacketEncoderCompatibilityTest {
         for (var protocol : List.of(
                 protocol(ClientVariant.NETEASE, 766),
                 protocol(ClientVariant.INTERNATIONAL, 1001),
-                protocol(ClientVariant.INTERNATIONAL, 2168)
+                protocol(ClientVariant.INTERNATIONAL, 2168),
+                protocol(ClientVariant.INTERNATIONAL, 2169)
         )) {
             var encoder = protocol.getEncoder();
             for (var particle : SimpleParticle.values()) {

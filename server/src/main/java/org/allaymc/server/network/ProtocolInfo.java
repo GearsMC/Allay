@@ -10,7 +10,7 @@ import org.allaymc.updater.item.ItemStateUpdater;
 import org.allaymc.updater.item.ItemStateUpdater_1_26_20;
 import org.cloudburstmc.protocol.bedrock.codec.BedrockCodec;
 import org.cloudburstmc.protocol.bedrock.codec.v1001.Bedrock_v1001;
-import org.cloudburstmc.protocol.bedrock.codec.v2168.Bedrock_v2168_hotfix4;
+import org.cloudburstmc.protocol.bedrock.codec.v2169.Bedrock_v2169;
 import org.cloudburstmc.protocol.bedrock.codec.v818.Bedrock_v818;
 
 /**
@@ -24,7 +24,7 @@ public final class ProtocolInfo {
     /**
      * Feature version is the version of the game from which vanilla features will be used.
      */
-    // NOT: bilerek v2168 DEGIL, ama bu sabit oyun verisini SECMIYOR — yalnizca
+    // NOT: bilerek v2169 DEGIL, ama bu sabit oyun verisini SECMIYOR — yalnizca
     // beyan ediyor. Istemciye giden blok/esya tanimlari Registries.BLOCKS ve
     // Registries.ITEMS'tan uretilir (bkz. Protocol#createBlockDefinitions,
     // #createItemDefinitions); o kayit defterleri de data/resources altindaki
@@ -75,12 +75,12 @@ public final class ProtocolInfo {
         if (ProtocolRegistry.hasDefault()) {
             return ProtocolRegistry.getDefault().getLatest(ClientVariant.INTERNATIONAL).getCodec();
         }
-        // GearsMC fork: bootstrap degeri de v2168. Acilis banner'i registry kurulmadan
+        // GearsMC fork: bootstrap degeri de v2169. Acilis banner'i registry kurulmadan
         // once basiliyor; upstream'in v1001'i burada kalirsa sunucu desteklemedigi bir
-        // ust sinir bildirir ("1.26.30'a kadar") ve 1.26.40 oyuncusu yanlis bilgilenir.
-        // Protocol_v2168 ile ayni kodek kullanilir ki banner'daki surum dizesi
+        // ust sinir bildirir ("1.26.30'a kadar") ve 1.26.45 oyuncusu yanlis bilgilenir.
+        // Protocol_v2169 ile ayni kodek kullanilir ki banner'daki surum dizesi
         // registry kurulduktan sonraki gercek degerle ayni kalsin.
-        return Bedrock_v2168_hotfix4.CODEC;
+        return Bedrock_v2169.CODEC;
     }
 
     /**
