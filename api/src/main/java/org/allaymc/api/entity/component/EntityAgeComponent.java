@@ -28,9 +28,9 @@ public interface EntityAgeComponent extends EntityComponent {
     int getMaxAge();
 
     /**
-     * Set the max age of this entity, that is, the age at which it despawns.
+     * Bu entity'nin kaybolacağı maksimum yaş değerini ayarlar.
      *
-     * @param maxAge the max age
+     * @param maxAge maksimum yaş değeri
      */
     void setMaxAge(int maxAge);
 }

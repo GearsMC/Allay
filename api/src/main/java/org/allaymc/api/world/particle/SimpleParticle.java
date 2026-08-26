@@ -54,6 +54,6 @@ public enum SimpleParticle implements Particle {
     CHERRY_LEAVES,
     /// PALE_OAK_LEAVES is a particle that falls from pale oak leaves.
     PALE_OAK_LEAVES,
-    /// SONIC_EXPLOSION Um.
+    /// SONIC_EXPLOSION, sonik patlama parçacığıdır.
     SONIC_EXPLOSION
 }
