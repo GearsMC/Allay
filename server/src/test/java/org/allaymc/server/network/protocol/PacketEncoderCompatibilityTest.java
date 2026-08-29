@@ -191,6 +191,89 @@ class PacketEncoderCompatibilityTest {
         }
     }
 
+    /**
+     * Her {@link SimpleSound} sabitinin kodlanabildigini dogrular.
+     *
+     * <p>{@code everySimpleParticleIsEncodable} ile ayni gerekce: encoder'in
+     * {@code default} dali taninmayan sabitte istisna atiyor. Fork mizragi
+     * eklerken {@code SimpleSound}'a yirmi bir mizrak ve uc Lunge sabiti girdi
+     * ama {@code encodeSound}'a case eklenmedi; mizrak her kaldirildiginda
+     * dunya thread'i {@code IllegalArgumentException} yiyordu. Tek tek sabit
+     * denemek yerine enum'un TAMAMI gezilir.</p>
+     */
+    @Test
+    void everySimpleSoundIsEncodable() {
+        var position = new org.joml.Vector3d(3, 64, -5);
+        for (var protocol : List.of(
+                protocol(ClientVariant.NETEASE, 766),
+                protocol(ClientVariant.INTERNATIONAL, 898),
+                protocol(ClientVariant.INTERNATIONAL, 924),
+                protocol(ClientVariant.INTERNATIONAL, 1001),
+                protocol(ClientVariant.INTERNATIONAL, 2168),
+                protocol(ClientVariant.INTERNATIONAL, 2169)
+        )) {
+            var encoder = protocol.getEncoder();
+            for (var sound : SimpleSound.values()) {
+                var packets = assertDoesNotThrow(
+                        () -> encoder.encodeSound(sound, position, false),
+                        () -> sound + " kodlanamiyor (" + protocol + ")"
+                );
+                packets.forEach(packet -> assertPacketEncodes(protocol, packet));
+            }
+        }
+
+        // En yeni surumde hicbir sabit sessiz kalmamali: bos liste ancak eski
+        // istemcide surum kapisindan gelebilir.
+        var newest = protocol(ClientVariant.INTERNATIONAL, 2169);
+        for (var sound : SimpleSound.values()) {
+            assertFalse(
+                    newest.getEncoder().encodeSound(sound, position, false).isEmpty(),
+                    () -> sound + " en yeni surumde bos paket listesi dondurdu"
+            );
+        }
+    }
+
+    /**
+     * Mizrak ve Lunge seslerinin surum kapisini dogrular: v898 Lunge ile ahsap
+     * mizragi, v924 alet seviyesine ozel mizraklari acar. Daha eski istemciye
+     * paket gitmemeli — kodegin ses tablosunda karsiligi yok.
+     */
+    @Test
+    void spearAndLungeSoundsFollowProtocolGates() {
+        var position = new org.joml.Vector3d(3, 64, -5);
+        var v860 = protocol(ClientVariant.INTERNATIONAL, 860);
+        var v898 = protocol(ClientVariant.INTERNATIONAL, 898);
+        var v924 = protocol(ClientVariant.INTERNATIONAL, 924);
+
+        for (var sound : List.of(
+                SimpleSound.ENCHANT_LUNGE_1,
+                SimpleSound.ENCHANT_LUNGE_2,
+                SimpleSound.ENCHANT_LUNGE_3,
+                SimpleSound.WOODEN_SPEAR_USE,
+                SimpleSound.WOODEN_SPEAR_ATTACK_HIT,
+                SimpleSound.WOODEN_SPEAR_ATTACK_MISS
+        )) {
+            assertTrue(v860.getEncoder().encodeSound(sound, position, false).isEmpty(),
+                    () -> sound + " v860'ta gonderilmemeliydi");
+            assertSoundEncodes(v898, sound, position);
+        }
+
+        for (var sound : List.of(
+                SimpleSound.STONE_SPEAR_USE,
+                SimpleSound.COPPER_SPEAR_USE,
+                SimpleSound.IRON_SPEAR_USE,
+                SimpleSound.GOLDEN_SPEAR_USE,
+                SimpleSound.DIAMOND_SPEAR_USE,
+                SimpleSound.NETHERITE_SPEAR_USE,
+                SimpleSound.NETHERITE_SPEAR_ATTACK_HIT,
+                SimpleSound.NETHERITE_SPEAR_ATTACK_MISS
+        )) {
+            assertTrue(v898.getEncoder().encodeSound(sound, position, false).isEmpty(),
+                    () -> sound + " v898'de gonderilmemeliydi");
+            assertSoundEncodes(v924, sound, position);
+        }
+    }
+
     @Test
     void worldEncodersReturnFreshCodecCompatiblePackets() {
         var position = new org.joml.Vector3i(3, 64, -5);

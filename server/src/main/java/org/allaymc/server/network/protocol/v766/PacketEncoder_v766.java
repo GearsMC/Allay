@@ -1739,6 +1739,12 @@ public class PacketEncoder_v766 extends PacketEncoder {
             case SimpleSound.ENDER_CHEST_OPEN -> packet.setSound(SoundEvent.ENDERCHEST_OPEN);
             case SimpleSound.SHULKER_BOX_CLOSE -> packet.setSound(SoundEvent.SHULKERBOX_CLOSED);
             case SimpleSound.SHULKER_BOX_OPEN -> packet.setSound(SoundEvent.SHULKERBOX_OPEN);
+            // Motorun kendisi cit kapisi ve yeniden dogus capasi icin blok
+            // durumunu tasiyan FenceGateSound/RespawnAnchorChargeSound kayitlarini
+            // kullanir (extraData'ya blockStateHash girsin diye). Bu duz sabitler
+            // elinde BlockState olmayan eklentiler icin durur; extraData -1 kalir.
+            case SimpleSound.FENCE_GATE_OPEN -> packet.setSound(SoundEvent.FENCE_GATE_OPEN);
+            case SimpleSound.FENCE_GATE_CLOSE -> packet.setSound(SoundEvent.FENCE_GATE_CLOSE);
             case SimpleSound.BARREL_CLOSE -> packet.setSound(SoundEvent.BARREL_CLOSE);
             case SimpleSound.BARREL_OPEN -> packet.setSound(SoundEvent.BARREL_OPEN);
             case SimpleSound.FIZZ -> packet.setSound(SoundEvent.FIZZ);
@@ -1775,6 +1781,35 @@ public class PacketEncoder_v766 extends PacketEncoder {
             case SimpleSound.TRIDENT_HIT_GROUND -> packet.setSound(SoundEvent.ITEM_TRIDENT_HIT_GROUND);
             case SimpleSound.TRIDENT_RETURN -> packet.setSound(SoundEvent.ITEM_TRIDENT_RETURN);
             case SimpleSound.TRIDENT_THUNDER -> packet.setSound(SoundEvent.ITEM_TRIDENT_THUNDER);
+            // Mizrak ve Lunge sesleri — fork'un SpearJab'i bunlari yayar. Kodek
+            // TypeMap'i surume gore dolar: v898 Lunge ile ahsap/jenerik mizragi,
+            // v924 kalan alet seviyelerini ekler. Hangi surumun neyi tasidigi
+            // supportsSoundEvent zincirinde tutulur; desteklemeyen istemciye
+            // paket hic gitmez.
+            case SimpleSound.ENCHANT_LUNGE_1 -> packet.setSound(SoundEvent.LUNGE_1);
+            case SimpleSound.ENCHANT_LUNGE_2 -> packet.setSound(SoundEvent.LUNGE_2);
+            case SimpleSound.ENCHANT_LUNGE_3 -> packet.setSound(SoundEvent.LUNGE_3);
+            case SimpleSound.WOODEN_SPEAR_ATTACK_HIT -> packet.setSound(SoundEvent.WOODEN_SPEAR_ATTACK_HIT);
+            case SimpleSound.WOODEN_SPEAR_ATTACK_MISS -> packet.setSound(SoundEvent.WOODEN_SPEAR_ATTACK_MISS);
+            case SimpleSound.WOODEN_SPEAR_USE -> packet.setSound(SoundEvent.WOODEN_SPEAR_USE);
+            case SimpleSound.STONE_SPEAR_ATTACK_HIT -> packet.setSound(SoundEvent.STONE_SPEAR_ATTACK_HIT);
+            case SimpleSound.STONE_SPEAR_ATTACK_MISS -> packet.setSound(SoundEvent.STONE_SPEAR_ATTACK_MISS);
+            case SimpleSound.STONE_SPEAR_USE -> packet.setSound(SoundEvent.STONE_SPEAR_USE);
+            case SimpleSound.COPPER_SPEAR_ATTACK_HIT -> packet.setSound(SoundEvent.COPPER_SPEAR_ATTACK_HIT);
+            case SimpleSound.COPPER_SPEAR_ATTACK_MISS -> packet.setSound(SoundEvent.COPPER_SPEAR_ATTACK_MISS);
+            case SimpleSound.COPPER_SPEAR_USE -> packet.setSound(SoundEvent.COPPER_SPEAR_USE);
+            case SimpleSound.IRON_SPEAR_ATTACK_HIT -> packet.setSound(SoundEvent.IRON_SPEAR_ATTACK_HIT);
+            case SimpleSound.IRON_SPEAR_ATTACK_MISS -> packet.setSound(SoundEvent.IRON_SPEAR_ATTACK_MISS);
+            case SimpleSound.IRON_SPEAR_USE -> packet.setSound(SoundEvent.IRON_SPEAR_USE);
+            case SimpleSound.GOLDEN_SPEAR_ATTACK_HIT -> packet.setSound(SoundEvent.GOLDEN_SPEAR_ATTACK_HIT);
+            case SimpleSound.GOLDEN_SPEAR_ATTACK_MISS -> packet.setSound(SoundEvent.GOLDEN_SPEAR_ATTACK_MISS);
+            case SimpleSound.GOLDEN_SPEAR_USE -> packet.setSound(SoundEvent.GOLDEN_SPEAR_USE);
+            case SimpleSound.DIAMOND_SPEAR_ATTACK_HIT -> packet.setSound(SoundEvent.DIAMOND_SPEAR_ATTACK_HIT);
+            case SimpleSound.DIAMOND_SPEAR_ATTACK_MISS -> packet.setSound(SoundEvent.DIAMOND_SPEAR_ATTACK_MISS);
+            case SimpleSound.DIAMOND_SPEAR_USE -> packet.setSound(SoundEvent.DIAMOND_SPEAR_USE);
+            case SimpleSound.NETHERITE_SPEAR_ATTACK_HIT -> packet.setSound(SoundEvent.NETHERITE_SPEAR_ATTACK_HIT);
+            case SimpleSound.NETHERITE_SPEAR_ATTACK_MISS -> packet.setSound(SoundEvent.NETHERITE_SPEAR_ATTACK_MISS);
+            case SimpleSound.NETHERITE_SPEAR_USE -> packet.setSound(SoundEvent.NETHERITE_SPEAR_USE);
             case SimpleSound.BIG_DRIPLEAF_TILT_DOWN -> packet.setSound(SoundEvent.BIG_DRIPLEAF_TILT_DOWN);
             case SimpleSound.BIG_DRIPLEAF_TILT_UP -> packet.setSound(SoundEvent.BIG_DRIPLEAF_TILT_UP);
             case SimpleSound.BELL_HIT -> packet.setSound(SoundEvent.BELL);
@@ -1784,6 +1819,7 @@ public class PacketEncoder_v766 extends PacketEncoder {
             case SimpleSound.POWER_OFF -> packet.setSound(SoundEvent.POWER_OFF);
             case SimpleSound.ACTIVATED -> packet.setSound(SoundEvent.ACTIVATE);
             case SimpleSound.DEACTIVATED -> packet.setSound(SoundEvent.DEACTIVATE);
+            case SimpleSound.RESPAWN_ANCHOR_CHARGE -> packet.setSound(SoundEvent.RESPAWN_ANCHOR_CHARGE);
             case SimpleSound.RESPAWN_ANCHOR_SET_SPAWN -> packet.setSound(SoundEvent.RESPAWN_ANCHOR_SET_SPAWN);
             case SimpleSound.RESPAWN_ANCHOR_DEPLETE -> packet.setSound(SoundEvent.RESPAWN_ANCHOR_DEPLETE);
             case SimpleSound.SHELF_SWAP_SINGLE -> packet.setSound(SoundEvent.SINGLE_ITEM_SWAP);
@@ -2187,6 +2223,17 @@ public class PacketEncoder_v766 extends PacketEncoder {
     protected boolean supportsSoundEvent(SoundEvent soundEvent) {
         return switch (soundEvent) {
             case RECORD_TEARS, RECORD_LAVA_CHICKEN, SINGLE_ITEM_SWAP, MULTI_ITEM_SWAP -> false;
+            // v898'de gelenler: Lunge buyusu ve ahsap/jenerik mizrak
+            case LUNGE_1, LUNGE_2, LUNGE_3,
+                 WOODEN_SPEAR_ATTACK_HIT, WOODEN_SPEAR_ATTACK_MISS, WOODEN_SPEAR_USE -> false;
+            // v924'te gelenler: kalan alet seviyelerinin mizrak sesleri
+            case STONE_SPEAR_ATTACK_HIT, STONE_SPEAR_ATTACK_MISS, STONE_SPEAR_USE,
+                 COPPER_SPEAR_ATTACK_HIT, COPPER_SPEAR_ATTACK_MISS, COPPER_SPEAR_USE,
+                 IRON_SPEAR_ATTACK_HIT, IRON_SPEAR_ATTACK_MISS, IRON_SPEAR_USE,
+                 GOLDEN_SPEAR_ATTACK_HIT, GOLDEN_SPEAR_ATTACK_MISS, GOLDEN_SPEAR_USE,
+                 DIAMOND_SPEAR_ATTACK_HIT, DIAMOND_SPEAR_ATTACK_MISS, DIAMOND_SPEAR_USE,
+                 NETHERITE_SPEAR_ATTACK_HIT, NETHERITE_SPEAR_ATTACK_MISS,
+                 NETHERITE_SPEAR_USE -> false;
             default -> true;
         };
     }
