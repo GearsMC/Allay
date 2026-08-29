@@ -61,6 +61,7 @@ public class BehaviorGroupImpl implements BehaviorGroup {
     protected transient List<Node> route;
     protected transient int nodeIndex;
     protected transient int routeUpdateTick;
+    protected volatile transient long routeGeneration;
 
     @Builder.Default
     @Getter
@@ -72,6 +73,17 @@ public class BehaviorGroupImpl implements BehaviorGroup {
     // Running behavior sets (multiple same-priority behaviors can run simultaneously)
     protected transient Set<Behavior> runningCoreBehaviors;
     protected transient Set<Behavior> runningBehaviors;
+
+    protected volatile boolean manualControlEnabled;
+    protected volatile Vector3dc manualMoveTarget;
+    protected volatile Vector3dc manualLookTarget;
+    protected volatile float manualMovementSpeed;
+    protected transient boolean manualControlActive;
+    protected transient Vector3dc appliedManualMoveTarget;
+    protected transient Vector3dc appliedManualLookTarget;
+    protected transient float appliedManualMovementSpeed;
+    protected transient float movementSpeedBeforeManualControl;
+    protected transient boolean pitchEnabledBeforeManualControl;
 
     protected transient EntityIntelligent entity;
 
@@ -115,6 +127,14 @@ public class BehaviorGroupImpl implements BehaviorGroup {
             return;
         }
 
+        if (manualControlEnabled) {
+            tickManualControl(entity);
+            return;
+        }
+        if (manualControlActive) {
+            leaveManualControl(entity);
+        }
+
         collectSensorData(entity);
         evaluateCoreBehaviors(entity);
         evaluateBehaviors(entity);
@@ -122,6 +142,150 @@ public class BehaviorGroupImpl implements BehaviorGroup {
         tickRunningBehaviors(entity);
         updateRoute(entity);
         applyController(entity);
+    }
+
+    public boolean isManualControlEnabled() {
+        return manualControlEnabled;
+    }
+
+    public synchronized void setManualControlEnabled(boolean enabled) {
+        manualControlEnabled = enabled;
+        if (!enabled) {
+            manualMoveTarget = null;
+            manualLookTarget = null;
+        }
+    }
+
+    public synchronized void navigateTo(Vector3dc target, float speed) {
+        requireManualControl();
+        var targetCopy = copyFiniteTarget(target);
+        var validSpeed = validateSpeed(speed);
+        manualMovementSpeed = validSpeed;
+        manualMoveTarget = targetCopy;
+    }
+
+    public synchronized void stopNavigation() {
+        manualMoveTarget = null;
+    }
+
+    public synchronized void lookAt(Vector3dc target) {
+        requireManualControl();
+        manualLookTarget = copyFiniteTarget(target);
+    }
+
+    public synchronized void stopLooking() {
+        manualLookTarget = null;
+    }
+
+    protected void tickManualControl(EntityIntelligent entity) {
+        if (!manualControlActive) {
+            interruptRunningCoreBehaviors(entity);
+            interruptRunningBehaviors(entity);
+            movementSpeedBeforeManualControl = entity.getMovementSpeed();
+            pitchEnabledBeforeManualControl = entity.isPitchEnabled();
+            resetNavigationState(entity);
+            memoryStorage.clear(MemoryTypes.LOOK_TARGET);
+            appliedManualMoveTarget = null;
+            appliedManualLookTarget = null;
+            appliedManualMovementSpeed = Float.NaN;
+            manualControlActive = true;
+        }
+
+        applyManualNavigation(entity);
+        applyManualLookTarget(entity);
+        updateRoute(entity);
+        applyController(entity);
+    }
+
+    protected void leaveManualControl(EntityIntelligent entity) {
+        resetNavigationState(entity);
+        memoryStorage.clear(MemoryTypes.LOOK_TARGET);
+        entity.setMovementSpeed(movementSpeedBeforeManualControl);
+        entity.setPitchEnabled(pitchEnabledBeforeManualControl);
+        appliedManualMoveTarget = null;
+        appliedManualLookTarget = null;
+        appliedManualMovementSpeed = Float.NaN;
+        manualControlActive = false;
+    }
+
+    protected void applyManualNavigation(EntityIntelligent entity) {
+        var target = manualMoveTarget;
+        var speed = manualMovementSpeed;
+        if (samePosition(appliedManualMoveTarget, target)
+            && (target == null || Float.compare(appliedManualMovementSpeed, speed) == 0)) {
+            return;
+        }
+
+        resetNavigationState(entity);
+        if (target != null) {
+            memoryStorage.put(MemoryTypes.MOVEMENT_SPEED, speed);
+            memoryStorage.put(MemoryTypes.MOVE_TARGET, target);
+        } else {
+            memoryStorage.put(MemoryTypes.MOVEMENT_SPEED, movementSpeedBeforeManualControl);
+        }
+        appliedManualMoveTarget = target;
+        appliedManualMovementSpeed = speed;
+    }
+
+    protected void applyManualLookTarget(EntityIntelligent entity) {
+        var target = manualLookTarget;
+        if (samePosition(appliedManualLookTarget, target)) {
+            return;
+        }
+
+        if (target == null) {
+            memoryStorage.clear(MemoryTypes.LOOK_TARGET);
+            entity.setPitchEnabled(pitchEnabledBeforeManualControl);
+        } else {
+            memoryStorage.put(MemoryTypes.LOOK_TARGET, target);
+            entity.setPitchEnabled(true);
+        }
+        appliedManualLookTarget = target;
+    }
+
+    protected void resetNavigationState(EntityIntelligent entity) {
+        routeGeneration++;
+        route = null;
+        nodeIndex = 0;
+        routeUpdateTick = 0;
+        routeUpdateRequired = true;
+        memoryStorage.clear(MemoryTypes.MOVE_TARGET);
+        entity.setMoveDirectionStart(null);
+        entity.setMoveDirectionEnd(null);
+        entity.setShouldUpdateMoveDirection(false);
+    }
+
+    protected void requireManualControl() {
+        if (!manualControlEnabled) {
+            throw new IllegalStateException("Manual control must be enabled first");
+        }
+    }
+
+    protected static float validateSpeed(float speed) {
+        if (!Float.isFinite(speed) || speed <= 0) {
+            throw new IllegalArgumentException("Movement speed must be finite and greater than zero");
+        }
+        return speed;
+    }
+
+    protected static Vector3dc copyFiniteTarget(Vector3dc target) {
+        Objects.requireNonNull(target, "target");
+        if (!Double.isFinite(target.x()) || !Double.isFinite(target.y()) || !Double.isFinite(target.z())) {
+            throw new IllegalArgumentException("Target coordinates must be finite");
+        }
+        return new Vector3d(target);
+    }
+
+    protected static boolean samePosition(Vector3dc first, Vector3dc second) {
+        if (first == second) {
+            return true;
+        }
+        if (first == null || second == null) {
+            return false;
+        }
+        return Double.compare(first.x(), second.x()) == 0
+               && Double.compare(first.y(), second.y()) == 0
+               && Double.compare(first.z(), second.z()) == 0;
     }
 
     protected void initPeriodCounters() {
@@ -227,6 +391,14 @@ public class BehaviorGroupImpl implements BehaviorGroup {
         runningBehaviors.clear();
     }
 
+    protected void interruptRunningCoreBehaviors(EntityIntelligent entity) {
+        for (var behavior : runningCoreBehaviors) {
+            behavior.onInterrupt(entity);
+            behavior.setBehaviorState(BehaviorState.STOP);
+        }
+        runningCoreBehaviors.clear();
+    }
+
     protected void startBehaviors(EntityIntelligent entity, Set<Behavior> toStart) {
         for (var behavior : toStart) {
             behavior.onStart(entity);
@@ -285,11 +457,16 @@ public class BehaviorGroupImpl implements BehaviorGroup {
         if ((routeUpdateRequired || !hasNextNode()) && !routeFinding) {
             routeUpdateRequired = false;
             routeFinding = true;
+            var target = new Vector3d(moveTarget);
+            var generation = routeGeneration;
             // Submit route finding to virtual thread pool
             Server.getInstance().getVirtualThreadPool().submit(() -> {
                 try {
-                    this.route = routeFinder.search(entity, moveTarget);
-                    this.nodeIndex = 0;
+                    var newRoute = routeFinder.search(entity, target);
+                    if (routeGeneration == generation) {
+                        this.route = newRoute;
+                        this.nodeIndex = 0;
+                    }
                 } finally {
                     routeFinding = false;
                 }

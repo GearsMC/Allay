@@ -12,6 +12,7 @@ import org.allaymc.server.component.annotation.OnInitFinish;
 import org.allaymc.server.entity.ai.behaviorgroup.BehaviorGroupImpl;
 import org.allaymc.server.entity.component.event.CEntityParallelTickEvent;
 import org.allaymc.server.entity.component.event.CEntityTickEvent;
+import org.joml.Vector3dc;
 
 /**
  * @author daoge_cmd
@@ -40,6 +41,36 @@ public class EntityAIComponentImpl implements EntityAIComponent {
     public void setBehaviorGroup(BehaviorGroup behaviorGroup) {
         this.behaviorGroup = (BehaviorGroupImpl) behaviorGroup;
         this.behaviorGroup.setEntity(thisEntity);
+    }
+
+    @Override
+    public boolean isManualControlEnabled() {
+        return behaviorGroup.isManualControlEnabled();
+    }
+
+    @Override
+    public void setManualControlEnabled(boolean enabled) {
+        behaviorGroup.setManualControlEnabled(enabled);
+    }
+
+    @Override
+    public void navigateTo(Vector3dc target, float speed) {
+        behaviorGroup.navigateTo(target, speed);
+    }
+
+    @Override
+    public void stopNavigation() {
+        behaviorGroup.stopNavigation();
+    }
+
+    @Override
+    public void lookAt(Vector3dc target) {
+        behaviorGroup.lookAt(target);
+    }
+
+    @Override
+    public void stopLooking() {
+        behaviorGroup.stopLooking();
     }
 
     @EventHandler

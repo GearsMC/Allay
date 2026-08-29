@@ -27,6 +27,55 @@ public interface EntityAIComponent extends EntityComponent {
     void setBehaviorGroup(BehaviorGroup behaviorGroup);
 
     /**
+     * Check whether this entity is currently controlled through the manual navigation API.
+     *
+     * @return {@code true} when autonomous sensors and behaviors are paused
+     */
+    boolean isManualControlEnabled();
+
+    /**
+     * Enable or disable manual plugin control for this entity.
+     * <p>
+     * Enabling manual control interrupts autonomous behaviors on the next AI tick while
+     * keeping route finding and controllers active. Disabling it clears manual targets and
+     * resumes autonomous behavior evaluation.
+     *
+     * @param enabled whether manual control should be enabled
+     */
+    void setManualControlEnabled(boolean enabled);
+
+    /**
+     * Navigate to a position while manual control is enabled.
+     *
+     * @param target the world position to navigate to
+     * @param speed the movement speed, which must be finite and greater than zero
+     * @throws IllegalStateException if manual control is not enabled
+     * @throws IllegalArgumentException if the target or speed is not finite, or the speed is not positive
+     * @throws NullPointerException if the target is {@code null}
+     */
+    void navigateTo(Vector3dc target, float speed);
+
+    /**
+     * Stop navigation requested through manual control.
+     */
+    void stopNavigation();
+
+    /**
+     * Look at a position while manual control is enabled.
+     *
+     * @param target the world position to look at
+     * @throws IllegalStateException if manual control is not enabled
+     * @throws IllegalArgumentException if the target is not finite
+     * @throws NullPointerException if the target is {@code null}
+     */
+    void lookAt(Vector3dc target);
+
+    /**
+     * Stop looking at a target requested through manual control.
+     */
+    void stopLooking();
+
+    /**
      * Get the memory storage of the current behavior group.
      *
      * @return the memory storage

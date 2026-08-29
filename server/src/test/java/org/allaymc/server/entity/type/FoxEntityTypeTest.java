@@ -1,6 +1,7 @@
 package org.allaymc.server.entity.type;
 
 import org.allaymc.api.entity.EntityInitInfo;
+import org.allaymc.api.entity.ai.behavior.BehaviorExecutor;
 import org.allaymc.api.entity.ai.memory.MemoryTypes;
 import org.allaymc.api.entity.component.EntityAIComponent;
 import org.allaymc.api.entity.component.EntityAnimalComponent;
@@ -17,6 +18,7 @@ import org.allaymc.api.entity.type.EntityTypes;
 import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.testutils.AllayTestExtension;
 import org.allaymc.server.entity.ai.behavior.BehaviorImpl;
+import org.allaymc.server.entity.ai.behaviorgroup.BehaviorGroupImpl;
 import org.allaymc.server.entity.ai.executor.EntityBreedingExecutor;
 import org.allaymc.server.entity.ai.executor.FlatRandomRoamExecutor;
 import org.allaymc.server.entity.ai.executor.FollowEntityExecutor;
@@ -27,13 +29,18 @@ import org.allaymc.server.entity.ai.sensor.NearestFeedingPlayerSensor;
 import org.allaymc.server.entity.ai.sensor.NearestPlayerSensor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.joml.Vector3d;
+import org.joml.Vector3dc;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -122,6 +129,139 @@ class FoxEntityTypeTest {
 
         assertEquals(0.6, aabb.maxX() - aabb.minX(), 1e-9);
         assertEquals(0.7, aabb.maxY() - aabb.minY(), 1e-9);
+    }
+
+    @Test
+    void manualControlInterruptsAutonomousBehaviorsButKeepsControllersRunning() {
+        var fox = createFox();
+        var starts = new AtomicInteger();
+        var executions = new AtomicInteger();
+        var interruptions = new AtomicInteger();
+        var controllerTicks = new AtomicInteger();
+        var autonomousMoveTarget = new Vector3d(-4, 2, -8);
+        var autonomousLookTarget = new Vector3d(-2, 3, -6);
+
+        var normalExecutor = trackingExecutor(starts, executions, interruptions, () -> {
+            fox.setMoveTarget(autonomousMoveTarget);
+            fox.setLookTarget(autonomousLookTarget);
+        });
+        var coreExecutor = trackingExecutor(starts, executions, interruptions, () -> {
+        });
+        var behaviorGroup = BehaviorGroupImpl.builder()
+                .coreBehavior(BehaviorImpl.builder()
+                        .executor(coreExecutor)
+                        .evaluator(entity -> true)
+                        .priority(1)
+                        .build())
+                .behavior(BehaviorImpl.builder()
+                        .executor(normalExecutor)
+                        .evaluator(entity -> true)
+                        .priority(1)
+                        .build())
+                .controller(entity -> {
+                    controllerTicks.incrementAndGet();
+                    return true;
+                })
+                .build();
+        fox.setBehaviorGroup(behaviorGroup);
+        fox.setPitchEnabled(false);
+
+        behaviorGroup.tick();
+        assertEquals(2, starts.get());
+        assertEquals(2, executions.get());
+        assertEquals(1, controllerTicks.get());
+        assertPosition(autonomousMoveTarget, fox.getMoveTarget());
+
+        var suppliedMoveTarget = new Vector3d(12, 4, 7);
+        var suppliedLookTarget = new Vector3d(10, 5, 6);
+        fox.setManualControlEnabled(true);
+        fox.navigateTo(suppliedMoveTarget, 0.24f);
+        fox.lookAt(suppliedLookTarget);
+        suppliedMoveTarget.set(100, 100, 100);
+        suppliedLookTarget.set(100, 100, 100);
+
+        behaviorGroup.tick();
+        assertTrue(fox.isManualControlEnabled());
+        assertEquals(2, interruptions.get());
+        assertEquals(2, executions.get());
+        assertEquals(2, controllerTicks.get());
+        assertEquals(0.24f, fox.getMovementSpeed());
+        assertTrue(fox.isPitchEnabled());
+        assertPosition(new Vector3d(12, 4, 7), fox.getMoveTarget());
+        assertPosition(new Vector3d(10, 5, 6), fox.getLookTarget());
+
+        behaviorGroup.tick();
+        assertEquals(2, interruptions.get());
+        assertEquals(2, executions.get());
+        assertEquals(3, controllerTicks.get());
+
+        fox.stopNavigation();
+        fox.stopLooking();
+        behaviorGroup.tick();
+        assertNull(fox.getMoveTarget());
+        assertNull(fox.getLookTarget());
+        assertFalse(fox.hasMoveDirection());
+        assertEquals(0.1f, fox.getMovementSpeed());
+        assertFalse(fox.isPitchEnabled());
+        assertEquals(4, controllerTicks.get());
+
+        fox.setManualControlEnabled(false);
+        behaviorGroup.tick();
+        assertFalse(fox.isManualControlEnabled());
+        assertEquals(4, starts.get());
+        assertEquals(4, executions.get());
+        assertEquals(5, controllerTicks.get());
+        assertEquals(0.1f, fox.getMovementSpeed());
+        assertFalse(fox.isPitchEnabled());
+        assertPosition(autonomousMoveTarget, fox.getMoveTarget());
+        assertPosition(autonomousLookTarget, fox.getLookTarget());
+    }
+
+    @Test
+    void manualControlRejectsInvalidCommands() {
+        var fox = createFox();
+
+        assertThrows(IllegalStateException.class, () -> fox.navigateTo(new Vector3d(), 0.2f));
+        assertThrows(IllegalStateException.class, () -> fox.lookAt(new Vector3d()));
+
+        fox.setManualControlEnabled(true);
+        assertThrows(NullPointerException.class, () -> fox.navigateTo(null, 0.2f));
+        assertThrows(IllegalArgumentException.class, () -> fox.navigateTo(new Vector3d(), 0));
+        assertThrows(IllegalArgumentException.class, () -> fox.navigateTo(new Vector3d(), Float.NaN));
+        assertThrows(IllegalArgumentException.class,
+                () -> fox.navigateTo(new Vector3d(Double.POSITIVE_INFINITY, 0, 0), 0.2f));
+        assertThrows(NullPointerException.class, () -> fox.lookAt(null));
+        assertThrows(IllegalArgumentException.class,
+                () -> fox.lookAt(new Vector3d(0, Double.NEGATIVE_INFINITY, 0)));
+    }
+
+    private static BehaviorExecutor trackingExecutor(AtomicInteger starts, AtomicInteger executions,
+                                                     AtomicInteger interruptions, Runnable onStart) {
+        return new BehaviorExecutor() {
+            @Override
+            public boolean execute(EntityIntelligent entity) {
+                executions.incrementAndGet();
+                return true;
+            }
+
+            @Override
+            public void onStart(EntityIntelligent entity) {
+                starts.incrementAndGet();
+                onStart.run();
+            }
+
+            @Override
+            public void onInterrupt(EntityIntelligent entity) {
+                interruptions.incrementAndGet();
+            }
+        };
+    }
+
+    private static void assertPosition(Vector3dc expected, Vector3dc actual) {
+        assertNotNull(actual);
+        assertEquals(expected.x(), actual.x());
+        assertEquals(expected.y(), actual.y());
+        assertEquals(expected.z(), actual.z());
     }
 
     private static List<Class<?>> executors(Iterable<? extends org.allaymc.api.entity.ai.behavior.Behavior> behaviors) {
