@@ -7,6 +7,7 @@ import org.allaymc.api.container.ContainerTypes;
 import org.allaymc.api.entity.Entity;
 import org.allaymc.api.entity.EntityInitInfo;
 import org.allaymc.api.entity.action.SimpleEntityAction;
+import org.allaymc.api.entity.data.EntityNameTag;
 import org.allaymc.api.entity.effect.EffectInstance;
 import org.allaymc.api.entity.effect.EffectType;
 import org.allaymc.api.entity.interfaces.EntityFox;
@@ -42,6 +43,7 @@ import org.cloudburstmc.nbt.NbtMap;
 import org.cloudburstmc.protocol.bedrock.data.GameType;
 import org.cloudburstmc.protocol.bedrock.data.definitions.BlockDefinition;
 import org.cloudburstmc.protocol.bedrock.data.definitions.ItemDefinition;
+import org.cloudburstmc.protocol.bedrock.data.entity.EntityDataMap;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityDataTypes;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityFlag;
 import org.cloudburstmc.protocol.bedrock.definition.SimpleDefinitionRegistry;
@@ -405,6 +407,27 @@ class PacketEncoderCompatibilityTest {
     }
 
     @Test
+    void viewerNameTagIntentIsEncodedByEveryRegisteredProtocol() {
+        var entity = simpleEntity();
+        var nameTag = new EntityNameTag("viewer-name", true);
+
+        for (var protocol : registry.getProtocols()) {
+            var encoder = protocol.getEncoder();
+            var spawn = assertInstanceOf(AddEntityPacket.class, encoder.encodeEntitySpawn(entity, nameTag));
+            assertViewerNameTag(spawn.getMetadata(), protocol);
+            assertPacketEncodes(protocol, spawn);
+
+            var state = encoder.encodeEntityState(entity, nameTag);
+            assertViewerNameTag(state.getMetadata(), protocol);
+            assertPacketEncodes(protocol, state);
+
+            var globalState = encoder.encodeEntityState(entity);
+            assertFalse(globalState.getMetadata().containsKey(EntityDataTypes.NAME), protocol::toString);
+            assertPacketEncodes(protocol, globalState);
+        }
+    }
+
+    @Test
     void foxSleepingStateIsEncodedByEveryRegisteredProtocol() {
         var fox = EntityTypes.FOX.createEntity(EntityInitInfo.builder()
                 .loc(Server.getInstance().getWorldPool().getGlobalSpawnPoint())
@@ -720,6 +743,16 @@ class PacketEncoderCompatibilityTest {
             assertFalse(metadata.containsKey(EntityDataTypes.PLAYER_FLAGS), protocol::toString);
             assertPacketEncodes(protocol, state);
         }
+    }
+
+    private static void assertViewerNameTag(
+            EntityDataMap metadata,
+            Protocol protocol
+    ) {
+        assertEquals("viewer-name", metadata.get(EntityDataTypes.NAME), protocol::toString);
+        assertTrue(metadata.getFlag(EntityFlag.CAN_SHOW_NAME), protocol::toString);
+        assertTrue(metadata.getFlag(EntityFlag.ALWAYS_SHOW_NAME), protocol::toString);
+        assertEquals((byte) 1, metadata.get(EntityDataTypes.NAMETAG_ALWAYS_SHOW), protocol::toString);
     }
 
     private static Protocol protocol(ClientVariant variant, int version) {

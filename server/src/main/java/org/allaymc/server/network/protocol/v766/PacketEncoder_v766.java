@@ -20,6 +20,7 @@ import org.allaymc.api.entity.component.*;
 import org.allaymc.api.entity.component.EntityCubeBaseComponent;
 import org.allaymc.api.entity.ai.memory.MemoryTypes;
 import org.allaymc.api.entity.data.EntityAnimation;
+import org.allaymc.api.entity.data.EntityNameTag;
 import org.allaymc.api.entity.data.WeaponStance;
 import org.allaymc.server.entity.component.EntityAngerableBaseComponentImpl;
 import org.allaymc.api.entity.effect.EffectInstance;
@@ -914,6 +915,13 @@ public class PacketEncoder_v766 extends PacketEncoder {
 
     @Override
     public BedrockPacket encodeEntitySpawn(Entity entity) {
+        return encodeEntitySpawn(entity, entity.hasNameTag()
+                ? new EntityNameTag(entity.getNameTag(), entity.isNameTagAlwaysShow())
+                : null);
+    }
+
+    @Override
+    public BedrockPacket encodeEntitySpawn(Entity entity, EntityNameTag nameTag) {
         Objects.requireNonNull(entity, "entity");
         var location = entity.getLocation();
         var position = Vector3f.from(
@@ -947,7 +955,7 @@ public class PacketEncoder_v766 extends PacketEncoder {
                         location.pitch(), location.yaw(), getHeadYaw(entity, location.yaw())
                 ));
                 packet.setGameType(NetworkHelper.toNetwork(player.getGameMode()));
-                packet.getMetadata().putAll(encodeEntityMetadata(entity));
+                packet.getMetadata().putAll(encodeEntityMetadata(entity, nameTag));
                 packet.setHand(encodeItemStack(
                         player.getContainer(ContainerTypes.INVENTORY).getItemInHand()
                 ));
@@ -965,7 +973,7 @@ public class PacketEncoder_v766 extends PacketEncoder {
                 ));
                 packet.setPosition(position);
                 packet.setMotion(motion);
-                packet.getMetadata().putAll(encodeEntityMetadata(entity));
+                packet.getMetadata().putAll(encodeEntityMetadata(entity, nameTag));
                 yield packet;
             }
             case EntityPainting painting -> {
@@ -992,7 +1000,7 @@ public class PacketEncoder_v766 extends PacketEncoder {
                 packet.setRotation(Vector2f.from(location.pitch(), location.yaw()));
                 packet.setHeadRotation((float) getHeadYaw(entity, location.yaw()));
                 packet.setBodyRotation((float) location.yaw());
-                packet.getMetadata().putAll(encodeEntityMetadata(entity));
+                packet.getMetadata().putAll(encodeEntityMetadata(entity, nameTag));
                 var properties = NetworkHelper.toNetworkProperties(entity);
                 packet.getProperties().intProperties().addAll(properties.intProperties());
                 packet.getProperties().floatProperties().addAll(properties.floatProperties());
@@ -1098,9 +1106,16 @@ public class PacketEncoder_v766 extends PacketEncoder {
 
     @Override
     public EntityDataMap encodeEntityMetadata(Entity entity) {
+        return encodeEntityMetadata(entity, entity.hasNameTag()
+                ? new EntityNameTag(entity.getNameTag(), entity.isNameTagAlwaysShow())
+                : null);
+    }
+
+    @Override
+    public EntityDataMap encodeEntityMetadata(Entity entity, EntityNameTag nameTag) {
         Objects.requireNonNull(entity, "entity");
         var metadata = new EntityDataMap();
-        addGenericMetadata(entity, metadata);
+        addGenericMetadata(entity, nameTag, metadata);
         addComponentSpecificMetadata(entity, metadata);
         addTypeSpecificMetadata(entity, metadata);
         return metadata;
@@ -1108,15 +1123,22 @@ public class PacketEncoder_v766 extends PacketEncoder {
 
     @Override
     public SetEntityDataPacket encodeEntityState(Entity entity) {
+        return encodeEntityState(entity, entity.hasNameTag()
+                ? new EntityNameTag(entity.getNameTag(), entity.isNameTagAlwaysShow())
+                : null);
+    }
+
+    @Override
+    public SetEntityDataPacket encodeEntityState(Entity entity, EntityNameTag nameTag) {
         Objects.requireNonNull(entity, "entity");
         var packet = new SetEntityDataPacket();
         packet.setRuntimeEntityId(entity.getRuntimeId());
-        packet.setMetadata(encodeEntityMetadata(entity));
+        packet.setMetadata(encodeEntityMetadata(entity, nameTag));
         packet.setProperties(NetworkHelper.toNetworkProperties(entity));
         return packet;
     }
 
-    private static void addGenericMetadata(Entity entity, EntityDataMap metadata) {
+    private static void addGenericMetadata(Entity entity, EntityNameTag nameTag, EntityDataMap metadata) {
         metadata.setFlag(EntityFlag.HAS_COLLISION, entity.hasEntityCollision());
         metadata.setFlag(EntityFlag.CAN_CLIMB, true);
         metadata.setFlag(EntityFlag.INVISIBLE, entity.isInvisible());
@@ -1144,10 +1166,10 @@ public class PacketEncoder_v766 extends PacketEncoder {
         metadata.put(EntityDataTypes.SCALE, (float) entity.getScale());
         // v766-v827 clients crash if HAS_NPC is true for an item entity.
         metadata.put(EntityDataTypes.HAS_NPC, !(entity instanceof EntityItem));
-        if (entity.hasNameTag()) {
+        if (nameTag != null) {
             metadata.setFlag(EntityFlag.CAN_SHOW_NAME, true);
-            metadata.put(EntityDataTypes.NAME, entity.getNameTag());
-            if (entity.isNameTagAlwaysShow()) {
+            metadata.put(EntityDataTypes.NAME, nameTag.text());
+            if (nameTag.alwaysShow()) {
                 metadata.setFlag(EntityFlag.ALWAYS_SHOW_NAME, true);
                 metadata.put(EntityDataTypes.NAMETAG_ALWAYS_SHOW, (byte) 1);
             }

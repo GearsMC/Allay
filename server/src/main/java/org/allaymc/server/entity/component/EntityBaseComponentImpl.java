@@ -12,6 +12,7 @@ import org.allaymc.api.entity.action.EntityAction;
 import org.allaymc.api.entity.component.EntityBaseComponent;
 import org.allaymc.api.entity.component.EntityPhysicsComponent;
 import org.allaymc.api.entity.data.EntityAnimation;
+import org.allaymc.api.entity.data.EntityNameTag;
 import org.allaymc.api.entity.interfaces.EntityPlayer;
 import org.allaymc.api.entity.property.type.*;
 import org.allaymc.api.entity.type.EntityType;
@@ -101,6 +102,7 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
     @Getter
     protected EntityType<? extends Entity> entityType;
     protected Set<WorldViewer> viewers;
+    protected Map<UUID, EntityNameTag> viewerNameTags;
     protected Set<PrimitiveShape> primitiveShapes;
     @Getter
     protected EntityState state;
@@ -157,6 +159,7 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
         // chunk siniri geciyor, yani yarisa o kadar sik giriyor; kurtlarda bunun bu kadar sik
         // gorulmesinin sebebi bu.
         this.viewers = ConcurrentHashMap.newKeySet();
+        this.viewerNameTags = new ConcurrentHashMap<>();
         this.primitiveShapes = ConcurrentHashMap.newKeySet();
         this.state = EntityState.DESPAWNED;
         this.displayName = AllayStringUtils.snakeCaseToTitleCase(entityType.getIdentifier().path());
@@ -301,6 +304,45 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
     public void setNameTagAlwaysShow(boolean nameTagAlwaysShow) {
         this.nameTagAlwaysShow = nameTagAlwaysShow;
         broadcastState();
+    }
+
+    @Override
+    public EntityNameTag getNameTagForViewer(EntityPlayer viewer) {
+        var viewerId = requireViewerId(viewer);
+        var viewerNameTag = viewerNameTags.get(viewerId);
+        if (viewerNameTag != null) {
+            return viewerNameTag;
+        }
+
+        return nameTag == null ? null : new EntityNameTag(nameTag, nameTagAlwaysShow);
+    }
+
+    @Override
+    public void setNameTagForViewer(EntityPlayer viewer, EntityNameTag nameTag) {
+        var viewerId = requireViewerId(viewer);
+        viewerNameTags.put(viewerId, Objects.requireNonNull(nameTag, "nameTag"));
+        refreshNameTagForViewer(viewer);
+    }
+
+    @Override
+    public boolean clearNameTagForViewer(EntityPlayer viewer) {
+        var removed = viewerNameTags.remove(requireViewerId(viewer)) != null;
+        if (removed) {
+            refreshNameTagForViewer(viewer);
+        }
+        return removed;
+    }
+
+    private static UUID requireViewerId(EntityPlayer viewer) {
+        Objects.requireNonNull(viewer, "viewer");
+        return Objects.requireNonNull(viewer.getUniqueId(), "viewer unique ID");
+    }
+
+    private void refreshNameTagForViewer(EntityPlayer viewer) {
+        var controller = viewer.getController();
+        if (controller != null && viewers.contains(controller)) {
+            controller.viewEntityState(thisEntity);
+        }
     }
 
     @Override

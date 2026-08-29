@@ -10,6 +10,7 @@ import org.allaymc.api.entity.Entity;
 import org.allaymc.api.entity.EntityState;
 import org.allaymc.api.entity.action.EntityAction;
 import org.allaymc.api.entity.data.EntityAnimation;
+import org.allaymc.api.entity.data.EntityNameTag;
 import org.allaymc.api.entity.interfaces.EntityPlayer;
 import org.allaymc.api.entity.interfaces.EntityProjectile;
 import org.allaymc.api.entity.property.type.EntityPropertyType;
@@ -124,6 +125,55 @@ public interface EntityBaseComponent extends EntityComponent, CommandSender, Has
      *                          and {@code false} causes it to only display under certain conditions.
      */
     void setNameTagAlwaysShow(boolean nameTagAlwaysShow);
+
+    /**
+     * Returns the effective name tag presentation for a viewer.
+     *
+     * <p>A viewer-specific value takes precedence over the entity-wide name tag. If no override
+     * exists, this method returns the entity-wide presentation, or {@code null} when the entity
+     * has no name tag.</p>
+     *
+     * @param viewer the player entity that will receive the presentation
+     * @return the effective presentation, or {@code null} if no name tag should be sent
+     * @throws NullPointerException if {@code viewer} is {@code null} or has no unique ID
+     */
+    EntityNameTag getNameTagForViewer(EntityPlayer viewer);
+
+    /**
+     * Sets a name tag presentation visible only to one viewer.
+     *
+     * <p>The override remains associated with this entity until explicitly cleared or until this
+     * entity instance is discarded. If the viewer currently tracks the entity, its metadata is
+     * refreshed immediately.</p>
+     *
+     * @param viewer the player entity that receives the override
+     * @param nameTag the presentation to use for that viewer
+     * @throws NullPointerException if an argument is {@code null} or the viewer has no unique ID
+     */
+    void setNameTagForViewer(EntityPlayer viewer, EntityNameTag nameTag);
+
+    /**
+     * Sets a name tag presentation visible only to one viewer.
+     *
+     * @param viewer the player entity that receives the override
+     * @param text the name tag text; an empty value hides the text while retaining the override
+     * @param alwaysShow whether the client should keep the name tag visible without targeting the entity
+     * @throws NullPointerException if {@code viewer}, {@code text}, or the viewer's unique ID is {@code null}
+     */
+    default void setNameTagForViewer(EntityPlayer viewer, String text, boolean alwaysShow) {
+        setNameTagForViewer(viewer, new EntityNameTag(text, alwaysShow));
+    }
+
+    /**
+     * Removes a viewer-specific name tag and restores the entity-wide presentation for that viewer.
+     *
+     * <p>If the viewer currently tracks the entity, its metadata is refreshed immediately.</p>
+     *
+     * @param viewer the player entity whose override is removed
+     * @return {@code true} if an override was removed
+     * @throws NullPointerException if {@code viewer} is {@code null} or has no unique ID
+     */
+    boolean clearNameTagForViewer(EntityPlayer viewer);
 
     /**
      * Checks whether this entity is visible to its viewers.

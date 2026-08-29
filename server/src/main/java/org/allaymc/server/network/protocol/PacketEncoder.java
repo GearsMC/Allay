@@ -10,6 +10,7 @@ import org.allaymc.api.entity.Entity;
 import org.allaymc.api.entity.action.EntityAction;
 import org.allaymc.api.entity.component.EntityContainerHolderComponent;
 import org.allaymc.api.entity.data.EntityAnimation;
+import org.allaymc.api.entity.data.EntityNameTag;
 import org.allaymc.api.entity.effect.EffectInstance;
 import org.allaymc.api.entity.interfaces.EntityPlayer;
 import org.allaymc.api.form.type.Form;
@@ -356,6 +357,16 @@ public abstract class PacketEncoder {
         return null;
     }
 
+    /**
+     * Encodes an entity spawn with a resolved viewer-specific name tag presentation.
+     *
+     * @param entity entity to spawn
+     * @param nameTag effective name tag presentation, or {@code null} to omit the name tag
+     */
+    public BedrockPacket encodeEntitySpawn(Entity entity, EntityNameTag nameTag) {
+        return encodeEntitySpawn(entity);
+    }
+
     /** Encodes the removal of an entity from the client world. */
     public RemoveEntityPacket encodeEntityRemove(Entity entity) {
         return null;
@@ -398,9 +409,29 @@ public abstract class PacketEncoder {
         return null;
     }
 
+    /**
+     * Converts the current entity state using a resolved viewer-specific name tag presentation.
+     *
+     * @param entity entity whose metadata is encoded
+     * @param nameTag effective name tag presentation, or {@code null} to omit the name tag
+     */
+    public EntityDataMap encodeEntityMetadata(Entity entity, EntityNameTag nameTag) {
+        return encodeEntityMetadata(entity);
+    }
+
     /** Encodes the current metadata and properties of an entity. */
     public SetEntityDataPacket encodeEntityState(Entity entity) {
         return null;
+    }
+
+    /**
+     * Encodes entity metadata and properties with a resolved viewer-specific name tag presentation.
+     *
+     * @param entity entity whose state is encoded
+     * @param nameTag effective name tag presentation, or {@code null} to omit the name tag
+     */
+    public SetEntityDataPacket encodeEntityState(Entity entity, EntityNameTag nameTag) {
+        return encodeEntityState(entity);
     }
 
     /** Encodes the item held in an entity's main hand. */

@@ -1,21 +1,28 @@
 package org.allaymc.server.entity;
 
 import org.allaymc.api.entity.EntityInitInfo;
+import org.allaymc.api.entity.data.EntityNameTag;
+import org.allaymc.api.entity.interfaces.EntityPlayer;
 import org.allaymc.api.entity.type.EntityTypes;
+import org.allaymc.api.player.Player;
 import org.allaymc.api.world.WorldViewer;
 import org.allaymc.testutils.AllayTestExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
  * Bir varligi bir izleyiciye dogurma istegi birkac bagimsiz yoldan geliyor: varlik eklendiginde
@@ -133,5 +140,46 @@ public class EntityViewerTrackingTest {
 
         verify(viewer, times(1)).viewEntity(pillager);
         verify(viewer, times(1)).viewEntityHand(pillager);
+    }
+
+    @Test
+    void viewerNameTagsAreIsolatedAndRestoreTheEntityDefault() {
+        var fox = EntityTypes.FOX.createEntity(EntityInitInfo.builder().build());
+        var firstController = mock(Player.class);
+        var secondController = mock(Player.class);
+        var firstViewer = mock(EntityPlayer.class);
+        var secondViewer = mock(EntityPlayer.class);
+        when(firstViewer.getUniqueId()).thenReturn(UUID.fromString("00000000-0000-0000-0000-000000000001"));
+        when(secondViewer.getUniqueId()).thenReturn(UUID.fromString("00000000-0000-0000-0000-000000000002"));
+        when(firstViewer.getController()).thenReturn(firstController);
+        when(secondViewer.getController()).thenReturn(secondController);
+
+        fox.setNameTag("global-name");
+        fox.setNameTagAlwaysShow(false);
+        fox.setNameTagForViewer(firstViewer, "first-name", true);
+
+        assertEquals(new EntityNameTag("first-name", true), fox.getNameTagForViewer(firstViewer));
+        assertEquals(new EntityNameTag("global-name", false), fox.getNameTagForViewer(secondViewer));
+        assertEquals("global-name", fox.getNameTag());
+        assertFalse(fox.isNameTagAlwaysShow());
+
+        fox.spawnTo(firstController);
+        fox.spawnTo(secondController);
+        clearInvocations(firstController, secondController);
+
+        fox.setNameTagForViewer(firstViewer, "updated-name", false);
+
+        verify(firstController).viewEntityState(fox);
+        verify(secondController, never()).viewEntityState(fox);
+        assertEquals(new EntityNameTag("updated-name", false), fox.getNameTagForViewer(firstViewer));
+        assertEquals(new EntityNameTag("global-name", false), fox.getNameTagForViewer(secondViewer));
+
+        clearInvocations(firstController, secondController);
+        assertTrue(fox.clearNameTagForViewer(firstViewer));
+        assertFalse(fox.clearNameTagForViewer(firstViewer));
+
+        verify(firstController).viewEntityState(fox);
+        verify(secondController, never()).viewEntityState(fox);
+        assertEquals(new EntityNameTag("global-name", false), fox.getNameTagForViewer(firstViewer));
     }
 }

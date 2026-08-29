@@ -330,7 +330,10 @@ public class AllayPlayer implements Player {
 
     @Override
     public void viewEntity(Entity entity) {
-        sendPacket(getProtocol().getEncoder().encodeEntitySpawn(entity));
+        sendPacket(getProtocol().getEncoder().encodeEntitySpawn(
+                entity,
+                entity.getNameTagForViewer(controlledEntity)
+        ));
         viewPrimitiveShapes(entity.getAttachedPrimitiveShapes());
     }
 
@@ -366,11 +369,17 @@ public class AllayPlayer implements Player {
 
     @Override
     public void viewEntityState(Entity entity) {
-        sendPacket(getProtocol().getEncoder().encodeEntityState(entity));
+        sendPacket(getProtocol().getEncoder().encodeEntityState(
+                entity,
+                entity.getNameTagForViewer(controlledEntity)
+        ));
     }
 
     protected EntityDataMap parseMetadata(Entity entity) {
-        return getProtocol().getEncoder().encodeEntityMetadata(entity);
+        return getProtocol().getEncoder().encodeEntityMetadata(
+                entity,
+                entity.getNameTagForViewer(controlledEntity)
+        );
     }
 
     @Override
