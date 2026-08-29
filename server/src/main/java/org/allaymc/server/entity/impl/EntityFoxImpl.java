@@ -6,6 +6,7 @@ import org.allaymc.api.entity.EntityInitInfo;
 import org.allaymc.api.entity.component.EntityAIComponent;
 import org.allaymc.api.entity.component.EntityAnimalComponent;
 import org.allaymc.api.entity.component.EntityBabyComponent;
+import org.allaymc.api.entity.component.EntityFoxBaseComponent;
 import org.allaymc.api.entity.component.EntityHeadYawComponent;
 import org.allaymc.api.entity.component.EntityLivingComponent;
 import org.allaymc.api.entity.component.EntityParallelTickComponent;
@@ -17,6 +18,8 @@ import java.util.List;
 
 public class EntityFoxImpl extends EntityImpl implements EntityFox {
 
+    @Delegate
+    private EntityFoxBaseComponent foxBaseComponent;
     @Delegate
     private EntityLivingComponent livingComponent;
     @Delegate

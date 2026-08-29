@@ -5,17 +5,21 @@ import org.allaymc.api.block.action.SimpleBlockAction;
 import org.allaymc.api.block.type.BlockState;
 import org.allaymc.api.container.ContainerTypes;
 import org.allaymc.api.entity.Entity;
+import org.allaymc.api.entity.EntityInitInfo;
 import org.allaymc.api.entity.action.SimpleEntityAction;
 import org.allaymc.api.entity.effect.EffectInstance;
 import org.allaymc.api.entity.effect.EffectType;
+import org.allaymc.api.entity.interfaces.EntityFox;
 import org.allaymc.api.entity.interfaces.EntityPlayer;
 import org.allaymc.api.entity.type.EntityType;
+import org.allaymc.api.entity.type.EntityTypes;
 import org.allaymc.api.item.data.DiscType;
 import org.allaymc.api.math.location.Location3d;
 import org.allaymc.api.player.GameMode;
 import org.allaymc.api.player.PlayerData;
 import org.allaymc.api.player.Skin;
 import org.allaymc.api.primitiveshape.PrimitiveSphere;
+import org.allaymc.api.server.Server;
 import org.allaymc.api.utils.identifier.Identifier;
 import org.allaymc.api.world.Dimension;
 import org.allaymc.api.world.World;
@@ -39,6 +43,7 @@ import org.cloudburstmc.protocol.bedrock.data.GameType;
 import org.cloudburstmc.protocol.bedrock.data.definitions.BlockDefinition;
 import org.cloudburstmc.protocol.bedrock.data.definitions.ItemDefinition;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityDataTypes;
+import org.cloudburstmc.protocol.bedrock.data.entity.EntityFlag;
 import org.cloudburstmc.protocol.bedrock.definition.SimpleDefinitionRegistry;
 import org.cloudburstmc.protocol.bedrock.packet.*;
 import org.joml.primitives.AABBd;
@@ -400,6 +405,19 @@ class PacketEncoderCompatibilityTest {
     }
 
     @Test
+    void foxSleepingStateIsEncodedByEveryRegisteredProtocol() {
+        var fox = EntityTypes.FOX.createEntity(EntityInitInfo.builder()
+                .loc(Server.getInstance().getWorldPool().getGlobalSpawnPoint())
+                .build());
+
+        assertFoxSleepingState(fox, false);
+        fox.setSleeping(true);
+        assertFoxSleepingState(fox, true);
+        fox.setSleeping(false);
+        assertFoxSleepingState(fox, false);
+    }
+
+    @Test
     void fakePlayerSkinPacketsDoNotShareMutableSkinPayloads() {
         var protocol = protocol(ClientVariant.INTERNATIONAL, 819);
         var player = mock(EntityPlayer.class);
@@ -690,6 +708,18 @@ class PacketEncoderCompatibilityTest {
                 .personaPieces(List.of())
                 .pieceTintColors(List.of())
                 .build();
+    }
+
+    private static void assertFoxSleepingState(EntityFox fox, boolean sleeping) {
+        for (var protocol : registry.getProtocols()) {
+            var state = protocol.getEncoder().encodeEntityState(fox);
+            var metadata = state.getMetadata();
+            assertTrue(metadata.isFlagPresent(EntityFlag.SLEEPING), protocol::toString);
+            assertEquals(sleeping, metadata.getFlag(EntityFlag.SLEEPING), protocol::toString);
+            assertFalse(metadata.containsKey(EntityDataTypes.BED_POSITION), protocol::toString);
+            assertFalse(metadata.containsKey(EntityDataTypes.PLAYER_FLAGS), protocol::toString);
+            assertPacketEncodes(protocol, state);
+        }
     }
 
     private static Protocol protocol(ClientVariant variant, int version) {

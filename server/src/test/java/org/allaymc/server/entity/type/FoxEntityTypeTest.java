@@ -6,6 +6,7 @@ import org.allaymc.api.entity.ai.memory.MemoryTypes;
 import org.allaymc.api.entity.component.EntityAIComponent;
 import org.allaymc.api.entity.component.EntityAnimalComponent;
 import org.allaymc.api.entity.component.EntityBabyComponent;
+import org.allaymc.api.entity.component.EntityFoxBaseComponent;
 import org.allaymc.api.entity.component.EntityHeadYawComponent;
 import org.allaymc.api.entity.component.EntityLivingComponent;
 import org.allaymc.api.entity.component.EntityParallelTickComponent;
@@ -64,6 +65,7 @@ class FoxEntityTypeTest {
         assertInstanceOf(EntityParallelTickComponent.class, fox);
         assertInstanceOf(EntityAnimalComponent.class, fox);
         assertInstanceOf(EntityBabyComponent.class, fox);
+        assertInstanceOf(EntityFoxBaseComponent.class, fox);
         assertInstanceOf(EntityHeadYawComponent.class, fox);
     }
 
@@ -129,6 +131,19 @@ class FoxEntityTypeTest {
 
         assertEquals(0.6, aabb.maxX() - aabb.minX(), 1e-9);
         assertEquals(0.7, aabb.maxY() - aabb.minY(), 1e-9);
+    }
+
+    @Test
+    void foxSleepingPoseCanBeToggledWithoutABed() {
+        var fox = createFox();
+
+        assertFalse(fox.isSleeping());
+        fox.setSleeping(true);
+        assertTrue(fox.isSleeping());
+        fox.setSleeping(true);
+        assertTrue(fox.isSleeping());
+        fox.setSleeping(false);
+        assertFalse(fox.isSleeping());
     }
 
     @Test

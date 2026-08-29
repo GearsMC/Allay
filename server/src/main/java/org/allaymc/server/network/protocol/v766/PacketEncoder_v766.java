@@ -1278,6 +1278,7 @@ public class PacketEncoder_v766 extends PacketEncoder {
             }
             case EntityXpOrb xpOrb -> metadata.put(EntityDataTypes.VALUE, xpOrb.getExperienceValue());
             case EntityArrow arrow -> metadata.setFlag(EntityFlag.CRITICAL, arrow.isCritical());
+            case EntityFox fox -> metadata.setFlag(EntityFlag.SLEEPING, fox.isSleeping());
             // Wolves and endermen have a distinct hostile look (bared teeth, open mouth) that the
             // client only shows while the ANGRY flag is set.
             case EntityWolf wolf -> metadata.setFlag(EntityFlag.ANGRY, EntityAngerableBaseComponentImpl.isHunting(wolf));
