@@ -1621,6 +1621,36 @@ public final class EntityTypeInitializer {
                 .build();
     }
 
+    public static void initFox() {
+        EntityTypes.FOX = AllayEntityType
+                .builder(EntityFoxImpl.class)
+                .vanillaEntity(EntityId.FOX)
+                .addComponent(() -> {
+                    var component = new EntityLivingComponentImpl();
+                    component.setMaxHealth(10);
+                    return component;
+                }, EntityLivingComponentImpl.class)
+                .addComponent(EntityAnimalPhysicsComponentImpl::new, EntityAnimalPhysicsComponentImpl.class)
+                .addComponent(() -> new EntityAnimalComponentImpl(item ->
+                        item.getItemType() == ItemTypes.SWEET_BERRIES
+                        || item.getItemType() == ItemTypes.GLOW_BERRIES
+                ), EntityAnimalComponentImpl.class)
+                .addComponent(EntityBabyComponentImpl::new, EntityBabyComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> {
+                    var behaviorGroup = BehaviorGroupImpl.builder()
+                            .controller(new WalkController())
+                            .controller(new LookController(true, true))
+                            .controller(new FluctuateController())
+                            .routeFinder(new FlatAStarRouteFinder(new WalkingPosEvaluator()))
+                            .build();
+
+                    return new EntityAIComponentImpl(behaviorGroup);
+                }, EntityAIComponentImpl.class)
+                .build();
+    }
+
     public static void initFishingHook() {
         EntityTypes.FISHING_HOOK = AllayEntityType
                 .builder(EntityFishingHookImpl.class)

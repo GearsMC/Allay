@@ -1,7 +1,10 @@
 package org.allaymc.api.entity.interfaces;
 
-import org.allaymc.api.entity.Entity;
+import org.allaymc.api.entity.component.EntityHeadYawComponent;
 
-public interface EntityFox extends Entity {
+/**
+ * Represents a fox with the common animal lifecycle, physics, and AI capabilities.
+ */
+public interface EntityFox extends EntityAnimal, EntityHeadYawComponent {
 
 }
