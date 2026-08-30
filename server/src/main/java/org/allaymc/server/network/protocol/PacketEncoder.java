@@ -37,6 +37,8 @@ import org.allaymc.api.world.sound.Sound;
 import org.allaymc.server.network.NetworkHelper;
 import org.allaymc.server.player.ChunkCache;
 import org.cloudburstmc.math.vector.Vector3i;
+import org.cloudburstmc.protocol.bedrock.packet.SetEntityLinkPacket;
+import org.cloudburstmc.protocol.bedrock.data.entity.EntityLinkData;
 import org.cloudburstmc.nbt.NbtMap;
 import org.cloudburstmc.protocol.bedrock.data.*;
 import org.cloudburstmc.protocol.bedrock.data.command.CommandData;
@@ -236,6 +238,26 @@ public abstract class PacketEncoder {
      * @param layer storage layer containing the block
      * @param blockState new block state
      */
+    /**
+     * GearsMC fork: bir varligin uzerindeki biniciyi bildiren paketi kurar.
+     *
+     * <p>{@code SetEntityLinkPacket} desteklenen butun surumlerde ayni sekle
+     * sahip oldugu icin surume ozel bir dal gerekmez; yine de paket kurulumu
+     * eklentide degil burada durur ki sekil degisirse tek yerden guncellensin.</p>
+     *
+     * @param vehicleRuntimeId binilen varligin runtime kimligi
+     * @param riderRuntimeId   binen varligin runtime kimligi
+     * @param riding           {@code true} bindirir, {@code false} indirir
+     * @return gonderilecek paket
+     */
+    public SetEntityLinkPacket encodeEntityRider(long vehicleRuntimeId, long riderRuntimeId,
+                                                 boolean riding) {
+        var packet = new SetEntityLinkPacket();
+        packet.setEntityLink(new EntityLinkData(vehicleRuntimeId, riderRuntimeId,
+                riding ? EntityLinkData.Type.RIDER : EntityLinkData.Type.REMOVE, false, false, 0f));
+        return packet;
+    }
+
     public UpdateBlockPacket encodeBlockUpdate(Vector3ic position, int layer, BlockState blockState) {
         return null;
     }

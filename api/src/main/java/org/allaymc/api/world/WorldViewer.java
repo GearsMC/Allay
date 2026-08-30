@@ -72,6 +72,21 @@ public interface WorldViewer extends PrimitiveShapeViewer {
     void viewEntityState(Entity entity);
 
     /**
+     * GearsMC fork: bir varligin uzerindeki biniciyi bu izleyiciye bildirir.
+     *
+     * <p>Oturma ve uzanma pozlari oyuncuyu gorunmez bir koltuk varligina
+     * bindirerek calisir. Eklentiler bunu daha once ham {@code SetEntityLinkPacket}
+     * gondererek yapiyordu; API paket gonderimini acmadigi icin de yansimaya
+     * basvurmak gerekiyordu. Ham paket yerine niyeti tarif eden bir metot
+     * konuldu: paketi hangi surume gore kuracagina sunucu karar verir.</p>
+     *
+     * @param vehicle binilen varlik
+     * @param rider   binen varlik
+     * @param riding  {@code true} ise binici bindirilir, {@code false} ise indirilir
+     */
+    void viewEntityRider(Entity vehicle, Entity rider, boolean riding);
+
+    /**
      * Views the item in the main hand of the entity passed.
      *
      * @param entity the entity to view
