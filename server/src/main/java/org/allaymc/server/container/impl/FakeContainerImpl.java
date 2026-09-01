@@ -87,6 +87,8 @@ public abstract class FakeContainerImpl extends BaseContainer implements FakeCon
             if (!super.addViewer(player)) {
                 runDelayed(() -> removeFakeBlocks(player));
                 callback.accept(false);
+                // Basarisizlikta da devam edilirse callback ikinci kez true ile cagriliyordu.
+                return;
             }
 
             callback.accept(true);
