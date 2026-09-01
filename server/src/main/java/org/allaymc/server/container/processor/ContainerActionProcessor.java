@@ -100,6 +100,26 @@ public interface ContainerActionProcessor<T extends ItemStackRequestAction> {
         return ContainerNetworkInfo.getInfo(container.getContainerType()).networkSlotIndexMapper().get(index);
     }
 
+    /**
+     * Handles a single-slot action (drop, destroy) that touches a fake container.
+     * <p>
+     * Click listeners always fire, but the action itself is rejected for
+     * menu-style (non-interactable) fake containers: otherwise a player could
+     * throw a menu button on the ground or destroy it in creative mode.
+     *
+     * @param container the container the action originates from
+     * @param slot      the slot the action originates from
+     * @return {@code true} if the action must be rejected
+     */
+    static boolean tryHandleFakeContainerSlot(Container container, int slot) {
+        if (container instanceof FakeContainerImpl fakeContainer) {
+            fakeContainer.onClick(slot);
+            return !fakeContainer.isInteractable();
+        }
+
+        return false;
+    }
+
     static boolean tryHandleFakeContainer(Container source, int sourceSlot, Container destination, int destinationSlot) {
         // Click listeners always fire; the transfer is only rejected when a
         // non-interactable (menu-style) fake container is involved.

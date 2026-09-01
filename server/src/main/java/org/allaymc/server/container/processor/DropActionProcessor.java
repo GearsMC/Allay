@@ -25,6 +25,10 @@ public class DropActionProcessor implements ContainerActionProcessor<DropAction>
         var count = action.count();
         var slot = ContainerActionProcessor.fromNetworkSlotIndex(container, action.source().slot());
 
+        if (ContainerActionProcessor.tryHandleFakeContainerSlot(container, slot)) {
+            return error();
+        }
+
         var item = container.getItemStack(slot);
         if (failToValidateStackUniqueId(item.getUniqueId(), action.source().stackNetworkId())) {
             log.warn("mismatch stack unique id!");
