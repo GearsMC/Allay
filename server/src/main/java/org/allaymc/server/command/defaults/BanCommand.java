@@ -12,7 +12,10 @@ import org.allaymc.api.server.Server;
 public class BanCommand extends Command {
 
     public BanCommand() {
-        super("ban", TrKeys.MC_COMMANDS_BAN_DESCRIPTION, Permissions.COMMAND_BAN);
+        // GearsMC forkunda ad "allayban": /ban adi GearsCore'un ceza sistemine aittir.
+        // Ayni adla kayit yapilsaydi biri digerinin uzerine sessizce yazar, motorun
+        // kendi yasak listesi ile eklentinin ceza tablosu birbirinden habersiz kalirdi.
+        super("allayban", TrKeys.MC_COMMANDS_BAN_DESCRIPTION, Permissions.COMMAND_BAN);
     }
 
     @Override

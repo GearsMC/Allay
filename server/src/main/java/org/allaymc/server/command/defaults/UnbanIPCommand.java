@@ -12,7 +12,8 @@ import org.allaymc.api.server.Server;
 public class UnbanIPCommand extends Command {
 
     public UnbanIPCommand() {
-        super("unban-ip", "Unban an ip", Permissions.COMMAND_UNBAN_IP);
+        // GearsMC forkunda ad "allayunban-ip": bkz. allayban.
+        super("allayunban-ip", "Unban an ip", Permissions.COMMAND_UNBAN_IP);
     }
 
     @Override

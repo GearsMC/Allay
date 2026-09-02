@@ -12,7 +12,8 @@ import org.allaymc.api.server.Server;
 public class BanIPCommand extends Command {
 
     public BanIPCommand() {
-        super("ban-ip", TrKeys.MC_COMMANDS_BANIP_DESCRIPTION, Permissions.COMMAND_BAN_IP);
+        // GearsMC forkunda ad "allayban-ip": bkz. allayban.
+        super("allayban-ip", TrKeys.MC_COMMANDS_BANIP_DESCRIPTION, Permissions.COMMAND_BAN_IP);
     }
 
     @Override
