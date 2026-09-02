@@ -12,14 +12,16 @@ import org.cloudburstmc.protocol.bedrock.packet.SettingsCommandPacket;
  */
 public class SettingsCommandPacketProcessor extends PacketProcessor<SettingsCommandPacket> {
     /**
-     * Ayarlar ekranindaki komut kutusundan gelen komutu isler.
+     * Istemcinin ayar degisikliginden urettigi komutu isler.
      *
-     * <p>{@code CommandRequestPacketProcessor} ile ayni sekilde {@link PlayerCommandEvent}
-     * tetiklenir. Onceden bu yol olayi atliyordu; oyuncudan gelen ayni komut hangi pakete
-     * bindigine gore farkli davraniyor, komutu kesen eklentiler bu kutudan yazilani
-     * goremiyordu. GearsMC'de bunun somut sonucu bir moderasyon atlatmasiydi: ozel mesaj
-     * kesicisi devreye girmedigi icin susturulmus bir oyuncu buradan {@code /msg}
-     * gonderebiliyordu.</p>
+     * <p>Bu paket oyuncunun yazdigi bir komut DEGILDIR: istemci, ayarlardaki bir dugme
+     * degistiginde karsiligi olan komutu kendisi uretip yollar (ornegin "Koordinatlari Goster"
+     * acilinca {@code /gamerule showcoordinates true}).</p>
+     *
+     * <p>Onceden bu yol {@link PlayerCommandEvent} tetiklemeden komutu dogrudan
+     * calistiriyordu; komut dinleyen ya da kesen eklentiler ayar kaynakli komutlari hic
+     * gormuyordu. Artik {@code CommandRequestPacketProcessor} ile ayni akis kullaniliyor,
+     * boylece oyuncu adina calisan her komut tek bir olaydan gecer.</p>
      */
     @Override
     public void handleSync(Player player, SettingsCommandPacket packet, long receiveTime) {
