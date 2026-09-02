@@ -94,6 +94,13 @@ public class EntityPlayerBaseComponentImpl extends EntityBaseComponentImpl imple
     @Getter
     protected GameMode gameMode;
     protected boolean phantom;
+    /**
+     * Izleyici basina gorunurluk suzgeci; {@code null} ise suzgec yok.
+     * <p>
+     * {@code volatile}: suzgeci eklenti is parcacigindan ayarlanabilir, dunya is parcacigindan
+     * okunur.
+     */
+    protected volatile java.util.function.Predicate<org.allaymc.api.world.WorldViewer> visibilityFilter;
     @Getter
     protected Skin skin;
     protected Location3ic spawnPoint;
@@ -249,6 +256,18 @@ public class EntityPlayerBaseComponentImpl extends EntityBaseComponentImpl imple
     }
 
     @Override
+    public void setVisibilityFilter(java.util.function.Predicate<WorldViewer> filter) {
+        this.visibilityFilter = filter;
+        // Suzgec degisti: su an goren ama gormemesi gerekenler dusurulur, tersi dogurulur.
+        refreshPhantom();
+    }
+
+    @Override
+    public java.util.function.Predicate<WorldViewer> getVisibilityFilter() {
+        return this.visibilityFilter;
+    }
+
+    @Override
     public boolean isPhantom() {
         return this.gameMode == GameMode.SPECTATOR || this.phantom;
     }
@@ -279,6 +298,14 @@ public class EntityPlayerBaseComponentImpl extends EntityBaseComponentImpl imple
 
     protected boolean shouldBeVisibleTo(WorldViewer viewer) {
         if (this.phantom) {
+            return false;
+        }
+
+        // Izleyici basina suzgec: gorunmezlik (vanish) gibi rutbeye bagli gizlilikler icin.
+        // Oyun modu denetiminden ONCE bakilmali; asagidaki dal hayatta kalma modunda dogrudan
+        // "gorunur" diyerek cikiyor.
+        var filter = this.visibilityFilter;
+        if (filter != null && !filter.test(viewer)) {
             return false;
         }
 

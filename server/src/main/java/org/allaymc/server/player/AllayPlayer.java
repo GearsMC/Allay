@@ -1934,13 +1934,49 @@ public class AllayPlayer implements Player {
         }
     }
 
+    /**
+     * Oyuncu listesi (tab) degisikligini gonderir.
+     *
+     * <p>Ekleme yonunde, gorunurluk suzgeci bu izleyiciyi reddeden oyuncular listeden
+     * ayiklanir; boylece gizli bir yetkili varlik olarak gorunmedigi gibi tab listesinde de
+     * gozukmez. Cikarma yonu HIC suzulmez: bir oyuncunun listeden dusurulmesi her zaman
+     * gecmelidir, aksi halde istemcide hayalet satir kalir.</p>
+     */
     @Override
     public void viewPlayerListChange(Collection<Player> players, boolean add) {
+        var visible = players;
+        if (add) {
+            visible = players.stream().filter(this::canSeeInPlayerList).toList();
+            if (visible.isEmpty()) {
+                return;
+            }
+        }
+
         sendPacket(getProtocol().getEncoder().encodePlayerList(
-                players,
+                visible,
                 add,
                 AllayServer.getSettings().resourcePackSettings().trustAllSkins()
         ));
+    }
+
+    /**
+     * Verilen oyuncu bu izleyicinin tab listesinde gorunmeli mi.
+     *
+     * @param other listelenecek oyuncu
+     * @return gorunmeliyse {@code true}
+     */
+    protected boolean canSeeInPlayerList(Player other) {
+        if (other == this) {
+            return true;
+        }
+
+        var entity = other.getControlledEntity();
+        if (entity == null) {
+            return true;
+        }
+
+        var filter = entity.getVisibilityFilter();
+        return filter == null || filter.test(this);
     }
 
     @Override

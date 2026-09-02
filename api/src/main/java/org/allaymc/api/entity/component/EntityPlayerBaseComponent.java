@@ -7,6 +7,7 @@ import org.allaymc.api.message.TrKeys;
 import org.allaymc.api.player.GameMode;
 import org.allaymc.api.player.Player;
 import org.allaymc.api.player.Skin;
+import org.allaymc.api.world.WorldViewer;
 import org.allaymc.api.world.chunk.ChunkLoader;
 import org.jetbrains.annotations.Range;
 import org.joml.Vector3d;
@@ -14,6 +15,7 @@ import org.joml.Vector3dc;
 import org.joml.Vector3ic;
 
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Predicate;
 
 /**
  * Shared component for player entities, covering movement states, respawn data, cooldowns, food, experience, and fishing.
@@ -257,6 +259,33 @@ public interface EntityPlayerBaseComponent extends EntityBaseComponent, ChunkLoa
      * @return {@code true} if the player is phantom
      */
     boolean isPhantom();
+
+    /**
+     * Bu oyuncunun hangi izleyicilere gorunecegini daraltan ek suzgeci ayarlar.
+     * <p>
+     * Suzgec {@code false} donen her izleyici icin oyuncu, {@code phantom} modundaymis gibi
+     * davranir: o izleyiciye hic dogurulmaz, halihazirda goruyorsa dusurulur ve oyuncu
+     * listesine de eklenmez. Fark su ki {@code phantom} herkese karsi ya hep ya hic calisir;
+     * suzgec izleyici basina karar verir.
+     * <p>
+     * GearsMC gorunmezlik (vanish) sistemi bunu kullanir: gizli bir yetkiliyi yalnizca kendisiyle
+     * ayni ya da daha yuksek rutbedeki yetkililer gorur. Suzgec, motorun spawn yolunun icinde
+     * ({@code shouldBeVisibleTo}) sorgulandigi icin gizlilik chunk yeniden yuklenmesine ve
+     * yeni katilan oyunculara karsi da kalicidir; periyodik bir gizleme dongusune gerek kalmaz.
+     * <p>
+     * Suzgec her spawn denemesinde cagrilir; ucuz ve yan etkisiz olmalidir. {@code null} vermek
+     * suzgeci kaldirir.
+     *
+     * @param filter izleyici basina gorunurluk karari; {@code null} ise suzgec yok
+     */
+    void setVisibilityFilter(Predicate<WorldViewer> filter);
+
+    /**
+     * Bu oyuncunun gorunurluk suzgecini dondurur.
+     *
+     * @return suzgec; ayarlanmamissa {@code null}
+     */
+    Predicate<WorldViewer> getVisibilityFilter();
 
     /**
      * Gets the score tag of the player.
