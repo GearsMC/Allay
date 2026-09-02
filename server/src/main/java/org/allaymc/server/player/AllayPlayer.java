@@ -1944,12 +1944,9 @@ public class AllayPlayer implements Player {
      */
     @Override
     public void viewPlayerListChange(Collection<Player> players, boolean add) {
-        var visible = players;
-        if (add) {
-            visible = players.stream().filter(this::canSeeInPlayerList).toList();
-            if (visible.isEmpty()) {
-                return;
-            }
+        var visible = add ? filterVisible(players) : players;
+        if (visible.isEmpty()) {
+            return;
         }
 
         sendPacket(getProtocol().getEncoder().encodePlayerList(
@@ -1960,7 +1957,28 @@ public class AllayPlayer implements Player {
     }
 
     /**
-     * Verilen oyuncu bu izleyicinin tab listesinde gorunmeli mi.
+     * Listeye EKLENECEK oyunculari gorunurluk suzgecinden gecirir.
+     *
+     * <p>Suzgec eklenti kodudur ve oyuncu listesi gonderiminin tam ortasinda calisir. Orada
+     * atilan bir istisna listenin hic gonderilmemesine yol acar; oyuncu listesi bos kalir ve
+     * sebebi hicbir yerde gorunmez. Bu yuzden suzgec hatasi listeyi <b>susturmaz</b>: hata
+     * gunluge yazilir ve liste suzulmemis haliyle gonderilir. Gizliligin bir kez sizmasi,
+     * listenin tumden kaybolmasindan iyidir.</p>
+     *
+     * @param players eklenecek oyuncular
+     * @return suzulmus liste; suzgec patlarsa girdinin kendisi
+     */
+    protected Collection<Player> filterVisible(Collection<Player> players) {
+        try {
+            return players.stream().filter(this::canSeeInPlayerList).toList();
+        } catch (Throwable error) {
+            log.error("Oyuncu listesi gorunurluk suzgeci hata verdi, liste suzulmeden gonderiliyor", error);
+            return players;
+        }
+    }
+
+    /**
+     * Verilen oyuncu bu izleyicinin oyuncu listesinde gorunmeli mi.
      *
      * @param other listelenecek oyuncu
      * @return gorunmeliyse {@code true}
