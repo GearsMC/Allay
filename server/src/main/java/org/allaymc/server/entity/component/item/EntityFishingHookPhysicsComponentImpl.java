@@ -35,9 +35,11 @@ public class EntityFishingHookPhysicsComponentImpl extends EntityProjectilePhysi
 
         // Hook the entity
         fishingHookBaseComponent.setHookedEntity(entity);
-        // Deal damage to trigger hurt animation and knockback
+        // Deal damage to trigger hurt animation and knockback.
+        // GearsMC fork: miktar eklentiden gelir; vanilla degeri sifirdir.
         if (entity instanceof EntityLiving living) {
-            var damageContainer = DamageContainer.projectile(thisEntity, 0);
+            var damageContainer = DamageContainer.projectile(
+                    thisEntity, fishingHookBaseComponent.getHookDamage());
             living.attack(damageContainer);
         }
     }

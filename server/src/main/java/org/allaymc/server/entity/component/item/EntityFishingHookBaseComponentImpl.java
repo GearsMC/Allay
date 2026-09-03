@@ -114,6 +114,12 @@ public class EntityFishingHookBaseComponentImpl extends EntityBaseComponentImpl 
     @Getter
     protected int caughtWindowTicks = DEFAULT_CAUGHT_WINDOW;
 
+    /**
+     * GearsMC fork: kancanin carptigi canliya verecegi hasar; vanilla sifir.
+     */
+    @Getter
+    protected float hookDamage;
+
     public EntityFishingHookBaseComponentImpl(EntityInitInfo info) {
         super(info);
         this.persistent = false;
@@ -306,6 +312,11 @@ public class EntityFishingHookBaseComponentImpl extends EntityBaseComponentImpl 
         }
         this.waitTimeMin = minTicks;
         this.waitTimeMax = Math.max(minTicks, maxTicks);
+    }
+
+    @Override
+    public void setHookDamage(float damage) {
+        this.hookDamage = Math.max(0f, damage);
     }
 
     @Override

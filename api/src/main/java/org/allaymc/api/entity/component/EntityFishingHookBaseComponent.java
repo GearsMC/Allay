@@ -146,6 +146,21 @@ public interface EntityFishingHookBaseComponent extends EntityComponent {
     int getCaughtWindowTicks();
 
     /**
+     * GearsMC fork: kancanin carptigi canliya verecegi hasar.
+     *
+     * <p>Vanilla sifirdir; hasar yalnizca vurus animasyonunu ve geri tepmeyi
+     * tetiklemek icin gonderilir. Eklenti bunu artirabilir.</p>
+     *
+     * @param damage hasar; negatif verilirse sifir sayilir
+     */
+    void setHookDamage(float damage);
+
+    /**
+     * @return kancanin verecegi hasar; varsayilan {@code 0}
+     */
+    float getHookDamage();
+
+    /**
      * GearsMC fork: isirma penceresinden geriye kalan tik sayisi.
      *
      * <p>"Mukemmel cekis" gibi zamanlama odullerini olcmek icin gerekir: gecen sure
