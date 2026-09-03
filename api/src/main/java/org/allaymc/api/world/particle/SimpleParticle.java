@@ -55,5 +55,14 @@ public enum SimpleParticle implements Particle {
     /// PALE_OAK_LEAVES is a particle that falls from pale oak leaves.
     PALE_OAK_LEAVES,
     /// SONIC_EXPLOSION, sonik patlama parçacığıdır.
-    SONIC_EXPLOSION
+    SONIC_EXPLOSION,
+
+    /// GearsMC fork: elder guardian laneti (jumpscare) efekti.
+    ///
+    /// PocketMine bunu `LevelEvent::GUARDIAN_CURSE` adiyla ham paket gondererek
+    /// yapiyordu; Cloudburst'te ayni sayisal olayin adi
+    /// `PARTICLE_SOUND_GUARDIAN_GHOST`. Ham paket gonderimi API'den kaldirildigi
+    /// icin efekt buraya bir parcacik olarak eklendi: paketi hangi protokol
+    /// surumune gore kuracagina sunucu karar verir.
+    GUARDIAN_CURSE
 }

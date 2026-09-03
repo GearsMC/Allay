@@ -684,6 +684,8 @@ public class PacketEncoder_v766 extends PacketEncoder {
             case SimpleParticle.CHERRY_LEAVES -> packet.setType(ParticleType.CHERRY_LEAVES);
             case SimpleParticle.PALE_OAK_LEAVES -> packet.setType(ParticleType.PALE_OAK_LEAVES);
             case SimpleParticle.SONIC_EXPLOSION -> packet.setType(ParticleType.SONIC_EXPLOSION);
+            case SimpleParticle.GUARDIAN_CURSE ->
+                    packet.setType(LevelEvent.PARTICLE_SOUND_GUARDIAN_GHOST);
             case SimpleParticle.DUST_PLUME -> packet.setType(ParticleType.DUST_PLUME);
             case SimpleParticle.WHITE_SMOKE -> packet.setType(ParticleType.WHITE_SMOKE);
             case SimpleParticle.FIREWORK_CONTRAIL -> packet.setType(ParticleType.FIREWORKS);
