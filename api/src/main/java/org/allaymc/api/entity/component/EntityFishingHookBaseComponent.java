@@ -104,4 +104,55 @@ public interface EntityFishingHookBaseComponent extends EntityComponent {
      * @return {@code true} if in open water
      */
     boolean isInOpenWater();
+
+    /**
+     * GearsMC fork: bu kancaya ozel bekleme suresi araligi belirler.
+     *
+     * <p>Eklenti oltayi kendi seviyelerine gore hizlandirmak isteyebilir. Vanilla
+     * araligi (100-600 tik) sabit oldugu icin degeri disaridan verecek bir yol yoktu;
+     * ham paket ya da yansitma yerine niyeti tarif eden bu metot eklendi. Yem (Lure)
+     * indirimi ile gokyuzu/yagmur duzeltmeleri bu aralik uzerinde de calismaya devam
+     * eder, yani yalnizca taban aralik degisir.</p>
+     *
+     * @param minTicks en kisa bekleme; sifir ya da negatif verilirse vanilla araliga donulur
+     * @param maxTicks en uzun bekleme
+     */
+    void setWaitTimeRange(int minTicks, int maxTicks);
+
+    /**
+     * @return ozel bekleme araliginin alt siniri; ayarli degilse {@code 0}
+     */
+    int getWaitTimeMin();
+
+    /**
+     * @return ozel bekleme araliginin ust siniri; ayarli degilse {@code 0}
+     */
+    int getWaitTimeMax();
+
+    /**
+     * GearsMC fork: balik isirdiktan sonra oyuncunun oltayi cekmesi icin taninan sureyi
+     * belirler.
+     *
+     * <p>Vanilla bu sureyi 10 tike sabitler. Eklenti olta seviyesine gore daha genis bir
+     * pencere vermek isteyebilir.</p>
+     *
+     * @param ticks taninan sure; sifir ya da negatif verilirse vanilla 10 tike donulur
+     */
+    void setCaughtWindowTicks(int ticks);
+
+    /**
+     * @return isirma penceresinin tik cinsinden uzunlugu
+     */
+    int getCaughtWindowTicks();
+
+    /**
+     * GearsMC fork: isirma penceresinden geriye kalan tik sayisi.
+     *
+     * <p>"Mukemmel cekis" gibi zamanlama odullerini olcmek icin gerekir: gecen sure
+     * {@link #getCaughtWindowTicks()} eksi bu deger olarak hesaplanir. Durum
+     * {@link FishingState#CAUGHT} degilse {@code 0} doner.</p>
+     *
+     * @return kalan tik sayisi
+     */
+    int getRemainingCaughtTicks();
 }

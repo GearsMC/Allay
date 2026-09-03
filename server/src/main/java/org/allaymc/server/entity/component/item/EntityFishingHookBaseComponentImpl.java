@@ -51,6 +51,10 @@ public class EntityFishingHookBaseComponentImpl extends EntityBaseComponentImpl 
      * Maximum distance from owner before auto-despawn (32 blocks).
      */
     protected static final double MAX_DISTANCE_FROM_OWNER_SQUARED = 32 * 32;
+    /**
+     * GearsMC fork: balik isirdiktan sonra oltayi cekmek icin taninan varsayilan sure.
+     */
+    protected static final int DEFAULT_CAUGHT_WINDOW = 10;
 
     @ComponentObject
     protected EntityFishingHook thisEntity;
@@ -93,6 +97,22 @@ public class EntityFishingHookBaseComponentImpl extends EntityBaseComponentImpl 
      * Tick counter for periodic open water checks.
      */
     protected int openWaterCheckCounter;
+
+    /**
+     * GearsMC fork: eklentinin verdigi bekleme araligi; sifirsa vanilla aralik kullanilir.
+     */
+    @Getter
+    protected int waitTimeMin;
+    /**
+     * GearsMC fork: eklentinin verdigi bekleme araliginin ust siniri.
+     */
+    @Getter
+    protected int waitTimeMax;
+    /**
+     * GearsMC fork: isirma penceresi; vanilla 10 tik.
+     */
+    @Getter
+    protected int caughtWindowTicks = DEFAULT_CAUGHT_WINDOW;
 
     public EntityFishingHookBaseComponentImpl(EntityInitInfo info) {
         super(info);
@@ -271,17 +291,43 @@ public class EntityFishingHookBaseComponentImpl extends EntityBaseComponentImpl 
 
     protected void startCaught() {
         setFishingState(FishingState.CAUGHT);
-        // Player has about 0.5 seconds (10 ticks) to reel in before the fish escapes
-        fishingTimer = 10;
+        // Player has about 0.5 seconds (10 ticks) to reel in before the fish escapes.
+        // GearsMC fork: pencere eklenti tarafindan genisletilebilir.
+        fishingTimer = caughtWindowTicks > 0 ? caughtWindowTicks : DEFAULT_CAUGHT_WINDOW;
         fishBites();
+    }
+
+    @Override
+    public void setWaitTimeRange(int minTicks, int maxTicks) {
+        if (minTicks <= 0 || maxTicks <= 0) {
+            this.waitTimeMin = 0;
+            this.waitTimeMax = 0;
+            return;
+        }
+        this.waitTimeMin = minTicks;
+        this.waitTimeMax = Math.max(minTicks, maxTicks);
+    }
+
+    @Override
+    public void setCaughtWindowTicks(int ticks) {
+        this.caughtWindowTicks = ticks > 0 ? ticks : DEFAULT_CAUGHT_WINDOW;
+    }
+
+    @Override
+    public int getRemainingCaughtTicks() {
+        return fishingState == FishingState.CAUGHT ? Math.max(0, fishingTimer) : 0;
     }
 
     protected int calculateWaitTime() {
         int lureLevel = fishingRod != null ? fishingRod.getEnchantmentLevel(EnchantmentTypes.LURE) : 0;
 
         // Base wait time
-        int minWait = Math.max(20, MIN_WAIT_TIME - lureLevel * LURE_TIME_REDUCTION);
-        int maxWait = Math.max(minWait + 20, MAX_WAIT_TIME - lureLevel * LURE_TIME_REDUCTION);
+        // GearsMC fork: eklenti bir aralik verdiyse taban olarak o kullanilir; yem indirimi
+        // ve gokyuzu/yagmur duzeltmeleri bu aralik uzerinde de aynen isler.
+        int baseMin = waitTimeMin > 0 ? waitTimeMin : MIN_WAIT_TIME;
+        int baseMax = waitTimeMax > 0 ? waitTimeMax : MAX_WAIT_TIME;
+        int minWait = Math.max(20, baseMin - lureLevel * LURE_TIME_REDUCTION);
+        int maxWait = Math.max(minWait + 20, baseMax - lureLevel * LURE_TIME_REDUCTION);
 
         // Check sky exposure and weather conditions
         // See: https://minecraft.wiki/w/Fishing#Mechanics
