@@ -161,10 +161,46 @@ public final class EntityTypeInitializer {
     private static final float AXOLOTL_SPEED = 0.2f;
     private static final double AXOLOTL_HUNT_RANGE = 16;
 
+    /** Vanilla ari cani. */
+    private static final int BEE_HEALTH = 10;
+
     private static final float CREEPER_SPEED = 0.15f;
     private static final double CREEPER_FUSE_RANGE = 3;
     private static final int CREEPER_FUSE_TIME = 30;
     private static final float CREEPER_EXPLOSION_SIZE = 3;
+
+    /**
+     * Ari.
+     *
+     * <p>Motorda yalnizca varsayilan taban bilesenle kayitliydi: ne cani ne
+     * fizigi vardi, yani vurulamiyor ve {@code setMotion} ile hareket
+     * ettirilemiyordu. Burada canli varlik, ucus fizigi ve bas donusu
+     * bilesenleri eklendi.</p>
+     *
+     * <p>Davranis grubu (yapay zeka) yok — ari kendi basina ucmaz, yerinde
+     * asili durur. Ucus mantigini kendi kuran eklentiler icin dogru taban
+     * budur; vanilla ari yapay zekasi eklenirse buraya girer.</p>
+     */
+    public static void initBee() {
+        EntityTypes.BEE = AllayEntityType
+                .builder(EntityBeeImpl.class)
+                .vanillaEntity(EntityId.BEE)
+                .addComponent(EntityBeeBaseComponentImpl::new, EntityBeeBaseComponentImpl.class)
+                .addComponent(() -> {
+                    var component = new EntityLivingComponentImpl() {
+                        @Override
+                        public boolean hasFallDamage() {
+                            // Ucan mob: dusme hasari almaz.
+                            return false;
+                        }
+                    };
+                    component.setMaxHealth(BEE_HEALTH);
+                    return component;
+                }, EntityLivingComponentImpl.class)
+                .addComponent(EntityFlyingPhysicsComponentImpl::new, EntityFlyingPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .build();
+    }
 
     public static void initFallingBlock() {
         EntityTypes.FALLING_BLOCK = AllayEntityType
