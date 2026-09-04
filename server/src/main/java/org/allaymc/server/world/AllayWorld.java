@@ -34,7 +34,6 @@ import org.allaymc.server.utils.GameLoop;
 import org.allaymc.server.world.manager.AllayEntityManager;
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
 import org.jetbrains.annotations.UnmodifiableView;
-import org.joml.Vector3i;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -227,13 +226,36 @@ public class AllayWorld implements World {
         }
 
         // Find the spawn point only the first time the world is loaded
-        if (this.worldData.getWorldStartCount() == 1 && !isSafeStandingPos(new Position3i(worldData.getSpawnPoint(), overworld))) {
+        if (this.worldData.getWorldStartCount() == 1) {
             Thread.ofVirtual().name("Spawn Point Finding Thread #" + name).start(() -> {
+                // NOT: kayitli dogus noktasi upstream'de dogrudan denetleniyordu, ama o an
+                // noktanin chunk'i henuz yuklu degil ve yuklenmemis chunk her blogu AIR
+                // gosteriyor. Denetim her zaman basarisiz oluyor, arama (0,0) cevresine
+                // kayiyor ve bos bir dunyada nokta (0, -63, 0) yani bosluk oluyordu.
+                // Arama yolu chunk'i zaten kendisi yukluyor (Dimension#findSuitableGroundPosAround),
+                // burada da ayni sey yapilmali. Yukleme dunya is parcacigini kilitlememesi
+                // icin bu sanal is parcaciginin icinde yapiliyor.
+                var spawnPoint = this.worldData.getSpawnPoint();
+                overworld.getChunkManager().getOrLoadChunk(spawnPoint.x() >> 4, spawnPoint.z() >> 4).join();
+                if (isSafeStandingPos(new Position3i(spawnPoint, overworld))) {
+                    return;
+                }
+
                 var newSpawnPoint = overworld.findSuitableGroundPosAround(this::isSafeStandingPos, 0, 0, 32);
                 if (newSpawnPoint == null) {
-                    log.warn("Cannot find a safe spawn point in the overworld dimension of world {}", name);
-                    overworld.getChunkManager().getOrLoadChunk(0, 0);
-                    newSpawnPoint = new Vector3i(0, overworld.getHeight(0, 0) + 1, 0);
+                    // NOT: upstream yedegi (0, yukseklik+1, 0) idi. Bu yedek yalnizca arama
+                    // basarisiz olunca calisir, yani ortada zemin bulunamamis demektir —
+                    // o durumda getHeight de anlamli bir deger vermez. Ustelik PocketMine
+                    // yukseklik haritasini hep sifir yaziyor, dolayisiyla iceri alinan
+                    // dunyalarda sonuc her zaman y = -63, yani bosluk oluyordu. Kayitli
+                    // noktayi ezmek yerine oldugu gibi birakiyoruz: dunyayi yapanin
+                    // belirledigi yer, hesaplanabilecek her seyden daha guvenilir.
+                    log.warn(
+                            "Cannot find a safe spawn point in the overworld dimension of world {}, " +
+                            "keeping the stored spawn point {}, {}, {}",
+                            name, spawnPoint.x(), spawnPoint.y(), spawnPoint.z()
+                    );
+                    return;
                 }
                 var finalNewSpawnPoint = newSpawnPoint;
                 overworld.getWorld().getScheduler().runLater(this, () -> {
