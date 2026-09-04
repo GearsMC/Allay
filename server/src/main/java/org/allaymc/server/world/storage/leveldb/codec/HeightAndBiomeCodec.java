@@ -74,7 +74,10 @@ public final class HeightAndBiomeCodec {
                 continue;
             }
 
-            section.biomes().readFromStorage(heightAndBiomesBuffer, HeightAndBiomeCodec::getBiomeByIdNonNull, lastPalette);
+            // NOT: bilerek readFromStorage DEGIL. PocketMine biyom paletini kalici (NBT)
+            // bayragiyla damgaliyor ama yuku yine ham int yaziyor; katı okuyucu PM'den
+            // gelen her chunk'ta patliyor. Ayrinti: Palette#readBiomesFromStorage.
+            section.biomes().readBiomesFromStorage(heightAndBiomesBuffer, HeightAndBiomeCodec::getBiomeByIdNonNull, lastPalette);
             lastPalette = section.biomes();
         }
     }

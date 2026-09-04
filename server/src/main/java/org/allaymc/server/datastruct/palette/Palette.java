@@ -215,6 +215,24 @@ public final class Palette<V> {
             throw new PaletteException("Reading nbt palette data with non-nbt method!");
         }
 
+        readIntEntries(byteBuf, deserializer, last, header);
+    }
+
+    /**
+     * Baslik baytindaki kalici (NBT) bayragina bakmadan int kodlu bir paleti okur.
+     *
+     * <p>PocketMine biyom paletini {@code (bits << 1) | 0} basligiyla yaziyor, yani
+     * bayrak "NBT" diyor; oysa yuk vanilla'daki gibi ham LE int. Blok paletlerinde
+     * bayrak gercekten kodlamayi secer, bu yuzden {@link #readFromStorage(ByteBuf, IntDeserializer, Palette)}
+     * denetimini korur — bu gevsetme yalnizca biyomlar icindir. Yazma tarafi her zaman
+     * vanilla bicimini uretir, dolayisiyla bir dunya bir kez kaydedildiginde bayrak
+     * kendiliginden duzelir; burasi salt okuma toleransidir.
+     */
+    public void readBiomesFromStorage(ByteBuf byteBuf, IntDeserializer<V> deserializer, Palette<V> last) {
+        readIntEntries(byteBuf, deserializer, last, byteBuf.readUnsignedByte());
+    }
+
+    private void readIntEntries(ByteBuf byteBuf, IntDeserializer<V> deserializer, Palette<V> last, short header) {
         this.dirty = true;
         if (hasCopyLastFlag(header)) {
             if (last == null) {
