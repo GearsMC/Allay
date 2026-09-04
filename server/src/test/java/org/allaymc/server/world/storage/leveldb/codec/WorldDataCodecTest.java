@@ -3,6 +3,7 @@ package org.allaymc.server.world.storage.leveldb.codec;
 import org.allaymc.api.world.WorldData;
 import org.allaymc.api.world.data.Difficulty;
 import org.allaymc.api.world.storage.WorldStorageException;
+import org.allaymc.server.network.ProtocolInfo;
 import org.allaymc.server.world.AllayWorldData;
 import org.allaymc.testutils.AllayTestExtension;
 import org.cloudburstmc.nbt.NbtMap;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ExtendWith(AllayTestExtension.class)
@@ -61,5 +63,23 @@ class WorldDataCodecTest {
                 .build();
 
         assertThrows(WorldStorageException.class, () -> WorldDataCodec.readWorldDataFromNBT(nbt));
+    }
+
+    /**
+     * FEATURE_VERSION'dan yeni bir istemciyle kapatilmis dunya reddedilmemeli.
+     * Damga yalnizca bir beyandir; bilinmeyen bloklara karsi asil savunma
+     * ChunkSectionCodec'in blok state karsiligi bulunamayinca UNKNOWN'a dusmesidir.
+     * PM sunucusundan alinan dunyalar 1.26.40 damgali geliyor ve bu kapiya takiliyordu.
+     */
+    @Test
+    void testNewerNetworkVersionIsAccepted() {
+        var nbt = NbtMap.builder()
+                .putInt("StorageVersion", WorldDataCodec.CURRENT_STORAGE_VERSION)
+                .putInt("NetworkVersion", ProtocolInfo.FEATURE_VERSION.getProtocolVersion() + 1)
+                .putString("LevelName", "PocketMineWorld")
+                .build();
+
+        AllayWorldData worldData = assertDoesNotThrow(() -> WorldDataCodec.readWorldDataFromNBT(nbt));
+        assertEquals("PocketMineWorld", worldData.getDisplayName());
     }
 }

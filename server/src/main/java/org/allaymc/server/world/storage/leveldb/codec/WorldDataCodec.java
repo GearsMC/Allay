@@ -71,7 +71,17 @@ public final class WorldDataCodec {
             networkVersion = ProtocolInfo.FEATURE_VERSION.getProtocolVersion();
         }
         if (networkVersion > ProtocolInfo.FEATURE_VERSION.getProtocolVersion()) {
-            throw new WorldStorageException("LevelDB world storage network version " + networkVersion + " is currently unsupported");
+            // NOT: upstream burada istisna atiyordu. NetworkVersion yalnizca level.dat'a
+            // basilan bir damgadir; hangi bloklarin okunabilecegini belirlemez. Asil
+            // savunma ChunkSectionCodec'te: karsiligi bulunamayan blok state UNKNOWN'a
+            // duser ve tek tek loglanir. Damgayi olumcul saymak, daha yeni bir istemciyle
+            // kapatilmis dunyalari hic acilamaz yapiyordu — PM sunucusundan alinan
+            // spawn/arena/theboss1 dunyalari boyle geliyor.
+            log.warn(
+                    "World was last opened with network version {}, which is newer than the feature version {}. " +
+                    "Unknown blocks will fall back to the unknown block state.",
+                    networkVersion, ProtocolInfo.FEATURE_VERSION.getProtocolVersion()
+            );
         }
 
         var pdc = new AllayPersistentDataContainer(Registries.PERSISTENT_DATA_TYPES);
