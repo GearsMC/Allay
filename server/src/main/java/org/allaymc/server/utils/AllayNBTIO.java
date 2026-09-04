@@ -14,6 +14,7 @@ import org.allaymc.api.item.interfaces.ItemAirStack;
 import org.allaymc.api.registry.Registries;
 import org.allaymc.api.utils.NBTIO;
 import org.allaymc.api.utils.identifier.Identifier;
+import org.allaymc.api.utils.identifier.InvalidIdentifierException;
 import org.allaymc.api.world.Dimension;
 import org.allaymc.server.network.ProtocolInfo;
 import org.allaymc.updater.block.BlockStateUpdaters;
@@ -100,7 +101,19 @@ public class AllayNBTIO implements NBTIO {
 
     @Override
     public Entity fromEntityNBT(Dimension dimension, NbtMap nbt) {
-        var identifier = new Identifier(nbt.getString("identifier"));
+        var rawIdentifier = nbt.getString("identifier");
+        Identifier identifier;
+        try {
+            identifier = new Identifier(rawIdentifier);
+        } catch (InvalidIdentifierException e) {
+            // PocketMine eklentileri varlik kimligine PHP sinif adi yazabiliyor
+            // (ornegin brokiem\snpc\entity\CustomHuman). Kurucunun attigi istisna
+            // cagirana kadar cikip o chunk'taki butun varliklarin okunmasini iptal
+            // ediyordu; bicimsiz kimlik de bilinmeyen tip gibi atlanmali.
+            log.warn("Malformed entity identifier {}", rawIdentifier);
+            return null;
+        }
+
         var entityType = Registries.ENTITIES.get(identifier);
         if (entityType == null) {
             log.warn("Unknown entity type {}", identifier);

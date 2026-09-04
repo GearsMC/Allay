@@ -15,7 +15,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 
 import java.util.List;
 
+import org.cloudburstmc.nbt.NbtMap;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
@@ -69,5 +72,23 @@ class AllayNBTIOTest {
         var blockEntity2 = NBTIO.getAPI().fromBlockEntityNBT(Server.getInstance().getWorldPool().getDefaultWorld().getOverWorld(), nbt1);
         var nbt2 = blockEntity2.saveNBT();
         assertEquals(nbt1, nbt2);
+    }
+
+    /**
+     * PocketMine eklentileri varlik kimligine PHP sinif adi yazabiliyor
+     * (ornegin {@code brokiem\snpc\entity\CustomHuman}). Ters bolu
+     * {@link org.allaymc.api.utils.identifier.Identifier} icin gecersiz oldugundan
+     * kurucu istisna atiyordu; istisna cagirana kadar cikip o chunk'taki BUTUN
+     * varliklarin okunmasini iptal ediyordu. Bicimsiz kimlik, bilinmeyen tip gibi
+     * {@code null} donmeli ki cagiran yalnizca o varligi atlasin.
+     */
+    @Test
+    void testFromEntityNBTReturnsNullForMalformedIdentifier() {
+        var nbt = NbtMap.builder()
+                .putString("identifier", "brokiem\\snpc\\entity\\CustomHuman")
+                .build();
+
+        var dimension = Server.getInstance().getWorldPool().getGlobalSpawnPoint().dimension();
+        assertNull(NBTIO.getAPI().fromEntityNBT(dimension, nbt));
     }
 }
