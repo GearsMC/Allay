@@ -26,6 +26,10 @@ import org.joml.primitives.AABBdc;
 public class EntityPaintingBaseComponentImpl extends EntityBaseComponentImpl implements EntityPaintingBaseComponent {
 
     protected static final String TAG_MOTIVE = "Motive";
+    protected static final String TAG_DIRECTION = "Direction";
+
+    /** Yatay yonlerin yaw karsiligi; {@code getHorizontalFace()} bu araliklari okur. */
+    private static final float[] YAW_BY_HORIZONTAL_INDEX = {0.0f, 90.0f, 180.0f, 270.0f};
 
     @Dependency
     protected EntityLivingComponent livingComponent;
@@ -57,6 +61,11 @@ public class EntityPaintingBaseComponentImpl extends EntityBaseComponentImpl imp
     public void loadNBT(NbtMap nbt) {
         super.loadNBT(nbt);
         nbt.listenForString(TAG_MOTIVE, value -> this.paintingType = PaintingType.fromTitle(value));
+        // Bakis yonu varligin donusunden turetiliyor ama kayitta yon ayri bir
+        // alanda duruyor ve PocketMine donusu 0 yaziyor. Yon okunmazsa iceri
+        // alinan butun tablolar ayni yone bakar.
+        nbt.listenForNumber(TAG_DIRECTION, value ->
+                this.location.setYaw(YAW_BY_HORIZONTAL_INDEX[value.intValue() & 3]));
     }
 
     @Override
@@ -64,6 +73,7 @@ public class EntityPaintingBaseComponentImpl extends EntityBaseComponentImpl imp
         return super.saveNBT()
                 .toBuilder()
                 .putString(TAG_MOTIVE, this.paintingType.getTitle())
+                .putByte(TAG_DIRECTION, (byte) getHorizontalFace().getHorizontalIndex())
                 .build();
     }
 

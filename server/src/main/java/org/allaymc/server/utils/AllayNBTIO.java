@@ -15,6 +15,7 @@ import org.allaymc.api.registry.Registries;
 import org.allaymc.api.utils.NBTIO;
 import org.allaymc.api.utils.identifier.Identifier;
 import org.allaymc.api.utils.identifier.InvalidIdentifierException;
+import org.allaymc.server.entity.data.LegacyEntityNames;
 import org.allaymc.api.world.Dimension;
 import org.allaymc.server.network.ProtocolInfo;
 import org.allaymc.updater.block.BlockStateUpdaters;
@@ -102,6 +103,13 @@ public class AllayNBTIO implements NBTIO {
     @Override
     public Entity fromEntityNBT(Dimension dimension, NbtMap nbt) {
         var rawIdentifier = nbt.getString("identifier");
+        // PocketMine vanilla varliklari eski kayit adiyla yazar ("Painting",
+        // "Item", "Arrow"); eslemesiz okuma bunlari bilinmeyen sayip atlar ve
+        // chunk yeniden yazilirken varlik kalici olarak kaybolur.
+        var legacyIdentifier = LegacyEntityNames.resolve(rawIdentifier);
+        if (legacyIdentifier != null) {
+            rawIdentifier = legacyIdentifier;
+        }
         Identifier identifier;
         try {
             identifier = new Identifier(rawIdentifier);
