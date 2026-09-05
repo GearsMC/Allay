@@ -68,6 +68,9 @@ public interface BlockEntityId {
     String LODESTONE = "Lodestone";
 
     String MOB_SPAWNER = "MobSpawner";
+    String CRAFTER = "Crafter";
+    /** PocketMine ve vanilla bu blok varligini "PotentSulfurBlock" adiyla yazar. */
+    String POTENT_SULFUR = "PotentSulfurBlock";
 
     String MUSIC = "Music";
 

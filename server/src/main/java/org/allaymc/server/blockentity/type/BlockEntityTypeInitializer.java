@@ -14,6 +14,7 @@ import org.allaymc.server.blockentity.component.shulkerbox.BlockEntityShulkerBox
 import org.allaymc.server.blockentity.component.shulkerbox.BlockEntityShulkerBoxContainerHolderComponentImpl;
 import org.allaymc.server.blockentity.data.BlockEntityId;
 import org.allaymc.server.blockentity.impl.*;
+import org.allaymc.server.container.impl.CrafterContainerImpl;
 import org.allaymc.server.container.impl.*;
 
 /**
@@ -132,6 +133,67 @@ public final class BlockEntityTypeInitializer {
                 .builder(BlockEntitySignImpl.class)
                 .name(BlockEntityId.HANGING_SIGN)
                 .addComponent(BlockEntitySignBaseComponentImpl::new, BlockEntitySignBaseComponentImpl.class)
+                .build();
+    }
+
+    /**
+     * Gun isigi sensoru.
+     *
+     * <p>PocketMine hub'inda 14 tane var ve hicbiri id/konum disinda veri
+     * tasimiyor; yine de kayitli olmasi gerekiyor, cunku taninmayan blok
+     * varligi chunk yeniden yazilirken tumden dusuyor.</p>
+     *
+     * <p>Kizilkaya sinyali uretme davranisi yok; bu tur yalnizca blok
+     * varliginin korunmasini sagliyor.</p>
+     */
+    public static void initDaylightDetector() {
+        BlockEntityTypes.DAYLIGHT_DETECTOR = AllayBlockEntityType
+                .builder(BlockEntityDaylightDetectorImpl.class)
+                .name(BlockEntityId.DAYLIGHT_DETECTOR)
+                .addComponent(BlockEntityBaseComponentImpl::new, BlockEntityBaseComponentImpl.class)
+                .build();
+    }
+
+    /**
+     * Guclu kukurt blogu.
+     *
+     * <p>Gun isigi sensoru ile ayni durum: veri tasimayan bir isaretci, ama
+     * kayitli olmadan chunk kaydinda kayboluyor. Hub'da 18 tane var.</p>
+     */
+    public static void initPotentSulfur() {
+        BlockEntityTypes.POTENT_SULFUR = AllayBlockEntityType
+                .builder(BlockEntityPotentSulfurImpl.class)
+                .name(BlockEntityId.POTENT_SULFUR)
+                .addComponent(BlockEntityBaseComponentImpl::new, BlockEntityBaseComponentImpl.class)
+                .build();
+    }
+
+    /**
+     * Crafter.
+     *
+     * <p>Esyalari ve devre disi birakilan slotlarin maskesini saklar; otomatik
+     * uretim davranisi henuz yok.</p>
+     */
+    public static void initCrafter() {
+        BlockEntityTypes.CRAFTER = AllayBlockEntityType
+                .builder(BlockEntityCrafterImpl.class)
+                .name(BlockEntityId.CRAFTER)
+                .addComponent(BlockEntityCrafterBaseComponentImpl::new, BlockEntityCrafterBaseComponentImpl.class)
+                .addComponent(() -> new BlockEntityContainerHolderComponentImpl(CrafterContainerImpl::new),
+                        BlockEntityContainerHolderComponentImpl.class)
+                .build();
+    }
+
+    /**
+     * Mob doguran.
+     *
+     * <p>Dogurma ayarlarini saklar; dogurma davranisi henuz yok.</p>
+     */
+    public static void initMobSpawner() {
+        BlockEntityTypes.MOB_SPAWNER = AllayBlockEntityType
+                .builder(BlockEntityMobSpawnerImpl.class)
+                .name(BlockEntityId.MOB_SPAWNER)
+                .addComponent(BlockEntityMobSpawnerBaseComponentImpl::new, BlockEntityMobSpawnerBaseComponentImpl.class)
                 .build();
     }
 

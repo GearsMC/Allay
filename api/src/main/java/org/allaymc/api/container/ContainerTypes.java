@@ -68,6 +68,9 @@ public interface ContainerTypes {
      * Used by dropper block entities for storing and dropping items without dispenser behavior.
      */
     ContainerType<BlockContainer> DROPPER = new ContainerType<>(9);
+
+    /** Crafter'in 3x3 esya izgarasi. */
+    ContainerType<BlockContainer> CRAFTER = new ContainerType<>(9);
     /**
      * A chiseled bookshelf storage container.
      * Used by chiseled bookshelf blocks for their six book slots and sided access behavior.

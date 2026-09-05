@@ -24,6 +24,10 @@ public final class BlockEntityTypes {
     public static BlockEntityType<BlockEntitySign> SIGN;
     public static BlockEntityType<BlockEntityHangingSign> HANGING_SIGN;
     public static BlockEntityType<BlockEntityEnchantTable> ENCHANT_TABLE;
+    public static BlockEntityType<BlockEntityDaylightDetector> DAYLIGHT_DETECTOR;
+    public static BlockEntityType<BlockEntityPotentSulfur> POTENT_SULFUR;
+    public static BlockEntityType<BlockEntityCrafter> CRAFTER;
+    public static BlockEntityType<BlockEntityMobSpawner> MOB_SPAWNER;
     public static BlockEntityType<BlockEntityJukebox> JUKEBOX;
     public static BlockEntityType<BlockEntityLectern> LECTERN;
     public static BlockEntityType<BlockEntityBeacon> BEACON;
