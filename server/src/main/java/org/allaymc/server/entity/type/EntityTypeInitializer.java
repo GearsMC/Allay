@@ -164,6 +164,13 @@ public final class EntityTypeInitializer {
     /** Vanilla ari cani. */
     private static final int BEE_HEALTH = 10;
 
+    /** Vanilla allay cani. */
+    private static final int ALLAY_HEALTH = 20;
+    /** Vanilla yarasa cani. */
+    private static final int BAT_HEALTH = 6;
+    /** Vanilla kurbaga cani. */
+    private static final int FROG_HEALTH = 10;
+
     private static final float CREEPER_SPEED = 0.15f;
     private static final double CREEPER_FUSE_RANGE = 3;
     private static final int CREEPER_FUSE_TIME = 30;
@@ -181,6 +188,87 @@ public final class EntityTypeInitializer {
      * asili durur. Ucus mantigini kendi kuran eklentiler icin dogru taban
      * budur; vanilla ari yapay zekasi eklenirse buraya girer.</p>
      */
+    /**
+     * Allay.
+     *
+     * <p>Ari ile ayni durumdaydi: yalnizca varsayilan taban bilesenle
+     * kayitliydi, dolayisiyla cani yoktu ve <b>vurulamiyordu</b>. Oyuncunun
+     * vurusu {@code ITEM_USE_ON_ENTITY_ATTACK} isleminde hedef
+     * {@code EntityLivingComponent} degilse sessizce dusuyor; NPC olarak
+     * kullanilan bir allay'a vurunca hicbir sey olmazdi.</p>
+     *
+     * <p>Davranis grubu (yapay zeka) yok — allay kendi basina ucmaz, yerinde
+     * asili durur.</p>
+     */
+    public static void initAllay() {
+        EntityTypes.ALLAY = AllayEntityType
+                .builder(EntityAllayImpl.class)
+                .vanillaEntity(EntityId.ALLAY)
+                .addComponent(EntityAllayBaseComponentImpl::new, EntityAllayBaseComponentImpl.class)
+                .addComponent(() -> {
+                    var component = new EntityLivingComponentImpl() {
+                        @Override
+                        public boolean hasFallDamage() {
+                            // Ucan mob: dusme hasari almaz.
+                            return false;
+                        }
+                    };
+                    component.setMaxHealth(ALLAY_HEALTH);
+                    return component;
+                }, EntityLivingComponentImpl.class)
+                .addComponent(EntityFlyingPhysicsComponentImpl::new, EntityFlyingPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .build();
+    }
+
+    /**
+     * Yarasa.
+     *
+     * <p>Gerekce {@link #initAllay()} ile ayni: canli varlik bileseni olmadan
+     * vurulamiyordu. Ucan mob oldugu icin dusme hasari almaz.</p>
+     */
+    public static void initBat() {
+        EntityTypes.BAT = AllayEntityType
+                .builder(EntityBatImpl.class)
+                .vanillaEntity(EntityId.BAT)
+                .addComponent(EntityBatBaseComponentImpl::new, EntityBatBaseComponentImpl.class)
+                .addComponent(() -> {
+                    var component = new EntityLivingComponentImpl() {
+                        @Override
+                        public boolean hasFallDamage() {
+                            // Ucan mob: dusme hasari almaz.
+                            return false;
+                        }
+                    };
+                    component.setMaxHealth(BAT_HEALTH);
+                    return component;
+                }, EntityLivingComponentImpl.class)
+                .addComponent(EntityFlyingPhysicsComponentImpl::new, EntityFlyingPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .build();
+    }
+
+    /**
+     * Kurbaga.
+     *
+     * <p>Gerekce {@link #initAllay()} ile ayni. Kara mobu oldugu icin ucus
+     * degil normal mob fizigi kullanir ve dusme hasari alir.</p>
+     */
+    public static void initFrog() {
+        EntityTypes.FROG = AllayEntityType
+                .builder(EntityFrogImpl.class)
+                .vanillaEntity(EntityId.FROG)
+                .addComponent(EntityFrogBaseComponentImpl::new, EntityFrogBaseComponentImpl.class)
+                .addComponent(() -> {
+                    var component = new EntityLivingComponentImpl();
+                    component.setMaxHealth(FROG_HEALTH);
+                    return component;
+                }, EntityLivingComponentImpl.class)
+                .addComponent(EntityMobPhysicsComponentImpl::new, EntityMobPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .build();
+    }
+
     public static void initBee() {
         EntityTypes.BEE = AllayEntityType
                 .builder(EntityBeeImpl.class)
