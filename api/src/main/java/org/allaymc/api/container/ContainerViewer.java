@@ -1,5 +1,7 @@
 package org.allaymc.api.container;
 
+import org.allaymc.api.item.ItemStack;
+
 import java.util.Set;
 
 /**
@@ -74,6 +76,9 @@ public interface ContainerViewer {
      * @return the opened containers.
      */
     Set<Container> getOpenedContainers();
+
+    default void viewCrafterRecipePreview(Container container, ItemStack preview) {
+    }
 
     /**
      * Close all containers that are opened by this viewer.

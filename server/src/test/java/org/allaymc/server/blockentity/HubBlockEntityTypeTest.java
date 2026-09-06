@@ -67,10 +67,16 @@ class HubBlockEntityTypeTest {
         var crafter = create(BlockEntityTypes.CRAFTER);
 
         // Hub'daki crafter'in gercek degeri.
-        crafter.loadNBT(crafter.saveNBT().toBuilder().putInt("disabled_slots", 295).build());
+        crafter.loadNBT(crafter.saveNBT().toBuilder().putShort("disabled_slots", (short) 295).build());
 
-        assertEquals(295, crafter.saveNBT().getInt("disabled_slots"),
+        assertEquals((short) 295, crafter.saveNBT().getShort("disabled_slots"),
                 "devre disi slot maskesi kaydedilip geri yuklenmeli");
+
+        // Int olarak yazilmis eski kayitlar da okunabilmeli.
+        crafter.loadNBT(crafter.saveNBT().toBuilder().putInt("disabled_slots", 73).build());
+
+        assertEquals((short) 73, crafter.saveNBT().getShort("disabled_slots"),
+                "int olarak kaydedilmis maske de geri yuklenmeli");
     }
 
     @Test
