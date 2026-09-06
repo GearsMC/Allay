@@ -43,8 +43,8 @@ public class ShapedRecipe extends Recipe {
         var inputs = removeUselessRowAndColumn(items);
         // Empty input isn't allowed
         if (inputs.length == 0 ||
-            inputs.length > pattern.length ||
-            inputs[0].length > pattern[0].length) {
+            inputs.length != pattern.length ||
+            inputs[0].length != pattern[0].length) {
             return false;
         }
 

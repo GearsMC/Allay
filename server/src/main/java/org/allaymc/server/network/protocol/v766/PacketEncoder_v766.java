@@ -117,6 +117,8 @@ import java.util.List;
  */
 public class PacketEncoder_v766 extends PacketEncoder {
 
+    protected static final int CRAFTER_RECIPE_PREVIEW_SLOT = 9;
+
     /**
      * GearsMC fork: istemcinin kendi icinde gomulu olarak gelen kimya paketleri.
      *
@@ -874,6 +876,24 @@ public class PacketEncoder_v766 extends PacketEncoder {
                 null
         ));
         packet.setItem(encodeItemStack(container.getItemStack(slot)));
+        return packet;
+    }
+
+    @Override
+    public List<InventorySlotPacket> encodeCrafterRecipePreview(int containerId, ItemStack preview) {
+        var containerName = new FullContainerName(ContainerSlotType.CRAFTER_BLOCK_CONTAINER, containerId);
+        return List.of(
+                buildCrafterPreviewSlot(containerId, containerName, encodeItemStack(ItemAirStack.AIR_STACK)),
+                buildCrafterPreviewSlot(containerId, containerName, encodeItemStack(preview))
+        );
+    }
+
+    protected InventorySlotPacket buildCrafterPreviewSlot(int containerId, FullContainerName containerName, ItemData item) {
+        var packet = new InventorySlotPacket();
+        packet.setContainerId(containerId);
+        packet.setSlot(CRAFTER_RECIPE_PREVIEW_SLOT);
+        packet.setContainerNameData(containerName);
+        packet.setItem(item);
         return packet;
     }
 

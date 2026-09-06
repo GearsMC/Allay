@@ -519,6 +519,16 @@ public final class BlockTypeInitializer {
                 .build();
     }
 
+    public static void initCrafter() {
+        BlockTypes.CRAFTER = AllayBlockType
+                .builder(BlockCrafterBehaviorImpl.class)
+                .vanillaBlock(BlockId.CRAFTER)
+                .setProperties(BlockPropertyTypes.CRAFTING, BlockPropertyTypes.ORIENTATION, BlockPropertyTypes.TRIGGERED_BIT)
+                .bindBlockEntity(BlockEntityTypes.CRAFTER)
+                .setBaseComponentSupplier(BlockCrafterBaseComponentImpl::new)
+                .build();
+    }
+
     public static void initCraftingTable() {
         BlockTypes.CRAFTING_TABLE = AllayBlockType
                 .builder(BlockCraftingTableBehaviorImpl.class)
