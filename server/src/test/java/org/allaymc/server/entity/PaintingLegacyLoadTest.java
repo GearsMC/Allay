@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -72,6 +73,33 @@ class PaintingLegacyLoadTest {
             assertEquals(direction, painting.saveNBT().getByte("Direction"),
                     "Direction geri yazilmali");
         }
+    }
+
+    @Test
+    void theFourElementPaintingsAreRecognised() {
+        // Hub dunyasindaki tablonun deseni "Water"; dort element tablosu
+        // motorun listesinde yoktu ve hepsi Kebab'a dusuyordu.
+        for (String motive : new String[]{"Earth", "Wind", "Fire", "Water"}) {
+            var painting = load(pocketMinePainting(motive, 0));
+
+            assertEquals(motive, painting.getPaintingType().getTitle());
+            assertEquals(motive, painting.saveNBT().getString("Motive"));
+            assertFalse(painting.getPaintingType().isPlaceable(),
+                    motive + " rastgele yerlestirme havuzuna girmemeli");
+        }
+    }
+
+    @Test
+    void anUnknownMotiveDoesNotBreakSaving() {
+        // PocketMine hub'inda desen adi motorun listesinde olmayan bir tablo
+        // var. PaintingType.fromTitle null donuyordu ve tur null kalinca
+        // saveNBT NPE atiyordu; hata varlik otomatik kaydinda ciktigi icin
+        // "Error while ticking world spawn" ile O DUNYANIN tum varlik kaydini
+        // dusuruyordu.
+        var painting = load(pocketMinePainting("bu_desen_yok", 0));
+
+        assertNotNull(painting.getPaintingType(), "bilinmeyen desende varsayilan tur korunmali");
+        assertEquals("Kebab", painting.saveNBT().getString("Motive"));
     }
 
     private static EntityPainting load(NbtMap nbt) {

@@ -45,6 +45,10 @@ public class ItemPaintingBaseComponentImpl extends ItemBaseComponentImpl {
         var types = new ArrayList<PaintingType>();
         var totalDimension = 0;
         for (var type : PaintingType.values()) {
+            if (!type.isPlaceable()) {
+                continue;
+            }
+
             var currentTotalDimension = type.getHeight() + type.getWidth();
             if (currentTotalDimension < totalDimension) {
                 continue;

@@ -2,6 +2,7 @@ package org.allaymc.server.entity.component.item;
 
 import com.google.common.base.Preconditions;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.allaymc.api.block.type.BlockTypes;
 import org.allaymc.api.entity.EntityInitInfo;
 import org.allaymc.api.entity.component.EntityLivingComponent;
@@ -23,6 +24,7 @@ import org.joml.primitives.AABBdc;
 /**
  * @author PMMP Team | daoge_cmd
  */
+@Slf4j
 public class EntityPaintingBaseComponentImpl extends EntityBaseComponentImpl implements EntityPaintingBaseComponent {
 
     protected static final String TAG_MOTIVE = "Motive";
@@ -60,7 +62,19 @@ public class EntityPaintingBaseComponentImpl extends EntityBaseComponentImpl imp
     @Override
     public void loadNBT(NbtMap nbt) {
         super.loadNBT(nbt);
-        nbt.listenForString(TAG_MOTIVE, value -> this.paintingType = PaintingType.fromTitle(value));
+        nbt.listenForString(TAG_MOTIVE, value -> {
+            // fromTitle taninmayan desende null doner. Tur null kalirsa
+            // saveNBT NPE atar ve o dunyanin otomatik kaydi tik hatasiyla
+            // duser -- yani tek bir bozuk tablo butun dunyanin varlik kaydini
+            // engeller. Bilinmeyen desende varsayilan tur korunur.
+            var type = PaintingType.fromTitle(value);
+            if (type == null) {
+                log.warn("Unknown painting motive {}, falling back to {}", value, this.paintingType.getTitle());
+                return;
+            }
+
+            this.paintingType = type;
+        });
         // Bakis yonu varligin donusunden turetiliyor ama kayitta yon ayri bir
         // alanda duruyor ve PocketMine donusu 0 yaziyor. Yon okunmazsa iceri
         // alinan butun tablolar ayni yone bakar.

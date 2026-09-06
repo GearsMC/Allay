@@ -1,7 +1,6 @@
 package org.allaymc.api.entity.data;
 
 import com.google.common.base.Preconditions;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.allaymc.api.block.data.BlockFace;
 import org.allaymc.api.math.MathUtils;
@@ -16,7 +15,6 @@ import java.util.Map;
  *
  * @author PMMP Team | daoge_cmd
  */
-@AllArgsConstructor
 @Getter
 public enum PaintingType {
     KEBAB("Kebab", 1, 1),
@@ -64,7 +62,17 @@ public enum PaintingType {
     PIG_SCENE("Pigscene", 4, 4),
     BURNING_SKULL("BurningSkull", 4, 4),
     ORB("orb", 4, 4),
-    UNPACKED("unpacked", 4, 4);
+    UNPACKED("unpacked", 4, 4),
+    // Dort element tablosu. Bedrock dunyalarinda kayitli olabiliyor ama
+    // motorun listesinde yoktu: fromTitle null donuyor, EntityPainting'in turu
+    // null kaliyor ve saveNBT NPE atarak o dunyanin varlik kaydini dusuruyordu.
+    // Rastgele yerlestirme havuzuna alinmadilar (placeable = false): vanilla'da
+    // tablo esyasindan bu dortlunun cikip cikmadigi belirsiz, havuza eklemek
+    // dogrulanmamis bir davranis degisikligi olurdu.
+    EARTH("Earth", 2, 2, false),
+    WIND("Wind", 2, 2, false),
+    FIRE("Fire", 2, 2, false),
+    WATER("Water", 2, 2, false);
 
     private static final Map<String, PaintingType> BY_TITLE = new HashMap<>();
 
@@ -82,6 +90,21 @@ public enum PaintingType {
      * The width and height of the painting.
      */
     private final int width, height;
+    /**
+     * Tablo esyasi yerlestirilirken rastgele secilebilir mi.
+     */
+    private final boolean placeable;
+
+    PaintingType(String title, int width, int height) {
+        this(title, width, height, true);
+    }
+
+    PaintingType(String title, int width, int height, boolean placeable) {
+        this.title = title;
+        this.width = width;
+        this.height = height;
+        this.placeable = placeable;
+    }
 
     /**
      * Returns the {@code PaintingType} corresponding to the given title.
