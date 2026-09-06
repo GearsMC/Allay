@@ -339,6 +339,10 @@ public abstract class PacketEncoder {
         return null;
     }
 
+    public List<InventorySlotPacket> encodeCrafterRecipePreview(int containerId, ItemStack preview) {
+        return null;
+    }
+
     /**
      * Encodes a request to open a container at a world position.
      *

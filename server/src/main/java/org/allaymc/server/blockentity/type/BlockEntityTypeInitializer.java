@@ -170,9 +170,6 @@ public final class BlockEntityTypeInitializer {
 
     /**
      * Crafter.
-     *
-     * <p>Esyalari ve devre disi birakilan slotlarin maskesini saklar; otomatik
-     * uretim davranisi henuz yok.</p>
      */
     public static void initCrafter() {
         BlockEntityTypes.CRAFTER = AllayBlockEntityType

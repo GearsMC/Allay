@@ -224,6 +224,12 @@ public record ContainerNetworkInfo(
             .mapAllSlotToType(ContainerSlotType.LEVEL_ENTITY)
             .build();
 
+    public static final ContainerNetworkInfo CRAFTER = builder()
+            .networkId(org.cloudburstmc.protocol.bedrock.data.inventory.ContainerType.CRAFTER)
+            .type(ContainerTypes.CRAFTER)
+            .mapAllSlotToType(ContainerSlotType.CRAFTER_BLOCK_CONTAINER)
+            .build();
+
     // Fake Container Types
 
     public static final ContainerNetworkInfo FAKE_CHEST = builder()

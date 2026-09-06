@@ -666,6 +666,19 @@ public class AllayPlayer implements Player {
     }
 
     @Override
+    public void viewCrafterRecipePreview(Container container, ItemStack preview) {
+        var containerId = idToContainer.inverse().get(container);
+        if (containerId == null) {
+            return;
+        }
+
+        var packets = getProtocol().getEncoder().encodeCrafterRecipePreview(containerId, preview);
+        if (packets != null) {
+            sendPackets(packets);
+        }
+    }
+
+    @Override
     public byte viewContainerOpen(Container container) {
         if (idToContainer.inverse().containsKey(container)) {
             throw new IllegalStateException("The container " + container.getContainerType() + " have been opened by this viewer");

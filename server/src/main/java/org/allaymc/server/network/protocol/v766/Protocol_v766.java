@@ -117,6 +117,7 @@ public abstract class Protocol_v766 extends Protocol {
         registry.register(ClientState.IN_GAME, BedrockPacketType.REQUEST_PERMISSIONS, RequestPermissionsPacketProcessor::new);
         registry.register(ClientState.IN_GAME, BedrockPacketType.NPC_REQUEST, NPCRequestPacketProcessor::new);
         registry.register(ClientState.IN_GAME, BedrockPacketType.LECTERN_UPDATE, LecternUpdatePacketProcessor::new);
+        registry.register(ClientState.IN_GAME, BedrockPacketType.TOGGLE_CRAFTER_SLOT_REQUEST, ToggleCrafterSlotRequestPacketProcessor::new);
         registry.register(ClientState.IN_GAME, BedrockPacketType.COMMAND_BLOCK_UPDATE, CommandBlockUpdatePacketProcessor::new);
     }
 
