@@ -89,6 +89,17 @@ class RecipeTest {
         assertFalse(grassMagic1.match(input6));
         assertFalse(grassMagic1.match(input7));
 
+        // Desenden kucuk kalan girdi eslesmemeli. Once dizi tasmasiyla
+        // patliyordu; sunucu tarafinda tum tarifler tek tek denendiginde
+        // (crafter) bu hata her seferinde tetikleniyordu.
+        var smallerThanPattern = new CraftingRecipeInput(
+                grass(), air(), air(),
+                air(), air(), air(),
+                air(), air(), air()
+        );
+
+        assertFalse(grassMagic1.match(smallerThanPattern));
+
         var grassMagic2 = new ShapedRecipe(
                 new Identifier("minecraft:grass_magic_2"),
                 new ItemStack[]{diamond()},
