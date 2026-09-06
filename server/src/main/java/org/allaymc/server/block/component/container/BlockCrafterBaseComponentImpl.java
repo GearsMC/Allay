@@ -160,11 +160,13 @@ public class BlockCrafterBaseComponentImpl extends BlockBaseComponentImpl {
         }
 
         if (crafting) {
-            var crafted = blockEntity.tryCraftBatch(getAdaptiveCraftBatchLimit(block));
-            if (crafted > 0 && blockEntity.canCraftMore()) {
-                block.scheduleUpdateInDelay(CONTINUE_CRAFT_DELAY);
-                notifyNeighbors(block);
-                return;
+            if (blockEntity.canCraftMore()) {
+                var crafted = blockEntity.tryCraftBatch(getAdaptiveCraftBatchLimit(block));
+                if (crafted > 0 && blockEntity.canCraftMore()) {
+                    block.scheduleUpdateInDelay(CONTINUE_CRAFT_DELAY);
+                    notifyNeighbors(block);
+                    return;
+                }
             }
 
             updateState(block, block.isPowered(), false);

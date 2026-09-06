@@ -10,6 +10,7 @@ import org.allaymc.api.blockentity.component.BlockEntityCrafterBaseComponent;
 import org.allaymc.api.blockentity.interfaces.BlockEntityChest;
 import org.allaymc.api.container.Container;
 import org.allaymc.api.container.interfaces.CrafterContainer;
+import org.allaymc.api.container.interfaces.SidedContainer;
 import org.allaymc.api.item.ItemStack;
 import org.allaymc.api.item.interfaces.ItemAirStack;
 import org.allaymc.api.item.recipe.Recipe;
@@ -375,8 +376,11 @@ public class BlockEntityCrafterBaseComponentImpl extends BlockEntityBaseComponen
     }
 
     protected int[] getInsertSlots(Container target, ItemStack stack) {
-        if (target instanceof CrafterContainer crafter) {
-            return crafter.getAllowedInsertSlots(BlockFace.UP, stack);
+        if (target instanceof SidedContainer sidedContainer) {
+            var allowedSlots = sidedContainer.getAllowedInsertSlots(getOutputFacing().opposite(), stack);
+            if (allowedSlots != null) {
+                return allowedSlots;
+            }
         }
 
         var size = target.getItemStackArray().length;

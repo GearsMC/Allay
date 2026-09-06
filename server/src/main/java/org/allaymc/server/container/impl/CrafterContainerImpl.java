@@ -63,7 +63,7 @@ public class CrafterContainerImpl extends BlockContainerImpl implements CrafterC
 
     @Override
     public int[] getAllowedExtractSlots(BlockFace side) {
-        return null;
+        return new int[0];
     }
 
     @Override

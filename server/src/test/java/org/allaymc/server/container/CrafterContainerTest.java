@@ -75,6 +75,15 @@ class CrafterContainerTest {
     }
 
     @Test
+    void hopperCannotExtractFromCrafter() {
+        var container = container();
+        container.setItemStack(0, ItemTypes.STICK.createItemStack(1));
+
+        assertArrayEquals(new int[0], container.getAllowedExtractSlots(BlockFace.DOWN));
+        assertArrayEquals(new int[0], container.getAllowedExtractSlots(BlockFace.UP));
+    }
+
+    @Test
     void comparatorCountsFilledAndDisabledSlots() {
         var container = container();
         container.setItemStack(0, ItemTypes.STICK.createItemStack(1));

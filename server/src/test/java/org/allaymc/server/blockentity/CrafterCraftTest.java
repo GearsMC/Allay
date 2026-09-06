@@ -4,7 +4,9 @@ import org.allaymc.api.block.interfaces.BlockCrafterBehavior;
 import org.allaymc.api.block.type.BlockTypes;
 import org.allaymc.api.blockentity.interfaces.BlockEntityChest;
 import org.allaymc.api.blockentity.interfaces.BlockEntityCrafter;
+import org.allaymc.api.blockentity.interfaces.BlockEntityFurnace;
 import org.allaymc.api.container.interfaces.CrafterContainer;
+import org.allaymc.api.container.interfaces.FurnaceContainer;
 import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.api.server.Server;
 import org.allaymc.api.world.Dimension;
@@ -92,6 +94,38 @@ class CrafterCraftTest {
         assertEquals(4, container.getItemStack(0).getCount(), "eslesme yoksa girdi tuketilmemeli");
 
         dimension.setBlockState(crafterPos, BlockTypes.AIR.getDefaultState());
+    }
+
+    @Test
+    void crafterOutputRespectsFurnaceInsertSlots() {
+        var dimension = dimension();
+        var crafterPos = near(2, 4, 2);
+        var furnacePos = near(2, 3, 2);
+        loadChunk(dimension, crafterPos);
+
+        assertTrue(dimension.setBlockState(furnacePos, BlockTypes.FURNACE.getDefaultState()));
+        assertTrue(dimension.setBlockState(crafterPos, BlockTypes.CRAFTER.getDefaultState()));
+
+        var crafter = crafterAt(dimension, crafterPos);
+        var furnace = assertInstanceOf(BlockEntityFurnace.class,
+                BlockTypes.FURNACE.getBlockBehavior().getBlockEntity(furnacePos.x(), furnacePos.y(), furnacePos.z(), dimension));
+
+        CrafterContainer container = crafter.getContainer();
+        for (int slot = 1; slot < CrafterContainer.SIZE; slot++) {
+            container.setSlotDisabled(slot, true);
+        }
+        container.setItemStack(0, ItemTypes.OAK_LOG.createItemStack(1));
+
+        assertEquals(1, crafter.tryCraftBatch(1));
+
+        var furnaceContainer = (FurnaceContainer) furnace.getContainer();
+        assertEquals(ItemTypes.OAK_PLANKS, furnaceContainer.getIngredient().getItemType());
+        assertEquals(4, furnaceContainer.getIngredient().getCount());
+        assertTrue(furnaceContainer.isEmpty(FurnaceContainer.FUEL_SLOT));
+        assertTrue(furnaceContainer.isEmpty(FurnaceContainer.RESULT_SLOT));
+
+        dimension.setBlockState(crafterPos, BlockTypes.AIR.getDefaultState());
+        dimension.setBlockState(furnacePos, BlockTypes.AIR.getDefaultState());
     }
 
     private static BlockEntityCrafter crafterAt(Dimension dimension, Vector3i pos) {
