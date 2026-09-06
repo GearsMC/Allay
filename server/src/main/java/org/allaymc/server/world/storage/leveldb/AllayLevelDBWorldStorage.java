@@ -435,20 +435,42 @@ public class AllayLevelDBWorldStorage implements WorldStorage {
     }
 
     protected Map<Long, Entity> readEntitiesOldSync(int chunkX, int chunkZ, DimensionType dimensionType) {
-        var entityBytes = db.get(LevelDBKey.ENTITIES.createKey(chunkX, chunkZ, dimensionType));
+        var entitiesKey = LevelDBKey.ENTITIES.createKey(chunkX, chunkZ, dimensionType);
+        var entityBytes = db.get(entitiesKey);
         if (entityBytes == null) {
             return Collections.emptyMap();
         }
 
         var map = new Long2ObjectOpenHashMap<Entity>();
+        var loadable = new ArrayList<NbtMap>();
+        var unloadableCount = 0;
         for (var nbt : AllayNBTUtils.bytesToNbtListLE(entityBytes)) {
             var entity = NBTIO.getAPI().fromEntityNBT(world.getDimension(dimensionType), nbt);
             if (entity == null) {
                 log.error("Failed to load entity from NBT {} in chunk ({}, {})", nbt, chunkX, chunkZ);
+                unloadableCount++;
                 continue;
             }
 
+            loadable.add(nbt);
             map.put(entity.getUniqueId().getLeastSignificantBits(), entity);
+        }
+
+        // Yuklenemeyen varliklari eski listeden dusur.
+        //
+        // Yeni bicimli dal (readEntitiesSync) yetim kimlikleri zaten siliyor;
+        // eski bicimde bu yapilmiyordu. Chunk kaydedilince yeni bicime gecilir,
+        // ama yalnizca yuklenebilen bir varlik varsa: hepsi yuklenemeyen bir
+        // chunk'ta kimlik anahtari hic yazilmaz (writeEntities0 bos haritada
+        // anahtari siler), eski liste yerinde kalir ve ayni hata HER acilista
+        // yeniden basilir. Kayit burada dusurulmezse hata sonsuza kadar tekrarlanir.
+        if (unloadableCount > 0) {
+            if (loadable.isEmpty()) {
+                db.delete(entitiesKey);
+            } else {
+                db.put(entitiesKey, AllayNBTUtils.nbtListToBytesLE(loadable));
+            }
+            log.debug("Removed {} unloadable entity(s) from chunk ({}, {})", unloadableCount, chunkX, chunkZ);
         }
 
         return map;
