@@ -3,6 +3,7 @@ package org.allaymc.api.player;
 import org.allaymc.api.bossbar.BossBarViewer;
 import org.allaymc.api.container.ContainerViewer;
 import org.allaymc.api.ddui.DDUIViewer;
+import org.allaymc.api.camera.CameraInstruction;
 import org.allaymc.api.dialog.DialogViewer;
 import org.allaymc.api.entity.interfaces.EntityPlayer;
 import org.allaymc.api.form.FormViewer;
@@ -29,6 +30,21 @@ import java.util.Set;
  * @author daoge_cmd
  */
 public interface Player extends MessageReceiver, WorldViewer, ContainerViewer, BossBarViewer, FormViewer, DDUIViewer, ScoreboardViewer, DialogViewer {
+
+    /**
+     * Applies a camera instruction to this player, taking the camera away from
+     * the player's own body until it is released again.
+     *
+     * @param instruction the instruction to apply
+     * @see #clearCamera()
+     */
+    void viewCamera(CameraInstruction instruction);
+
+    /**
+     * Releases the camera back to the player, undoing {@link #viewCamera}.
+     */
+    void clearCamera();
+
 
     Speed DEFAULT_SPEED = new Speed(0.1, 1.0);
     Speed DEFAULT_FLY_SPEED = new Speed(0.05, 1.0);

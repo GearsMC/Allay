@@ -5,6 +5,7 @@ import org.allaymc.api.block.type.BlockState;
 import org.allaymc.api.blockentity.BlockEntity;
 import org.allaymc.api.bossbar.BossBar;
 import org.allaymc.api.container.Container;
+import org.allaymc.api.camera.CameraInstruction;
 import org.allaymc.api.dialog.Dialog;
 import org.allaymc.api.entity.Entity;
 import org.allaymc.api.entity.action.EntityAction;
@@ -804,6 +805,21 @@ public abstract class PacketEncoder {
 
     /** Encodes the closing of the dialog associated with an entity. */
     public NpcDialoguePacket encodeDialogClose(Entity entity) {
+        return null;
+    }
+
+    /** Encodes the vanilla camera presets, sent once so instructions can reference them by index. */
+    public CameraPresetsPacket encodeCameraPresets() {
+        return null;
+    }
+
+    /** Encodes a camera instruction. */
+    public CameraInstructionPacket encodeCameraInstruction(CameraInstruction instruction) {
+        return null;
+    }
+
+    /** Encodes the release of the camera back to the player. */
+    public CameraInstructionPacket encodeCameraClear() {
         return null;
     }
 

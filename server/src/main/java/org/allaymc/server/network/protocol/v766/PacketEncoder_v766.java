@@ -81,9 +81,16 @@ import org.allaymc.server.world.chunk.AllayUnsafeChunk;
 import org.allaymc.server.world.chunk.ChunkEncoder;
 import org.allaymc.server.world.dimension.DimensionId;
 import org.allaymc.server.world.dimension.VanillaGeneratorType;
+import org.allaymc.api.camera.CameraInstruction;
+import org.allaymc.api.camera.CameraPreset;
 import org.cloudburstmc.math.vector.Vector2f;
 import org.cloudburstmc.math.vector.Vector3f;
 import org.cloudburstmc.math.vector.Vector3i;
+import org.cloudburstmc.protocol.bedrock.data.camera.CameraAudioListener;
+import org.cloudburstmc.protocol.bedrock.data.camera.CameraEase;
+import org.cloudburstmc.protocol.bedrock.data.camera.CameraSetInstruction;
+import org.cloudburstmc.protocol.bedrock.definition.NamedDefinition;
+import org.cloudburstmc.protocol.bedrock.util.OptionalBoolean;
 import org.cloudburstmc.nbt.NbtMap;
 import org.cloudburstmc.nbt.NbtType;
 import org.cloudburstmc.protocol.bedrock.data.*;
@@ -2688,6 +2695,71 @@ public class PacketEncoder_v766 extends PacketEncoder {
         packet.setActionJson("");
         packet.setAction(NpcDialoguePacket.Action.CLOSE);
         return packet;
+    }
+
+    @Override
+    public CameraPresetsPacket encodeCameraPresets() {
+        var packet = new CameraPresetsPacket();
+        for (var preset : CameraPreset.values()) {
+            packet.getPresets().add(org.cloudburstmc.protocol.bedrock.data.camera.CameraPreset.builder()
+                    .identifier(preset.getIdentifier())
+                    .parentPreset("")
+                    .listener(preset.getAudioListener() == CameraPreset.AudioListener.CAMERA
+                            ? CameraAudioListener.CAMERA
+                            : CameraAudioListener.PLAYER)
+                    .build());
+        }
+        return packet;
+    }
+
+    @Override
+    public CameraInstructionPacket encodeCameraInstruction(CameraInstruction instruction) {
+        Objects.requireNonNull(instruction, "instruction");
+        var set = new CameraSetInstruction();
+        set.setPreset(new PresetDefinition(instruction.getPreset()));
+        if (instruction.hasEase()) {
+            set.setEase(new CameraSetInstruction.EaseData(
+                    CameraEase.valueOf(instruction.getEaseType().name()), instruction.getEaseSeconds()));
+        }
+        var position = instruction.getPosition();
+        if (position != null) {
+            set.setPos(Vector3f.from((float) position.x(), (float) position.y(), (float) position.z()));
+        }
+        var facing = instruction.getFacing();
+        if (facing != null) {
+            set.setFacing(Vector3f.from((float) facing.x(), (float) facing.y(), (float) facing.z()));
+        }
+        if (instruction.hasRotation()) {
+            set.setRot(Vector2f.from(instruction.getPitch().floatValue(), instruction.getYaw().floatValue()));
+        }
+
+        var packet = new CameraInstructionPacket();
+        packet.setSetInstruction(set);
+        return packet;
+    }
+
+    @Override
+    public CameraInstructionPacket encodeCameraClear() {
+        var packet = new CameraInstructionPacket();
+        packet.setClear(true);
+        packet.setRemoveTarget(OptionalBoolean.of(true));
+        return packet;
+    }
+
+    /**
+     * The client knows a preset by its index in the presets packet we sent on
+     * join, which is exactly the enum's declaration order.
+     */
+    private record PresetDefinition(CameraPreset preset) implements NamedDefinition {
+        @Override
+        public String identifier() {
+            return preset.getIdentifier();
+        }
+
+        @Override
+        public int runtimeId() {
+            return preset.ordinal();
+        }
     }
 
     @Override

@@ -23,6 +23,7 @@ import org.allaymc.api.container.ContainerTypes;
 import org.allaymc.api.container.interfaces.BlockContainer;
 import org.allaymc.api.ddui.DDUIScreenSession;
 import org.allaymc.api.ddui.type.DDUIScreen;
+import org.allaymc.api.camera.CameraInstruction;
 import org.allaymc.api.dialog.Dialog;
 import org.allaymc.api.entity.Entity;
 import org.allaymc.api.entity.action.EntityAction;
@@ -2232,6 +2233,16 @@ public class AllayPlayer implements Player {
 
     protected void sendHudElements() {
         sendPackets(getProtocol().getEncoder().encodeHudElements(hiddenHudElements));
+    }
+
+    @Override
+    public void viewCamera(CameraInstruction instruction) {
+        sendPacket(getProtocol().getEncoder().encodeCameraInstruction(instruction));
+    }
+
+    @Override
+    public void clearCamera() {
+        sendPacket(getProtocol().getEncoder().encodeCameraClear());
     }
 
     @Override

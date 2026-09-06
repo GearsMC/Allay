@@ -26,6 +26,9 @@ public class SetLocalPlayerAsInitializedPacketProcessor extends ILoginPacketProc
         }
 
         allayPlayer.setClientState(ClientState.IN_GAME);
+        // Camera instructions reference presets by their index in this packet,
+        // so it has to reach the client before any instruction does.
+        allayPlayer.sendPacket(allayPlayer.getProtocol().getEncoder().encodeCameraPresets());
         var entity = player.getControlledEntity();
         // We only accept player's movement inputs, which are after SetLocalPlayerAsInitializedPacket,
         // So after the player sent SetLocalPlayerAsInitializedPacket, we need to sync the pos with the
