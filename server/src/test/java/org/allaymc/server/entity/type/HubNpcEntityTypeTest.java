@@ -36,6 +36,7 @@ class HubNpcEntityTypeTest {
         types.put("chicken", EntityTypes.CHICKEN);
         types.put("bee", EntityTypes.BEE);
         types.put("axolotl", EntityTypes.AXOLOTL);
+        types.put("shulker", EntityTypes.SHULKER);
         return types;
     }
 

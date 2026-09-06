@@ -199,12 +199,25 @@ public class BaseContainer implements Container {
 
     @Override
     public void loadNBT(List<NbtMap> nbtList) {
-        for (var nbt : nbtList) {
-            if (!nbt.containsKey(TAG_SLOT)) {
-                log.warn("Item NBT does not contain a slot key! Skipping item...");
+        for (int index = 0; index < nbtList.size(); index++) {
+            var nbt = nbtList.get(index);
+            // Vanilla Bedrock sabit boyutlu kaplarda (yontulmus kitaplik) Slot
+            // etiketi YAZMAZ: sira listedeki konumdan gelir ve bos raflar bos
+            // birer compound olarak yazilir. Etiketi sart kosmak o esyalari
+            // sessizce dusuruyordu, dolayisiyla chunk yeniden yazilirken
+            // kalici olarak kayboluyorlardi.
+            int slot = nbt.containsKey(TAG_SLOT) ? nbt.getByte(TAG_SLOT) : index;
+            if (slot < 0 || slot >= content.length) {
+                log.warn("Item NBT slot {} is out of range, container size is {}! Skipping item...",
+                        slot, content.length);
                 continue;
             }
-            int slot = nbt.getByte(TAG_SLOT);
+
+            if (nbt.getString("Name", "").isEmpty()) {
+                // Bos raf: kap zaten havayla dolduruldu.
+                continue;
+            }
+
             ItemStack itemStack = NBTIO.getAPI().fromItemStackNBT(nbt);
             content[slot] = itemStack;
         }

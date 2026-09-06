@@ -170,6 +170,8 @@ public final class EntityTypeInitializer {
     private static final int BAT_HEALTH = 6;
     /** Vanilla kurbaga cani. */
     private static final int FROG_HEALTH = 10;
+    /** Vanilla shulker cani. */
+    private static final int SHULKER_HEALTH = 30;
 
     private static final float CREEPER_SPEED = 0.15f;
     private static final double CREEPER_FUSE_RANGE = 3;
@@ -262,6 +264,27 @@ public final class EntityTypeInitializer {
                 .addComponent(() -> {
                     var component = new EntityLivingComponentImpl();
                     component.setMaxHealth(FROG_HEALTH);
+                    return component;
+                }, EntityLivingComponentImpl.class)
+                .addComponent(EntityMobPhysicsComponentImpl::new, EntityMobPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .build();
+    }
+
+    /**
+     * Shulker.
+     *
+     * <p>Gerekce {@link #initAllay()} ile ayni: canli varlik bileseni olmadan
+     * vurulamiyordu. Hub dunyasindaki "Oneriler Verin" NPC'si bir shulker ve
+     * vurulunca komut calistirmasi gerekiyor.</p>
+     */
+    public static void initShulker() {
+        EntityTypes.SHULKER = AllayEntityType
+                .builder(EntityShulkerImpl.class)
+                .vanillaEntity(EntityId.SHULKER)
+                .addComponent(() -> {
+                    var component = new EntityLivingComponentImpl();
+                    component.setMaxHealth(SHULKER_HEALTH);
                     return component;
                 }, EntityLivingComponentImpl.class)
                 .addComponent(EntityMobPhysicsComponentImpl::new, EntityMobPhysicsComponentImpl.class)
