@@ -752,8 +752,12 @@ public class EntityLivingComponentImpl implements EntityLivingComponent {
             }
         }
 
-        // Drop XP if killed by player
-        if (lastDamage != null && lastDamage.getAttacker() instanceof EntityPlayer) {
+        // Drop XP if killed by player. A dying player keeps their experience when
+        // the keepInventory game rule is on, matching vanilla: without this check
+        // the player would both keep their level and leave orbs behind, doubling it.
+        var keepPlayerXp = thisEntity instanceof EntityPlayer &&
+                           thisEntity.getWorld().getWorldData().<Boolean>getGameRuleValue(GameRule.KEEP_INVENTORY);
+        if (!keepPlayerXp && lastDamage != null && lastDamage.getAttacker() instanceof EntityPlayer) {
             var xpAmount = getDropXpAmount();
             if (xpAmount > 0) {
                 baseComponent.getDimension().splitAndDropXpOrb(

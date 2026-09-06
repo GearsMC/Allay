@@ -57,6 +57,12 @@ public enum SimpleParticle implements Particle {
     /// SONIC_EXPLOSION, sonik patlama parçacığıdır.
     SONIC_EXPLOSION,
 
+    /// GearsMC fork: kizgin koylu parcacigi (PocketMine AngryVillagerParticle).
+    VILLAGER_ANGRY,
+
+    /// GearsMC fork: murekkep parcacigi (PocketMine InkParticle).
+    INK,
+
     /// GearsMC fork: elder guardian laneti (jumpscare) efekti.
     ///
     /// PocketMine bunu `LevelEvent::GUARDIAN_CURSE` adiyla ham paket gondererek

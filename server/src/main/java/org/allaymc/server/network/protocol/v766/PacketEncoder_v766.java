@@ -698,6 +698,8 @@ public class PacketEncoder_v766 extends PacketEncoder {
                     packet.setType(ParticleType.BREEZE_WIND_EXPLOSION);
             case SimpleParticle.WATER_WAKE -> packet.setType(ParticleType.WATER_WAKE);
             case SimpleParticle.BUBBLE -> packet.setType(ParticleType.BUBBLE);
+            case SimpleParticle.VILLAGER_ANGRY -> packet.setType(ParticleType.VILLAGER_ANGRY);
+            case SimpleParticle.INK -> packet.setType(ParticleType.INK);
             case ShootParticle shoot -> {
                 packet.setType(LevelEvent.PARTICLE_SHOOT);
                 int data = 0;
