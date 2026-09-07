@@ -1055,11 +1055,20 @@ public class EntityPlayerBaseComponentImpl extends EntityBaseComponentImpl imple
 
     @Override
     public void setGliding(boolean gliding) {
-        if (this.gliding != gliding) {
-            this.gliding = gliding;
-            broadcastState();
-            new PlayerToggleGlideEvent(thisPlayer, gliding).call();
+        if (this.gliding == gliding) {
+            return;
         }
+
+        // Fired before the state changes so a listener can veto it. On a veto the
+        // client is already showing the new state - it starts gliding on its own
+        // and only then tells the server - so the unchanged state is pushed back.
+        if (!new PlayerToggleGlideEvent(thisPlayer, gliding).call()) {
+            broadcastState();
+            return;
+        }
+
+        this.gliding = gliding;
+        broadcastState();
     }
 
     @Override
