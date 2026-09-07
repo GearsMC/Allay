@@ -19,6 +19,11 @@ public class SetLocalPlayerAsInitializedPacketProcessor extends ILoginPacketProc
     @Override
     public void handle(Player player, SetLocalPlayerAsInitializedPacket packet) {
         var allayPlayer = (AllayPlayer) player;
+        // Camera instructions reference presets by their index in this packet, so
+        // it has to reach the client before any instruction does - including one
+        // sent from a join listener, which runs below.
+        allayPlayer.sendPacket(allayPlayer.getProtocol().getEncoder().encodeCameraPresets());
+
         var event = new PlayerJoinEvent(player, TextFormat.YELLOW + "%" + TrKeys.MC_MULTIPLAYER_PLAYER_JOINED, TrKeys.MC_DISCONNECTIONSCREEN_NOREASON);
         if (!event.call()) {
             player.disconnect(event.getDisconnectReason());
@@ -26,9 +31,6 @@ public class SetLocalPlayerAsInitializedPacketProcessor extends ILoginPacketProc
         }
 
         allayPlayer.setClientState(ClientState.IN_GAME);
-        // Camera instructions reference presets by their index in this packet,
-        // so it has to reach the client before any instruction does.
-        allayPlayer.sendPacket(allayPlayer.getProtocol().getEncoder().encodeCameraPresets());
         var entity = player.getControlledEntity();
         // We only accept player's movement inputs, which are after SetLocalPlayerAsInitializedPacket,
         // So after the player sent SetLocalPlayerAsInitializedPacket, we need to sync the pos with the
