@@ -142,9 +142,18 @@ public final class AllayServer implements Server {
     private void onServerStart() {
         this.state.set(ServerState.RUNNING);
 
-        if (System.console() != null) {
-            Thread.ofVirtual().name("Console Thread").start(terminalConsole::start);
-        }
+        // Konsol okuyucusu boru hattinda da baslatilir.
+        //
+        // Upstream bunu yalnizca System.console() != null iken aciyordu. Sunucu bir
+        // ust surecin (bizde GearsMC watchdog'u) alt sureci olarak calisiyorsa
+        // System.console() null doner; o durumda okuyucu hic baslamadigi icin
+        // stdin'e yazilan komutlar sessizce yutuluyordu.
+        //
+        // Guvenli, cunku SimpleTerminalConsole.start() JLine terminali bulamazsa
+        // zaten duz readCommands(System.in) dalina dusuyor ve readLine() null
+        // dondugunde (EOF: stdin /dev/null ya da kapali boru) dongu kendiliginden
+        // bitiyor — bosa donen bir is parcacigi kalmaz.
+        Thread.ofVirtual().name("Console Thread").start(terminalConsole::start);
     }
 
     private void onServerStop() {
