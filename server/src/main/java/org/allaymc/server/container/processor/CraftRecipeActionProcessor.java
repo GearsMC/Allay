@@ -83,6 +83,7 @@ public class CraftRecipeActionProcessor implements ContainerActionProcessor<Craf
         var outputs = switch (recipe) {
             // Complex recipe's outputs depend on the input
             case ComplexRecipe complex -> complex.getOutputs(recipeInput);
+            case SmithingTransformRecipe transform -> transform.getOutputs(recipeInput);
             default -> recipe.getOutputs();
         };
 
