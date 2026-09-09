@@ -71,7 +71,11 @@ public class StatusCommand extends Command {
     }
 
     public StatusCommand() {
-        super("status", TrKeys.ALLAY_COMMAND_STATUS_DESCRIPTION, Permissions.COMMAND_STATUS);
+        // GearsMC forkunda ad "allaystatus": /status adi GearsCore'un sunucu
+        // durumu komutunun Ingilizce ikizine ait (Turkce adi /durum). Ayni adla
+        // kayit yapilsaydi biri digerinin uzerine sessizce yazacak ve motorun
+        // sistem bilgisi komutu erisilemez hale gelecekti.
+        super("allaystatus", TrKeys.ALLAY_COMMAND_STATUS_DESCRIPTION, Permissions.COMMAND_STATUS);
     }
 
     protected static void printOperationSystemMemoryInfo(CommandSender sender) {
