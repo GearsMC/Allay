@@ -119,6 +119,8 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
     protected boolean immobile;
     @Getter
     protected double scale;
+    protected AABBdc customBaseAABB;
+    protected Double customEyeHeight;
     protected Set<String> tags;
     @Getter
     @Setter
@@ -364,6 +366,17 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
     }
 
     @Override
+    public void setBaseAABB(AABBdc aabb) {
+        this.customBaseAABB = aabb == null ? null : new AABBd(aabb);
+        broadcastState();
+    }
+
+    @Override
+    public void setEyeHeight(double eyeHeight) {
+        this.customEyeHeight = eyeHeight;
+    }
+
+    @Override
     public void setLocationBeforeSpawn(Location3dc location) {
         if (!canBeSpawnedIgnoreLocation()) {
             throw new IllegalStateException("Trying to set location of an entity which cannot being spawned!");
@@ -507,8 +520,18 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
 
     @Override
     public AABBdc getBaseAABB() {
-        // Default aabb is player's aabb
+        if (customBaseAABB != null) {
+            return customBaseAABB;
+        }
         return new AABBd(-0.3, 0.0, -0.3, 0.3, 1.8, 0.3);
+    }
+
+    @Override
+    public double getEyeHeight() {
+        if (customEyeHeight != null) {
+            return customEyeHeight;
+        }
+        return (getAABB().maxY() - getAABB().minY()) * 0.9;
     }
 
     @Override

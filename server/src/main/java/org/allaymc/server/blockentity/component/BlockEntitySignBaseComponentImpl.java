@@ -67,18 +67,21 @@ public class BlockEntitySignBaseComponentImpl extends BlockEntityBaseComponentIm
     @Override
     public void applyPlayerChange(EntityPlayer player, NbtMap nbt) {
         String[] newText;
+        String[] oldText;
         boolean isFrontSide = true;
         if (!frontText.flattenText().equals(nbt.getCompound(TAG_FRONT_TEXT).getString(TAG_TEXT))) {
             newText = AllayStringUtils.fastSplit(nbt.getCompound(TAG_FRONT_TEXT).getString(TAG_TEXT), "\n").toArray(String[]::new);
+            oldText = frontText.getText();
         } else if (!backText.flattenText().equals(nbt.getCompound(TAG_BACK_TEXT).getString(TAG_TEXT))) {
             isFrontSide = false;
             newText = AllayStringUtils.fastSplit(nbt.getCompound(TAG_BACK_TEXT).getString(TAG_TEXT), "\n").toArray(String[]::new);
+            oldText = backText.getText();
         } else {
             // No changes
             return;
         }
 
-        var event = new SignTextChangeEvent(new Block(getBlockState(), position, 0), newText, player);
+        var event = new SignTextChangeEvent(new Block(getBlockState(), position, 0), newText, player, oldText);
         if (!event.call()) {
             return;
         }

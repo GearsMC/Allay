@@ -454,6 +454,10 @@ public interface EntityBaseComponent extends EntityComponent, CommandSender, Has
      */
     AABBdc getBaseAABB();
 
+    void setBaseAABB(AABBdc aabb);
+
+    void setEyeHeight(double eyeHeight);
+
     /**
      * Gets the aabb of this entity which is affected by the scale factor ({@link #getScale()}).
      *

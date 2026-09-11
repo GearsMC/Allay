@@ -18,6 +18,9 @@ public class EntityFoxBaseComponentImpl extends EntityAnimalBaseComponentImpl im
 
     @Override
     public AABBdc getBaseAABB() {
+        if (customBaseAABB != null) {
+            return customBaseAABB;
+        }
         return new AABBd(-0.3, 0.0, -0.3, 0.3, 0.7, 0.3);
     }
 
