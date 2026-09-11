@@ -19,6 +19,7 @@ import org.allaymc.api.permission.PermissionCalculator;
 import org.allaymc.api.permission.Tristate;
 import org.allaymc.api.scheduler.Scheduler;
 import org.allaymc.api.scoreboard.ScoreboardManager;
+import org.allaymc.api.command.CommandVisibility;
 import org.allaymc.api.server.Server;
 import org.allaymc.api.server.ServerState;
 import org.allaymc.api.utils.TextFormat;
@@ -73,6 +74,9 @@ public final class AllayServer implements Server {
     private final EventBus eventBus;
     @Getter
     private final ScoreboardManager scoreboardManager;
+    @Getter
+    @Setter
+    private CommandVisibility commandVisibility;
     @Getter
     private final AllayPluginManager pluginManager;
     /**

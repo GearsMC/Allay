@@ -2,6 +2,7 @@ package org.allaymc.api.server;
 
 import org.allaymc.api.AllayAPI;
 import org.allaymc.api.command.CommandSender;
+import org.allaymc.api.command.CommandVisibility;
 import org.allaymc.api.eventbus.EventBus;
 import org.allaymc.api.message.MessageChannel;
 import org.allaymc.api.player.PlayerManager;
@@ -130,4 +131,8 @@ public interface Server extends TaskCreator, CommandSender {
      * @return the scoreboard manager instance
      */
     ScoreboardManager getScoreboardManager();
+
+    CommandVisibility getCommandVisibility();
+
+    void setCommandVisibility(CommandVisibility commandVisibility);
 }

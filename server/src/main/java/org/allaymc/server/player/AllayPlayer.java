@@ -2227,8 +2227,10 @@ public class AllayPlayer implements Player {
     }
 
     protected void sendCommands() {
+        var visibility = Server.getInstance().getCommandVisibility();
         var commands = Registries.COMMANDS.getContent().values().stream()
                 .filter(command -> !command.isServerSideOnly() && this.controlledEntity.hasPermissions(command.getPermissions()))
+                .filter(command -> visibility == null || visibility.isVisible(command, this))
                 .map(this::encodeCommand)
                 .toList();
         sendPacket(getProtocol().getEncoder().encodeCommands(commands));
