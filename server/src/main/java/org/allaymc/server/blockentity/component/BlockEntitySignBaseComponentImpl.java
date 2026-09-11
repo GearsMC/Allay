@@ -78,7 +78,11 @@ public class BlockEntitySignBaseComponentImpl extends BlockEntityBaseComponentIm
             return;
         }
 
-        var event = new SignTextChangeEvent(new Block(getBlockState(), position, 0), newText, player);
+        // Olay metin yazilmadan ONCE ateslenir, dolayisiyla duzenlenen yuzun o anki metni
+        // gercekten eski metindir (GearsMC fork eki: PocketMine getOldText() karsiligi).
+        var oldText = (isFrontSide ? frontText : backText).getText();
+        var event = new SignTextChangeEvent(new Block(getBlockState(), position, 0), newText, player,
+                oldText, isFrontSide);
         if (!event.call()) {
             return;
         }
