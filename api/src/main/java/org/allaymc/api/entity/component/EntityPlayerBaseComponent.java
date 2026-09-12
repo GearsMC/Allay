@@ -73,8 +73,39 @@ public interface EntityPlayerBaseComponent extends EntityBaseComponent, ChunkLoa
      */
     void setSneaking(boolean sneaking);
 
+    /**
+     * Oyuncunun egilme tusunu su an basili tutup tutmadigini dondurur.
+     *
+     * <p>{@code isSneaking()} ile karistirilmamali:</p>
+     * <ul>
+     *   <li>{@code isSneaking()} sunucunun kabul ettigi egilme <b>durumudur</b>. Yalnizca istemcinin
+     *       {@code START_SNEAKING}/{@code STOP_SNEAKING} bildirimleriyle degisir ve yan etkileri
+     *       vardir: egilmeye baslayinca ucmuyorsa kosma kesilir, kalkan bayragi guncellenir, durum
+     *       izleyicilere yayinlanir ve {@code PlayerToggleSneakEvent} tetiklenir.</li>
+     *   <li>Bu deger ise her {@code PlayerAuthInput} paketindeki ham {@code SNEAKING} tus
+     *       bilgisidir; hicbir yan etkisi yoktur.</li>
+     * </ul>
+     *
+     * <p>Ikisi her zaman esit olmayabilir. Tus niyetine bakan kontroller (ornegin egilerek
+     * tiklama) bu degeri kullanmalidir; motordaki envanter islemi, raf etkilesimi ve asili
+     * tabela yerlestirme kontrolleri bu yuzden buna bakar.</p>
+     *
+     * <p>GearsMC fork eki.</p>
+     *
+     * @return egilme tusu basiliysa {@code true}
+     */
     boolean isSneakKeyPressed();
 
+    /**
+     * Egilme tusu bilgisini ayarlar.
+     *
+     * <p>Motor bu degeri, oyuncu olu degilken her {@code PlayerAuthInput} paketinde yeniden
+     * yazar. Eklentinin elle cagirmasi beklenmez; cagrilirsa bir sonraki pakette ezilir.</p>
+     *
+     * <p>GearsMC fork eki.</p>
+     *
+     * @param sneakKeyPressed egilme tusu basili mi
+     */
     void setSneakKeyPressed(boolean sneakKeyPressed);
 
     /**
