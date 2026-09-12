@@ -1,6 +1,12 @@
 package org.allaymc.api.block.interfaces;
 
 import org.allaymc.api.block.BlockBehavior;
+import org.allaymc.api.block.component.BlockBlockEntityHolderComponent;
+import org.allaymc.api.block.component.BlockOxidationComponent;
+import org.allaymc.api.blockentity.interfaces.BlockEntityChest;
 
-public interface BlockCopperChestBehavior extends BlockBehavior {
+public interface BlockCopperChestBehavior extends
+        BlockBehavior,
+        BlockOxidationComponent,
+        BlockBlockEntityHolderComponent<BlockEntityChest> {
 }

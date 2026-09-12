@@ -18,7 +18,7 @@ import org.allaymc.server.component.annotation.Dependency;
  */
 public class BlockChestBaseComponentImpl extends BlockBaseComponentImpl {
     @Dependency
-    private BlockBlockEntityHolderComponent<BlockEntityChest> blockEntityHolderComponent;
+    protected BlockBlockEntityHolderComponent<BlockEntityChest> blockEntityHolderComponent;
 
     public BlockChestBaseComponentImpl(BlockType<? extends BlockBehavior> blockType) {
         super(blockType);
@@ -28,17 +28,20 @@ public class BlockChestBaseComponentImpl extends BlockBaseComponentImpl {
     public void afterPlaced(Block oldBlock, BlockState newBlockState, PlayerInteractInfo placementInfo) {
         super.afterPlaced(oldBlock, newBlockState, placementInfo);
 
-        if (placementInfo != null && placementInfo.player().isSneaking()) {
-            // Java edition behavior: Do not check for pairing if the player is sneaking
+        var thisChest = blockEntityHolderComponent.getBlockEntity(oldBlock.getPosition());
+        if (thisChest == null || thisChest.isPaired()) {
             return;
         }
-
-        var thisChest = blockEntityHolderComponent.getBlockEntity(oldBlock.getPosition());
 
         var direction = newBlockState.getPropertyValue(BlockPropertyTypes.MINECRAFT_CARDINAL_DIRECTION);
         var blockFace = BlockFace.from(direction);
         for (var face : new BlockFace[]{blockFace.rotateY(), blockFace.rotateYCCW()}) {
-            var other = oldBlock.offsetPos(face).getBlockEntity();
+            var neighbor = oldBlock.offsetPos(face);
+            if (!canPairWith(newBlockState, neighbor.getBlockState())) {
+                continue;
+            }
+
+            var other = neighbor.getBlockEntity();
             if (other instanceof BlockEntityChest otherChest && !otherChest.isPaired()) {
                 if (direction == otherChest.getBlockState().getPropertyValue(BlockPropertyTypes.MINECRAFT_CARDINAL_DIRECTION)) {
                     if (otherChest.tryPairWith(thisChest)) {
@@ -48,6 +51,10 @@ public class BlockChestBaseComponentImpl extends BlockBaseComponentImpl {
                 }
             }
         }
+    }
+
+    protected boolean canPairWith(BlockState blockState, BlockState neighborBlockState) {
+        return blockState.getBlockType() == neighborBlockState.getBlockType();
     }
 
     @Override

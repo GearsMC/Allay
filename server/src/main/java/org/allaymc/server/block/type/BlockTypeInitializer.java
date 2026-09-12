@@ -489,6 +489,34 @@ public final class BlockTypeInitializer {
                 .build();
     }
 
+    public static void initCopperChest() {
+        BiFunction<OxidationLevel, Boolean, BlockType<? extends BlockOxidationComponent>> copperChest = (level, waxed) -> switch (level) {
+            case UNAFFECTED -> waxed ? BlockTypes.WAXED_COPPER_CHEST : BlockTypes.COPPER_CHEST;
+            case EXPOSED -> waxed ? BlockTypes.WAXED_EXPOSED_COPPER_CHEST : BlockTypes.EXPOSED_COPPER_CHEST;
+            case WEATHERED -> waxed ? BlockTypes.WAXED_WEATHERED_COPPER_CHEST : BlockTypes.WEATHERED_COPPER_CHEST;
+            case OXIDIZED -> waxed ? BlockTypes.WAXED_OXIDIZED_COPPER_CHEST : BlockTypes.OXIDIZED_COPPER_CHEST;
+        };
+        BlockTypes.COPPER_CHEST = buildCopperChest(BlockId.COPPER_CHEST, OxidationLevel.UNAFFECTED, copperChest);
+        BlockTypes.EXPOSED_COPPER_CHEST = buildCopperChest(BlockId.EXPOSED_COPPER_CHEST, OxidationLevel.EXPOSED, copperChest);
+        BlockTypes.WEATHERED_COPPER_CHEST = buildCopperChest(BlockId.WEATHERED_COPPER_CHEST, OxidationLevel.WEATHERED, copperChest);
+        BlockTypes.OXIDIZED_COPPER_CHEST = buildCopperChest(BlockId.OXIDIZED_COPPER_CHEST, OxidationLevel.OXIDIZED, copperChest);
+        BlockTypes.WAXED_COPPER_CHEST = buildCopperChest(BlockId.WAXED_COPPER_CHEST, OxidationLevel.UNAFFECTED, copperChest);
+        BlockTypes.WAXED_EXPOSED_COPPER_CHEST = buildCopperChest(BlockId.WAXED_EXPOSED_COPPER_CHEST, OxidationLevel.EXPOSED, copperChest);
+        BlockTypes.WAXED_WEATHERED_COPPER_CHEST = buildCopperChest(BlockId.WAXED_WEATHERED_COPPER_CHEST, OxidationLevel.WEATHERED, copperChest);
+        BlockTypes.WAXED_OXIDIZED_COPPER_CHEST = buildCopperChest(BlockId.WAXED_OXIDIZED_COPPER_CHEST, OxidationLevel.OXIDIZED, copperChest);
+    }
+
+    private static BlockType<BlockCopperChestBehavior> buildCopperChest(BlockId blockId, OxidationLevel oxidationLevel, BiFunction<OxidationLevel, Boolean, BlockType<? extends BlockOxidationComponent>> blockTypeFunction) {
+        return AllayBlockType
+                .builder(BlockCopperChestBehaviorImpl.class)
+                .vanillaBlock(blockId)
+                .setProperties(BlockPropertyTypes.MINECRAFT_CARDINAL_DIRECTION)
+                .bindBlockEntity(BlockEntityTypes.CHEST)
+                .setBaseComponentSupplier(BlockCopperChestBaseComponentImpl::new)
+                .addComponent(new BlockOxidationComponentImpl(oxidationLevel, blockTypeFunction))
+                .build();
+    }
+
     public static void initHopper() {
         BlockTypes.HOPPER = AllayBlockType
                 .builder(BlockHopperBehaviorImpl.class)

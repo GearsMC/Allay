@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.allaymc.api.block.component.BlockBaseComponent;
 import org.allaymc.api.block.component.BlockOxidationComponent;
 import org.allaymc.api.block.data.OxidationLevel;
+import org.allaymc.api.block.dto.Block;
 import org.allaymc.api.block.type.BlockType;
 import org.allaymc.api.eventbus.EventHandler;
 import org.allaymc.api.eventbus.event.block.BlockFadeEvent;
@@ -25,7 +26,7 @@ public class BlockOxidationComponentImpl implements BlockOxidationComponent {
     @Identifier.Component
     public static final Identifier IDENTIFIER = new Identifier("minecraft:block_oxidation_component");
 
-    private static final float PRE_OXIDATION_CHANCE = 64f / 1125f;
+    private static final float OXIDATION_ATTEMPT_CHANCE = 64f / 1125f;
     private static final int SCAN_RANGE = 4;
 
     private final OxidationLevel oxidationLevel;
@@ -37,11 +38,24 @@ public class BlockOxidationComponentImpl implements BlockOxidationComponent {
     @EventHandler
     protected void onBlockRandomUpdate(CBlockRandomUpdateEvent event) {
         var random = ThreadLocalRandom.current();
-        if (random.nextFloat() < PRE_OXIDATION_CHANCE) {
+        if (random.nextFloat() >= OXIDATION_ATTEMPT_CHANCE) {
             return;
         }
 
         var current = event.getBlock();
+        var chance = calculateOxidationChance(current);
+        if (chance <= 0 || random.nextFloat() >= chance) {
+            return;
+        }
+
+        var nextBlockType = getBlockWithOxidationLevel(OxidationLevel.values()[this.oxidationLevel.ordinal() + 1]);
+        var blockFadeEvent = new BlockFadeEvent(current, nextBlockType.copyPropertyValuesFrom(current.getBlockState()));
+        if (blockFadeEvent.call()) {
+            current.getDimension().setBlockState(current.getPosition(), blockFadeEvent.getNewBlockState());
+        }
+    }
+
+    protected float calculateOxidationChance(Block current) {
         var currentLevel = this.oxidationLevel.ordinal();
 
         int higherOxidizedBlocks = 0;
@@ -49,18 +63,18 @@ public class BlockOxidationComponentImpl implements BlockOxidationComponent {
         for (int x = -SCAN_RANGE; x <= SCAN_RANGE; x++) {
             for (int y = -SCAN_RANGE; y <= SCAN_RANGE; y++) {
                 for (int z = -SCAN_RANGE; z <= SCAN_RANGE; z++) {
-                    if (x == 0 && y == 0 && z == 0) {
+                    if ((x == 0 && y == 0 && z == 0) || Math.abs(x) + Math.abs(y) + Math.abs(z) > SCAN_RANGE) {
                         continue;
                     }
 
                     var neighbor = current.offsetPos(x, y, z);
-                    if (!(neighbor.getBehavior() instanceof BlockOxidationComponent neighborOxidation)) {
+                    if (!(neighbor.getBehavior() instanceof BlockOxidationComponent neighborOxidation) || neighborOxidation.isWaxed()) {
                         continue;
                     }
 
                     var neighborLevel = neighborOxidation.getOxidationLevel().ordinal();
                     if (neighborLevel < currentLevel) {
-                        return;
+                        return 0;
                     } else if (neighborLevel > currentLevel) {
                         higherOxidizedBlocks++;
                     } else {
@@ -71,15 +85,7 @@ public class BlockOxidationComponentImpl implements BlockOxidationComponent {
         }
 
         var chance = (higherOxidizedBlocks + 1f) / (higherOxidizedBlocks + sameOxidizedBlocks + 1f);
-        chance *= currentLevel == OxidationLevel.UNAFFECTED.ordinal() ? 0.75f : 1f;
-        chance *= chance;
-        if (random.nextFloat() < chance) {
-            var nextBlockType = getBlockWithOxidationLevel(OxidationLevel.values()[currentLevel + 1]);
-            var blockFadeEvent = new BlockFadeEvent(current, nextBlockType.copyPropertyValuesFrom(current.getBlockState()));
-            if (blockFadeEvent.call()) {
-                current.getDimension().setBlockState(current.getPosition(), blockFadeEvent.getNewBlockState());
-            }
-        }
+        return chance * chance * (currentLevel == OxidationLevel.UNAFFECTED.ordinal() ? 0.75f : 1f);
     }
 
     @Override

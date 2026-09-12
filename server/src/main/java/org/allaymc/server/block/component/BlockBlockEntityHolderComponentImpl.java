@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.allaymc.api.block.component.BlockBlockEntityHolderComponent;
+import org.allaymc.api.block.type.BlockState;
 import org.allaymc.api.blockentity.BlockEntity;
 import org.allaymc.api.blockentity.BlockEntityInitInfo;
 import org.allaymc.api.blockentity.type.BlockEntityType;
@@ -106,6 +107,10 @@ public class BlockBlockEntityHolderComponentImpl<T extends BlockEntity> implemen
 
     @EventHandler
     protected void onBlockReplace(CBlockOnReplaceEvent event) {
+        if (keepsBlockEntity(event.getNewBlockState())) {
+            return;
+        }
+
         var pos = event.getCurrentBlock().getPosition();
         var blockEntity = getBlockEntity(pos);
         if (blockEntity == null) {
@@ -114,6 +119,11 @@ public class BlockBlockEntityHolderComponentImpl<T extends BlockEntity> implemen
         }
         forwardEvent(blockEntity, event);
         removeBlockEntity(pos.dimension(), pos.x(), pos.y(), pos.z());
+    }
+
+    protected boolean keepsBlockEntity(BlockState newBlockState) {
+        return newBlockState.getBehavior() instanceof BlockBlockEntityHolderComponent<?> newHolder &&
+               newHolder.getBlockEntityType() == this.blockEntityType;
     }
 
     protected void forwardEvent(BlockEntity blockEntity, Event event) {

@@ -119,7 +119,7 @@ public class InventoryTransactionPacketProcessor extends PacketProcessor<Invento
                             break;
                         }
 
-                        var sneaking = entity.isSneaking();
+                        var sneaking = entity.isSneakKeyPressed();
                         var useItemOnBlock = !sneaking;
                         var useBlock = !sneaking || itemInHand.getItemType() == AIR;
 

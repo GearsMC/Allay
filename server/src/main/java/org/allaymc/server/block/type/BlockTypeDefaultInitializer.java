@@ -3423,7 +3423,7 @@ public final class BlockTypeDefaultInitializer {
         }
         if (BlockTypes.EXPOSED_COPPER_CHEST == null) {
             BlockTypes.EXPOSED_COPPER_CHEST = AllayBlockType
-                            .builder(BlockExposedCopperChestBehaviorImpl.class)
+                            .builder(BlockCopperChestBehaviorImpl.class)
                             .vanillaBlock(BlockId.EXPOSED_COPPER_CHEST)
                             .setProperties(BlockPropertyTypes.MINECRAFT_CARDINAL_DIRECTION)
                             .build();
@@ -5579,7 +5579,7 @@ public final class BlockTypeDefaultInitializer {
         }
         if (BlockTypes.OXIDIZED_COPPER_CHEST == null) {
             BlockTypes.OXIDIZED_COPPER_CHEST = AllayBlockType
-                            .builder(BlockOxidizedCopperChestBehaviorImpl.class)
+                            .builder(BlockCopperChestBehaviorImpl.class)
                             .vanillaBlock(BlockId.OXIDIZED_COPPER_CHEST)
                             .setProperties(BlockPropertyTypes.MINECRAFT_CARDINAL_DIRECTION)
                             .build();
@@ -8165,7 +8165,7 @@ public final class BlockTypeDefaultInitializer {
         }
         if (BlockTypes.WAXED_COPPER_CHEST == null) {
             BlockTypes.WAXED_COPPER_CHEST = AllayBlockType
-                            .builder(BlockWaxedCopperChestBehaviorImpl.class)
+                            .builder(BlockCopperChestBehaviorImpl.class)
                             .vanillaBlock(BlockId.WAXED_COPPER_CHEST)
                             .setProperties(BlockPropertyTypes.MINECRAFT_CARDINAL_DIRECTION)
                             .build();
@@ -8265,7 +8265,7 @@ public final class BlockTypeDefaultInitializer {
         }
         if (BlockTypes.WAXED_EXPOSED_COPPER_CHEST == null) {
             BlockTypes.WAXED_EXPOSED_COPPER_CHEST = AllayBlockType
-                            .builder(BlockWaxedExposedCopperChestBehaviorImpl.class)
+                            .builder(BlockCopperChestBehaviorImpl.class)
                             .vanillaBlock(BlockId.WAXED_EXPOSED_COPPER_CHEST)
                             .setProperties(BlockPropertyTypes.MINECRAFT_CARDINAL_DIRECTION)
                             .build();
@@ -8379,7 +8379,7 @@ public final class BlockTypeDefaultInitializer {
         }
         if (BlockTypes.WAXED_OXIDIZED_COPPER_CHEST == null) {
             BlockTypes.WAXED_OXIDIZED_COPPER_CHEST = AllayBlockType
-                            .builder(BlockWaxedOxidizedCopperChestBehaviorImpl.class)
+                            .builder(BlockCopperChestBehaviorImpl.class)
                             .vanillaBlock(BlockId.WAXED_OXIDIZED_COPPER_CHEST)
                             .setProperties(BlockPropertyTypes.MINECRAFT_CARDINAL_DIRECTION)
                             .build();
@@ -8486,7 +8486,7 @@ public final class BlockTypeDefaultInitializer {
         }
         if (BlockTypes.WAXED_WEATHERED_COPPER_CHEST == null) {
             BlockTypes.WAXED_WEATHERED_COPPER_CHEST = AllayBlockType
-                            .builder(BlockWaxedWeatheredCopperChestBehaviorImpl.class)
+                            .builder(BlockCopperChestBehaviorImpl.class)
                             .vanillaBlock(BlockId.WAXED_WEATHERED_COPPER_CHEST)
                             .setProperties(BlockPropertyTypes.MINECRAFT_CARDINAL_DIRECTION)
                             .build();
@@ -8593,7 +8593,7 @@ public final class BlockTypeDefaultInitializer {
         }
         if (BlockTypes.WEATHERED_COPPER_CHEST == null) {
             BlockTypes.WEATHERED_COPPER_CHEST = AllayBlockType
-                            .builder(BlockWeatheredCopperChestBehaviorImpl.class)
+                            .builder(BlockCopperChestBehaviorImpl.class)
                             .vanillaBlock(BlockId.WEATHERED_COPPER_CHEST)
                             .setProperties(BlockPropertyTypes.MINECRAFT_CARDINAL_DIRECTION)
                             .build();

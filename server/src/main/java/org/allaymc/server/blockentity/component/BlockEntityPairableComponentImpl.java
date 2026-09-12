@@ -40,10 +40,10 @@ public class BlockEntityPairableComponentImpl implements BlockEntityPairableComp
         pairX = other.getPosition().x();
         pairZ = other.getPosition().z();
 
-        baseComponent.sendBlockEntityToViewers();
+        baseComponent.sendBlockEntityToViewers(false);
 
         var pair = (BlockEntityPairableComponent) getPair();
-        if (!pair.isPaired()) {
+        if (pair == null || !pair.isPaired()) {
             lead = true;
         }
 
@@ -91,7 +91,9 @@ public class BlockEntityPairableComponentImpl implements BlockEntityPairableComp
         var blockEntity = event.getCurrentBlock().getBlockEntity();
         if (blockEntity instanceof BlockEntityPairableComponent pairableComponent) {
             if (pairableComponent.isPaired()) {
-                ((BlockEntityPairableComponent) pairableComponent.getPair()).unpair();
+                if (pairableComponent.getPair() instanceof BlockEntityPairableComponent pair) {
+                    pair.unpair();
+                }
                 pairableComponent.unpair();
             }
         }

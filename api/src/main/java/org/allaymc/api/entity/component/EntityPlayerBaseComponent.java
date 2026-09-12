@@ -73,6 +73,10 @@ public interface EntityPlayerBaseComponent extends EntityBaseComponent, ChunkLoa
      */
     void setSneaking(boolean sneaking);
 
+    boolean isSneakKeyPressed();
+
+    void setSneakKeyPressed(boolean sneakKeyPressed);
+
     /**
      * Check if the player is blocking with a shield.
      * <p>

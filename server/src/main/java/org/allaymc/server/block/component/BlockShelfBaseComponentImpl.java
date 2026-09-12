@@ -59,7 +59,7 @@ public class BlockShelfBaseComponentImpl extends BlockBaseComponentImpl {
         }
 
         var player = interactInfo.player();
-        if (player.isSneaking()) {
+        if (player.isSneakKeyPressed()) {
             return false;
         }
 

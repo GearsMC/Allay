@@ -2013,7 +2013,7 @@ public final class BlockTypes {
     /**
      * {@link BlockPropertyTypes#MINECRAFT_CARDINAL_DIRECTION}
      */
-    public static BlockType<BlockExposedCopperChestBehavior> EXPOSED_COPPER_CHEST;
+    public static BlockType<BlockCopperChestBehavior> EXPOSED_COPPER_CHEST;
 
     /**
      * {@link BlockPropertyTypes#DOOR_HINGE_BIT}
@@ -3222,7 +3222,7 @@ public final class BlockTypes {
     /**
      * {@link BlockPropertyTypes#MINECRAFT_CARDINAL_DIRECTION}
      */
-    public static BlockType<BlockOxidizedCopperChestBehavior> OXIDIZED_COPPER_CHEST;
+    public static BlockType<BlockCopperChestBehavior> OXIDIZED_COPPER_CHEST;
 
     /**
      * {@link BlockPropertyTypes#DOOR_HINGE_BIT}
@@ -5002,7 +5002,7 @@ public final class BlockTypes {
     /**
      * {@link BlockPropertyTypes#MINECRAFT_CARDINAL_DIRECTION}
      */
-    public static BlockType<BlockWaxedCopperChestBehavior> WAXED_COPPER_CHEST;
+    public static BlockType<BlockCopperChestBehavior> WAXED_COPPER_CHEST;
 
     /**
      * {@link BlockPropertyTypes#DOOR_HINGE_BIT}
@@ -5069,7 +5069,7 @@ public final class BlockTypes {
     /**
      * {@link BlockPropertyTypes#MINECRAFT_CARDINAL_DIRECTION}
      */
-    public static BlockType<BlockWaxedExposedCopperChestBehavior> WAXED_EXPOSED_COPPER_CHEST;
+    public static BlockType<BlockCopperChestBehavior> WAXED_EXPOSED_COPPER_CHEST;
 
     /**
      * {@link BlockPropertyTypes#DOOR_HINGE_BIT}
@@ -5148,7 +5148,7 @@ public final class BlockTypes {
     /**
      * {@link BlockPropertyTypes#MINECRAFT_CARDINAL_DIRECTION}
      */
-    public static BlockType<BlockWaxedOxidizedCopperChestBehavior> WAXED_OXIDIZED_COPPER_CHEST;
+    public static BlockType<BlockCopperChestBehavior> WAXED_OXIDIZED_COPPER_CHEST;
 
     /**
      * {@link BlockPropertyTypes#DOOR_HINGE_BIT}
@@ -5221,7 +5221,7 @@ public final class BlockTypes {
     /**
      * {@link BlockPropertyTypes#MINECRAFT_CARDINAL_DIRECTION}
      */
-    public static BlockType<BlockWaxedWeatheredCopperChestBehavior> WAXED_WEATHERED_COPPER_CHEST;
+    public static BlockType<BlockCopperChestBehavior> WAXED_WEATHERED_COPPER_CHEST;
 
     /**
      * {@link BlockPropertyTypes#DOOR_HINGE_BIT}
@@ -5294,7 +5294,7 @@ public final class BlockTypes {
     /**
      * {@link BlockPropertyTypes#MINECRAFT_CARDINAL_DIRECTION}
      */
-    public static BlockType<BlockWeatheredCopperChestBehavior> WEATHERED_COPPER_CHEST;
+    public static BlockType<BlockCopperChestBehavior> WEATHERED_COPPER_CHEST;
 
     /**
      * {@link BlockPropertyTypes#DOOR_HINGE_BIT}

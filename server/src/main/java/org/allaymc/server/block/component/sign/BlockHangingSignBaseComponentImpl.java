@@ -43,7 +43,7 @@ public class BlockHangingSignBaseComponentImpl extends BlockBaseComponentImpl {
             var shape = upperBlock.getBlockStateData().collisionShape();
             var full = shape.isFull(BlockFace.DOWN);
             var centerFull = shape.isCenterFull(BlockFace.DOWN);
-            if (placementInfo.player().isSneaking() || (centerFull && !full)) {
+            if (placementInfo.player().isSneakKeyPressed() || (centerFull && !full)) {
                 blockState = blockState.setPropertyValue(BlockPropertyTypes.ATTACHED_BIT, true);
                 blockState = BlockPlaceHelper.processGroundSignDirectionProperty(blockState, placeBlockPos, placementInfo);
             } else if (full) {

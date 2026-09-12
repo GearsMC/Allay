@@ -41,11 +41,6 @@ public class BlockTrappedChestBaseComponentImpl extends BlockBaseComponentImpl {
         // Add listeners to update redstone when viewers change
         setupContainerListeners(thisChest, oldBlock);
 
-        if (placementInfo != null && placementInfo.player().isSneaking()) {
-            // Java edition behavior: Do not check for pairing if the player is sneaking
-            return;
-        }
-
         // Only pair with other trapped chests
         var direction = newBlockState.getPropertyValue(BlockPropertyTypes.MINECRAFT_CARDINAL_DIRECTION);
         var blockFace = BlockFace.from(direction);

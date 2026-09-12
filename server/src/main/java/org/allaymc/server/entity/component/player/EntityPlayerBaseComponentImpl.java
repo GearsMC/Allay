@@ -130,6 +130,9 @@ public class EntityPlayerBaseComponentImpl extends EntityBaseComponentImpl imple
     protected String scoreTag;
     @Getter
     protected boolean sprinting, sneaking, swimming, gliding, crawling, flying, blocking, spinAttacking;
+    @Getter
+    @Setter
+    protected boolean sneakKeyPressed;
 
     @Getter
     protected int experienceLevel;

@@ -326,6 +326,8 @@ public class PlayerAuthInputPacketProcessor extends PacketProcessor<PlayerAuthIn
             return;
         }
 
+        entity.setSneakKeyPressed(inputData.contains(PlayerAuthInputData.SNEAKING));
+
         for (var input : inputData) {
             switch (input) {
                 case START_SPRINTING -> {
