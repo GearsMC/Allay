@@ -177,7 +177,8 @@ class PacketEncoderCompatibilityTest {
                 protocol(ClientVariant.NETEASE, 766),
                 protocol(ClientVariant.INTERNATIONAL, 1001),
                 protocol(ClientVariant.INTERNATIONAL, 2168),
-                protocol(ClientVariant.INTERNATIONAL, 2169)
+                protocol(ClientVariant.INTERNATIONAL, 2169),
+                protocol(ClientVariant.INTERNATIONAL, 2192)
         )) {
             var encoder = protocol.getEncoder();
             for (var particle : SimpleParticle.values()) {
@@ -210,7 +211,8 @@ class PacketEncoderCompatibilityTest {
                 protocol(ClientVariant.INTERNATIONAL, 924),
                 protocol(ClientVariant.INTERNATIONAL, 1001),
                 protocol(ClientVariant.INTERNATIONAL, 2168),
-                protocol(ClientVariant.INTERNATIONAL, 2169)
+                protocol(ClientVariant.INTERNATIONAL, 2169),
+                protocol(ClientVariant.INTERNATIONAL, 2192)
         )) {
             var encoder = protocol.getEncoder();
             for (var sound : SimpleSound.values()) {
@@ -224,7 +226,7 @@ class PacketEncoderCompatibilityTest {
 
         // En yeni surumde hicbir sabit sessiz kalmamali: bos liste ancak eski
         // istemcide surum kapisindan gelebilir.
-        var newest = protocol(ClientVariant.INTERNATIONAL, 2169);
+        var newest = protocol(ClientVariant.INTERNATIONAL, 2192);
         for (var sound : SimpleSound.values()) {
             assertFalse(
                     newest.getEncoder().encodeSound(sound, position, false).isEmpty(),
