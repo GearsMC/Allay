@@ -811,7 +811,10 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
 
     @Override
     public <DATATYPE> void setPropertyValue(EntityPropertyType<DATATYPE> propertyType, DATATYPE value) {
-        propertyValues.put(propertyType, value);
+        var previous = propertyValues.put(propertyType, value);
+        if (!Objects.equals(previous, value)) {
+            broadcastState();
+        }
     }
 
     @Override
