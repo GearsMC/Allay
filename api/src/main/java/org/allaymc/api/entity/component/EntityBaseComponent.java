@@ -112,14 +112,32 @@ public interface EntityBaseComponent extends EntityComponent, CommandSender, Has
     }
 
     /**
+     * Oyuncu bu varliga baktiginda istemcinin gosterdigi etkilesim dugmesinin metnini dondurur.
+     *
+     * <p>GearsMC fork eki.</p>
+     *
+     * @return etkilesim metni; ayarlanmadiysa {@code null}
+     */
+    String getInteractText();
+
+    /**
+     * Etkilesim dugmesinin metnini ayarlar ve durumu izleyicilere yayinlar.
+     *
+     * <p>Metin istemciye oldugu gibi gider; istemci ceviri anahtarini kendi dilinde gosterir
+     * (ornegin {@code action.interact.opencontainer}). {@code null} ya da bos metin istemciye
+     * hic gonderilmez. Deger NBT'ye yazilmaz, varlik yeniden yuklenince tekrar ayarlanmalidir.</p>
+     *
+     * <p>GearsMC fork eki.</p>
+     *
+     * @param interactText etkilesim metni ya da ceviri anahtari; {@code null} gonderimi kapatir
+     */
+    void setInteractText(String interactText);
+
+    /**
      * Determines whether the name tag is always displayed for an entity or object.
      *
      * @return {@code true} if the name tag is set to always show, {@code false} otherwise.
      */
-    String getInteractText();
-
-    void setInteractText(String interactText);
-
     boolean isNameTagAlwaysShow();
 
     /**
@@ -458,8 +476,35 @@ public interface EntityBaseComponent extends EntityComponent, CommandSender, Has
      */
     AABBdc getBaseAABB();
 
+    /**
+     * Bu varligin temel carpisma kutusunu, turun varsayilanini ezerek ayarlar ve durumu
+     * izleyicilere yayinlar. Istemciye giden isabet ve carpisma kutusu da bu kutudan uretilir.
+     *
+     * <p>Kutu kopyalanarak saklanir; {@code null} verilirse turun varsayilanina donulur.
+     * Deger NBT'ye yazilmaz.</p>
+     *
+     * <p><b>Dikkat:</b> kendi {@code getBaseAABB()} uygulamasini tanimlayan varlik turlerinden
+     * su an yalnizca tilki bu degeri dikkate alir; digerlerinde cagri hata vermeden etkisiz
+     * kalir. Kendi uygulamasi olmayan turler (temel uygulamayi kullananlar) destekler.</p>
+     *
+     * <p>GearsMC fork eki.</p>
+     *
+     * @param aabb yeni temel kutu; {@code null} turun varsayilanina dondurur
+     */
     void setBaseAABB(AABBdc aabb);
 
+    /**
+     * Bu varligin goz yuksekligini, varsayilan hesabi ezerek ayarlar.
+     *
+     * <p>Varsayilan hesap: olceklenmis carpisma kutusu yuksekliginin %90'i
+     * ({@link #getEyeHeight()}). Deger yalnizca sunucu tarafinda kullanilir; izleyicilere
+     * yayinlanmaz ve NBT'ye yazilmaz. Bir kez ayarlandiktan sonra varsayilana geri dondurmenin
+     * bir yolu yoktur.</p>
+     *
+     * <p>GearsMC fork eki.</p>
+     *
+     * @param eyeHeight goz yuksekligi (blok)
+     */
     void setEyeHeight(double eyeHeight);
 
     /**
