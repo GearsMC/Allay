@@ -116,6 +116,10 @@ public interface EntityBaseComponent extends EntityComponent, CommandSender, Has
      *
      * @return {@code true} if the name tag is set to always show, {@code false} otherwise.
      */
+    String getInteractText();
+
+    void setInteractText(String interactText);
+
     boolean isNameTagAlwaysShow();
 
     /**

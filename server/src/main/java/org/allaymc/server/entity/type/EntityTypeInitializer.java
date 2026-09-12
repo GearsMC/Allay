@@ -982,6 +982,18 @@ public final class EntityTypeInitializer {
         return new EntityAIComponentImpl(behaviorGroup);
     }
 
+    public static void initCopperGolem() {
+        EntityTypes.COPPER_GOLEM = AllayEntityType
+                .builder(EntityCopperGolemImpl.class)
+                .vanillaEntity(EntityId.COPPER_GOLEM)
+                .setProperties(
+                        EntityPropertyTypes.CHEST_INTERACTION,
+                        EntityPropertyTypes.HAS_FLOWER,
+                        EntityPropertyTypes.OXIDATION_LEVEL
+                )
+                .build();
+    }
+
     public static void initSulfurCube() {
         EntityTypes.SULFUR_CUBE = AllayEntityType
                 .builder(EntitySulfurCubeImpl.class)

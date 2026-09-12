@@ -1197,6 +1197,10 @@ public class PacketEncoder_v766 extends PacketEncoder {
         metadata.put(EntityDataTypes.SCALE, (float) entity.getScale());
         // v766-v827 clients crash if HAS_NPC is true for an item entity.
         metadata.put(EntityDataTypes.HAS_NPC, !(entity instanceof EntityItem));
+        var interactText = entity.getInteractText();
+        if (interactText != null && !interactText.isEmpty()) {
+            metadata.put(EntityDataTypes.INTERACT_TEXT, interactText);
+        }
         if (nameTag != null) {
             metadata.setFlag(EntityFlag.CAN_SHOW_NAME, true);
             metadata.put(EntityDataTypes.NAME, nameTag.text());

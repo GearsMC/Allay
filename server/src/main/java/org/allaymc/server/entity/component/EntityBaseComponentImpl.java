@@ -112,6 +112,8 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
     @Getter
     protected String nameTag;
     @Getter
+    protected String interactText;
+    @Getter
     protected boolean nameTagAlwaysShow;
     @Getter
     protected boolean invisible;
@@ -299,6 +301,12 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
     @Override
     public void setNameTag(String nameTag) {
         this.nameTag = nameTag;
+        broadcastState();
+    }
+
+    @Override
+    public void setInteractText(String interactText) {
+        this.interactText = interactText;
         broadcastState();
     }
 
