@@ -23,7 +23,7 @@ Unless otherwise specified, any version comparison below is the comparison of th
 - Implemented bubble columns from soul sand and magma blocks, including entity movement and water-state handling.
 - Added support for MCBE 1.26.30 (protocol v1001), including the new cinnabar and sulfur blocks/items and sulfur cube entity.
 - Added MCBE 1.26.45 client connection support (protocol v2169), reusing the v2168 wire mappings.
-- Added MCBE 1.26.50 client connection support (protocol v2192).
+- Added MCBE 1.26.50 client connection support (protocol v2193 for the release build, with v2192 kept for the last preview; both share the same wire mappings).
 - Added dashboard console command completion backed by the command tree, including command names, aliases, enum values, and online player targets.
 - Added clickable `http://` and `https://` links in dashboard console logs.
 
