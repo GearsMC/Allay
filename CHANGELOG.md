@@ -39,6 +39,7 @@ Unless otherwise specified, any version comparison below is the comparison of th
 * Fixed item-in-hand inventory desync after hand/container updates (#879). 
 * Fixed inventory synchronization after cancelled item drop actions.
 * Fixed swing sound effect playback position so it is relative to the player.
+* Fixed MCBE 1.26.50 clients disconnecting with "Missing structure data from server" by sending empty jigsaw structure data before `StartGamePacket`.
 
 # 0.13.0 (API 0.28.0) - 2026/5/15
 

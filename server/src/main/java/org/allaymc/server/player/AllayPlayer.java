@@ -2172,6 +2172,9 @@ public class AllayPlayer implements Player {
         // Dimension data and voxel shapes should be sent before start game
         var encoder = getProtocol().getEncoder();
         sendPacket(encoder.encodeDimensionData());
+        // GearsMC fork: jigsaw yapı verisi de StartGame'den önce gitmeli. 1.26.50 istemcisi bu paketi
+        // görmezse bağlantıyı "Missing structure data from server" ile kendisi keser.
+        sendPacket(encoder.encodeJigsawStructureData());
         sendPackets(encoder.encodeVoxelShapes());
 
         // Send StartGamePacket to the client first before we start sending chunks, otherwise

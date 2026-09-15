@@ -514,6 +514,34 @@ class PacketEncoderCompatibilityTest {
         }
     }
 
+    /**
+     * 1.26.50 istemcisi girişte jigsaw yapı kurallarını bekler; paket gelmezse bağlantıyı
+     * "Missing structure data from server" ({@code MissingStructureData}) ile kendisi keser.
+     * Allay jigsaw yapı üretimi yapmadığı için kurallar boş gider; Geyser ve gophertunnel da aynı
+     * dört boş listeyi yolluyor. Paket v712'den beri kayıtlı olduğundan her protokol kodlayabilmeli.
+     */
+    @Test
+    void emptyJigsawStructureDataIsEncodedByEveryRegisteredProtocol() {
+        for (var protocol : registry.getProtocols()) {
+            var packet = assertInstanceOf(
+                    JigsawStructureDataPacket.class,
+                    protocol.getEncoder().encodeJigsawStructureData(),
+                    protocol::toString
+            );
+            var rules = packet.getJigsawStructureDataTag();
+            assertEquals(
+                    java.util.Set.of("processors", "template_pools", "jigsaws", "structure_sets"),
+                    rules.keySet(),
+                    protocol::toString
+            );
+            for (var value : rules.values()) {
+                var list = assertInstanceOf(org.cloudburstmc.nbt.NbtList.class, value, protocol::toString);
+                assertTrue(list.isEmpty(), protocol::toString);
+            }
+            assertPacketEncodes(protocol, packet);
+        }
+    }
+
     @Test
     void foxSleepingStateIsEncodedByEveryRegisteredProtocol() {
         var fox = EntityTypes.FOX.createEntity(EntityInitInfo.builder()

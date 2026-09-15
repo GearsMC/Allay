@@ -91,6 +91,7 @@ import org.cloudburstmc.protocol.bedrock.data.camera.CameraEase;
 import org.cloudburstmc.protocol.bedrock.data.camera.CameraSetInstruction;
 import org.cloudburstmc.protocol.bedrock.definition.NamedDefinition;
 import org.cloudburstmc.protocol.bedrock.util.OptionalBoolean;
+import org.cloudburstmc.nbt.NbtList;
 import org.cloudburstmc.nbt.NbtMap;
 import org.cloudburstmc.nbt.NbtType;
 import org.cloudburstmc.protocol.bedrock.data.*;
@@ -260,6 +261,20 @@ public class PacketEncoder_v766 extends PacketEncoder {
                         dimensionType.getId()
                 ))
                 .forEach(packet.getDefinitions()::add);
+        return packet;
+    }
+
+    @Override
+    public JigsawStructureDataPacket encodeJigsawStructureData() {
+        // GearsMC fork: Allay jigsaw yapı üretimi yapmıyor, kurallar boş gider. Biçim Geyser'in 26.50
+        // desteğiyle aynı: dört anahtar, hepsi boş liste.
+        var packet = new JigsawStructureDataPacket();
+        packet.setJigsawStructureDataTag(NbtMap.fromMap(Map.of(
+                "processors", NbtList.EMPTY,
+                "template_pools", NbtList.EMPTY,
+                "jigsaws", NbtList.EMPTY,
+                "structure_sets", NbtList.EMPTY
+        )));
         return packet;
     }
 

@@ -139,6 +139,11 @@ public abstract class PacketEncoder {
         return null;
     }
 
+    /** Girişte StartGame'den önce gönderilen jigsaw yapı kurallarını kodlar. */
+    public JigsawStructureDataPacket encodeJigsawStructureData() {
+        return null;
+    }
+
     /** Encodes metadata for the resource packs offered by the server. */
     public ResourcePacksInfoPacket encodeResourcePacksInfo() {
         return null;
