@@ -6,6 +6,7 @@ import org.allaymc.api.block.type.BlockState;
 import org.allaymc.api.block.type.BlockType;
 import org.allaymc.api.block.type.BlockTypes;
 import org.allaymc.api.world.Dimension;
+import org.allaymc.server.block.type.PreservedBlockState;
 import org.joml.Vector3ic;
 
 import java.util.*;
@@ -327,6 +328,13 @@ public class PistonPushCalculator {
      * Check if a block can be moved by the piston.
      */
     private boolean canMoveBlock(BlockState state, boolean pushing) {
+        // GearsMC fork: kimliği bilinmeyen blok itilmez. Taşınan blok hareket bitene kadar yalnızca ad + durumla blok
+        // varlığında saklanıyor; o arada kayıt alınıp sunucu kapanırsa korunan özgün veri kaybolurdu. Bloğun gerçek
+        // davranışı da bilinmiyor, yerinde kalması güvenli seçim.
+        if (state instanceof PreservedBlockState) {
+            return false;
+        }
+
         BlockType<?> type = state.getBlockType();
 
         // Check unpushable tag

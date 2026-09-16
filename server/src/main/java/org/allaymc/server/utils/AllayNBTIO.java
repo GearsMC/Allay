@@ -3,6 +3,7 @@ package org.allaymc.server.utils;
 import lombok.extern.slf4j.Slf4j;
 import org.allaymc.api.block.property.type.BlockPropertyType;
 import org.allaymc.api.block.type.BlockState;
+import org.allaymc.api.block.type.BlockType;
 import org.allaymc.api.block.type.BlockTypes;
 import org.allaymc.api.blockentity.BlockEntity;
 import org.allaymc.api.blockentity.BlockEntityInitInfo;
@@ -15,6 +16,7 @@ import org.allaymc.api.registry.Registries;
 import org.allaymc.api.utils.NBTIO;
 import org.allaymc.api.utils.identifier.Identifier;
 import org.allaymc.api.utils.identifier.InvalidIdentifierException;
+import org.allaymc.server.block.type.PreservedBlockState;
 import org.allaymc.server.entity.data.LegacyEntityNames;
 import org.allaymc.api.world.Dimension;
 import org.allaymc.server.network.ProtocolInfo;
@@ -32,22 +34,42 @@ import java.util.Objects;
 public class AllayNBTIO implements NBTIO {
     @Override
     public BlockState fromBlockStateNBT(NbtMap nbt) {
+        var blockState = findBlockState(nbt);
+        return blockState != null ? blockState : BlockTypes.UNKNOWN.getDefaultState();
+    }
+
+    /**
+     * Dünya verisinden okunan blok durumu için {@link #fromBlockStateNBT} karşılığı.
+     *
+     * <p>GearsMC fork: tanınmayan durum bilinmeyen bloğa çevrilmez, özgün NBT'si {@link PreservedBlockState} içinde
+     * kalır ve kayıtta aynen geri yazılır. API yöntemi sözleşmesi gereği {@code UNKNOWN} döndürmeye devam eder;
+     * komut ya da eklentinin elle kurduğu durumun korunacak bir özgün verisi yoktur.</p>
+     */
+    public static BlockState fromSavedBlockStateNBT(NbtMap nbt) {
+        var blockState = findBlockState(nbt);
+        return blockState != null ? blockState : PreservedBlockState.of(nbt);
+    }
+
+    private static BlockState findBlockState(NbtMap nbt) {
+        // GearsMC fork: sürümü daha yeni olan veri artık reddedilmiyor. PocketMine/Altay durumları kendi sürüm
+        // numarasıyla (1.26.50) yazıyor ve bunların neredeyse hepsi Allay'in bildiği durumlar; chunk yolu
+        // (ChunkSectionCodec) da önce tanımaya çalışıyor. Tanınmayan özellik ya da değer aşağıda null'a düşer.
         // Always update the nbt if we can't find the version field
         var version = nbt.getInt("version", 0);
-        if (version > ProtocolInfo.BLOCK_STATE_VERSION_NUM) {
-            log.warn("Block state version is too new: {}", nbt);
-            return BlockTypes.UNKNOWN.getDefaultState();
-        }
-
         if (version < ProtocolInfo.BLOCK_STATE_VERSION_NUM) {
             nbt = BlockStateUpdaters.updateBlockState(nbt, ProtocolInfo.BLOCK_STATE_UPDATER.getVersion());
         }
 
         // Get the block type
-        var blockType = Registries.BLOCKS.get(new Identifier(nbt.getString("name")));
+        BlockType<?> blockType;
+        try {
+            blockType = Registries.BLOCKS.get(new Identifier(nbt.getString("name")));
+        } catch (InvalidIdentifierException e) {
+            blockType = null;
+        }
         if (blockType == null) {
             log.warn("Unknown block type {}", nbt.getString("name"));
-            return BlockTypes.UNKNOWN.getDefaultState();
+            return null;
         }
 
         // Add missing properties
@@ -65,14 +87,27 @@ public class AllayNBTIO implements NBTIO {
         // Create the block property value list
         var blockPropertyValues = new ArrayList<BlockPropertyType.BlockPropertyValue<?, ?, ?>>();
         for (var entry : states.entrySet()) {
-            blockPropertyValues.add(blockType.getProperties().get(entry.getKey()).tryCreateValue(entry.getValue()));
+            var propertyType = blockType.getProperties().get(entry.getKey());
+            BlockPropertyType.BlockPropertyValue<?, ?, ?> value = null;
+            if (propertyType != null) {
+                try {
+                    value = propertyType.tryCreateValue(entry.getValue());
+                } catch (RuntimeException ignored) {
+                    // Geçersiz değer: tanınmayan durum olarak aşağıda raporlanır
+                }
+            }
+            if (value == null) {
+                log.warn("Invalid block state {}", nbt);
+                return null;
+            }
+            blockPropertyValues.add(value);
         }
 
         // Get the block state
         var blockState = blockType.ofState(blockPropertyValues);
         if (blockState == null) {
             log.warn("Invalid block state {}", nbt);
-            return BlockTypes.UNKNOWN.getDefaultState();
+            return null;
         }
 
         return blockState;

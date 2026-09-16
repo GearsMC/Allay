@@ -9,6 +9,7 @@ import org.allaymc.api.item.enchantment.EnchantmentTypes;
 import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.api.server.Server;
 import org.allaymc.api.utils.NBTIO;
+import org.allaymc.server.network.ProtocolInfo;
 import org.allaymc.testutils.AllayTestExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +33,59 @@ class AllayNBTIOTest {
         var nbt = block1.getBlockStateNBT();
         var block2 = NBTIO.getAPI().fromBlockStateNBT(nbt);
         assertEquals(block1, block2);
+    }
+
+    /**
+     * PocketMine/Altay blok durumlarını kendi sürüm numarasıyla (1.26.50) yazıyor, Allay'inki daha eski. Sürüm daha
+     * yeni diye tanıdık durumu bilinmeyen bloğa çevirmek PM'den gelen saksıdaki bitkiyi siliyordu; chunk yolu gibi
+     * önce tanımaya çalışmalı.
+     */
+    @Test
+    void testFromBlockStateNBTAcceptsNewerVersionOfKnownState() {
+        var state = BlockTypes.BAMBOO.getDefaultState();
+        var nbt = state.getBlockStateNBT().toBuilder().putInt("version", ProtocolInfo.BLOCK_STATE_VERSION_NUM + 1).build();
+        assertEquals(state, NBTIO.getAPI().fromBlockStateNBT(nbt));
+    }
+
+    /**
+     * Daha yeni sürümün tanıdık türe eklediği özellik (26.50 çitlerindeki bağlantı gibi) ya da geçersiz değer istisna
+     * atmamalı; API sözleşmesi gereği bilinmeyen blok dönmeli.
+     */
+    @Test
+    void testFromBlockStateNBTReturnsUnknownForUnrecognizedState() {
+        var newerVersion = ProtocolInfo.BLOCK_STATE_VERSION_NUM + 1;
+        var extraProperty = BlockTypes.OAK_FENCE.getDefaultState().getBlockStateNBT().toBuilder()
+                .putCompound("states", NbtMap.builder().putByte("minecraft:connection_north", (byte) 1).build())
+                .putInt("version", newerVersion)
+                .build();
+        var invalidValue = BlockTypes.BAMBOO.getDefaultState().getBlockStateNBT().toBuilder()
+                .putCompound("states", NbtMap.builder().putString("bamboo_leaf_size", "gears_invalid").build())
+                .build();
+
+        assertEquals(BlockTypes.UNKNOWN.getDefaultState(), NBTIO.getAPI().fromBlockStateNBT(extraProperty));
+        assertEquals(BlockTypes.UNKNOWN.getDefaultState(), NBTIO.getAPI().fromBlockStateNBT(invalidValue));
+    }
+
+    /**
+     * Saksıdaki bitki dünya verisinin parçası: tanınmayan bitki durumu yüklenip kaydedilince özgün NBT aynen geri
+     * yazılmalı.
+     */
+    @Test
+    void testFlowerPotKeepsUnrecognizedPlant() {
+        var dimension = Server.getInstance().getWorldPool().getDefaultWorld().getOverWorld();
+        var unrecognizedPlant = NbtMap.builder()
+                .putString("name", "minecraft:gears_test_future_plant")
+                .putCompound("states", NbtMap.EMPTY)
+                .putInt("version", ProtocolInfo.BLOCK_STATE_VERSION_NUM + 1)
+                .build();
+        var pot = BlockEntityTypes.FLOWER_POT.createBlockEntity(
+                BlockEntityInitInfo.builder().dimension(dimension).pos(0, 0, 0).build()
+        );
+        var nbt = pot.saveNBT().toBuilder().putCompound("PlantBlock", unrecognizedPlant).build();
+
+        var loaded = NBTIO.getAPI().fromBlockEntityNBT(dimension, nbt);
+
+        assertEquals(unrecognizedPlant, loaded.saveNBT().getCompound("PlantBlock"));
     }
 
     @Test

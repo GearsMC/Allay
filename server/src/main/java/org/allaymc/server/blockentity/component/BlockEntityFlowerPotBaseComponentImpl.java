@@ -8,7 +8,7 @@ import org.allaymc.api.blockentity.BlockEntityInitInfo;
 import org.allaymc.api.blockentity.component.BlockEntityFlowerPotBaseComponent;
 import org.allaymc.api.eventbus.EventHandler;
 import org.allaymc.api.math.MathUtils;
-import org.allaymc.api.utils.NBTIO;
+import org.allaymc.server.utils.AllayNBTIO;
 import org.allaymc.server.block.component.event.CBlockOnReplaceEvent;
 import org.cloudburstmc.nbt.NbtMap;
 
@@ -72,6 +72,6 @@ public class BlockEntityFlowerPotBaseComponentImpl extends BlockEntityBaseCompon
     @Override
     public void loadNBT(NbtMap nbt) {
         super.loadNBT(nbt);
-        nbt.listenForCompound(TAG_PLANT_BLOCK, value -> this.plantBlock = NBTIO.getAPI().fromBlockStateNBT(value));
+        nbt.listenForCompound(TAG_PLANT_BLOCK, value -> this.plantBlock = AllayNBTIO.fromSavedBlockStateNBT(value));
     }
 }

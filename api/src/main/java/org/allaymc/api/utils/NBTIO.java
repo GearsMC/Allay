@@ -36,7 +36,7 @@ public interface NBTIO {
      *
      * @param nbt the block state NBT
      * @return the block state, or the default state of {@link BlockTypes#UNKNOWN}
-     * if the block state is not found, or the block state version is too new.
+     * if the block state is not found.
      */
     BlockState fromBlockStateNBT(NbtMap nbt);
 

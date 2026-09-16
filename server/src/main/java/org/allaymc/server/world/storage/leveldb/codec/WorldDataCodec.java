@@ -73,13 +73,14 @@ public final class WorldDataCodec {
         if (networkVersion > ProtocolInfo.FEATURE_VERSION.getProtocolVersion()) {
             // NOT: upstream burada istisna atiyordu. NetworkVersion yalnizca level.dat'a
             // basilan bir damgadir; hangi bloklarin okunabilecegini belirlemez. Asil
-            // savunma ChunkSectionCodec'te: karsiligi bulunamayan blok state UNKNOWN'a
-            // duser ve tek tek loglanir. Damgayi olumcul saymak, daha yeni bir istemciyle
-            // kapatilmis dunyalari hic acilamaz yapiyordu — PM sunucusundan alinan
+            // savunma ChunkSectionCodec'te: karsiligi bulunamayan blok state
+            // PreservedBlockState olarak yuklenir ve kayitta ozgun verisiyle geri
+            // yazilir. Damgayi olumcul saymak, daha yeni bir istemciyle kapatilmis
+            // dunyalari hic acilamaz yapiyordu — PM sunucusundan alinan
             // spawn/arena/theboss1 dunyalari boyle geliyor.
             log.warn(
                     "World was last opened with network version {}, which is newer than the feature version {}. " +
-                    "Unknown blocks will fall back to the unknown block state.",
+                    "Unrecognized blocks will be loaded as unknown blocks and keep their original data on save.",
                     networkVersion, ProtocolInfo.FEATURE_VERSION.getProtocolVersion()
             );
         }

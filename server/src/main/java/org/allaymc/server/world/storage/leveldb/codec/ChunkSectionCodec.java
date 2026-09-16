@@ -10,6 +10,7 @@ import org.allaymc.api.block.type.BlockTypes;
 import org.allaymc.api.registry.Registries;
 import org.allaymc.api.utils.hash.HashUtils;
 import org.allaymc.api.world.dimension.DimensionType;
+import org.allaymc.server.block.type.PreservedBlockState;
 import org.allaymc.server.datastruct.palette.Palette;
 import org.allaymc.server.datastruct.palette.PaletteException;
 import org.allaymc.server.datastruct.palette.PaletteUtils;
@@ -94,13 +95,14 @@ public final class ChunkSectionCodec {
     }
 
     private static BlockState fastBlockStateDeserializer(ByteBuf buffer) {
-        int blockStateHash;
+        var tagStart = buffer.readerIndex();
         try (var bufInputStream = new ByteBufInputStream(buffer);
              var input = new LittleEndianDataInputStream(bufInputStream);
              var nbtInputStream = new NBTInputStream(input)) {
-            blockStateHash = PaletteUtils.fastReadBlockStateHash(input, buffer);
+            NbtMap oldNbtMap = null;
+            var blockStateHash = PaletteUtils.fastReadBlockStateHash(input, buffer);
             if (blockStateHash == PaletteUtils.HASH_NOT_LATEST) {
-                var oldNbtMap = (NbtMap) nbtInputStream.readTag();
+                oldNbtMap = (NbtMap) nbtInputStream.readTag();
                 var newNbtMap = BlockStateUpdaters.updateBlockState(oldNbtMap, ProtocolInfo.BLOCK_STATE_UPDATER.getVersion());
                 // Make sure that tree map is used
                 // If the map inside states nbt is not tree map
@@ -114,17 +116,22 @@ public final class ChunkSectionCodec {
                         .build();
                 blockStateHash = HashUtils.fnv1a_32_nbt(tag);
             }
+
+            BlockState blockState = Registries.BLOCK_STATE_PALETTE.get(blockStateHash);
+            if (blockState != null) {
+                return blockState;
+            }
+
+            // GearsMC fork: tanınmayan durum düz UNKNOWN yapılırsa bölüm yeniden kaydedilince özgün veri silinir.
+            // Hızlı yol etiketi hiç açmadığı için özgün NBT baştan okunur; okuma etiketin sonunda biter.
+            if (oldNbtMap == null) {
+                buffer.readerIndex(tagStart);
+                oldNbtMap = (NbtMap) nbtInputStream.readTag();
+            }
+            return PreservedBlockState.of(oldNbtMap);
         } catch (IOException e) {
             throw new PaletteException(e);
         }
-
-        BlockState blockState = Registries.BLOCK_STATE_PALETTE.get(blockStateHash);
-        if (blockState != null) {
-            return blockState;
-        }
-
-        log.error("Unknown block state hash {} while loading chunk section", blockStateHash);
-        return BlockTypes.UNKNOWN.getDefaultState();
     }
 
     public static AllayChunkSection[] fillNullSections(AllayChunkSection[] sections, DimensionType dimensionType) {

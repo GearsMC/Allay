@@ -1,14 +1,28 @@
 package org.allaymc.server.world.storage.leveldb.codec;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.Unpooled;
 import org.allaymc.api.world.biome.BiomeTypes;
 import org.allaymc.api.world.dimension.DimensionTypes;
+import org.allaymc.server.datastruct.palette.Palette;
+import org.allaymc.server.network.ProtocolInfo;
 import org.allaymc.server.world.chunk.AllayChunkSection;
+import org.allaymc.server.world.storage.leveldb.LevelDBUtils;
 import org.allaymc.testutils.AllayTestExtension;
+import org.cloudburstmc.nbt.NbtMap;
+import org.cloudburstmc.nbt.NbtUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+
+import static org.allaymc.api.block.type.BlockTypes.AIR;
 import static org.allaymc.api.block.type.BlockTypes.OAK_WOOD;
 import static org.allaymc.api.block.type.BlockTypes.STONE;
+import static org.allaymc.api.block.type.BlockTypes.UNKNOWN;
+import static org.allaymc.api.utils.hash.HashUtils.hashChunkSectionXYZ;
 import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(AllayTestExtension.class)
@@ -34,6 +48,75 @@ class ChunkSectionCodecTest {
         assertEquals(OAK_WOOD.getDefaultState(), deserialized.getBlockState(0, 0, 0, 0));
         assertEquals(STONE.getDefaultState(), deserialized.getBlockState(1, 1, 1, 0));
         assertEquals(OAK_WOOD.getDefaultState(), deserialized.getBlockState(2, 2, 2, 1));
+    }
+
+    /**
+     * Allay'in tanımadığı blok durumu okunurken bilinmeyen bloğa dönüşüyordu. Bölümde başka bir blok değişip bölüm
+     * yeniden yazılınca özgün veri kalıcı olarak siliniyordu. Tanınmayan durum daha yeni sürümlü veride (PocketMine
+     * 1.26.50 yazıyor), Allay eski sürüme geri alınınca ya da artık kayıtlı olmayan bir eklenti bloğunda çıkar.
+     * Özgün NBT korunmalı ve kayıtta aynen geri yazılmalı; sürümü daha yeni ama tanıdık durum normal okunmalı.
+     */
+    @Test
+    void testUnrecognizedBlockStatesSurviveResave() {
+        var newerVersion = ProtocolInfo.BLOCK_STATE_VERSION_NUM + 1;
+        var futureBlock = NbtMap.builder()
+                .putString("name", "minecraft:gears_test_future_block")
+                .putCompound("states", NbtMap.builder().putString("gears_test_state", "a").build())
+                .putInt("version", newerVersion)
+                .build();
+        var removedPluginBlock = NbtMap.builder()
+                .putString("name", "gears_test:removed_block")
+                .putCompound("states", NbtMap.EMPTY)
+                .putInt("version", ProtocolInfo.BLOCK_STATE_VERSION_NUM)
+                .build();
+        var newerStone = STONE.getDefaultState().getBlockStateNBT().toBuilder().putInt("version", newerVersion).build();
+
+        var layer0 = new Palette<>(AIR.getDefaultState().getBlockStateNBT());
+        layer0.set(hashChunkSectionXYZ(1, 2, 3), futureBlock);
+        layer0.set(hashChunkSectionXYZ(4, 5, 6), removedPluginBlock);
+        layer0.set(hashChunkSectionXYZ(7, 8, 9), newerStone);
+        var layer1 = new Palette<>(AIR.getDefaultState().getBlockStateNBT());
+        var data = LevelDBUtils.withByteBufToArray(buffer -> {
+            buffer.writeByte(AllayChunkSection.CURRENT_CHUNK_SECTION_VERSION);
+            buffer.writeByte(AllayChunkSection.LAYER_COUNT);
+            buffer.writeByte(0);
+            layer0.writeToStorage(buffer, tag -> tag);
+            layer1.writeToStorage(buffer, tag -> tag);
+        });
+
+        var section = ChunkSectionCodec.deserialize(data, 0, 0, 0);
+        assertNotNull(section);
+        assertEquals(STONE.getDefaultState(), section.getBlockState(7, 8, 9, 0));
+        var loadedFuture = section.getBlockState(1, 2, 3, 0);
+        assertEquals(UNKNOWN, loadedFuture.getBlockType());
+        // İstemciye bilinmeyen blok olarak gider
+        assertEquals(UNKNOWN.getDefaultState().blockStateHash(), loadedFuture.blockStateHash());
+        assertEquals(UNKNOWN, section.getBlockState(4, 5, 6, 0).getBlockType());
+
+        // Aynı bölümde başka bir blok değişir, bölüm yeniden yazılır
+        section.setBlockState(10, 11, 12, OAK_WOOD.getDefaultState(), 0);
+        var resaved = readRawLayer0(ChunkSectionCodec.serialize(section, 0));
+
+        assertEquals(futureBlock, resaved.get(hashChunkSectionXYZ(1, 2, 3)));
+        assertEquals(removedPluginBlock, resaved.get(hashChunkSectionXYZ(4, 5, 6)));
+        assertEquals(STONE.getDefaultState().getBlockStateNBT(), resaved.get(hashChunkSectionXYZ(7, 8, 9)));
+        assertEquals(OAK_WOOD.getDefaultState().getBlockStateNBT(), resaved.get(hashChunkSectionXYZ(10, 11, 12)));
+    }
+
+    private static Palette<NbtMap> readRawLayer0(byte[] data) {
+        var buffer = Unpooled.wrappedBuffer(data);
+        buffer.skipBytes(3); // bölüm sürümü, katman sayısı, bölüm y
+        var palette = new Palette<>(NbtMap.EMPTY);
+        palette.readFromStorage(buffer, ChunkSectionCodecTest::readTag);
+        return palette;
+    }
+
+    private static NbtMap readTag(ByteBuf buffer) {
+        try (var input = NbtUtils.createReaderLE(new ByteBufInputStream(buffer))) {
+            return (NbtMap) input.readTag();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     @Test
