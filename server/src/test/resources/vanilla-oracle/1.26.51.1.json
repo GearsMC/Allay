@@ -1,0 +1,6748 @@
+{
+ "bedrockVersion": "1.26.51.1",
+ "scriptModule": {
+  "module_name": "@minecraft/server",
+  "version": "2.10.0"
+ },
+ "scenarioSha1": "b7836cff8313225582c35867e80f8037ebe1f6a8",
+ "results": {
+  "S1/fence_gate/east/closed": {
+   "question": "S1",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:fence_gate",
+     "states": {
+      "minecraft:cardinal_direction": "east",
+      "in_wall_bit": false,
+      "open_bit": false,
+      "direction": 3
+     }
+    }
+   }
+  },
+  "S1/fence_gate/east/open": {
+   "question": "S1",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:fence_gate",
+     "states": {
+      "minecraft:cardinal_direction": "east",
+      "in_wall_bit": false,
+      "open_bit": true,
+      "direction": 3
+     }
+    }
+   }
+  },
+  "S1/fence_gate/north/closed": {
+   "question": "S1",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:fence_gate",
+     "states": {
+      "minecraft:cardinal_direction": "north",
+      "in_wall_bit": false,
+      "open_bit": false,
+      "direction": 2
+     }
+    }
+   }
+  },
+  "S1/fence_gate/north/open": {
+   "question": "S1",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:fence_gate",
+     "states": {
+      "minecraft:cardinal_direction": "north",
+      "in_wall_bit": false,
+      "open_bit": true,
+      "direction": 2
+     }
+    }
+   }
+  },
+  "S1/fence_gate/south/closed": {
+   "question": "S1",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:fence_gate",
+     "states": {
+      "minecraft:cardinal_direction": "south",
+      "in_wall_bit": false,
+      "open_bit": false,
+      "direction": 0
+     }
+    }
+   }
+  },
+  "S1/fence_gate/south/open": {
+   "question": "S1",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:fence_gate",
+     "states": {
+      "minecraft:cardinal_direction": "south",
+      "in_wall_bit": false,
+      "open_bit": true,
+      "direction": 0
+     }
+    }
+   }
+  },
+  "S1/fence_gate/west/closed": {
+   "question": "S1",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:fence_gate",
+     "states": {
+      "minecraft:cardinal_direction": "west",
+      "in_wall_bit": false,
+      "open_bit": false,
+      "direction": 1
+     }
+    }
+   }
+  },
+  "S1/fence_gate/west/open": {
+   "question": "S1",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:fence_gate",
+     "states": {
+      "minecraft:cardinal_direction": "west",
+      "in_wall_bit": false,
+      "open_bit": true,
+      "direction": 1
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_east/back_north_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_east/back_north_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_east/back_north_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_east/back_north_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_east/back_south_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_east/back_south_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_east/back_south_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_east/back_south_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_east/back_west_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_east/back_west_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_east/back_west_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_right",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_east/back_west_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_left",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_north/back_east_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_north/back_east_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_north/back_east_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_north/back_east_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_left",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_north/back_south_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_north/back_south_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_north/back_south_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_north/back_south_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_north/back_west_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_north/back_west_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_north/back_west_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_right",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_north/back_west_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_south/back_east_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_south/back_east_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_south/back_east_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_right",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_south/back_east_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_south/back_north_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_south/back_north_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_south/back_north_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_south/back_north_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_south/back_west_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_south/back_west_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_south/back_west_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_south/back_west_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_left",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_west/back_east_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_west/back_east_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_west/back_east_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_right",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_west/back_east_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_left",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_west/back_north_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_west/back_north_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_west/back_north_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_west/back_north_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_west/back_south_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_west/back_south_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_west/back_south_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w0/side_west/back_south_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_east/back_north_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_east/back_north_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_east/back_north_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_east/back_north_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_east/back_south_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_east/back_south_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_east/back_south_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_east/back_south_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_east/back_west_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_east/back_west_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_east/back_west_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_left",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_east/back_west_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_right",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_north/back_east_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_north/back_east_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_north/back_east_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_left",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_north/back_east_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_north/back_south_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_north/back_south_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_north/back_south_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_north/back_south_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_north/back_west_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_north/back_west_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_north/back_west_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_north/back_west_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_right",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_south/back_east_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_south/back_east_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_south/back_east_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_south/back_east_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_right",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_south/back_north_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_south/back_north_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_south/back_north_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_south/back_north_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_south/back_west_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_south/back_west_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_south/back_west_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_left",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_south/back_west_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_west/back_east_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_west/back_east_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_west/back_east_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_left",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_west/back_east_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_right",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_west/back_north_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_west/back_north_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_west/back_north_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_west/back_north_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_west/back_south_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_west/back_south_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_west/back_south_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w1/side_west/back_south_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_east/back_north_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_east/back_north_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_right",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_east/back_north_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_east/back_north_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_east/back_south_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_left",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_east/back_south_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_east/back_south_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_east/back_south_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_east/back_west_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_east/back_west_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_east/back_west_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_east/back_west_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_north/back_east_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_north/back_east_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_north/back_east_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_north/back_east_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_north/back_south_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_left",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_north/back_south_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_right",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_north/back_south_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_north/back_south_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_north/back_west_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_north/back_west_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_north/back_west_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_north/back_west_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_south/back_east_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_south/back_east_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_south/back_east_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_south/back_east_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_south/back_north_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_left",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_south/back_north_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_right",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_south/back_north_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_south/back_north_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_south/back_west_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_south/back_west_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_south/back_west_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_south/back_west_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_west/back_east_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_west/back_east_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_west/back_east_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_west/back_east_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_west/back_north_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_left",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_west/back_north_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_west/back_north_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_west/back_north_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_west/back_south_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_west/back_south_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_right",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_west/back_south_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w2/side_west/back_south_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_east/back_north_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_right",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_east/back_north_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_east/back_north_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_east/back_north_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_east/back_south_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_east/back_south_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_left",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_east/back_south_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_east/back_south_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_east/back_west_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_east/back_west_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_east/back_west_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_east/back_west_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_north/back_east_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_north/back_east_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_north/back_east_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_north/back_east_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_north/back_south_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_right",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_north/back_south_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_left",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_north/back_south_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_north/back_south_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_north/back_west_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_north/back_west_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_north/back_west_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_north/back_west_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_south/back_east_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_south/back_east_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_south/back_east_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_south/back_east_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_south/back_north_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_right",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_south/back_north_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_left",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_south/back_north_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_south/back_north_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_south/back_west_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_south/back_west_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_south/back_west_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_south/back_west_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_west/back_east_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_west/back_east_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_west/back_east_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_west/back_east_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_west/back_north_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_west/back_north_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_left",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_west/back_north_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_west/back_north_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_west/back_south_w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_right",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_west/back_south_w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_west/back_south_w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S10/can_take_shape/w3/side_west/back_south_w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S11/fence_neighbour_removed": {
+   "question": "S11",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S11/fence_stone_above": {
+   "question": "S11",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S11/pane_neighbour_replaced_by_stone": {
+   "question": "S11",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S11/stairs_neighbour_removed": {
+   "question": "S11",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "S2/nether_brick_nether_brick": {
+   "question": "S2",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:nether_brick_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:nether_brick_fence",
+     "states": {
+      "minecraft:connection_west": true,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S2/nether_brick_oak": {
+   "question": "S2",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:nether_brick_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S3/bamboo_crimson": {
+   "question": "S3",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:bamboo_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:crimson_fence",
+     "states": {
+      "minecraft:connection_west": true,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S3/oak_birch": {
+   "question": "S3",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:birch_fence",
+     "states": {
+      "minecraft:connection_west": true,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "birch"
+     }
+    }
+   }
+  },
+  "S4/trapdoor/d0/closed": {
+   "question": "S4",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:trapdoor",
+     "states": {
+      "upside_down_bit": false,
+      "open_bit": false,
+      "direction": 0
+     }
+    }
+   }
+  },
+  "S4/trapdoor/d0/open": {
+   "question": "S4",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:trapdoor",
+     "states": {
+      "upside_down_bit": false,
+      "open_bit": true,
+      "direction": 0
+     }
+    }
+   }
+  },
+  "S4/trapdoor/d1/closed": {
+   "question": "S4",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:trapdoor",
+     "states": {
+      "upside_down_bit": false,
+      "open_bit": false,
+      "direction": 1
+     }
+    }
+   }
+  },
+  "S4/trapdoor/d1/open": {
+   "question": "S4",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:trapdoor",
+     "states": {
+      "upside_down_bit": false,
+      "open_bit": true,
+      "direction": 1
+     }
+    }
+   }
+  },
+  "S4/trapdoor/d2/closed": {
+   "question": "S4",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:trapdoor",
+     "states": {
+      "upside_down_bit": false,
+      "open_bit": false,
+      "direction": 2
+     }
+    }
+   }
+  },
+  "S4/trapdoor/d2/open": {
+   "question": "S4",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:trapdoor",
+     "states": {
+      "upside_down_bit": false,
+      "open_bit": true,
+      "direction": 2
+     }
+    }
+   }
+  },
+  "S4/trapdoor/d3/closed": {
+   "question": "S4",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:trapdoor",
+     "states": {
+      "upside_down_bit": false,
+      "open_bit": false,
+      "direction": 3
+     }
+    }
+   }
+  },
+  "S4/trapdoor/d3/open": {
+   "question": "S4",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:trapdoor",
+     "states": {
+      "upside_down_bit": false,
+      "open_bit": true,
+      "direction": 3
+     }
+    }
+   }
+  },
+  "S5/fence/anvil": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/barrier": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/beacon": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/bell": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/cactus": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/carved_pumpkin": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/chest": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/cobblestone_wall": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/crafting_table": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/double_slab": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/enchanting_table": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/farmland": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/glass": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/glass_pane": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/glowstone": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/grass_path": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/honey_block": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/hopper": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/ice": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/iron_bars": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/lantern": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/lit_pumpkin": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/melon_block": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/mud": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/oak_fence": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/oak_leaves": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/oak_log": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/oak_stairs_w0": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/oak_stairs_w1": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/oak_stairs_w2": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/oak_stairs_w3": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/pumpkin": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/redstone_block": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/scaffolding": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/sea_lantern": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/slab_bottom": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/slab_top": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/slime": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/snow_layer_full": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/soul_sand": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/stone": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/tinted_glass": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/tnt": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/fence/white_shulker_box": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_fence",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "wood_type": "oak"
+     }
+    }
+   }
+  },
+  "S5/pane/anvil": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/barrier": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/beacon": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/bell": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/cactus": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/carved_pumpkin": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/chest": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/cobblestone_wall": {
+   "question": "S7",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/crafting_table": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/double_slab": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/enchanting_table": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/farmland": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/glass": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/glass_pane": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/glowstone": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/grass_path": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/honey_block": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/hopper": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/ice": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/iron_bars": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/lantern": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/lit_pumpkin": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/melon_block": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/mud": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/oak_fence": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/oak_leaves": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/oak_log": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/oak_stairs_w0": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/oak_stairs_w1": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/oak_stairs_w2": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/oak_stairs_w3": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/pumpkin": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/redstone_block": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/scaffolding": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/sea_lantern": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/slab_bottom": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/slab_top": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/slime": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/snow_layer_full": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/soul_sand": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/stone": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/tinted_glass": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/tnt": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S5/pane/white_shulker_box": {
+   "question": "S5",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S7/pane_fence_gate/east": {
+   "question": "S7",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:fence_gate",
+     "states": {
+      "minecraft:cardinal_direction": "east",
+      "in_wall_bit": false,
+      "open_bit": false,
+      "direction": 3
+     }
+    }
+   }
+  },
+  "S7/pane_fence_gate/north": {
+   "question": "S7",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:fence_gate",
+     "states": {
+      "minecraft:cardinal_direction": "north",
+      "in_wall_bit": false,
+      "open_bit": false,
+      "direction": 2
+     }
+    }
+   }
+  },
+  "S7/pane_wall/blackstone_wall": {
+   "question": "S7",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S7/pane_wall/mud_brick_wall": {
+   "question": "S7",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S7/pane_wall/tuff_wall": {
+   "question": "S7",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S8/copper_bars/iron_bars": {
+   "question": "S8",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:copper_bars",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:iron_bars",
+     "states": {
+      "minecraft:connection_west": true,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S8/glass_pane/copper_bars": {
+   "question": "S8",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:copper_bars",
+     "states": {
+      "minecraft:connection_west": true,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S8/hard_glass_pane/glass_pane": {
+   "question": "S8",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:hard_glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": true,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S8/waxed_oxidized_copper_bars/copper_bars": {
+   "question": "S8",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:waxed_oxidized_copper_bars",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:copper_bars",
+     "states": {
+      "minecraft:connection_west": true,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S8/white_stained_glass_pane/glass_pane": {
+   "question": "S8",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:white_stained_glass_pane",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "minecraft:connection_north": false,
+      "minecraft:connection_south": false,
+      "color": "white"
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:glass_pane",
+     "states": {
+      "minecraft:connection_west": true,
+      "minecraft:connection_south": false,
+      "minecraft:connection_east": false,
+      "minecraft:connection_north": false
+     }
+    }
+   }
+  },
+  "S9/trip_wire_hook/d0": {
+   "question": "S9",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:trip_wire",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "disarmed_bit": false,
+      "suspended_bit": true,
+      "minecraft:connection_south": false,
+      "powered_bit": false,
+      "minecraft:connection_north": false,
+      "attached_bit": false
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:air",
+     "states": {}
+    }
+   }
+  },
+  "S9/trip_wire_hook/d1": {
+   "question": "S9",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:trip_wire",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "disarmed_bit": false,
+      "suspended_bit": true,
+      "minecraft:connection_south": false,
+      "powered_bit": false,
+      "minecraft:connection_north": false,
+      "attached_bit": false
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:tripwire_hook",
+     "states": {
+      "powered_bit": false,
+      "direction": 1,
+      "attached_bit": false
+     }
+    }
+   }
+  },
+  "S9/trip_wire_hook/d2": {
+   "question": "S9",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:trip_wire",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "disarmed_bit": false,
+      "suspended_bit": true,
+      "minecraft:connection_south": false,
+      "powered_bit": true,
+      "minecraft:connection_north": false,
+      "attached_bit": false
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:air",
+     "states": {}
+    }
+   }
+  },
+  "S9/trip_wire_hook/d3": {
+   "question": "S9",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:trip_wire",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "disarmed_bit": false,
+      "suspended_bit": true,
+      "minecraft:connection_south": false,
+      "powered_bit": false,
+      "minecraft:connection_north": false,
+      "attached_bit": false
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:air",
+     "states": {}
+    }
+   }
+  },
+  "S9/trip_wire_line": {
+   "question": "S9",
+   "cells": {
+    "-1,0,0": {
+     "name": "minecraft:trip_wire",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": true,
+      "disarmed_bit": false,
+      "suspended_bit": true,
+      "minecraft:connection_south": false,
+      "powered_bit": false,
+      "minecraft:connection_north": false,
+      "attached_bit": false
+     }
+    },
+    "0,0,0": {
+     "name": "minecraft:trip_wire",
+     "states": {
+      "minecraft:connection_west": true,
+      "minecraft:connection_east": true,
+      "disarmed_bit": false,
+      "suspended_bit": true,
+      "minecraft:connection_south": false,
+      "powered_bit": false,
+      "minecraft:connection_north": false,
+      "attached_bit": false
+     }
+    },
+    "1,0,0": {
+     "name": "minecraft:trip_wire",
+     "states": {
+      "minecraft:connection_west": true,
+      "minecraft:connection_east": false,
+      "disarmed_bit": false,
+      "suspended_bit": true,
+      "minecraft:connection_south": false,
+      "powered_bit": false,
+      "minecraft:connection_north": false,
+      "attached_bit": false
+     }
+    }
+   }
+  },
+  "S9/trip_wire_stone": {
+   "question": "S9",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:trip_wire",
+     "states": {
+      "minecraft:connection_west": false,
+      "minecraft:connection_east": false,
+      "disarmed_bit": false,
+      "suspended_bit": true,
+      "minecraft:connection_south": false,
+      "powered_bit": false,
+      "minecraft:connection_north": false,
+      "attached_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w0/bottom/east/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w0/bottom/east/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w0/bottom/east/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w0/bottom/east/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_right",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w0/bottom/east/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_left",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w0/bottom/north/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w0/bottom/north/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w0/bottom/north/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w0/bottom/north/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w0/bottom/north/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w0/bottom/south/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w0/bottom/south/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w0/bottom/south/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w0/bottom/south/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w0/bottom/south/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w0/bottom/west/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w0/bottom/west/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w0/bottom/west/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w0/bottom/west/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_right",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w0/bottom/west/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_left",
+      "weirdo_direction": 0,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w0/top/east/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w0/top/east/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w0/top/east/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w0/top/east/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_right",
+      "weirdo_direction": 0,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w0/top/east/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_left",
+      "weirdo_direction": 0,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w0/top/north/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w0/top/north/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w0/top/north/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w0/top/north/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w0/top/north/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w0/top/south/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w0/top/south/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w0/top/south/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w0/top/south/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w0/top/south/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w0/top/west/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w0/top/west/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w0/top/west/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 0,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w0/top/west/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_right",
+      "weirdo_direction": 0,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w0/top/west/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_left",
+      "weirdo_direction": 0,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w1/bottom/east/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w1/bottom/east/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w1/bottom/east/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w1/bottom/east/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_left",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w1/bottom/east/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_right",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w1/bottom/north/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w1/bottom/north/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w1/bottom/north/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w1/bottom/north/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w1/bottom/north/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w1/bottom/south/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w1/bottom/south/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w1/bottom/south/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w1/bottom/south/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w1/bottom/south/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w1/bottom/west/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w1/bottom/west/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w1/bottom/west/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w1/bottom/west/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_left",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w1/bottom/west/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_right",
+      "weirdo_direction": 1,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w1/top/east/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w1/top/east/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w1/top/east/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w1/top/east/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_left",
+      "weirdo_direction": 1,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w1/top/east/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_right",
+      "weirdo_direction": 1,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w1/top/north/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w1/top/north/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w1/top/north/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w1/top/north/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w1/top/north/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w1/top/south/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w1/top/south/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w1/top/south/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w1/top/south/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w1/top/south/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w1/top/west/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w1/top/west/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w1/top/west/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 1,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w1/top/west/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_left",
+      "weirdo_direction": 1,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w1/top/west/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_right",
+      "weirdo_direction": 1,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w2/bottom/east/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w2/bottom/east/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w2/bottom/east/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w2/bottom/east/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w2/bottom/east/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w2/bottom/north/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w2/bottom/north/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_left",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w2/bottom/north/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_right",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w2/bottom/north/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w2/bottom/north/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w2/bottom/south/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w2/bottom/south/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_left",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w2/bottom/south/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_right",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w2/bottom/south/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w2/bottom/south/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w2/bottom/west/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w2/bottom/west/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w2/bottom/west/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w2/bottom/west/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w2/bottom/west/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w2/top/east/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w2/top/east/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w2/top/east/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w2/top/east/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w2/top/east/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w2/top/north/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w2/top/north/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_left",
+      "weirdo_direction": 2,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w2/top/north/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_right",
+      "weirdo_direction": 2,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w2/top/north/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w2/top/north/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w2/top/south/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w2/top/south/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_left",
+      "weirdo_direction": 2,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w2/top/south/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_right",
+      "weirdo_direction": 2,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w2/top/south/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w2/top/south/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w2/top/west/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w2/top/west/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w2/top/west/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w2/top/west/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w2/top/west/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 2,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w3/bottom/east/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w3/bottom/east/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w3/bottom/east/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w3/bottom/east/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w3/bottom/east/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w3/bottom/north/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w3/bottom/north/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_right",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w3/bottom/north/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_left",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w3/bottom/north/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w3/bottom/north/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w3/bottom/south/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w3/bottom/south/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_right",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w3/bottom/south/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_left",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w3/bottom/south/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w3/bottom/south/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w3/bottom/west/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w3/bottom/west/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w3/bottom/west/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w3/bottom/west/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w3/bottom/west/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": false
+     }
+    }
+   }
+  },
+  "STAIRS/w3/top/east/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w3/top/east/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w3/top/east/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w3/top/east/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w3/top/east/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w3/top/north/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w3/top/north/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_right",
+      "weirdo_direction": 3,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w3/top/north/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "outer_left",
+      "weirdo_direction": 3,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w3/top/north/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w3/top/north/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w3/top/south/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w3/top/south/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_right",
+      "weirdo_direction": 3,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w3/top/south/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "inner_left",
+      "weirdo_direction": 3,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w3/top/south/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w3/top/south/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w3/top/west/half_mismatch": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w3/top/west/w0": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w3/top/west/w1": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w3/top/west/w2": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": true
+     }
+    }
+   }
+  },
+  "STAIRS/w3/top/west/w3": {
+   "question": "S10",
+   "cells": {
+    "0,0,0": {
+     "name": "minecraft:oak_stairs",
+     "states": {
+      "minecraft:corner": "none",
+      "weirdo_direction": 3,
+      "upside_down_bit": true
+     }
+    }
+   }
+  }
+ }
+}

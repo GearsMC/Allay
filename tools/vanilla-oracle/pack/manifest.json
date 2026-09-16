@@ -1,0 +1,16 @@
+{
+  "format_version": 2,
+  "header": {
+    "name": "Gears Vanilla Oracle",
+    "description": "Vanilla blok durumu kahini: senaryoları kurar, BDS'in hesapladığı durumları okur.",
+    "uuid": "08d23d91-83dd-44d9-89c9-f2be23c18ecd",
+    "version": [1, 0, 0],
+    "min_engine_version": [1, 26, 0]
+  },
+  "modules": [
+    { "type": "script", "language": "javascript", "uuid": "c2737241-df87-43c6-9744-ecc61adb46e6", "version": [1, 0, 0], "entry": "scripts/main.js" }
+  ],
+  "dependencies": [
+    { "module_name": "@minecraft/server", "version": "2.10.0" }
+  ]
+}
