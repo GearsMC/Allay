@@ -129,6 +129,10 @@ tasks {
     test {
         useJUnitPlatform()
         workingDir = file("${rootProject.projectDir}/.test/")
+        // GearsMC: klasör yoksa Gradle test sürecini başlatamıyor ve yalnızca "Cannot abort process 'Gradle Test
+        // Executor N'" diyor. .test/.keep bir kez yanlışlıkla silindi ve CI'daki temiz kopya bu yüzden kırıldı.
+        val testWorkingDir = workingDir
+        doFirst { testWorkingDir.mkdirs() }
     }
 
     register("cleanWorkingDir") {
