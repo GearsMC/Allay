@@ -33,6 +33,7 @@ Then, use it to export the following files:
 | `biome_definitions.json`                                | [CloudburstMC/Data](https://github.com/CloudburstMC/Data/blob/master/stripped_biome_definitions.json)                     |
 | `colormap/*`                                            | [Mojang/bedrock-samples](https://github.com/Mojang/bedrock-samples/blob/main/resource_pack/textures/colormap)             |
 | Others (`block_types.json`, `creative_items.nbt`, etc.) | Exported from Endstone                                                                                                    |
+| `protocol_palettes/<version>.nbt`                       | [CloudburstMC/Data](https://github.com/CloudburstMC/Data) `block_palette.nbt` at the commit for that protocol. Cross-check it against [altayofficial/BedrockData](https://github.com/altayofficial/BedrockData) `bedrock-<version>` (`block_palette.nbt`): the state sets must be identical. Only needed when the block palette changed; see step 7. |
 
 ### Manually maintained files
 
@@ -107,6 +108,15 @@ For a new international protocol version:
 2. Add `PacketEncoderV<version>` extending the previous international encoder class.
 3. Override only processor factories, encoded data, packet encoders, or features that changed at that version boundary.
 4. Register the protocol in `ProtocolRegistry.createDefault()`.
+5. Give the protocol its client block palette. Clients receive hashed block runtime IDs and silently drop any block whose
+   hash is not in their own palette, so every block ID must go through `PacketEncoder#networkBlockId`, never
+   `BlockState#blockStateHash()` directly.
+   - If the palette changed, add `data/resources/protocol_palettes/<version>.nbt`, record its source commit and SHA-1 in
+     `protocol_palettes/README.md`, and override `getBlockPaletteResource()` in the new protocol class.
+   - If it did not change, the new protocol inherits the resource from its parent.
+   - Add the protocol number to `EXPECTED_PALETTES` in `BlockNetworkIdMappingTest`.
+   - A hotfix can keep the protocol number (1.26.51 still reports 2193). Compare its palette with the previous one: a
+     different palette under the same number cannot be served to both.
 
 For a NetEase variant, extend the international protocol and encoder with the same protocol number directly. Do not
 inherit another NetEase version, and do not place NetEase behavior in the later international inheritance chain.
@@ -126,7 +136,8 @@ table.
 
 ## 9. Test and Finalize
 
-1. Add registry and inheritance tests for the new implementation.
+1. Add registry and inheritance tests for the new implementation, and make sure `BlockNetworkIdMappingTest` passes (every
+   block state maps into the official palette of every protocol).
 2. Verify representative encoder output with the target codec.
 3. Add boundary regression tests for every overridden processor, data set, encoder, or feature.
 4. Run `./gradlew build`.

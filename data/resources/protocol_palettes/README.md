@@ -9,6 +9,15 @@ kendi paletini bildirir ve `BlockNetworkIdMapping` sunucu durumunu o istemcinin 
 
 Kaynak: [CloudburstMC/Data](https://github.com/CloudburstMC/Data) (Apache-2.0), `block_palette.nbt`.
 
+**Çapraz kontrol:** [altayofficial/BedrockData](https://github.com/altayofficial/BedrockData) — PocketMine'ın
+devamını yürüten Altay'ın veri deposu, `bedrock-<sürüm>` dalındaki `block_palette.nbt`. 26.30'dan itibaren her
+sürüm ve önizleme için dal var. 26.50'de durum kümesi CloudburstMC ile birebir aynı, dosyası farklı (ayrı
+çıkarım). Geyser'in paletleri ise CloudburstMC ile bayt bayt aynı olduğu için bağımsız kaynak sayılmaz.
+Mojang'ın `mojang-blocks.json`'undan üretilen palet birebir tutmuyor (26.50'de 134 fazla, 36 eksik durum).
+
+**Düzeltme sürümleri:** 1.26.51 hâlâ 2193 bildiriyor ve paleti 1.26.50 ile bayt bayt aynı. Aynı numarayla
+farklı palet gelirse iki sürüme birden hizmet edilemez; her düzeltme sürümünde paleti karşılaştır.
+
 | Dosya | Protokoller | Kaynak commit | SHA-1 |
 |---|---|---|---|
 | `1_21_90.nbt` | 818, 819 | `a8996250` (1.21.90) — 819'un `61d0fcb0` commit'indeki dosya birebir aynı | `5c8a7be1824d45aa221803dbdc00f5921a3d96e3` |
@@ -20,5 +29,6 @@ Kaynak: [CloudburstMC/Data](https://github.com/CloudburstMC/Data) (Apache-2.0), 
 | `1_26_40.nbt` | 2168, 2169 | `247e816d` | `9be2b645a50cbb2c83eb157d402f199b31030b7e` |
 | `1_26_50.nbt` | 2192, 2193 | `7046791a` | `d5f0d3ac1615514decdb72240fa8af94f36f17f2` |
 
-Yeni bir sürüm eklenirken dosya CloudburstMC/Data'nın o sürüm commit'inden alınır, bu tablo güncellenir ve
+Yeni bir sürüm eklenirken dosya CloudburstMC/Data'nın o sürüm commit'inden alınır, Altay'ın aynı sürüm dalıyla
+durum kümesi karşılaştırılır, bu tablo güncellenir ve
 `BlockNetworkIdMappingTest`'teki beklenen palet tablosuna protokol eklenir.
