@@ -29,6 +29,7 @@ Unless otherwise specified, any version comparison below is the comparison of th
 
 ### Changed
 
+- Block and item state updaters are now built from the GearsMC/StateUpdater fork as an included build (`../StateUpdater`) instead of Maven, and the block state updater target moved to the 1.26.30 step (adds the missing `potent_sulfur_state` to `minecraft:potent_sulfur`). `BLOCK_STATE_VERSION` is unchanged.
 - (API) `GameMode` now exposes its default `PlayerAbility` set, and player flight checks now use player abilities instead of the removed legacy fly permissions.
 - (API) `FurnaceRecipe` ingredients now use `ItemDescriptor` and support item tags and recipe priorities across furnace-like recipes.
 - Changed RakNet send-cookie handling to use a fixed cookie internally.

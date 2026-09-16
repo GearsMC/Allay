@@ -20,6 +20,7 @@ import java.io.UncheckedIOException;
 
 import static org.allaymc.api.block.type.BlockTypes.AIR;
 import static org.allaymc.api.block.type.BlockTypes.OAK_WOOD;
+import static org.allaymc.api.block.type.BlockTypes.POTENT_SULFUR;
 import static org.allaymc.api.block.type.BlockTypes.STONE;
 import static org.allaymc.api.block.type.BlockTypes.UNKNOWN;
 import static org.allaymc.api.utils.hash.HashUtils.hashChunkSectionXYZ;
@@ -101,6 +102,34 @@ class ChunkSectionCodecTest {
         assertEquals(removedPluginBlock, resaved.get(hashChunkSectionXYZ(4, 5, 6)));
         assertEquals(STONE.getDefaultState().getBlockStateNBT(), resaved.get(hashChunkSectionXYZ(7, 8, 9)));
         assertEquals(OAK_WOOD.getDefaultState().getBlockStateNBT(), resaved.get(hashChunkSectionXYZ(10, 11, 12)));
+    }
+
+    /**
+     * Özelliği eklenmeden önce kaydedilmiş potent sulfur (1.26.30 önizlemesi) güncelleyiciden geçince
+     * {@code potent_sulfur_state=dry} almalı. Allay 1.21.110 güncelleyicisinde kaldığı sürece bu blok tanınmıyordu.
+     */
+    @Test
+    void testOlderPotentSulfurIsUpgradedBy_1_26_30_Updater() {
+        var olderPotentSulfur = NbtMap.builder()
+                .putString("name", "minecraft:potent_sulfur")
+                .putCompound("states", NbtMap.EMPTY)
+                .putInt("version", (1 << 24) | (21 << 16) | (60 << 8) | 33)
+                .build();
+        var layer0 = new Palette<>(AIR.getDefaultState().getBlockStateNBT());
+        layer0.set(hashChunkSectionXYZ(1, 1, 1), olderPotentSulfur);
+        var layer1 = new Palette<>(AIR.getDefaultState().getBlockStateNBT());
+        var data = LevelDBUtils.withByteBufToArray(buffer -> {
+            buffer.writeByte(AllayChunkSection.CURRENT_CHUNK_SECTION_VERSION);
+            buffer.writeByte(AllayChunkSection.LAYER_COUNT);
+            buffer.writeByte(0);
+            layer0.writeToStorage(buffer, tag -> tag);
+            layer1.writeToStorage(buffer, tag -> tag);
+        });
+
+        var section = ChunkSectionCodec.deserialize(data, 0, 0, 0);
+
+        assertNotNull(section);
+        assertEquals(POTENT_SULFUR.getDefaultState(), section.getBlockState(1, 1, 1, 0));
     }
 
     private static Palette<NbtMap> readRawLayer0(byte[] data) {

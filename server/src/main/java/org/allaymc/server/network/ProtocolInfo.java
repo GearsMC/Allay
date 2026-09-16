@@ -5,7 +5,7 @@ import org.allaymc.api.utils.SemVersion;
 import org.allaymc.server.network.protocol.ClientVariant;
 import org.allaymc.server.network.protocol.ProtocolRegistry;
 import org.allaymc.updater.block.BlockStateUpdater;
-import org.allaymc.updater.block.BlockStateUpdater_1_21_110;
+import org.allaymc.updater.block.BlockStateUpdater_1_26_30;
 import org.allaymc.updater.item.ItemStateUpdater;
 import org.allaymc.updater.item.ItemStateUpdater_1_26_20;
 import org.cloudburstmc.protocol.bedrock.codec.BedrockCodec;
@@ -49,8 +49,15 @@ public final class ProtocolInfo {
 
     /**
      * The currently used block state updater instance.
+     *
+     * <p>GearsMC fork: güncelleyici GearsMC/StateUpdater'dan gelir ve 1.26.30 adımındadır, ama
+     * {@link #BLOCK_STATE_VERSION} bilerek 1.21.110.26'da bırakıldı. Güncelleyici kayıttaki sürüme bakmaz, her adımı
+     * hedef sürüme kadar eşleşen etikete uygular. Sürüm numarası yalnızca hızlı okuma yolunu seçer: artırılırsa daha önce
+     * kaydedilmiş bütün bölümler yeniden kaydedilene kadar yavaş yoldan okunur. 1.26.30 adımı yalnızca özelliği eksik
+     * {@code minecraft:potent_sulfur}'u etkiliyor ve Allay bu bloğu hep özelliğiyle yazdı, yani artırmak bir şey
+     * kazandırmaz. Numara, eski veride eksik olan durumlar eklenince (26.50 köşe/bağlantı, Adım 6) artırılır.</p>
      */
-    public static final BlockStateUpdater BLOCK_STATE_UPDATER = BlockStateUpdater_1_21_110.INSTANCE;
+    public static final BlockStateUpdater BLOCK_STATE_UPDATER = BlockStateUpdater_1_26_30.INSTANCE;
 
     /**
      * The currently used item state updater instance.

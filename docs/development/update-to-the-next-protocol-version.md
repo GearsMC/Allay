@@ -97,6 +97,15 @@ Update to the latest versions of:
 - [AllayMC/Protocol](https://github.com/AllayMC/Protocol)
 - [AllayMC/StateUpdater](https://github.com/AllayMC/StateUpdater)
 
+The state updaters are consumed from the [GearsMC/StateUpdater](https://github.com/GearsMC/StateUpdater) fork as an
+included build (`settings.gradle.kts` → `../StateUpdater`), not from Maven. Pull new upstream commits into the fork with
+`git cherry-pick -x`. When the new version adds or changes block states that existing worlds do not have, write the
+`BlockStateUpdater_<version>` step in the fork (with a test), give the fork module a `-G<n>` version that does not exist
+on Maven and use the same version in `gradle/libs.versions.toml`, then point `ProtocolInfo.BLOCK_STATE_UPDATER` at it.
+Bump `ProtocolInfo.BLOCK_STATE_VERSION` only together with such a data change: the updater ignores the stored version,
+the number only selects the fast load path, and bumping it sends every previously saved chunk section through the slow
+path until it is saved again.
+
 Keep `ProtocolInfo.FEATURE_VERSION` and the block/item state updater constants aligned with the data files. Supported
 client versions are owned by `ProtocolRegistry`, not `ProtocolInfo`.
 
