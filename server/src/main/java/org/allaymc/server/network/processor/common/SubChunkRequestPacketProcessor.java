@@ -259,7 +259,7 @@ public class SubChunkRequestPacketProcessor extends PacketProcessor<SubChunkRequ
                 blockEntityBytesHolder[0] = null;
             } else {
                 resultHolder[0] = SubChunkRequestResult.SUCCESS;
-                sectionBlobHolder[0] = ChunkEncoder.encodeSectionBlob(subChunk);
+                sectionBlobHolder[0] = ChunkEncoder.encodeSectionBlob(subChunk, ((AllayPlayer) player).getProtocol().getEncoder()::networkBlockId);
 
                 var blockEntities = chunk.getSectionBlockEntities(sectionY);
                 if (!blockEntities.isEmpty()) {

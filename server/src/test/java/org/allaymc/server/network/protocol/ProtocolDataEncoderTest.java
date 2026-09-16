@@ -153,14 +153,16 @@ class ProtocolDataEncoderTest {
         var air = NetworkHelper.toNetwork(
                 ItemAirStack.AIR_STACK,
                 protocol.getItemDefinitionRegistry(),
-                protocol.getBlockDefinitionRegistry()
+                protocol.getBlockDefinitionRegistry(),
+                protocol.getEncoder()::networkBlockId
         );
         assertTrue(protocol.getItemDefinitionRegistry().isRegistered(air.getDefinition()));
 
         var blockItem = NetworkHelper.toNetwork(
                 TestRegistryFixtures.customDefinitionBlockType().getItemType().createItemStack(1),
                 protocol.getItemDefinitionRegistry(),
-                protocol.getBlockDefinitionRegistry()
+                protocol.getBlockDefinitionRegistry(),
+                protocol.getEncoder()::networkBlockId
         );
         assertTrue(protocol.getItemDefinitionRegistry().isRegistered(blockItem.getDefinition()));
         assertTrue(protocol.getBlockDefinitionRegistry().isRegistered(blockItem.getBlockDefinition()));

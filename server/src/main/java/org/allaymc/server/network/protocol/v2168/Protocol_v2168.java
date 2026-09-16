@@ -40,6 +40,14 @@ public class Protocol_v2168 extends Protocol_v1001 {
         super(codec, variant);
     }
 
+    /**
+     * Resmi blok paleti; 2168 ve 2169 protokolleri bu paleti kullanır.
+     */
+    @Override
+    protected String getBlockPaletteResource() {
+        return "protocol_palettes/1_26_40.nbt";
+    }
+
     @Override
     protected PacketEncoder createEncoder(ProtocolData data) {
         return new PacketEncoder_v2168(data);

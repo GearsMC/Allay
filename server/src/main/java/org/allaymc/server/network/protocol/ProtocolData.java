@@ -20,6 +20,7 @@ import java.util.Objects;
  * @param creativeItems creative inventory entries in network order
  * @param customBlockProperties custom block properties in network order
  * @param recipeTable encoded recipes and their server-side lookup index
+ * @param blockNetworkIds sunucu blok durumlarını bu protokolün ağ kimliklerine çeviren eşleme
  */
 public record ProtocolData(
         List<ItemDefinition> itemDefinitions,
@@ -27,7 +28,8 @@ public record ProtocolData(
         List<CreativeItemGroup> creativeGroups,
         List<CreativeItemData> creativeItems,
         List<BlockPropertyData> customBlockProperties,
-        RecipeTable recipeTable
+        RecipeTable recipeTable,
+        BlockNetworkIdMapping blockNetworkIds
 ) {
     public ProtocolData {
         itemDefinitions = List.copyOf(Objects.requireNonNull(itemDefinitions, "itemDefinitions"));
@@ -36,5 +38,6 @@ public record ProtocolData(
         creativeItems = List.copyOf(Objects.requireNonNull(creativeItems, "creativeItems"));
         customBlockProperties = List.copyOf(Objects.requireNonNull(customBlockProperties, "customBlockProperties"));
         recipeTable = Objects.requireNonNull(recipeTable, "recipeTable");
+        blockNetworkIds = Objects.requireNonNull(blockNetworkIds, "blockNetworkIds");
     }
 }

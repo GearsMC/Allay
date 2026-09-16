@@ -7,6 +7,7 @@ import io.netty.buffer.Unpooled;
 import lombok.extern.slf4j.Slf4j;
 import org.allaymc.api.block.type.BlockState;
 import org.allaymc.api.world.biome.BiomeType;
+import org.allaymc.server.datastruct.palette.IntSerializer;
 import org.allaymc.server.datastruct.palette.Palette;
 import org.cloudburstmc.nbt.NbtUtils;
 
@@ -15,10 +16,10 @@ import org.cloudburstmc.nbt.NbtUtils;
  */
 @Slf4j
 public final class ChunkEncoder {
-    public static ByteBuf writeToNetwork(AllayUnsafeChunk chunk) {
+    public static ByteBuf writeToNetwork(AllayUnsafeChunk chunk, IntSerializer<BlockState> blockNetworkId) {
         var byteBuf = ByteBufAllocator.DEFAULT.ioBuffer();
         try {
-            writeBlocks(chunk, byteBuf);
+            writeBlocks(chunk, byteBuf, blockNetworkId);
             writeBiomes(chunk, byteBuf);
             // Length of 1 byte for the border block count
             byteBuf.writeByte(0);
@@ -45,7 +46,7 @@ public final class ChunkEncoder {
         }
     }
 
-    public static void writeToNetwork(AllayChunkSection section, ByteBuf byteBuf) {
+    public static void writeToNetwork(AllayChunkSection section, ByteBuf byteBuf, IntSerializer<BlockState> blockNetworkId) {
         byteBuf.writeByte(AllayChunkSection.CURRENT_CHUNK_SECTION_VERSION);
         // Block layer count
         byteBuf.writeByte(AllayChunkSection.LAYER_COUNT);
@@ -53,17 +54,19 @@ public final class ChunkEncoder {
         byteBuf.writeByte(section.sectionY());
 
         for (var blockLayer : section.blockLayers()) {
-            blockLayer.writeToNetwork(byteBuf, BlockState::blockStateHash, null);
+            blockLayer.writeToNetwork(byteBuf, blockNetworkId, null);
         }
     }
 
     /**
      * Encode a single section as byte[] blob (blocks only, no block entities).
+     *
+     * @param blockNetworkId blok durumunun hedef istemcideki ağ kimliği ({@code PacketEncoder#networkBlockId})
      */
-    public static byte[] encodeSectionBlob(AllayChunkSection section) {
+    public static byte[] encodeSectionBlob(AllayChunkSection section, IntSerializer<BlockState> blockNetworkId) {
         var byteBuf = ByteBufAllocator.DEFAULT.ioBuffer();
         try {
-            writeToNetwork(section, byteBuf);
+            writeToNetwork(section, byteBuf, blockNetworkId);
             byte[] data = new byte[byteBuf.readableBytes()];
             byteBuf.readBytes(data);
             return data;
@@ -105,10 +108,10 @@ public final class ChunkEncoder {
         }
     }
 
-    private static void writeBlocks(AllayUnsafeChunk chunk, ByteBuf byteBuf) {
+    private static void writeBlocks(AllayUnsafeChunk chunk, ByteBuf byteBuf, IntSerializer<BlockState> blockNetworkId) {
         var dimensionType = chunk.getDimensionType();
         for (int i = dimensionType.minSectionY(); i <= dimensionType.maxSectionY(); i++) {
-            ChunkEncoder.writeToNetwork(chunk.getSection(i), byteBuf);
+            ChunkEncoder.writeToNetwork(chunk.getSection(i), byteBuf, blockNetworkId);
         }
     }
 

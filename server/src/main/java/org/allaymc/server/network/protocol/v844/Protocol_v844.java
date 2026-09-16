@@ -27,6 +27,14 @@ public class Protocol_v844 extends Protocol_v827 {
         return encodePackedMaterialInstance(material, tintMethod);
     }
 
+    /**
+     * Resmi blok paleti; 844, 859, 860, 898 ve 924 protokolleri bu paleti kullanır.
+     */
+    @Override
+    protected String getBlockPaletteResource() {
+        return "protocol_palettes/1_21_111.nbt";
+    }
+
     @Override
     protected PacketEncoder createEncoder(ProtocolData data) {
         return new PacketEncoder_v844(data);

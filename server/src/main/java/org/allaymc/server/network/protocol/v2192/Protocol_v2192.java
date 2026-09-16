@@ -20,6 +20,14 @@ public class Protocol_v2192 extends Protocol_v2169 {
         super(codec, variant);
     }
 
+    /**
+     * Resmi blok paleti; 2192 ve 2193 protokolleri bu paleti kullanır.
+     */
+    @Override
+    protected String getBlockPaletteResource() {
+        return "protocol_palettes/1_26_50.nbt";
+    }
+
     @Override
     protected PacketEncoder createEncoder(ProtocolData data) {
         return new PacketEncoder_v2192(data);

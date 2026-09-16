@@ -486,7 +486,7 @@ public class PacketEncoder_v766 extends PacketEncoder {
         return dimensionType.minSectionY();
     }
 
-    private static LevelChunkPacket createFullLevelChunkPacket(
+    private LevelChunkPacket createFullLevelChunkPacket(
             AllayUnsafeChunk chunk,
             ChunkCache cache,
             UUID playerId,
@@ -505,7 +505,8 @@ public class PacketEncoder_v766 extends PacketEncoder {
             byte[][] allBlobs = new byte[sectionCount + 1][];
             for (int i = 0; i < sectionCount; i++) {
                 allBlobs[i] = ChunkEncoder.encodeSectionBlob(
-                        chunk.getSection(dimensionType.minSectionY() + i)
+                        chunk.getSection(dimensionType.minSectionY() + i),
+                        this::networkBlockId
                 );
             }
             allBlobs[sectionCount] = ChunkEncoder.encodeBiomesBlob(chunk);
@@ -526,7 +527,7 @@ public class PacketEncoder_v766 extends PacketEncoder {
         }
 
         packet.setCachingEnabled(false);
-        packet.setData(ChunkEncoder.writeToNetwork(chunk));
+        packet.setData(ChunkEncoder.writeToNetwork(chunk, this::networkBlockId));
         return packet;
     }
 
@@ -560,7 +561,8 @@ public class PacketEncoder_v766 extends PacketEncoder {
         var packet = new UpdateBlockPacket();
         packet.setBlockPosition(NetworkHelper.toNetwork(position));
         packet.setDataLayer(layer);
-        packet.setDefinition(blockState::blockStateHash);
+        int networkId = networkBlockId(blockState);
+        packet.setDefinition(() -> networkId);
         packet.getFlags().add(UpdateBlockPacket.Flag.NETWORK);
         return packet;
     }
@@ -580,7 +582,7 @@ public class PacketEncoder_v766 extends PacketEncoder {
         return Arrays.stream(packets).filter(Objects::nonNull).toList();
     }
 
-    private static void encodeBlockUpdates(
+    private void encodeBlockUpdates(
             UpdateSubChunkBlocksPacket[] packets,
             Chunk chunk,
             Collection<BlockUpdate> blockUpdates,
@@ -600,9 +602,10 @@ public class PacketEncoder_v766 extends PacketEncoder {
                 packets[index] = packet;
             }
 
+            int networkId = networkBlockId(update.blockState());
             var entry = new BlockChangeEntry(
                     Vector3i.from(update.x(), update.y(), update.z()),
-                    update.blockState()::blockStateHash,
+                    () -> networkId,
                     NetworkHelper.BLOCK_UPDATE_NETWORK,
                     -1,
                     BlockChangeEntry.MessageType.NONE
@@ -788,7 +791,7 @@ public class PacketEncoder_v766 extends PacketEncoder {
             }
             case BlockBreakParticle blockBreak -> {
                 packet.setType(LevelEvent.PARTICLE_DESTROY_BLOCK);
-                packet.setData(blockBreak.blockState().blockStateHash());
+                packet.setData(networkBlockId(blockBreak.blockState()));
             }
             case PunchBlockParticle punch -> {
                 packet.setType(switch (Objects.requireNonNull(punch.blockFace())) {
@@ -799,7 +802,7 @@ public class PacketEncoder_v766 extends PacketEncoder {
                     case WEST -> LevelEvent.PARTICLE_BREAK_BLOCK_WEST;
                     case EAST -> LevelEvent.PARTICLE_BREAK_BLOCK_EAST;
                 });
-                packet.setData(punch.blockState().blockStateHash());
+                packet.setData(networkBlockId(punch.blockState()));
             }
             case FlameParticle flame -> {
                 packet.setType(ParticleType.FLAME);
@@ -1325,7 +1328,7 @@ public class PacketEncoder_v766 extends PacketEncoder {
         return target != null ? target.getUniqueId().getLeastSignificantBits() : -1L;
     }
 
-    private static void addTypeSpecificMetadata(Entity entity, EntityDataMap metadata) {
+    private void addTypeSpecificMetadata(Entity entity, EntityDataMap metadata) {
         switch (entity) {
             case EntityTnt tnt -> {
                 metadata.setFlag(EntityFlag.IGNITED, true);
@@ -1346,7 +1349,7 @@ public class PacketEncoder_v766 extends PacketEncoder {
             }
             case EntityFallingBlock fallingBlock -> {
                 metadata.setFlag(EntityFlag.FIRE_IMMUNE, true);
-                metadata.put(EntityDataTypes.VARIANT, fallingBlock.getBlockState().blockStateHash());
+                metadata.put(EntityDataTypes.VARIANT, networkBlockId(fallingBlock.getBlockState()));
             }
             case EntityXpOrb xpOrb -> metadata.put(EntityDataTypes.VALUE, xpOrb.getExperienceValue());
             case EntityArrow arrow -> metadata.setFlag(EntityFlag.CRITICAL, arrow.isCritical());
@@ -2105,39 +2108,39 @@ public class PacketEncoder_v766 extends PacketEncoder {
             }
             case DoorSound so -> {
                 packet.setSound(so.open() ? SoundEvent.DOOR_OPEN : SoundEvent.DOOR_CLOSE);
-                packet.setExtraData(so.blockState().blockStateHash());
+                packet.setExtraData(networkBlockId(so.blockState()));
             }
             case ButtonPressSound so -> {
                 packet.setSound(SoundEvent.BUTTON_CLICK_ON);
-                packet.setExtraData(so.blockState().blockStateHash());
+                packet.setExtraData(networkBlockId(so.blockState()));
             }
             case ButtonReleaseSound so -> {
                 packet.setSound(SoundEvent.BUTTON_CLICK_OFF);
-                packet.setExtraData(so.blockState().blockStateHash());
+                packet.setExtraData(networkBlockId(so.blockState()));
             }
             case PressurePlateSound so -> {
                 packet.setSound(so.activated() ? SoundEvent.PRESSURE_PLATE_CLICK_ON : SoundEvent.PRESSURE_PLATE_CLICK_OFF);
-                packet.setExtraData(so.blockState().blockStateHash());
+                packet.setExtraData(networkBlockId(so.blockState()));
             }
             case TrapdoorSound so -> {
                 packet.setSound(so.open() ? SoundEvent.TRAPDOOR_OPEN : SoundEvent.TRAPDOOR_CLOSE);
-                packet.setExtraData(so.blockState().blockStateHash());
+                packet.setExtraData(networkBlockId(so.blockState()));
             }
             case FenceGateSound so -> {
                 packet.setSound(so.open() ? SoundEvent.FENCE_GATE_OPEN : SoundEvent.FENCE_GATE_CLOSE);
-                packet.setExtraData(so.blockState().blockStateHash());
+                packet.setExtraData(networkBlockId(so.blockState()));
             }
             case BlockPlaceSound so -> {
                 packet.setSound(SoundEvent.PLACE);
-                packet.setExtraData(so.blockState().blockStateHash());
+                packet.setExtraData(networkBlockId(so.blockState()));
             }
             case BlockBreakingSound so -> {
                 packet.setSound(SoundEvent.HIT);
-                packet.setExtraData(so.blockState().blockStateHash());
+                packet.setExtraData(networkBlockId(so.blockState()));
             }
             case ItemUseOnBlockSound so -> {
                 packet.setSound(SoundEvent.ITEM_USE_ON);
-                packet.setExtraData(so.blockState().blockStateHash());
+                packet.setExtraData(networkBlockId(so.blockState()));
             }
             case AttackSound so -> {
                 packet.setIdentifier("minecraft:player");
@@ -2205,7 +2208,7 @@ public class PacketEncoder_v766 extends PacketEncoder {
             }
             case RespawnAnchorChargeSound so -> {
                 packet.setSound(SoundEvent.RESPAWN_ANCHOR_CHARGE);
-                packet.setExtraData(so.blockState().blockStateHash());
+                packet.setExtraData(networkBlockId(so.blockState()));
             }
             case ChiseledBookshelfSound so -> {
                 PlaySoundPacket playSound = new PlaySoundPacket();

@@ -16,6 +16,14 @@ public class Protocol_v827 extends Protocol_v819 {
         super(codec, variant);
     }
 
+    /**
+     * Resmi blok paleti; 827 protokolleri bu paleti kullanır.
+     */
+    @Override
+    protected String getBlockPaletteResource() {
+        return "protocol_palettes/1_21_100.nbt";
+    }
+
     @Override
     protected PacketEncoder createEncoder(ProtocolData data) {
         return new PacketEncoder_v827(data);

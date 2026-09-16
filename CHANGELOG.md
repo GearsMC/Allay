@@ -40,6 +40,7 @@ Unless otherwise specified, any version comparison below is the comparison of th
 * Fixed inventory synchronization after cancelled item drop actions.
 * Fixed swing sound effect playback position so it is relative to the player.
 * Fixed MCBE 1.26.50 clients disconnecting with "Missing structure data from server" by sending empty jigsaw structure data before `StartGamePacket`.
+* Fixed MCBE 1.26.50 clients not rendering stairs, fences, glass panes, bars and tripwire. Block runtime IDs are now translated per protocol against the official block palette of each client version (`protocol_palettes/`, from CloudburstMC/Data); block types an older client does not know are sent as `minecraft:unknown` instead of an ID the client silently drops.
 
 # 0.13.0 (API 0.28.0) - 2026/5/15
 

@@ -143,7 +143,8 @@ class ProtocolInitializationTest {
                 List.of(),
                 List.of(),
                 List.of(),
-                new RecipeTable(List.of(), List.of(), new Int2ObjectOpenHashMap<Recipe>())
+                new RecipeTable(List.of(), List.of(), new Int2ObjectOpenHashMap<Recipe>()),
+                BlockNetworkIdMapping.identity()
         );
     }
 

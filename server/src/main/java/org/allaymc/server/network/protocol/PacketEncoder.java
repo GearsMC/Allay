@@ -89,14 +89,25 @@ public abstract class PacketEncoder {
         return data;
     }
 
+    /**
+     * Bir blok durumunun bu protokolün istemcisine gidecek ağ kimliği.
+     *
+     * <p>Blok kimliği taşıyan her paket (chunk, blok güncellemesi, olay, ses, varlık verisi, eşya) bunu kullanmalı;
+     * {@link BlockState#blockStateHash()} doğrudan gönderilirse sunucu verisinden farklı paleti olan istemci bloğu
+     * çizmez.</p>
+     */
+    public final int networkBlockId(BlockState blockState) {
+        return data.blockNetworkIds().networkId(blockState);
+    }
+
     /** Converts an item stack using the target protocol's item and block definitions. */
     protected final ItemData encodeItemStack(ItemStack itemStack) {
-        return NetworkHelper.toNetwork(itemStack, itemDefinitions, blockDefinitions);
+        return NetworkHelper.toNetwork(itemStack, itemDefinitions, blockDefinitions, this::networkBlockId);
     }
 
     /** Converts item stacks using the target protocol's item and block definitions. */
     protected final List<ItemData> encodeItemStacks(List<ItemStack> itemStacks) {
-        return NetworkHelper.toNetwork(itemStacks, itemDefinitions, blockDefinitions);
+        return NetworkHelper.toNetwork(itemStacks, itemDefinitions, blockDefinitions, this::networkBlockId);
     }
 
     /** Encodes the item definitions advertised to the client. */
