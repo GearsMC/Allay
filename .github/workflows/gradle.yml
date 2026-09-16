@@ -8,6 +8,7 @@ on:
       - gradle/libs.versions.toml
       - gradle.properties
       - build.gradle.kts
+      - settings.gradle.kts
       - api/**
       - server/**
       - data/**
@@ -17,6 +18,7 @@ on:
       - gradle/libs.versions.toml
       - gradle.properties
       - build.gradle.kts
+      - settings.gradle.kts
       - api/**
       - server/**
       - data/**
@@ -24,10 +26,18 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v7
+
+      - name: Checkout GearsMC Forks
+        # GearsMC: settings.gradle.kts, Protocol ve StateUpdater fork'larını ../Protocol ve ../StateUpdater'dan kaynak
+        # olarak dahil ediyor. Fork'a özgü kodekler ve güncelleyici adımları Maven'da olmadığı için bunlar olmadan
+        # derleme kırılır. Klasörler depo dışında olduğundan actions/checkout yerine düz clone kullanılıyor.
+        run: |
+          git clone --depth 1 https://github.com/GearsMC/Protocol.git ../Protocol
+          git clone --depth 1 https://github.com/GearsMC/StateUpdater.git ../StateUpdater
 
       - name: Setup Java
         uses: actions/setup-java@v5
