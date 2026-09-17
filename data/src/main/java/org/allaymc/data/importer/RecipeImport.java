@@ -19,7 +19,7 @@ import java.util.Set;
  * CloudburstMC/Data {@code recipes.json}'u (BDS'in {@code CraftingDataPacket}'i) Allay'in Endstone tarif biçimine
  * çevirir.
  *
- * <p>Dönüşüm kuralları {@code StagedBedrockDataTest#recipesKeepEveryCurrentRecipe} ile doğrulanır: bugünkü her tarif,
+ * <p>Dönüşüm kuralları 26.30 → 26.50 geçişinde {@code StagedBedrockDataTest} (git geçmişi) ile doğrulandı: o günkü her tarif,
  * ağ kimlikleri ({@code netId}, {@code uuid}) dışında birebir üretilmelidir. {@code netId}/{@code uuid} Allay'in tarif
  * yükleyicisinde okunmuyor, bu yüzden yazılmaz.</p>
  */

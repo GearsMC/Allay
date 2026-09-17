@@ -3,6 +3,8 @@ package org.allaymc.server.network.protocol;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import org.allaymc.api.block.property.enums.MinecraftCorner;
+import org.allaymc.api.block.property.type.BlockPropertyTypes;
 import org.allaymc.api.block.type.BlockState;
 import org.allaymc.api.block.type.BlockTypes;
 import org.allaymc.api.registry.Registries;
@@ -97,7 +99,7 @@ class BlockNetworkIdMappingTest {
 
     @Test
     void protocolsWhosePaletteMatchesServerDataSendStateHashesUnchanged() {
-        for (int version : List.of(1001, 2168, 2169)) {
+        for (int version : List.of(2192, 2193)) {
             var encoder = international(version).getEncoder();
             for (var state : vanillaStates) {
                 assertEquals(state.blockStateHash(), encoder.networkBlockId(state), () -> "v" + version + ": " + state);
@@ -105,29 +107,54 @@ class BlockNetworkIdMappingTest {
         }
     }
 
+    /**
+     * Sunucu verisi 26.50'de. 26.40 ve öncesi istemciler merdiven köşesini ve çit/panel bağlantılarını tanımıyor: bu
+     * durumlar atılıp aynı bloğun eski çeşidine gider; o sürümde hiç olmayan tür bilinmeyen bloğa düşer.
+     */
     @Test
-    void v2193SendsTheDefaultVariantOfStatesReshapedIn2650() {
-        var encoder = international(2193).getEncoder();
-        var palette = palette("1_26_50");
+    void olderProtocolsDropStatesAddedIn2650() {
+        var v2169 = international(2169).getEncoder();
+        var v2169Palette = palette("1_26_40");
 
-        long changed = vanillaStates.stream()
-                .filter(state -> encoder.networkBlockId(state) != state.blockStateHash())
-                .count();
-        assertEquals(584, changed, "26.50'de durum kümesi değişen 121 türün 584 durumu çevrilmeli");
+        var cornerStairs = BlockTypes.OAK_STAIRS.getDefaultState()
+                .setPropertyValue(BlockPropertyTypes.MINECRAFT_CORNER, MinecraftCorner.OUTER_LEFT)
+                .setPropertyValue(BlockPropertyTypes.UPSIDE_DOWN_BIT, true)
+                .setPropertyValue(BlockPropertyTypes.WEIRDO_DIRECTION, 2);
+        assertEquals(v2169Palette.hashOf("minecraft:oak_stairs", Map.of("upside_down_bit", 1, "weirdo_direction", 2)),
+                v2169.networkBlockId(cornerStairs));
 
-        var fence = BlockTypes.OAK_FENCE.getDefaultState();
-        assertEquals(palette.hashOf("minecraft:oak_fence", Map.of(
-                "minecraft:connection_north", 0,
-                "minecraft:connection_east", 0,
-                "minecraft:connection_south", 0,
-                "minecraft:connection_west", 0
-        )), encoder.networkBlockId(fence));
+        var connectedFence = BlockTypes.OAK_FENCE.getDefaultState()
+                .setPropertyValue(BlockPropertyTypes.MINECRAFT_CONNECTION_NORTH, true)
+                .setPropertyValue(BlockPropertyTypes.MINECRAFT_CONNECTION_EAST, true);
+        assertEquals(v2169Palette.hashOf("minecraft:oak_fence", Map.of()), v2169.networkBlockId(connectedFence));
 
-        var stairs = BlockTypes.OAK_STAIRS.getDefaultState();
-        var expectedStairs = new HashMap<String, Object>();
-        stairs.getPropertyValues().forEach((type, value) -> expectedStairs.put(type.getName(), value.getSerializedValue()));
-        expectedStairs.put("minecraft:corner", "none");
-        assertEquals(palette.hashOf("minecraft:oak_stairs", expectedStairs), encoder.networkBlockId(stairs));
+        assertEquals(UNKNOWN_BLOCK_ID, v2169.networkBlockId(BlockTypes.WHITE_WOOL_STAIRS.getDefaultState()));
+        assertNotEquals(UNKNOWN_BLOCK_ID, v2169.networkBlockId(BlockTypes.POPLAR_PLANKS.getDefaultState()));
+        assertEquals(UNKNOWN_BLOCK_ID, international(1001).getEncoder().networkBlockId(BlockTypes.POPLAR_PLANKS.getDefaultState()));
+    }
+
+    /**
+     * 26.50'nin 98 yeni bloğu (yün/beton merdiven ve yarım blokları, {@code red_shrub}, {@code shelf_mushroom}) veri güdümlü:
+     * istemci onları ancak sunucu {@code StartGame}'de tanımlarını gönderirse çizer (BDS ve Geyser gönderiyor). Eski
+     * istemcide bu bloklar bilinmeyen blok olduğu için tanım gönderilmez.
+     */
+    @Test
+    void dataDrivenVanillaBlocksAreAdvertisedOnlyTo2650Clients() {
+        for (int version : List.of(2192, 2193)) {
+            var names = international(version).getData().customBlockProperties().stream()
+                    .map(property -> property.name())
+                    .filter(name -> name.startsWith("minecraft:"))
+                    .toList();
+            assertEquals(98, names.size(), "v" + version);
+            for (var name : names) {
+                var blockType = Registries.BLOCKS.get(new org.allaymc.api.utils.identifier.Identifier(name));
+                assertNotNull(blockType, name + " Allay kaydında yok");
+                assertEquals(blockType.getDefaultState().blockStateHash(),
+                        international(version).getEncoder().networkBlockId(blockType.getDefaultState()), name);
+            }
+        }
+        assertTrue(international(2169).getData().customBlockProperties().stream()
+                .noneMatch(property -> property.name().startsWith("minecraft:")));
     }
 
     @Test
@@ -158,21 +185,22 @@ class BlockNetworkIdMappingTest {
 
     @Test
     void blockUpdatesUseTheNetworkIdOfTheTargetProtocol() {
-        var fence = BlockTypes.OAK_FENCE.getDefaultState();
+        var fence = BlockTypes.OAK_FENCE.getDefaultState().setPropertyValue(BlockPropertyTypes.MINECRAFT_CONNECTION_NORTH, true);
         var position = new Vector3i(1, 64, 1);
 
-        var v2193 = international(2193).getEncoder();
-        assertNotEquals(fence.blockStateHash(), v2193.networkBlockId(fence));
-        assertEquals(v2193.networkBlockId(fence), v2193.encodeBlockUpdate(position, 0, fence).getDefinition().runtimeId());
-
         var v1001 = international(1001).getEncoder();
-        assertEquals(fence.blockStateHash(), v1001.encodeBlockUpdate(position, 0, fence).getDefinition().runtimeId());
+        assertNotEquals(fence.blockStateHash(), v1001.networkBlockId(fence));
+        assertEquals(v1001.networkBlockId(fence), v1001.encodeBlockUpdate(position, 0, fence).getDefinition().runtimeId());
+
+        var v2193 = international(2193).getEncoder();
+        assertEquals(fence.blockStateHash(), v2193.encodeBlockUpdate(position, 0, fence).getDefinition().runtimeId());
     }
 
     @Test
     void creativeBlockItemsUseTheNetworkIdOfTheTargetProtocol() {
-        var protocol = international(2193);
+        var protocol = international(1001);
         int fenceId = protocol.getEncoder().networkBlockId(BlockTypes.OAK_FENCE.getDefaultState());
+        assertNotEquals(BlockTypes.OAK_FENCE.getDefaultState().blockStateHash(), fenceId);
 
         var fenceItems = protocol.getData().creativeItems().stream()
                 .map(creativeItem -> creativeItem.item())
@@ -189,7 +217,8 @@ class BlockNetworkIdMappingTest {
         var fence = BlockTypes.OAK_FENCE.getDefaultState();
         var section = new AllayChunkSection((byte) 4);
         section.setBlockState(0, 0, 0, fence, 0);
-        var encoder = international(2193).getEncoder();
+        var encoder = international(1001).getEncoder();
+        assertNotEquals(fence.blockStateHash(), encoder.networkBlockId(fence));
 
         var buffer = Unpooled.wrappedBuffer(ChunkEncoder.encodeSectionBlob(section, encoder::networkBlockId));
         buffer.skipBytes(3); // sürüm, katman sayısı, bölüm Y

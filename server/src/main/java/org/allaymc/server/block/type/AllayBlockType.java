@@ -187,7 +187,8 @@ public final class AllayBlockType<T extends BlockBehavior> implements BlockType<
 
         this.defaultState = defaultStateSupplier.apply(blockStates);
         if (this.defaultState == null) {
-            throw new BlockTypeBuildException("Block default state supplier cannot return null!");
+            // GearsMC fork: veri güncellemesinde hangi türün özellik listesi paletle uyuşmadığı görünsün.
+            throw new BlockTypeBuildException("Block default state supplier cannot return null! Block: " + identifier);
         }
 
         return Collections.unmodifiableMap(blockStates);

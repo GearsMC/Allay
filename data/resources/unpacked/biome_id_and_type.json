@@ -59,6 +59,10 @@
     "id": 179,
     "type": "DataDriven"
   },
+  "dappled_forest": {
+    "id": 195,
+    "type": "Forest"
+  },
   "deep_cold_ocean": {
     "id": 45,
     "type": "Ocean"
@@ -251,6 +255,10 @@
     "id": 0,
     "type": "Ocean"
   },
+  "pale_garden": {
+    "id": 193,
+    "type": "Forest"
+  },
   "plains": {
     "id": 1,
     "type": "Plain"
@@ -307,6 +315,10 @@
     "id": 189,
     "type": "DataDriven"
   },
+  "sulfur_caves": {
+    "id": 194,
+    "type": "DataDriven"
+  },
   "sunflower_plains": {
     "id": 129,
     "type": "Plain"
@@ -342,9 +354,5 @@
   "warped_forest": {
     "id": 180,
     "type": "DataDriven"
-  },
-  "pale_garden": {
-    "id": 193,
-    "type": "Forest"
   }
 }

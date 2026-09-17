@@ -20,7 +20,7 @@ import static org.allaymc.data.importer.DataFiles.*;
  *
  * <p>Çıktı {@link #OUTPUT} altına yazılır ve sunucu tarafından okunmaz. {@code resources/} ile {@code unpacked/}
  * alt klasörleri {@code data/resources} ve {@code data/resources/unpacked} düzenini aynen izler; veri devreye
- * alınırken (Adım 6) dosyalar yerine taşınır. Doğrulama: {@code StagedBedrockDataTest}.</p>
+ * alınırken dosyalar yerine taşınır (26.50 için Adım 6). Doğrulama: {@code BedrockDataTest}.</p>
  *
  * <p>Çalıştırma (depo kökünden, ağ gerekir): {@code ./gradlew :data:importBedrockData}</p>
  */

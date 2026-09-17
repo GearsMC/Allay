@@ -17,3 +17,12 @@ tasks.register<JavaExec>("importBedrockData") {
     mainClass = "org.allaymc.data.importer.BedrockDataImporter"
     workingDir = rootProject.projectDir
 }
+
+// GearsMC: veri işlemcilerini (LangBuilder, BlockStateDataProcessor, ...) IDE olmadan çalıştırmak için.
+// ./gradlew :data:runMain -PmainClass=org.allaymc.data.LangBuilder
+tasks.register<JavaExec>("runMain") {
+    group = "data"
+    classpath = sourceSets["main"].runtimeClasspath
+    mainClass = providers.gradleProperty("mainClass")
+    workingDir = rootProject.projectDir
+}

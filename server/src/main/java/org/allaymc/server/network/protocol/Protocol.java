@@ -30,9 +30,11 @@ import org.allaymc.server.network.processor.PacketProcessorHolder;
 import org.allaymc.server.network.processor.PacketProcessorRegistry;
 import org.allaymc.server.registry.InternalRegistries;
 import org.allaymc.server.utils.MolangUtils;
+import org.allaymc.api.utils.Utils;
 import org.cloudburstmc.nbt.NbtList;
 import org.cloudburstmc.nbt.NbtMap;
 import org.cloudburstmc.nbt.NbtType;
+import org.cloudburstmc.nbt.NbtUtils;
 import org.cloudburstmc.protocol.bedrock.codec.BedrockCodec;
 import org.cloudburstmc.protocol.bedrock.data.BlockPropertyData;
 import org.cloudburstmc.protocol.bedrock.data.definitions.BlockDefinition;
@@ -48,6 +50,9 @@ import org.cloudburstmc.protocol.bedrock.definition.DefinitionRegistry;
 import org.cloudburstmc.protocol.bedrock.definition.SimpleDefinitionRegistry;
 import org.joml.Vector3fc;
 
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.*;
 
 /**
@@ -335,6 +340,20 @@ public abstract class Protocol {
     }
 
     /**
+     * Bu protokolün istemcisine {@code StartGame}'de tanımı gönderilen veri güdümlü vanilla bloklar
+     * ({@code data/resources/protocol_palettes}).
+     *
+     * <p>GearsMC fork: 26.50'nin yeni blokları (yün/beton merdiven ve yarım blokları, {@code red_shrub},
+     * {@code shelf_mushroom}) istemcinin kendi verisinde yok; istemci onları ancak tanımları gelirse çizer. BDS ve Geyser
+     * bu tanımları gönderiyor. Eski istemcide bu bloklar bilinmeyen bloğa çevrildiği için tanım gönderilmez.</p>
+     *
+     * @return sınıf yolundaki tanım dosyası ya da {@code null}
+     */
+    protected String getDataDrivenBlocksResource() {
+        return null;
+    }
+
+    /**
      * Sunucu blok durumlarını bu protokolün ağ kimliklerine çeviren eşlemeyi kurar.
      *
      * @return eşleme; resmi palet yoksa birebir eşleme
@@ -393,6 +412,15 @@ public abstract class Protocol {
      */
     protected List<BlockPropertyData> createCustomBlockProperties() {
         var properties = new ArrayList<BlockPropertyData>();
+        var dataDrivenBlocks = getDataDrivenBlocksResource();
+        if (dataDrivenBlocks != null) {
+            try (var reader = NbtUtils.createGZIPReader(new BufferedInputStream(Utils.getResource(dataDrivenBlocks)))) {
+                var definitions = (NbtMap) reader.readTag();
+                new TreeMap<>(definitions).forEach((name, definition) -> properties.add(new BlockPropertyData(name, (NbtMap) definition)));
+            } catch (IOException exception) {
+                throw new UncheckedIOException("veri güdümlü blok tanımları okunamadı: " + dataDrivenBlocks, exception);
+            }
+        }
         var blockTypes = Registries.BLOCKS.getContent().values().stream()
                 .map(blockType -> (AllayBlockType<?>) blockType)
                 .filter(blockType -> blockType.getCustomBlockDefinition() != null)

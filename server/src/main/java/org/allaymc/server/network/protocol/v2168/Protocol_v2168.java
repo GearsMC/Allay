@@ -24,11 +24,10 @@ import org.cloudburstmc.protocol.bedrock.codec.v2168.Bedrock_v2168_hotfix4;
  * hotfix4 bizim icin davranis degistirmiyor, buna karsilik bildirilen surum
  * dizesi ("1.26.44") guncel istemciyle ortusuyor.</p>
  *
- * <p>Oyun verisi hala 1.26.30: {@code data/resources} altindaki statik dosyalar
- * yenilenmedigi icin v2168 istemcileri baglanir ama 1.26.30 blok paleti, esyalari
- * ve tarifleriyle oynar. Bunu duzeltmek {@code ProtocolInfo.FEATURE_VERSION}
- * sabitini degistirmekle olmaz — o sabit veriyi secmez; bkz.
- * {@code data/resources/unpacked/staging-1.26.40/README.md}.</p>
+ * <p>Oyun verisi 26.50 (2026-09-17). v2168 istemcisine giden blok kimlikleri
+ * {@code protocol_palettes/1_26_40.nbt} ile çevrilir: 26.50'nin eklediği köşe ve
+ * bağlantı durumları atılır, 26.40'ta olmayan bloklar bilinmeyen bloğa gider
+ * ({@code BlockNetworkIdMapping}).</p>
  */
 public class Protocol_v2168 extends Protocol_v1001 {
 

@@ -18,7 +18,7 @@ import org.joml.Vector3ic;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.allaymc.api.block.property.type.BlockPropertyTypes.GROWTH;
+import static org.allaymc.api.block.property.type.BlockPropertyTypes.GROWTH_8;
 
 /**
  * @author daoge_cmd
@@ -33,7 +33,7 @@ public class BlockTorchflowerCropBaseComponentImpl extends BlockCropsBaseCompone
 
     @Override
     protected boolean onBoneMealUsed(Dimension dimension, Vector3ic pos, BlockState crop) {
-        var growth = crop.getPropertyValue(GROWTH);
+        var growth = crop.getPropertyValue(GROWTH_8);
         if (growth >= MAX_GROWTH) {
             // Already at max crop stage, transform to torchflower flower block
             var newState = BlockTypes.TORCHFLOWER.getDefaultState();
@@ -45,7 +45,7 @@ public class BlockTorchflowerCropBaseComponentImpl extends BlockCropsBaseCompone
             return false;
         }
 
-        var newCrop = crop.setPropertyValue(GROWTH, growth + 1);
+        var newCrop = crop.setPropertyValue(GROWTH_8, growth + 1);
         var event = new BlockGrowEvent(new Block(crop, new Position3i(pos, dimension)), newCrop);
         if (event.call()) {
             dimension.setBlockState(pos, event.getNewBlockState());
@@ -65,10 +65,10 @@ public class BlockTorchflowerCropBaseComponentImpl extends BlockCropsBaseCompone
                 block.breakBlock();
             }
         } else {
-            var growth = block.getPropertyValue(GROWTH);
+            var growth = block.getPropertyValue(GROWTH_8);
             if (growth < MAX_GROWTH) {
                 if (ThreadLocalRandom.current().nextFloat() <= calculateGrowthChance(block)) {
-                    var newCrop = block.setPropertyValue(GROWTH, growth + 1);
+                    var newCrop = block.setPropertyValue(GROWTH_8, growth + 1);
                     var event = new BlockGrowEvent(block, newCrop.getBlockState());
                     if (event.call()) {
                         block.getDimension().setBlockState(block.getPosition(), event.getNewBlockState());

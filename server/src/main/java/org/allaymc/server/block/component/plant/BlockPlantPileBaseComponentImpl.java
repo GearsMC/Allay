@@ -74,10 +74,10 @@ public class BlockPlantPileBaseComponentImpl extends BlockBaseComponentImpl {
 
         var center = MathUtils.center(interactInfo.clickedBlockPos());
         var block = interactInfo.getClickedBlock();
-        var growth = block.getPropertyValue(BlockPropertyTypes.GROWTH);
+        var growth = block.getPropertyValue(BlockPropertyTypes.GROWTH_8);
         if (itemStack.getItemType() == ItemTypes.BONE_MEAL) {
             if (growth < 3) {
-                block.updateBlockProperty(BlockPropertyTypes.GROWTH, growth + 1);
+                block.updateBlockProperty(BlockPropertyTypes.GROWTH_8, growth + 1);
             } else {
                 interactInfo.player().getDimension().dropItem(this.blockType.getItemType().createItemStack(), center);
             }
@@ -88,7 +88,7 @@ public class BlockPlantPileBaseComponentImpl extends BlockBaseComponentImpl {
         }
 
         if (itemStack.getItemType() == this.blockType.getItemType() && growth < 3) {
-            block.updateBlockProperty(BlockPropertyTypes.GROWTH, growth + 1);
+            block.updateBlockProperty(BlockPropertyTypes.GROWTH_8, growth + 1);
             interactInfo.player().tryConsumeItemInHand();
             return true;
         }
@@ -98,6 +98,6 @@ public class BlockPlantPileBaseComponentImpl extends BlockBaseComponentImpl {
 
     @Override
     public Set<ItemStack> getDrops(Block block, ItemStack usedItem, Entity entity) {
-        return Set.of(block.getBlockType().getItemType().createItemStack(block.getPropertyValue(BlockPropertyTypes.GROWTH) + 1));
+        return Set.of(block.getBlockType().getItemType().createItemStack(block.getPropertyValue(BlockPropertyTypes.GROWTH_8) + 1));
     }
 }

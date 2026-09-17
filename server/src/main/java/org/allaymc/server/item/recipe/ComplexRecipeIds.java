@@ -1,8 +1,7 @@
 package org.allaymc.server.item.recipe;
 
-import org.allaymc.api.annotation.MinecraftVersionSensitive;
-
 import java.util.UUID;
+import org.allaymc.api.annotation.MinecraftVersionSensitive;
 
 @MinecraftVersionSensitive
 public interface ComplexRecipeIds {

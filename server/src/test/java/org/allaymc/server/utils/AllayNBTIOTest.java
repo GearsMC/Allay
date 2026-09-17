@@ -48,14 +48,14 @@ class AllayNBTIOTest {
     }
 
     /**
-     * Daha yeni sürümün tanıdık türe eklediği özellik (26.50 çitlerindeki bağlantı gibi) ya da geçersiz değer istisna
-     * atmamalı; API sözleşmesi gereği bilinmeyen blok dönmeli.
+     * Daha yeni sürümün tanıdık türe eklediği özellik ya da geçersiz değer istisna atmamalı; API sözleşmesi gereği
+     * bilinmeyen blok dönmeli.
      */
     @Test
     void testFromBlockStateNBTReturnsUnknownForUnrecognizedState() {
         var newerVersion = ProtocolInfo.BLOCK_STATE_VERSION_NUM + 1;
         var extraProperty = BlockTypes.OAK_FENCE.getDefaultState().getBlockStateNBT().toBuilder()
-                .putCompound("states", NbtMap.builder().putByte("minecraft:connection_north", (byte) 1).build())
+                .putCompound("states", NbtMap.builder().putByte("minecraft:gears_test_future_state", (byte) 1).build())
                 .putInt("version", newerVersion)
                 .build();
         var invalidValue = BlockTypes.BAMBOO.getDefaultState().getBlockStateNBT().toBuilder()

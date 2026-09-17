@@ -15,7 +15,7 @@ protocol = { group = "org.allaymc.protocol", name = "bedrock-connection", versio
 # klasörü eksikse derleme sessizce eski kütüphaneye düşmek yerine açıkça hata verir.
 updater-common = { group = "org.allaymc.stateupdater", name = "common", version = "0.1.1" }
 item-updater = { group = "org.allaymc.stateupdater", name = "item-updater", version = "1.26.20-R1" }
-block-updater = { group = "org.allaymc.stateupdater", name = "block-updater", version = "1.26.30-R1" }
+block-updater = { group = "org.allaymc.stateupdater", name = "block-updater", version = "1.26.50-G1" }
 # Collections
 guava = { group = "com.google.guava", name = "guava", version = "33.6.0-jre" }
 # Fastutil

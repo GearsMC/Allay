@@ -93,4 +93,6 @@ public final class BiomeTypes {
     public static BiomeType MANGROVE_SWAMP;
     public static BiomeType CHERRY_GROVE;
     public static BiomeType PALE_GARDEN;
+    public static BiomeType SULFUR_CAVES;
+    public static BiomeType DAPPLED_FOREST;
 }

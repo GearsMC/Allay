@@ -34,12 +34,12 @@ class BlockStateHashTest {
 
     @Test
     void testAllHashes() {
-        for (int expectedHash : BLOCK_STATE_DATA.keySet()) {
-            assertNotNull(Registries.BLOCK_STATE_PALETTE.get(expectedHash));
+        for (var expected : BLOCK_STATE_DATA.entrySet()) {
+            assertNotNull(Registries.BLOCK_STATE_PALETTE.get(expected.getKey()), () -> "block_states.json durumu kayıtta yok: " + expected.getValue());
         }
         for (var entry : Registries.BLOCK_STATE_PALETTE.getContent().entrySet()) {
             if (Identifier.DEFAULT_NAMESPACE.equals(entry.getValue().getBlockType().getIdentifier().namespace())) {
-                assertNotNull(BLOCK_STATE_DATA.get(entry.getKey()));
+                assertNotNull(BLOCK_STATE_DATA.get(entry.getKey()), () -> "kayıttaki durum block_states.json'da yok: " + entry.getValue().getBlockStateNBT());
             }
         }
     }

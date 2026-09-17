@@ -29,6 +29,11 @@ Unless otherwise specified, any version comparison below is the comparison of th
 
 ### Changed
 
+- Game data updated to MCBE 1.26.50 (22091 block states, 2076 items, 223 furnace recipes, 2 new biomes, the cushion entity). The data set is produced from public sources (CloudburstMC/Data, Mojang bedrock-samples, Altay) and a vanilla BDS registry dump instead of Endstone (`./gradlew :data:importBedrockData`, verified by `BedrockDataTest`). New blocks and items are registered with basic behaviour (placing, breaking, their existing family components); poplar saplings do not grow yet. `ProtocolInfo.FEATURE_VERSION` is now v2193.
+- Stairs gained `minecraft:corner`; fences, glass panes, bars and tripwire gained `minecraft:connection_*`. `BLOCK_STATE_VERSION` is now 1.26.50 and the GearsMC/StateUpdater `BlockStateUpdater_1_26_50` step fills the new states with their defaults when older worlds load. Clients before 1.26.50 keep receiving the reduced states through the per-protocol palette translation.
+- 1.26.50 clients receive the definitions of the 98 data-driven vanilla blocks in `StartGamePacket`.
+- (API) `BlockPropertyTypes.GROWTH` was split into `GROWTH_8` (crops, sweet berries) and `GROWTH_2` (`minecraft:shelf_mushroom`).
+
 - Block and item state updaters are now built from the GearsMC/StateUpdater fork as an included build (`../StateUpdater`) instead of Maven, and the block state updater target moved to the 1.26.30 step (adds the missing `potent_sulfur_state` to `minecraft:potent_sulfur`). `BLOCK_STATE_VERSION` is unchanged.
 - (API) `GameMode` now exposes its default `PlayerAbility` set, and player flight checks now use player abilities instead of the removed legacy fly permissions.
 - (API) `FurnaceRecipe` ingredients now use `ItemDescriptor` and support item tags and recipe priorities across furnace-like recipes.

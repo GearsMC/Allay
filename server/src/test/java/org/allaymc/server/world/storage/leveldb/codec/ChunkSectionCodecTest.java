@@ -3,6 +3,7 @@ package org.allaymc.server.world.storage.leveldb.codec;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
+import org.allaymc.api.block.property.type.BlockPropertyTypes;
 import org.allaymc.api.world.biome.BiomeTypes;
 import org.allaymc.api.world.dimension.DimensionTypes;
 import org.allaymc.server.datastruct.palette.Palette;
@@ -19,6 +20,11 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 
 import static org.allaymc.api.block.type.BlockTypes.AIR;
+import static org.allaymc.api.block.type.BlockTypes.GLASS_PANE;
+import static org.allaymc.api.block.type.BlockTypes.IRON_BARS;
+import static org.allaymc.api.block.type.BlockTypes.OAK_FENCE;
+import static org.allaymc.api.block.type.BlockTypes.OAK_STAIRS;
+import static org.allaymc.api.block.type.BlockTypes.TRIP_WIRE;
 import static org.allaymc.api.block.type.BlockTypes.OAK_WOOD;
 import static org.allaymc.api.block.type.BlockTypes.POTENT_SULFUR;
 import static org.allaymc.api.block.type.BlockTypes.STONE;
@@ -130,6 +136,59 @@ class ChunkSectionCodecTest {
 
         assertNotNull(section);
         assertEquals(POTENT_SULFUR.getDefaultState(), section.getBlockState(1, 1, 1, 0));
+    }
+
+    /**
+     * 26.50 öncesi Allay'in yazdığı dünya (blok sürümü 1.21.110.26): merdivende {@code minecraft:corner}, çit, cam panel,
+     * parmaklık ve tuzak ipinde {@code minecraft:connection_*} yok. Yüklenince aynı bloğun varsayılan köşe/bağlantı
+     * çeşidine yükseltilmeli; tanınmayan blok olarak kalmamalı. Gerçek köşe/bağlantıyı taşıma aracı hesaplar.
+     */
+    @Test
+    void testPre2650SectionIsUpgradedToNewStates() {
+        var allay2630 = (1 << 24) | (21 << 16) | (110 << 8) | 26;
+        var oldStairs = NbtMap.builder()
+                .putString("name", "minecraft:oak_stairs")
+                .putCompound("states", NbtMap.builder().putByte("upside_down_bit", (byte) 1).putInt("weirdo_direction", 2).build())
+                .putInt("version", allay2630)
+                .build();
+        var layer0 = new Palette<>(AIR.getDefaultState().getBlockStateNBT());
+        layer0.set(hashChunkSectionXYZ(1, 1, 1), oldStairs);
+        var names = new String[]{"minecraft:oak_fence", "minecraft:glass_pane", "minecraft:iron_bars"};
+        for (int i = 0; i < names.length; i++) {
+            layer0.set(hashChunkSectionXYZ(2 + i, 1, 1), NbtMap.builder()
+                    .putString("name", names[i])
+                    .putCompound("states", NbtMap.EMPTY)
+                    .putInt("version", allay2630)
+                    .build());
+        }
+        layer0.set(hashChunkSectionXYZ(6, 1, 1), NbtMap.builder()
+                .putString("name", "minecraft:trip_wire")
+                .putCompound("states", NbtMap.builder()
+                        .putByte("attached_bit", (byte) 0).putByte("disarmed_bit", (byte) 0)
+                        .putByte("powered_bit", (byte) 0).putByte("suspended_bit", (byte) 1).build())
+                .putInt("version", allay2630)
+                .build());
+        var layer1 = new Palette<>(AIR.getDefaultState().getBlockStateNBT());
+        var data = LevelDBUtils.withByteBufToArray(buffer -> {
+            buffer.writeByte(AllayChunkSection.CURRENT_CHUNK_SECTION_VERSION);
+            buffer.writeByte(AllayChunkSection.LAYER_COUNT);
+            buffer.writeByte(0);
+            layer0.writeToStorage(buffer, tag -> tag);
+            layer1.writeToStorage(buffer, tag -> tag);
+        });
+
+        var section = ChunkSectionCodec.deserialize(data, 0, 0, 0);
+
+        assertNotNull(section);
+        assertEquals(OAK_STAIRS.getDefaultState()
+                        .setPropertyValue(BlockPropertyTypes.UPSIDE_DOWN_BIT, true)
+                        .setPropertyValue(BlockPropertyTypes.WEIRDO_DIRECTION, 2),
+                section.getBlockState(1, 1, 1, 0));
+        assertEquals(OAK_FENCE.getDefaultState(), section.getBlockState(2, 1, 1, 0));
+        assertEquals(GLASS_PANE.getDefaultState(), section.getBlockState(3, 1, 1, 0));
+        assertEquals(IRON_BARS.getDefaultState(), section.getBlockState(4, 1, 1, 0));
+        assertEquals(TRIP_WIRE.getDefaultState().setPropertyValue(BlockPropertyTypes.SUSPENDED_BIT, true),
+                section.getBlockState(6, 1, 1, 0));
     }
 
     private static Palette<NbtMap> readRawLayer0(byte[] data) {

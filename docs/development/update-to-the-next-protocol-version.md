@@ -36,10 +36,11 @@ Endstone DevTools only runs on Windows. The same files can be produced from publ
    [Mojang/bedrock-samples](https://github.com/Mojang/bedrock-samples)) and run `./gradlew :data:importBedrockData`.
    The output mirrors `data/resources` and `data/resources/unpacked` under the staging folder and records the SHA-1 of
    every source in `SOURCES.md`.
-3. Run `./gradlew :data:test`. `StagedBedrockDataTest` compares the staged set with the official block palette and with
-   the current data; every difference must be listed there by name (a real change in the new version) or fixed in the
-   importer (a conversion rule). Rules that were measured, not guessed, are documented in the importer classes.
-4. Move the staged files into place and continue with the steps below.
+3. Compare the staged set with the official block palette and with the current data in a test (the 26.30 → 26.50
+   update used `StagedBedrockDataTest`, see git history). Every difference must end up either listed by name as a real
+   change of the new version or fixed in the importer as a measured conversion rule — never as a guessed value.
+4. Move the staged files into place and continue with the steps below. `BedrockDataTest` then checks the live data
+   against the official palette and the BDS dump on every build.
 
 ## 2. Update Resource Files (`data/resources`)
 

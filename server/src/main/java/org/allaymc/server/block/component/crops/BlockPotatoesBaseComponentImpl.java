@@ -11,7 +11,7 @@ import org.allaymc.server.block.FortuneDropHelper;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.allaymc.api.block.property.type.BlockPropertyTypes.GROWTH;
+import static org.allaymc.api.block.property.type.BlockPropertyTypes.GROWTH_8;
 
 /**
  * @author daoge_cmd
@@ -23,8 +23,8 @@ public class BlockPotatoesBaseComponentImpl extends BlockCropsBaseComponentImpl 
 
     @Override
     public Set<ItemStack> getDrops(Block block, ItemStack usedItem, Entity entity) {
-        var growth = block.getPropertyValue(GROWTH);
-        if (growth < GROWTH.getMax()) {
+        var growth = block.getPropertyValue(GROWTH_8);
+        if (growth < GROWTH_8.getMax()) {
             return Set.of(ItemTypes.POTATO.createItemStack());
         }
 
