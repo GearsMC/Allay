@@ -4,7 +4,6 @@ import io.netty.util.internal.PlatformDependent;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -19,10 +18,12 @@ class BlockingQueueWrapperTest {
     void test() {
         var queue = BlockingQueueWrapper.wrap(PlatformDependent.newMpscQueue());
         AtomicInteger integer = new AtomicInteger(0);
-        AtomicBoolean running = new AtomicBoolean(true);
 
+        // GearsMC: tüketici eskiden "running || size != 0" koşuluyla dönüyordu. 100 öğeyi running daha true iken
+        // bitirirse bir sonraki poll() sonsuza kadar bekliyor ve test (CI dahil) asılı kalıyordu. Tüketici artık tam
+        // 100 öğe alır; üretici gecikmeli yazdığı için boş kuyrukta bekleme yine sınanır.
         var thread = Thread.ofPlatform().start(() -> {
-            while (running.get() || queue.size() != 0) {
+            for (int i = 0; i < 100; i++) {
                 // Should block here if queue is empty
                 queue.poll();
                 integer.incrementAndGet();
@@ -31,8 +32,10 @@ class BlockingQueueWrapperTest {
 
         for (int i = 0; i < 100; i++) {
             queue.offer(i);
+            if (i % 25 == 0) {
+                Thread.sleep(5);
+            }
         }
-        running.set(false);
         thread.join();
         assertEquals(100, integer.get());
         assertNull(queue.pollNow());
