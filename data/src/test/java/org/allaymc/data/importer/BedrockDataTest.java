@@ -158,6 +158,29 @@ class BedrockDataTest {
         return primitive.isNumber() ? String.valueOf(primitive.getAsInt()) : primitive.getAsString();
     }
 
+    /**
+     * Yaratıcı menüdeki blok eşyası veri değeri ({@code damage}) taşımaz. 26.50'de BDS bu değeri ne yaratıcı menüde ne
+     * tariflerin çıktısında gönderiyor (yalnızca renkli yatağın 16 girdisi damage taşıyor) ve Allay kırılan bloktan meta 0
+     * düşürüyor. Eski veriden kalan değer menüden alınan eşyayı üretilen ve yerden toplanan eşyadan ayırır, yığılmazlar
+     * (26.50 geçişinde sandık 2, piston 1, dağıtıcı 3 kalmıştı).
+     */
+    @Test
+    void creativeBlockItemsCarryNoLegacyDamage() throws IOException {
+        var blockTypes = readJson(RESOURCES.resolve("block_types.json")).getAsJsonObject().keySet();
+        var items = readNbt(RESOURCES.resolve("creative_items.nbt")).getList("items", NbtType.COMPOUND);
+        var entryCounts = new HashMap<String, Integer>();
+        items.forEach(item -> entryCounts.merge(item.getString("name"), 1, Integer::sum));
+
+        var withDamage = new TreeMap<String, Integer>();
+        for (var item : items) {
+            var name = item.getString("name");
+            if (blockTypes.contains(name) && entryCounts.get(name) == 1 && item.getShort("damage") != 0) {
+                withDamage.put(name, (int) item.getShort("damage"));
+            }
+        }
+        assertEquals(Map.of(), withDamage);
+    }
+
     private static Set<String> strings(JsonArray array) {
         var result = new TreeSet<String>();
         if (array != null) {

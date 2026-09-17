@@ -139,26 +139,13 @@ final class ItemDataImport {
     /**
      * Yaratıcı mod grupları ({@code creative_groups.json}) ve eşyaları ({@code creative_items.nbt}).
      *
-     * <p>Endstone blok eşyasına bloğun eski veri değerini {@code damage} olarak yazıyordu (sarkıt taşı 8, ametist
-     * kümesi 1); CloudburstMC aynı bilgiyi {@code block_state_b64} ile veriyor ve {@code damage} yazmıyor. Allay bu değeri
-     * eşya meta'sı olarak kullandığı için mevcut eşyada bugünkü değer korunur (adı listede tekil olan 29 eşya). 26.50'nin
-     * yeni yaratıcı mod eşyalarının hiçbiri varsayılan dışı blok durumunda değil (ölçüldü), onlarda {@code damage} 0'dır.</p>
+     * <p>Blok eşyasının veri değeri ({@code damage}) CloudburstMC'deki gibi yazılır: 26.50'de BDS blok eşyalarına damage
+     * göndermiyor (yalnızca renkli yatağın girdileri taşıyor), bloğun durumu {@code block_state_b64} ile geliyor. Endstone
+     * verisi bloğun eski veri değerini yazıyordu (sandık 2, piston 1, sarkıt taşı 8) ve ilk 26.50 aktarımı bunu korudu;
+     * tarif çıktısı ve kırılan blok meta 0 verdiği için menüden alınan sandık üretilen sandıkla yığılmadı.
+     * Doğrulama: {@code BedrockDataTest#creativeBlockItemsCarryNoLegacyDamage}.</p>
      */
-    static CreativeData creative(JsonObject cloudburstCreative, NbtMap currentCreative) throws IOException {
-        var nameCounts = new HashMap<String, Integer>();
-        var legacyDamage = new HashMap<String, Integer>();
-        for (var item : currentCreative.getList("items", NbtType.COMPOUND)) {
-            nameCounts.merge(item.getString("name"), 1, Integer::sum);
-            if (item.getShort("damage") != 0 && !item.containsKey("tag")) {
-                legacyDamage.put(item.getString("name"), (int) item.getShort("damage"));
-            }
-        }
-        nameCounts.forEach((name, count) -> {
-            if (count > 1) {
-                legacyDamage.remove(name);
-            }
-        });
-
+    static CreativeData creative(JsonObject cloudburstCreative) throws IOException {
         var groups = new JsonArray();
         var categories = new ArrayList<String>();
         for (var element : cloudburstCreative.getAsJsonArray("groups")) {
@@ -181,8 +168,7 @@ final class ItemDataImport {
             var source = element.getAsJsonObject();
             var groupIndex = source.get("groupId").getAsInt();
             var name = source.get("id").getAsString();
-            var damage = source.has("damage") ? source.get("damage").getAsInt()
-                    : source.has("block_state_b64") ? legacyDamage.getOrDefault(name, 0) : 0;
+            var damage = source.has("damage") ? source.get("damage").getAsInt() : 0;
             NbtMapBuilder item = NbtMap.builder()
                     .putString("category", categories.get(groupIndex))
                     // Tipler bugünkü dosyayla aynı: damage short, groupIndex long (yükleyici getLong okuyor).

@@ -77,8 +77,7 @@ public final class BedrockDataImporter {
                 readGzipNbt(fetcher.fetch(CLOUDBURST, CLOUDBURST_COMMIT, "item_components.nbt")),
                 runtimeStates));
         var creative = ItemDataImport.creative(
-                readJson(fetcher.fetch(CLOUDBURST, CLOUDBURST_COMMIT, "creative_items.json")).getAsJsonObject(),
-                readGzipNbt(resources.resolve("creative_items.nbt")));
+                readJson(fetcher.fetch(CLOUDBURST, CLOUDBURST_COMMIT, "creative_items.json")).getAsJsonObject());
         writeJson(outResources.resolve("creative_groups.json"), creative.groups());
         writeGzipNbt(outResources.resolve("creative_items.nbt"), creative.items());
 
