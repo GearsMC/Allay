@@ -12,6 +12,7 @@ import org.allaymc.api.item.ItemStack;
 import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.api.world.Dimension;
 import org.allaymc.server.block.component.BlockBaseComponentImpl;
+import org.allaymc.server.block.connection.BlockConnectionUpdater;
 
 import java.util.List;
 import org.joml.Vector3ic;
@@ -42,12 +43,27 @@ public class BlockTripWireBaseComponentImpl extends BlockBaseComponentImpl {
     }
 
     @Override
+    public boolean place(Dimension dimension, BlockState blockState, Vector3ic placeBlockPos, PlayerInteractInfo placementInfo) {
+        // GearsMC fork: 26.50 bağlantı durumları (ip ipe ve kendisine bakan kancaya bağlanır, BlockConnectionRules).
+        return super.place(dimension, BlockConnectionUpdater.compute(dimension, placeBlockPos, blockState), placeBlockPos, placementInfo);
+    }
+
+    @Override
     public void afterPlaced(Block oldBlock, BlockState newBlockState, PlayerInteractInfo placementInfo) {
         super.afterPlaced(oldBlock, newBlockState, placementInfo);
 
         // Notify nearby hooks about the new tripwire
         Block newBlock = new Block(newBlockState, oldBlock.getPosition());
         updateAdjacentHooks(newBlock);
+        BlockConnectionUpdater.refresh(oldBlock.getDimension(), oldBlock.getPosition());
+    }
+
+    @Override
+    public void onNeighborUpdate(Block block, Block neighbor, BlockFace face, BlockState oldNeighborState) {
+        super.onNeighborUpdate(block, neighbor, face, oldNeighborState);
+        if (face.isHorizontal()) {
+            BlockConnectionUpdater.refresh(block.getDimension(), block.getPosition());
+        }
     }
 
     @Override

@@ -1456,7 +1456,44 @@ public final class BlockTypeInitializer {
                 .builder(BlockGlassPaneBehaviorImpl.class)
                 .vanillaBlock(blockId)
                 .setProperties(BlockPropertyTypes.MINECRAFT_CONNECTION_EAST, BlockPropertyTypes.MINECRAFT_CONNECTION_NORTH, BlockPropertyTypes.MINECRAFT_CONNECTION_SOUTH, BlockPropertyTypes.MINECRAFT_CONNECTION_WEST)
-                .setBaseComponentSupplier(BlockGlassBaseComponentImpl::new)
+                .setBaseComponentSupplier(BlockGlassPaneBaseComponentImpl::new)
+                .build();
+    }
+
+
+    // GearsMC fork: çitler ve demir parmaklık üretilen başlatıcıda bileşensizdi; 26.50 bağlantıları için bileşenle kurulur.
+    public static void initFences() {
+        BlockTypes.ACACIA_FENCE = buildFence(BlockId.ACACIA_FENCE);
+        BlockTypes.BAMBOO_FENCE = buildFence(BlockId.BAMBOO_FENCE);
+        BlockTypes.BIRCH_FENCE = buildFence(BlockId.BIRCH_FENCE);
+        BlockTypes.CHERRY_FENCE = buildFence(BlockId.CHERRY_FENCE);
+        BlockTypes.CRIMSON_FENCE = buildFence(BlockId.CRIMSON_FENCE);
+        BlockTypes.DARK_OAK_FENCE = buildFence(BlockId.DARK_OAK_FENCE);
+        BlockTypes.JUNGLE_FENCE = buildFence(BlockId.JUNGLE_FENCE);
+        BlockTypes.MANGROVE_FENCE = buildFence(BlockId.MANGROVE_FENCE);
+        BlockTypes.NETHER_BRICK_FENCE = buildFence(BlockId.NETHER_BRICK_FENCE);
+        BlockTypes.OAK_FENCE = buildFence(BlockId.OAK_FENCE);
+        BlockTypes.PALE_OAK_FENCE = buildFence(BlockId.PALE_OAK_FENCE);
+        BlockTypes.POPLAR_FENCE = buildFence(BlockId.POPLAR_FENCE);
+        BlockTypes.SPRUCE_FENCE = buildFence(BlockId.SPRUCE_FENCE);
+        BlockTypes.WARPED_FENCE = buildFence(BlockId.WARPED_FENCE);
+    }
+
+    private static BlockType<BlockFenceBehavior> buildFence(BlockId blockId) {
+        return AllayBlockType
+                .builder(BlockFenceBehaviorImpl.class)
+                .vanillaBlock(blockId)
+                .setProperties(BlockPropertyTypes.MINECRAFT_CONNECTION_EAST, BlockPropertyTypes.MINECRAFT_CONNECTION_NORTH, BlockPropertyTypes.MINECRAFT_CONNECTION_SOUTH, BlockPropertyTypes.MINECRAFT_CONNECTION_WEST)
+                .setBaseComponentSupplier(BlockConnectionBaseComponentImpl::new)
+                .build();
+    }
+
+    public static void initIronBars() {
+        BlockTypes.IRON_BARS = AllayBlockType
+                .builder(BlockIronBarsBehaviorImpl.class)
+                .vanillaBlock(BlockId.IRON_BARS)
+                .setProperties(BlockPropertyTypes.MINECRAFT_CONNECTION_EAST, BlockPropertyTypes.MINECRAFT_CONNECTION_NORTH, BlockPropertyTypes.MINECRAFT_CONNECTION_SOUTH, BlockPropertyTypes.MINECRAFT_CONNECTION_WEST)
+                .setBaseComponentSupplier(BlockConnectionBaseComponentImpl::new)
                 .build();
     }
 
@@ -2401,6 +2438,7 @@ public final class BlockTypeInitializer {
         return AllayBlockType.builder(BlockCopperBarsBehaviorImpl.class)
                 .vanillaBlock(id)
                 .setProperties(BlockPropertyTypes.MINECRAFT_CONNECTION_EAST, BlockPropertyTypes.MINECRAFT_CONNECTION_NORTH, BlockPropertyTypes.MINECRAFT_CONNECTION_SOUTH, BlockPropertyTypes.MINECRAFT_CONNECTION_WEST)
+                .setBaseComponentSupplier(BlockConnectionBaseComponentImpl::new)
                 .addComponent(new BlockOxidationComponentImpl(oxidationLevel, blockTypeFunction))
                 .build();
     }

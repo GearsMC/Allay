@@ -8,6 +8,8 @@ import org.allaymc.api.block.property.type.BooleanPropertyType;
 import org.allaymc.api.block.type.BlockState;
 import org.allaymc.api.block.type.BlockTypes;
 
+import java.util.EnumMap;
+
 import static org.allaymc.server.block.BlockPlaceHelper.EWSN_DIRECTION_4_MAPPER;
 
 /**
@@ -33,30 +35,39 @@ public final class BlockConnectionRules {
     private BlockConnectionRules() {
     }
 
-    /** Aynı yükseklikteki yatay komşuyu verir. */
+    /** Aynı yükseklikteki yatay komşuyu verir; komşu bilinmiyorsa (chunk yüklü değil) {@code null}. */
     @FunctionalInterface
     public interface NeighborReader {
         BlockState get(BlockFace face);
     }
 
     /**
-     * Bloğun bağlantı ya da köşe durumunu komşularına göre yeniden hesaplar.
+     * Bloğun bağlantı ya da köşe durumunu komşularına göre yeniden hesaplar. Bilinmeyen komşunun yanındaki bağlantı
+     * olduğu gibi kalır; merdivende komşulardan biri bilinmiyorsa köşe hiç değişmez (yüklenmemiş chunk'ta tahmin yok).
      *
      * @return güncel durum; kural dışındaki blokta {@code state} aynen döner
      */
     public static BlockState update(BlockState state, NeighborReader neighbors) {
         var behavior = state.getBehavior();
         if (behavior instanceof BlockFenceBehavior) {
-            return withConnections(state, face -> fenceConnectsTo(state, neighbors.get(face), face));
+            return withConnections(state, neighbors, (neighbor, face) -> fenceConnectsTo(state, neighbor, face));
         }
         if (isPaneLike(behavior)) {
-            return withConnections(state, face -> paneConnectsTo(neighbors.get(face), face));
+            return withConnections(state, neighbors, BlockConnectionRules::paneConnectsTo);
         }
         if (behavior instanceof BlockTripWireBehavior) {
-            return withConnections(state, face -> tripWireConnectsTo(neighbors.get(face), face));
+            return withConnections(state, neighbors, BlockConnectionRules::tripWireConnectsTo);
         }
         if (isStairs(state)) {
-            return state.setPropertyValue(BlockPropertyTypes.MINECRAFT_CORNER, stairsCorner(state, neighbors));
+            var known = new EnumMap<BlockFace, BlockState>(BlockFace.class);
+            for (var face : HORIZONTAL) {
+                var neighbor = neighbors.get(face);
+                if (neighbor == null) {
+                    return state;
+                }
+                known.put(face, neighbor);
+            }
+            return state.setPropertyValue(BlockPropertyTypes.MINECRAFT_CORNER, stairsCorner(state, known::get));
         }
         return state;
     }
@@ -151,12 +162,15 @@ public final class BlockConnectionRules {
     }
 
     private interface FaceTest {
-        boolean connects(BlockFace face);
+        boolean connects(BlockState neighbor, BlockFace face);
     }
 
-    private static BlockState withConnections(BlockState state, FaceTest test) {
+    private static BlockState withConnections(BlockState state, NeighborReader neighbors, FaceTest test) {
         for (var face : HORIZONTAL) {
-            state = state.setPropertyValue(connectionProperty(face), test.connects(face));
+            var neighbor = neighbors.get(face);
+            if (neighbor != null) {
+                state = state.setPropertyValue(connectionProperty(face), test.connects(neighbor, face));
+            }
         }
         return state;
     }
