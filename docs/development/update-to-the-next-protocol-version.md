@@ -24,6 +24,23 @@ Then, use it to export the following files:
 - `items.json`
 - `recipes.json`
 
+### Without Endstone (Linux)
+
+Endstone DevTools only runs on Windows. The same files can be produced from public sources instead:
+
+1. Dump what only BDS knows (default block states, block and item tags, stack sizes, durability, fuel durations) with
+   the vanilla oracle: `python3 tools/vanilla-oracle/run_oracle.py --mode dump --bds-version <version> --output
+   data/resources/unpacked/staging-<version>/bds_registry_dump.json`.
+2. Pin the source commits in `data/src/main/java/org/allaymc/data/importer/BedrockDataImporter.java`
+   ([CloudburstMC/Data](https://github.com/CloudburstMC/Data), [altayofficial/BedrockData](https://github.com/altayofficial/BedrockData),
+   [Mojang/bedrock-samples](https://github.com/Mojang/bedrock-samples)) and run `./gradlew :data:importBedrockData`.
+   The output mirrors `data/resources` and `data/resources/unpacked` under the staging folder and records the SHA-1 of
+   every source in `SOURCES.md`.
+3. Run `./gradlew :data:test`. `StagedBedrockDataTest` compares the staged set with the official block palette and with
+   the current data; every difference must be listed there by name (a real change in the new version) or fixed in the
+   importer (a conversion rule). Rules that were measured, not guessed, are documented in the importer classes.
+4. Move the staged files into place and continue with the steps below.
+
 ## 2. Update Resource Files (`data/resources`)
 
 ### Files obtained directly
