@@ -117,6 +117,23 @@ tasks {
         workingDir = file("${rootProject.projectDir}/.run/")
     }
 
+    // GearsMC: 26.50 köşe/bağlantı durumlarını mevcut dünyalara tek seferde yazar. Sunucu KAPALIYKEN ve yedekten sonra:
+    // ./gradlew :server:migrateConnections -Pworlds=/yol/dunya1,/yol/dunya2 [-PdryRun=true]
+    register<JavaExec>("migrateConnections") {
+        group = "application"
+        description = "Mevcut dünyaların merdiven köşelerini ve çit/panel/parmaklık/tuzak ipi bağlantılarını düzeltir"
+        classpath = sourceSets["main"].runtimeClasspath
+        mainClass = "org.allaymc.server.block.connection.ConnectionWorldMigration"
+        // Allay başlatılırken ayar dosyaları çalışma dizinine yazılabiliyor; test dizini kullanılır.
+        workingDir = file("${rootProject.projectDir}/.test/")
+        val worlds = providers.gradleProperty("worlds").orElse("")
+        val dryRun = providers.gradleProperty("dryRun").orElse("false")
+        doFirst {
+            workingDir.mkdirs()
+            args = (if (dryRun.get().toBoolean()) listOf("--dry-run") else emptyList()) + worlds.get().split(",")
+        }
+    }
+
     jacocoTestReport {
         reports {
             xml.required = true
