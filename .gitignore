@@ -49,3 +49,4 @@
 
 # Sunucu calisma gunlukleri (runShadow bunlari repo kokune yaziyor)
 logs/
+__pycache__/

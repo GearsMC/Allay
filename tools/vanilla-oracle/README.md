@@ -55,6 +55,33 @@ Dikkat:
 - `ItemTypes.getAll()` elde tutulamayan eşyaları vermez (26.50'de 2076 eşyanın 453'ü: çift yarım blok, duvar
   tabelası, eğitim eşyaları). Bunların değerleri içe aktarma aracında türetilir.
 
+## Bağlantı yüzü tablosu (`--mode faces`)
+
+Çitin ve cam panelin/parmaklığın bir bloğun hangi yüzüne bağlandığı Allay'in şekil verisinden çıkmıyor (ruh kumu,
+çamur, bal bloğu bağlanır; kaktüs, yaprak, basamak bağlanmaz). Bu kip paletteki **her durumu** (26.50'de 22091) ölçer:
+
+```bash
+python3 tools/vanilla-oracle/run_oracle.py --mode faces --bds-version 1.26.51.1 \
+    --output data/resources/unpacked/bds_connection_faces.json
+./gradlew :data:runMain -PmainClass=org.allaymc.data.importer.ConnectionFaceImport   # block_connection_faces.json
+```
+
+- Her durum bir hücrenin ortasına, dört yanına sonda konur: önce `nether_brick_fence`, sonra `iron_bars`. 6 tick sonra
+  sondanın ortaya bakan `minecraft:connection_*` değeri okunur. Hücreler 3 blok arayla, 52×52'lik partilerle kurulur.
+- Bütün partiler **tek bir 160×160 tickingarea**'da çalışır; partiler arasında alan `fill ... air` ile temizlenir.
+  Her parti için ayrı uzak alan açmak BDS 1.26.51.1'de üçüncü alanda takıldı (alan hiç yüklenmedi).
+- Sıvılar 12 blok arayla ayrı partide ölçülür, akıp komşu hücreyi bozmasın.
+- **Köşeli merdiven tek başına kararlı değil**: BDS köşeyi komşulara bakıp sıfırlıyor. Bu durumlar köşeyi oluşturan
+  komşu merdivenle birlikte kurulur (komşu, altın tablodaki `STAIRS` senaryolarından seçilir) ve yalnızca boş kalan üç
+  yan ölçülür; tabloda komşunun yanı `-`.
+- Ham tablo satırı `[ad, çit sondası, panel sondası]`; hücre `"KDGB"` (1 bağlandı, 0 bağlanmadı, - ölçülmedi). Blok
+  ölçüm sırasında başka duruma döndüyse (duvar bağlantısı, desteksiz meşale, ölen mercan) hücre
+  `["KDGB", son durumun palet sırası]` olur ve yüzler o son duruma aittir. Türetme kuralları `ConnectionFaceImport`
+  javadoc'unda.
+- Ölçüm tekrarlanabilir: iki çalıştırmada yüzler birebir aynı çıktı; yalnızca mercan bloğu ve sarmaşık gibi zamana
+  bağlı değişen blokların "değişti" işareti oynuyor, türetme bundan etkilenmiyor.
+- 26.50 bulgusu: iç köşeli merdivende yalnızca arka yüz bağlanıyor (Java'da köşenin yan yüzü de dolu sayılır).
+
 ## Nasıl çalışır
 
 1. BDS, `~/.cache/gears-vanilla-oracle/bedrock-server-<sürüm>/` altına indirilip açılır (`--cache-dir`).

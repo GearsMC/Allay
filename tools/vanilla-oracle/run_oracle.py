@@ -5,10 +5,14 @@ Kullanım:
     python3 tools/vanilla-oracle/run_oracle.py                 # Mojang'ın yayınladığı son Linux BDS sürümü
     python3 tools/vanilla-oracle/run_oracle.py --bds-version 1.26.51.1
     python3 tools/vanilla-oracle/run_oracle.py --mode dump --output <dosya>   # kayıt dökümü + yakıt ölçümü
+    python3 tools/vanilla-oracle/run_oracle.py --mode faces --output <dosya>  # çit/parmaklık bağlantı yüzü tablosu
 
 BDS depoya konmaz; önbellek dizinine indirilir (varsayılan ~/.cache/gears-vanilla-oracle).
 """
 import argparse
+import gzip
+import io
+import struct
 import hashlib
 import json
 import math
@@ -88,7 +92,133 @@ def fuel_layout():
     return grid, area
 
 
-def install(server_dir, scenarios, area, port, mode="scenarios", fuel_grid=None):
+# Bağlantı yüzü tablosu: sonda türleri (yanmaz, ateş komşuyu yakmasın) ve hücre düzeni.
+FACE_PROBES = ["minecraft:nether_brick_fence", "minecraft:iron_bars"]
+FACE_SPACING = 3  # ortadaki blok + dört yanında sonda; komşu hücrenin sondası ortadaki bloğa değmez
+FACE_COLUMNS = 52  # 2 + 51 x 3 + 1 = 156 < 160: parti alanı chunk sınırına hizalı 10x10 chunk içinde kalır
+FACE_LIQUID_SPACING = 12  # su/lav akıp komşu hücreyi bozmasın
+FACE_AREA_BLOCKS = 160  # tickingarea en fazla 100 chunk; alan 0..159 (tam 10 chunk)
+LIQUIDS = ("minecraft:water", "minecraft:flowing_water", "minecraft:lava", "minecraft:flowing_lava")
+# Köşeli merdiven tek başına kararlı değil: BDS köşeyi komşulara göre yeniden hesaplar. Bu durumlar köşeyi oluşturan
+# komşu merdivenle birlikte kurulur ve yalnızca boş kalan üç yan ölçülür (komşunun yanı bu durumda zaten doludur).
+FACE_CONTEXT_SPACING = 4  # merkez + komşu/sonda halkası; komşu hücrelerin halkaları arasında bir boş blok
+FACE_CONTEXT_COLUMNS = 39  # 2 + 38 x 4 + 1 = 155 < 160
+FACE_SIDE_OFFSETS = {"north": [0, 0, -1], "east": [1, 0, 0], "south": [0, 0, 1], "west": [-1, 0, 0]}
+FACE_SIDE_ORDER = ["north", "east", "south", "west"]  # faces.js SIDES sırası
+
+
+def read_block_palette(path):
+    """data/resources/unpacked/block_palette.nbt (gzip, büyük uçlu NBT) -> [(ad, {durum: (nbt tipi, değer)})]."""
+    f = io.BytesIO(gzip.decompress(path.read_bytes()))
+
+    def read(fmt):
+        size = struct.calcsize(">" + fmt)
+        return struct.unpack(">" + fmt, f.read(size))[0]
+
+    def payload(tag):
+        if tag in (1, 2, 3, 4, 5, 6):
+            return read({1: "b", 2: "h", 3: "i", 4: "q", 5: "f", 6: "d"}[tag])
+        if tag == 8:
+            return f.read(read("H")).decode("utf-8")
+        if tag == 9:
+            element, count = read("B"), read("i")
+            return [payload(element) for _ in range(count)]
+        if tag == 10:
+            result = {}
+            while True:
+                child = read("B")
+                if child == 0:
+                    return result
+                key = f.read(read("H")).decode("utf-8")
+                result[key] = (child, payload(child))
+        raise ValueError(f"desteklenmeyen NBT tipi {tag}")
+
+    root_tag = read("B")
+    f.read(read("H"))
+    root = payload(root_tag)
+    return [(entry["name"][1], entry["states"][1]) for entry in root["blocks"][1]]
+
+
+def stair_corner_contexts():
+    """Altın tablodaki STAIRS senaryolarından (yön, üst yarı, köşe) → (komşu yanı, komşu yönü) eşlemesi."""
+    scenarios = json.loads((TOOL_DIR / "scenarios.json").read_text(encoding="utf-8"))["scenarios"]
+    golden_files = sorted((REPO_ROOT / "server" / "src" / "test" / "resources" / "vanilla-oracle").glob("*.json"))
+    golden = json.loads(golden_files[-1].read_text(encoding="utf-8"))["results"]
+    contexts = {}
+    for scenario in scenarios:
+        if not scenario["id"].startswith("STAIRS/"):
+            continue
+        cell = golden[scenario["id"]]["cells"]["0,0,0"]["states"]
+        if cell["minecraft:corner"] == "none":
+            continue
+        neighbor = scenario["place"][1]
+        side = next(name for name, offset in FACE_SIDE_OFFSETS.items() if offset == neighbor["at"])
+        key = (cell["weirdo_direction"], bool(cell["upside_down_bit"]), cell["minecraft:corner"])
+        contexts[key] = (side, neighbor["states"]["weirdo_direction"])
+    if len(contexts) != 32:
+        sys.exit(f"altın tabloda {len(contexts)} köşe bağlamı var, 32 bekleniyordu")
+    return contexts
+
+
+def face_script_states(palette, dump_blocks):
+    """Palet durumlarını Script API tiplerine çevirir (palet sırası korunur)."""
+    cells = []
+    for index, (name, states) in enumerate(palette):
+        defaults = (dump_blocks.get(name) or {}).get("states", {})
+        js_states = {}
+        for key, (tag, value) in states.items():
+            # Script API boolean durumu true/false ister; palet bayt tutar. Tip dökümdeki varsayılandan okunur.
+            js_states[key] = bool(value) if isinstance(defaults.get(key), bool) else value
+        cells.append({"i": index, "name": name, "states": js_states})
+    return cells
+
+
+def state_key(name, states):
+    return name + json.dumps(sorted(states.items()))
+
+
+def face_batches(palette, dump_blocks):
+    """Palet durumlarını sonda başına partilere böler."""
+    cells = face_script_states(palette, dump_blocks)
+
+    contexts = stair_corner_contexts()
+    corner_cells = []
+    for cell in cells:
+        corner = cell["states"].get("minecraft:corner")
+        if corner is None or corner == "none":
+            continue
+        side, neighbor_direction = contexts[(cell["states"]["weirdo_direction"], cell["states"]["upside_down_bit"], corner)]
+        corner_cells.append({
+            **cell,
+            "context": [{"offset": FACE_SIDE_OFFSETS[side], "name": cell["name"], "states": {
+                "weirdo_direction": neighbor_direction, "upside_down_bit": cell["states"]["upside_down_bit"]}}],
+            "sides": [index for index, name in enumerate(FACE_SIDE_ORDER) if name != side],
+        })
+
+    batches = []
+    for probe in FACE_PROBES:
+        normal = [cell for cell in cells if cell["name"] not in LIQUIDS]
+        liquid = [cell for cell in cells if cell["name"] in LIQUIDS]
+        per_batch = FACE_COLUMNS * FACE_COLUMNS
+        groups = [(normal[i:i + per_batch], FACE_SPACING, FACE_COLUMNS) for i in range(0, len(normal), per_batch)]
+        groups.append((liquid, FACE_LIQUID_SPACING, 12))
+        per_context = FACE_CONTEXT_COLUMNS * FACE_CONTEXT_COLUMNS
+        groups += [(corner_cells[i:i + per_context], FACE_CONTEXT_SPACING, FACE_CONTEXT_COLUMNS)
+                   for i in range(0, len(corner_cells), per_context)]
+        for group, spacing, columns in groups:
+            index = len(batches)
+            # Bütün partiler aynı alanı kullanır: BDS 1.26.51.1 üçüncü uzak tickingarea'yı hiç yüklemedi
+            # (iki alan açılıp kaldırıldıktan sonra); alan bir kez açılır, partiler arasında fill ile temizlenir.
+            placed = [{**cell, "at": [2 + (n % columns) * spacing, BASE_Y, 2 + (n // columns) * spacing]}
+                      for n, cell in enumerate(group)]
+            last = max(max(c["at"][0], c["at"][2]) for c in placed) + 1
+            if last >= FACE_AREA_BLOCKS:
+                sys.exit(f"parti {index} alanı {last} blok, sınır {FACE_AREA_BLOCKS}")
+            batches.append({"index": index, "probe": probe, "cells": placed})
+    return batches
+
+
+def install(server_dir, scenarios, area, port, mode="scenarios", fuel_grid=None, face_batches_data=None):
     pack_target = server_dir / "development_behavior_packs" / PACK_DIR_NAME
     shutil.rmtree(pack_target, ignore_errors=True)
     shutil.copytree(TOOL_DIR / "pack", pack_target)
@@ -97,7 +227,8 @@ def install(server_dir, scenarios, area, port, mode="scenarios", fuel_grid=None)
         + "export const SCENARIOS = " + json.dumps(scenarios, ensure_ascii=False) + ";\n"
         + "export const AREA = " + json.dumps(area) + ";\n"
         + "export const FUEL_GRID = " + json.dumps(fuel_grid) + ";\n"
-        + f"export const FUEL_CAP_TICKS = {FUEL_CAP_TICKS};\n",
+        + f"export const FUEL_CAP_TICKS = {FUEL_CAP_TICKS};\n"
+        + "export const FACE_BATCHES = " + json.dumps(face_batches_data or [], ensure_ascii=False) + ";\n",
         encoding="utf-8",
     )
 
@@ -133,7 +264,7 @@ def run(server_dir, timeout):
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1,
     )
     results, fatal, log = {}, [], []
-    records = {"BLOCK": [], "ITEM": [], "FUEL": []}
+    records = {"BLOCK": [], "ITEM": [], "FUEL": [], "FACE": []}
     done = threading.Event()
 
     def reader():
@@ -151,6 +282,8 @@ def run(server_dir, timeout):
                 results[data["id"]] = data
             elif tag in records:
                 records[tag].append(data)
+            elif tag == "BATCH":
+                print(f"parti {data['index']} bitti ({data['cells']} hücre)", flush=True)
             elif tag == "FATAL":
                 fatal.append(data)
             elif tag == "DONE":
@@ -177,12 +310,14 @@ def main():
     parser.add_argument("--port", type=int, default=19140, help="BDS UDP portu (Allay'in 19132'siyle çakışmamalı)")
     parser.add_argument("--timeout", type=int, default=600)
     parser.add_argument("--output", type=Path, help="altın tablo yolu")
-    parser.add_argument("--mode", choices=["scenarios", "dump"], default="scenarios")
+    parser.add_argument("--mode", choices=["scenarios", "dump", "faces"], default="scenarios")
     args = parser.parse_args()
 
     version = args.bds_version or latest_linux_version()
     if args.mode == "dump":
         return dump(args, version)
+    if args.mode == "faces":
+        return faces(args, version)
     scenario_file = TOOL_DIR / "scenarios.json"
     scenarios = json.loads(scenario_file.read_text(encoding="utf-8"))["scenarios"]
     server_dir = ensure_bds(version, args.cache_dir)
@@ -248,6 +383,71 @@ def dump(args, version):
     for kind, ids in errors.items():
         if ids:
             print(f"  {kind} hatası {len(ids)}: {ids[:10]}")
+
+
+def faces(args, version):
+    palette = read_block_palette(REPO_ROOT / "data" / "resources" / "unpacked" / "block_palette.nbt")
+    dump_file = REPO_ROOT / "data" / "resources" / "unpacked" / "bds_registry_dump.json"
+    dump_blocks = json.loads(dump_file.read_text(encoding="utf-8"))["blocks"]
+    batches = face_batches(palette, dump_blocks)
+    server_dir = ensure_bds(version, args.cache_dir)
+    # Başlangıç alanı ölçüm alanının kendisidir: chunk sınırına hizalı 10x10 chunk.
+    area = {"from": [0, BASE_Y, 0], "to": [FACE_AREA_BLOCKS - 1, BASE_Y, FACE_AREA_BLOCKS - 1]}
+    manifest = install(server_dir, [], area, args.port, mode="faces", face_batches_data=batches)
+    print(f"BDS {version}, bağlantı yüzü tablosu: {len(palette)} durum, {len(batches)} parti", flush=True)
+
+    _, records, fatal, finished, log = run(server_dir, args.timeout)
+    (args.cache_dir / "last_run.log").write_text("\n".join(log) + "\n", encoding="utf-8")
+    if fatal or not finished:
+        sys.exit(f"ölçüm tamamlanmadı: bitti={finished}, ölümcül={fatal}; günlük: {args.cache_dir / 'last_run.log'}")
+
+    by_probe = {probe: {} for probe in FACE_PROBES}
+    for row in records["FACE"]:
+        # Köşeli merdiven iki kez ölçülür; bağlamlı ölçüm (sonradan gelir) tek başına ölçümün yerini alır.
+        if row["i"] in by_probe[row["probe"]] and not row.get("context"):
+            continue
+        by_probe[row["probe"]][row["i"]] = row
+    # Ham tablo: palet sırasıyla satır başına bir durum. Hücre "KDGB" yüz dizisidir (1 bağlandı, 0 bağlanmadı,
+    # - ölçülmedi); blok ölçüm sırasında başka bir duruma döndüyse [yüzler, son durumun palet sırası]. Yüzler o son
+    # duruma aittir. Türetme kuralları Allay tarafında: data/.../ConnectionFaceImport.
+    index_by_state, keys_by_name = {}, {}
+    for cell_data in face_script_states(palette, dump_blocks):
+        index_by_state[state_key(cell_data["name"], cell_data["states"])] = cell_data["i"]
+        keys_by_name[cell_data["name"]] = set(cell_data["states"])
+
+    def cell(row):
+        faces = "".join("-" if face is None else "1" if face else "0" for face in row["faces"])
+        if row["stable"]:
+            return faces
+        final = row.get("final")
+        final_index = None
+        if final:
+            # Script API paletin dışında eski adlı durumlar da döndürüyor (wall_block_type, wood_type); atılır.
+            known = keys_by_name.get(final["name"], set())
+            final_index = index_by_state.get(
+                state_key(final["name"], {key: value for key, value in final["states"].items() if key in known}))
+        if final is not None and final_index is None:
+            sys.exit(f"son durum palette yok: {final}")
+        return [faces, final_index]
+
+    lines = []
+    for index, (name, _) in enumerate(palette):
+        rows = [by_probe[probe].get(index) for probe in FACE_PROBES]
+        if any(row is None for row in rows):
+            sys.exit(f"ölçülmemiş durum: {index} {name}")
+        if any(row.get("error") for row in rows):
+            sys.exit(f"durum kurulamadı: {index} {name}: {[row.get('error') for row in rows]}")
+        lines.append(json.dumps([name] + [cell(row) for row in rows], ensure_ascii=False, separators=(",", ":")))
+    header = {
+        "bedrockVersion": version, "scriptModule": manifest["dependencies"][0],
+        "palette": "block_palette.nbt", "probes": FACE_PROBES, "sides": FACE_SIDE_ORDER,
+    }
+    output = args.output or TOOL_DIR / f"connection-faces-{version}.json"
+    output.parent.mkdir(parents=True, exist_ok=True)
+    body = ",\n".join(lines)
+    output.write_text(json.dumps(header, ensure_ascii=False)[:-1] + ',"states":[\n' + body + "\n]}\n", encoding="utf-8")
+    unstable = sum(1 for probe in FACE_PROBES for row in by_probe[probe].values() if not row["stable"])
+    print(f"tablo yazıldı: {output} ({len(lines)} durum, kararsız ölçüm {unstable})")
 
 
 if __name__ == "__main__":
