@@ -33,7 +33,9 @@ import java.util.TreeMap;
  * kayıtları okunmaz ve yazılmaz. Kural, komşunun yalnızca türüne, yönüne ve yarısına baktığı için (komşunun kendi
  * bağlantısına değil) özgün durumlardan tek geçiş yeterli. Dünyada olmayan bölüm havadır. Bölümler yazılırken güncel biçime
  * ve blok durumu sürümüne yükseltilir; sunucu da ilk kayıtta aynısını yapardı. Tanınmayan durumlar
- * ({@link org.allaymc.server.block.type.PreservedBlockState}) olduğu gibi geri yazılır.</p>
+ * ({@link org.allaymc.server.block.type.PreservedBlockState}) olduğu gibi geri yazılır. Araç eklentileri yüklemediği için
+ * GearsCore'un özel blokları ({@code core:nether_mob_block} gibi) günlükte "Unrecognized block state" olarak görünür; bu
+ * beklenen bir uyarıdır, veri korunur.</p>
  *
  * <p><b>Sunucu kapalıyken ve yedek alındıktan sonra çalıştırılır</b> (LevelDB kilidi açık dünyayı zaten açmaz):</p>
  * <pre>./gradlew :server:migrateConnections -Pworlds=/yol/dunya1,/yol/dunya2 [-PdryRun=true]</pre>

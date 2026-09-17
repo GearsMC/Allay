@@ -97,6 +97,40 @@ class BlockConnectionWorldTest {
         awaitTrue(() -> corner(stairs) == MinecraftCorner.NONE, "komşu kalkınca merdiven düzelmedi");
     }
 
+    /**
+     * GearsCore çekici bölgeyi tek şablon durumla {@code setBlockState} üzerinden doldurur (yol haritası 7.3). Şablon başka
+     * yerden kopyalanmış bayat bağlantı/köşe taşısa da blok yerleşince komşulara göre düzelmeli.
+     */
+    @Test
+    void bulkFillWithStaleStatesSettlesToNeighbours() {
+        var staleFence = BlockTypes.OAK_FENCE.getDefaultState()
+                .setPropertyValue(BlockPropertyTypes.MINECRAFT_CONNECTION_NORTH, true)
+                .setPropertyValue(BlockPropertyTypes.MINECRAFT_CONNECTION_EAST, true)
+                .setPropertyValue(BlockPropertyTypes.MINECRAFT_CONNECTION_SOUTH, true)
+                .setPropertyValue(BlockPropertyTypes.MINECRAFT_CONNECTION_WEST, true);
+        var row = new Vector3i[5];
+        for (var i = 0; i < row.length; i++) {
+            row[i] = at(i - 2, 2);
+            dimension.setBlockState(row[i], staleFence);
+        }
+        var staleStairs = stairs(0).setPropertyValue(BlockPropertyTypes.MINECRAFT_CORNER, MinecraftCorner.INNER_RIGHT);
+        var lonelyStairs = at(0, -2);
+        dimension.setBlockState(lonelyStairs, staleStairs);
+
+        awaitTrue(() -> {
+            for (var i = 0; i < row.length; i++) {
+                if (connected(row[i], BlockPropertyTypes.MINECRAFT_CONNECTION_WEST) != (i > 0)
+                    || connected(row[i], BlockPropertyTypes.MINECRAFT_CONNECTION_EAST) != (i < row.length - 1)
+                    || connected(row[i], BlockPropertyTypes.MINECRAFT_CONNECTION_NORTH)
+                    || connected(row[i], BlockPropertyTypes.MINECRAFT_CONNECTION_SOUTH)) {
+                    return false;
+                }
+            }
+            return corner(lonelyStairs) == MinecraftCorner.NONE;
+        }, "bayat durumla doldurulan bloklar düzelmedi");
+        assertQuiet(row);
+    }
+
     @Test
     void netherBrickFenceIgnoresWoodenFence() {
         var nether = at(0, 0);
