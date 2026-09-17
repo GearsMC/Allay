@@ -4,6 +4,7 @@
 Kullanım:
     python3 tools/vanilla-oracle/run_oracle.py                 # Mojang'ın yayınladığı son Linux BDS sürümü
     python3 tools/vanilla-oracle/run_oracle.py --bds-version 1.26.51.1
+    python3 tools/vanilla-oracle/run_oracle.py --mode dump --output <dosya>   # kayıt dökümü + yakıt ölçümü
 
 BDS depoya konmaz; önbellek dizinine indirilir (varsayılan ~/.cache/gears-vanilla-oracle).
 """
@@ -31,6 +32,10 @@ PACK_DIR_NAME = "gears_vanilla_oracle"
 BASE_Y = -60  # düz dünyada çimin hemen üstü
 CELL_SIZE = 5  # hücre içi uzaklık en fazla 2; komşu hücrelerin blokları birbirine değmez
 MAX_TICKING_CHUNKS = 100
+# Yakıt ölçümü: fırınlar iki blok arayla dizilir. 48x48 = 2304 hücre; 26.50'de 2076 eşya var.
+FUEL_SPACING = 2
+FUEL_COLUMNS = 48
+FUEL_CAP_TICKS = 2500  # en uzun ölçülen süre; üstü "capped" (Allay'de 2400 üstü 4 eşya var)
 
 
 def http_get(url):
@@ -76,13 +81,23 @@ def layout(scenarios):
     return placed, area
 
 
-def install(server_dir, scenarios, area, port):
+def fuel_layout():
+    grid = {"origin": [0, BASE_Y, 0], "spacing": FUEL_SPACING, "columns": FUEL_COLUMNS, "capacity": FUEL_COLUMNS * FUEL_COLUMNS}
+    span = FUEL_COLUMNS * FUEL_SPACING
+    area = {"from": [-FUEL_SPACING, BASE_Y, -FUEL_SPACING], "to": [span, BASE_Y, span]}
+    return grid, area
+
+
+def install(server_dir, scenarios, area, port, mode="scenarios", fuel_grid=None):
     pack_target = server_dir / "development_behavior_packs" / PACK_DIR_NAME
     shutil.rmtree(pack_target, ignore_errors=True)
     shutil.copytree(TOOL_DIR / "pack", pack_target)
     (pack_target / "scripts" / "scenarios.js").write_text(
-        "export const SCENARIOS = " + json.dumps(scenarios, ensure_ascii=False) + ";\n"
-        + "export const AREA = " + json.dumps(area) + ";\n",
+        "export const MODE = " + json.dumps(mode) + ";\n"
+        + "export const SCENARIOS = " + json.dumps(scenarios, ensure_ascii=False) + ";\n"
+        + "export const AREA = " + json.dumps(area) + ";\n"
+        + "export const FUEL_GRID = " + json.dumps(fuel_grid) + ";\n"
+        + f"export const FUEL_CAP_TICKS = {FUEL_CAP_TICKS};\n",
         encoding="utf-8",
     )
 
@@ -118,6 +133,7 @@ def run(server_dir, timeout):
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1,
     )
     results, fatal, log = {}, [], []
+    records = {"BLOCK": [], "ITEM": [], "FUEL": []}
     done = threading.Event()
 
     def reader():
@@ -133,6 +149,8 @@ def run(server_dir, timeout):
             data = json.loads(payload) if payload else {}
             if tag == "RESULT":
                 results[data["id"]] = data
+            elif tag in records:
+                records[tag].append(data)
             elif tag == "FATAL":
                 fatal.append(data)
             elif tag == "DONE":
@@ -149,7 +167,7 @@ def run(server_dir, timeout):
             process.wait(timeout=60)
         except subprocess.TimeoutExpired:
             process.kill()
-    return results, fatal, done.is_set(), log
+    return results, records, fatal, done.is_set(), log
 
 
 def main():
@@ -159,9 +177,12 @@ def main():
     parser.add_argument("--port", type=int, default=19140, help="BDS UDP portu (Allay'in 19132'siyle çakışmamalı)")
     parser.add_argument("--timeout", type=int, default=600)
     parser.add_argument("--output", type=Path, help="altın tablo yolu")
+    parser.add_argument("--mode", choices=["scenarios", "dump"], default="scenarios")
     args = parser.parse_args()
 
     version = args.bds_version or latest_linux_version()
+    if args.mode == "dump":
+        return dump(args, version)
     scenario_file = TOOL_DIR / "scenarios.json"
     scenarios = json.loads(scenario_file.read_text(encoding="utf-8"))["scenarios"]
     server_dir = ensure_bds(version, args.cache_dir)
@@ -169,7 +190,7 @@ def main():
     manifest = install(server_dir, placed, area, args.port)
     print(f"BDS {version}, {len(placed)} senaryo, alan {area}", flush=True)
 
-    results, fatal, finished, log = run(server_dir, args.timeout)
+    results, _, fatal, finished, log = run(server_dir, args.timeout)
     (args.cache_dir / "last_run.log").write_text("\n".join(log) + "\n", encoding="utf-8")
     if fatal or not finished:
         sys.exit(f"kahin tamamlanmadı: bitti={finished}, ölümcül={fatal}; günlük: {args.cache_dir / 'last_run.log'}")
@@ -195,6 +216,38 @@ def main():
         for sid, errors in list(errored.items())[:20]:
             print(f"  hata {sid}: {errors}")
         sys.exit(1)
+
+
+def dump(args, version):
+    server_dir = ensure_bds(version, args.cache_dir)
+    grid, area = fuel_layout()
+    manifest = install(server_dir, [], area, args.port, mode="dump", fuel_grid=grid)
+    print(f"BDS {version}, kayıt dökümü + yakıt ölçümü, alan {area}", flush=True)
+
+    _, records, fatal, finished, log = run(server_dir, args.timeout)
+    (args.cache_dir / "last_run.log").write_text("\n".join(log) + "\n", encoding="utf-8")
+    if fatal or not finished:
+        sys.exit(f"döküm tamamlanmadı: bitti={finished}, ölümcül={fatal}; günlük: {args.cache_dir / 'last_run.log'}")
+
+    def by_id(rows):
+        return {row["id"]: {k: v for k, v in row.items() if k != "id"} for row in sorted(rows, key=lambda r: r["id"])}
+
+    table = {
+        "bedrockVersion": version,
+        "scriptModule": manifest["dependencies"][0],
+        "fuelCapTicks": FUEL_CAP_TICKS,
+        "blocks": by_id(records["BLOCK"]),
+        "items": by_id(records["ITEM"]),
+        "fuel": by_id(records["FUEL"]),
+    }
+    output = args.output or TOOL_DIR / f"registry-dump-{version}.json"
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(table, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    errors = {kind: [r["id"] for r in rows if r.get("error")] for kind, rows in records.items()}
+    print(f"döküm yazıldı: {output} (blok {len(table['blocks'])}, eşya {len(table['items'])}, yakıt {len(table['fuel'])})")
+    for kind, ids in errors.items():
+        if ids:
+            print(f"  {kind} hatası {len(ids)}: {ids[:10]}")
 
 
 if __name__ == "__main__":

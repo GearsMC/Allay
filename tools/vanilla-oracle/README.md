@@ -26,6 +26,35 @@ python3 tools/vanilla-oracle/run_oracle.py --bds-version 1.26.51.1
 Çıktı: `server/src/test/resources/vanilla-oracle/<bds-sürümü>.json`. Senaryolardan biri kurulamazsa ya da sonucu
 eksikse betik tabloyu yine yazar ama **1 ile çıkar** ve hataları listeler.
 
+## Kayıt dökümü (`--mode dump`)
+
+Endstone DevTools yalnızca Windows'ta çalıştığı için Allay'in veri güncellemesinde BDS'ten alınması gereken
+değerlerin Script API ile okunabilen kısmını döker:
+
+```bash
+python3 tools/vanilla-oracle/run_oracle.py --mode dump --bds-version 1.26.51.1 \
+    --output data/resources/unpacked/staging-1.26.50/bds_registry_dump.json
+```
+
+- **`blocks`**: her blok türünün varsayılan durumu (`BlockPermutation.resolve`), etiketleri ve çeviri anahtarı.
+- **`items`**: `ItemTypes.getAll()` içindeki her eşyanın yığın sayısı, etiketleri, dayanıklılığı, büyü yuvaları,
+  yiyecek bileşeni ve çeviri anahtarı.
+- **`fuel`**: her eşya bir fırının yakıt yuvasına konur (girdi 64 kırıktaş), fırının `lit_furnace` kaldığı tik
+  sayısı ölçülür. İki tikte bir bakılır; `fuelCapTicks` (2500) üstü `capped` olarak işaretlenir.
+
+Allay'in 26.30 Endstone verisiyle karşılaştırma (2026-09-17, BDS 1.26.51.1):
+- varsayılan durum 1356 türün 1355'inde aynı (fark `minecraft:unknown`);
+- blok etiketi 1356 türün 1281'inde aynı, kalan 75 26.50'nin yeni etiketleri (`cornerable_stairs`, `leaves`);
+- iki tarafta da bulunan 1518 eşyada yığın sayısı ve dayanıklılık %100, yakıt süresi 1515/1515 aynı (3 eşya sınır
+  üstü), etiketler 1514/1518 (farklar 26.50 etiketleri).
+
+Dikkat:
+- Script API etiketleri bazen önek olmadan döndürür (`wood`); karşılaştırmada `minecraft:` eklenir.
+- Durum listesinde palette olmayan eski adlar olabilir (`wood_type`); varsayılan durum palet girdisiyle
+  "palet anahtarlarının hepsi eşleşiyor" diye bulunur.
+- `ItemTypes.getAll()` elde tutulamayan eşyaları vermez (26.50'de 2076 eşyanın 453'ü: çift yarım blok, duvar
+  tabelası, eğitim eşyaları). Bunların değerleri içe aktarma aracında türetilir.
+
 ## Nasıl çalışır
 
 1. BDS, `~/.cache/gears-vanilla-oracle/bedrock-server-<sürüm>/` altına indirilip açılır (`--cache-dir`).
@@ -70,4 +99,7 @@ uzaklık en fazla 2 olmalı, yoksa komşu hücreyle etkileşir.
 - Desteksiz kalan bloklar kaldırılır: tuzak ipi kancası yalnızca arkasında dolu blok olan yönde durur, diğer
   yönlerde okumada `minecraft:air` görünür. Bu da vanilla davranışıdır.
 - 26.50'de `online-mode=false` artık izin listesiyle birlikte reddediliyor; betik bu ayara dokunmaz.
+- **Zamanlamaya bağlı sonuç:** `S9/trip_wire_hook/d0` senaryosunda ipin `powered_bit` değeri çalıştırmadan
+  çalıştırmaya değişebiliyor (2026-09-17 tekrarında `true`, altın tabloda `false`); kancası sökülen ip okuma anında
+  geçici durumda olabiliyor. Bu değeri kullanan test onu karşılaştırmamalı. Diğer 479 senaryo iki çalıştırmada aynı.
 - Son çalıştırmanın BDS günlüğü `<cache-dir>/last_run.log`.

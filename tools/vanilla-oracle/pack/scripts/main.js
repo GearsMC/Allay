@@ -1,7 +1,9 @@
 // Vanilla kahin: run_oracle.py'nin ürettiği scenarios.js'teki her senaryoyu kendi hücresine kurar,
 // BDS'in hesapladığı blok durumlarını okur ve "ORACLE <etiket> <json>" satırları olarak konsola yazar.
+// MODE "dump" ise senaryolar yerine kayıt dökümü ve yakıt ölçümü çalışır (dump.js).
 import { world, system, BlockPermutation } from "@minecraft/server";
-import { SCENARIOS, AREA } from "./scenarios.js";
+import { MODE, SCENARIOS, AREA, FUEL_GRID, FUEL_CAP_TICKS } from "./scenarios.js";
+import { dumpRegistries, measureFuel } from "./dump.js";
 
 const PLACE_TO_THEN_TICKS = 10;
 const THEN_TO_READ_TICKS = 20;
@@ -62,6 +64,12 @@ world.afterEvents.worldLoad.subscribe(() => {
       return;
     }
     system.clearRun(waiter);
+
+    if (MODE === "dump") {
+      dumpRegistries(emit);
+      measureFuel(dimension, FUEL_GRID, FUEL_CAP_TICKS, emit, () => emit("DONE", {}));
+      return;
+    }
 
     const errors = new Map(SCENARIOS.map((scenario) => [scenario.id, []]));
     for (const scenario of SCENARIOS) {
