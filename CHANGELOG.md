@@ -43,6 +43,8 @@ Unless otherwise specified, any version comparison below is the comparison of th
 
 ### Fixed
 
+- Creative block items no longer carry the legacy aux value that 1.26.50 removed (chests 2, pistons 1, dispensers 3, …). The value is gone from BDS's creative content and recipe outputs, and broken blocks always drop meta 0, so a chest taken from the creative menu did not stack with a crafted or picked-up one.
+
 * Fixed item-in-hand inventory desync after hand/container updates (#879). 
 * Fixed inventory synchronization after cancelled item drop actions.
 * Fixed swing sound effect playback position so it is relative to the player.
