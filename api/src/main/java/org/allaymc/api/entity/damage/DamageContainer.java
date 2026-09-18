@@ -58,6 +58,14 @@ public class DamageContainer {
      */
     @Setter
     protected boolean critical;
+
+    /**
+     * Final motion to apply after an accepted hit, bypassing the default knockback calculation.
+     * Null preserves the default calculation; only used when {@code hasKnockback} is true.
+     */
+    @Setter
+    protected Vector3dc knockbackMotion;
+
     /**
      * Whether this damage is enchanted. If this value is {@code true}, action {@link EnchantedHit} will
      * be applied to the victim.

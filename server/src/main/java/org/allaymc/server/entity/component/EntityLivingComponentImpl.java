@@ -142,17 +142,23 @@ public class EntityLivingComponentImpl implements EntityLivingComponent {
     @Override
     public boolean attack(DamageContainer damage, boolean ignoreCoolDown) {
         if (!thisEntity.isAlive() ||
-            !canBeAttacked(damage) ||
-            !checkAndUpdateCoolDown(damage, ignoreCoolDown)) {
+            !canBeAttacked(damage)) {
             return false;
         }
 
         calculateKnockback(damage);
 
+        var attempt = new org.allaymc.api.eventbus.event.entity.EntityDamageAttemptEvent(thisEntity, damage, ignoreCoolDown);
+        if (!attempt.call() || !checkCoolDown(attempt.isIgnoreCoolDown())) return false;
+
         var event = new EntityDamageEvent(thisEntity, damage);
         if (!event.call()) return false;
 
         damage = event.getDamageContainer();
+
+        // Cancelled hits must not replace the killer or consume a damage cooldown.
+        lastDamage = damage;
+        lastDamageTime = baseComponent.getTick();
 
         applyAttacker(damage);
         applyVictim(damage);
@@ -185,6 +191,10 @@ public class EntityLivingComponentImpl implements EntityLivingComponent {
         }
 
         if (physicsComponent != null) {
+            if (damage.getKnockbackMotion() != null) {
+                physicsComponent.setMotion(damage.getKnockbackMotion());
+                return;
+            }
             var knockbackSource = damage.getKnockbackSource();
             if (knockbackSource == null && damage.getAttacker() instanceof Entity attacker) {
                 knockbackSource = attacker.getLocation();
@@ -202,14 +212,12 @@ public class EntityLivingComponentImpl implements EntityLivingComponent {
         }
     }
 
-    protected boolean checkAndUpdateCoolDown(DamageContainer damage, boolean forceToUpdate) {
+    protected boolean checkCoolDown(boolean forceToUpdate) {
         var currentTime = baseComponent.getTick();
         if (!forceToUpdate && lastDamage != null && currentTime - lastDamageTime <= lastDamage.getCoolDown()) {
             return false;
         }
 
-        lastDamage = damage;
-        lastDamageTime = currentTime;
         return true;
     }
 
