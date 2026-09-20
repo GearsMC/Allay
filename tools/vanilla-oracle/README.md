@@ -21,6 +21,7 @@ cd /root/gears/Allay
 python3 tools/vanilla-oracle/build_scenarios.py          # scenarios.json'u yeniden üretir (senaryo değiştiyse)
 python3 tools/vanilla-oracle/run_oracle.py               # Mojang'ın son Linux BDS sürümüyle
 python3 tools/vanilla-oracle/run_oracle.py --bds-version 1.26.51.1
+python3 tools/vanilla-oracle/run_oracle.py --mode palette          # kanonik blok paleti
 ```
 
 Çıktı: `server/src/test/resources/vanilla-oracle/<bds-sürümü>.json`. Senaryolardan biri kurulamazsa ya da sonucu
@@ -81,6 +82,32 @@ python3 tools/vanilla-oracle/run_oracle.py --mode faces --bds-version 1.26.51.1 
 - Ölçüm tekrarlanabilir: iki çalıştırmada yüzler birebir aynı çıktı; yalnızca mercan bloğu ve sarmaşık gibi zamana
   bağlı değişen blokların "değişti" işareti oynuyor, türetme bundan etkilenmiyor.
 - 26.50 bulgusu: iç köşeli merdivende yalnızca arka yüz bağlanıyor (Java'da köşenin yan yüzü de dolu sayılır).
+
+## Kanonik blok paleti (`--mode palette`)
+
+Palet (blok türü başına bütün durumlar) ağda gelmiyor — istemci kendi içinde taşıyor — bu yüzden bugüne kadar
+CloudburstMC/Data'nın `block_palette.nbt`'sinden alınıyordu. Bu kip onu oyunun kendisinden üretir:
+
+```bash
+python3 tools/vanilla-oracle/run_oracle.py --mode palette --bds-version 1.26.51.1 \
+    --output tools/vanilla-oracle/palette-1.26.51.1.json
+```
+
+İki kaynağı birleştirir:
+
+- **Özellik adları** Mojang'ın kendi meta verisinden (`unpacked/mojang-blocks.json`, `data_items[].properties`).
+  Betik API'sinin `getAllStates()`'i eski takma adları da veriyor (`acacia_wood`'da `wood_type`, `allium`'da
+  `flower_type`); palette onlar yok, bu yüzden adlar oradan okunmaz.
+- **Özellik değerleri** blok başına ölçülür. Genel liste `age` için 0–15 der ama kakao 0–2 kullanır;
+  `BlockPermutation.resolve` aralık dışı değeri **sessizce varsayılana düşürdüğü** için geri okuma testi
+  (istenen === okunan) o bloğun gerçek kümesini verir.
+
+Mojang'ın listesi 1463 blok kapsıyor, oyunda 1477 tür var. Kalan 14'ünde betik kendi ad listesini kullanır;
+dördü (`chalkboard`, `deprecated_anvil`, `deprecated_purpur_block_1`/`_2`) takma ad ya da dar aralık verdiği için
+`PALETTE_OVERRIDES` ile elle yazılır — kullanımdan kalkmış bloklar, sürümle değişmiyorlar.
+
+**Doğrulama (2026-09-20, BDS 1.26.51.1):** üretilen 22091 durum, CloudburstMC paletiyle **birebir** aynı
+(fark yok, iki yönde de). Yani palet için dış kaynağa gerek kalmadı.
 
 ## Nasıl çalışır
 

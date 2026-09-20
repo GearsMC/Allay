@@ -8,7 +8,10 @@ import org.cloudburstmc.nbt.NbtMap;
 import org.cloudburstmc.nbt.NbtType;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 
 import static org.allaymc.data.importer.DataFiles.readGzipNbt;
@@ -64,13 +67,45 @@ public final class ConnectionFaceImport {
 
     public static void main(String[] args) {
         try {
-            var result = derive(readJson(RAW).getAsJsonObject(), readPalette(), readJson(BLOCK_STATES).getAsJsonArray());
+            var raw = readJson(RAW).getAsJsonObject();
+            checkPaletteFingerprint(raw);
+            var result = derive(raw, readPalette(), readJson(BLOCK_STATES).getAsJsonArray());
             DataFiles.writeJson(OUTPUT, result.table());
             log.info("Bağlantı yüzü tablosu yazıldı: {} ({} durum bağlanır; hiçbir durumu ölçülemeyen türler: {})",
                     OUTPUT.toAbsolutePath(), result.connecting(), result.unmeasuredTypes());
         } catch (Throwable t) {
             log.error("Bağlantı yüzü tablosu üretilemedi", t);
             System.exit(1);
+        }
+    }
+
+    /**
+     * Ham tablonun ölçüldüğü paletle bugünkü paletin aynı olduğunu doğrular.
+     *
+     * <p>Satırlar palet <b>sırasına</b> göre numaralı, satırda yalnızca blok adı var. Palet yeniden üretilince tür sırası
+     * (ada göre FNV-1) korunur ama tür içindeki durum sırası vanilla'nın iç sırası olduğu için değişebiliyor: 26.50'de
+     * 1477 türün 231'i kayıyor. Kaymış tablo sessizce yanlış bloğa yüz atar, bu yüzden parmak izi tutmuyorsa üretim
+     * durur ve tablo yeniden ölçülür ({@code run_oracle.py --mode faces}).</p>
+     */
+    private static void checkPaletteFingerprint(JsonObject raw) throws IOException {
+        var measured = raw.has("paletteSha1") ? raw.get("paletteSha1").getAsString() : null;
+        if (measured == null) {
+            throw new IllegalStateException(RAW + " paletteSha1 taşımıyor; tablo yeniden ölçülmeli");
+        }
+        String current;
+        try {
+            var digest = MessageDigest.getInstance("SHA-1").digest(Files.readAllBytes(PALETTE));
+            var hex = new StringBuilder(digest.length * 2);
+            for (var b : digest) {
+                hex.append(Character.forDigit((b >> 4) & 0xf, 16)).append(Character.forDigit(b & 0xf, 16));
+            }
+            current = hex.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-1 yok", e);
+        }
+        if (!current.equals(measured)) {
+            throw new IllegalStateException("Yüz tablosu başka bir paletle ölçülmüş (tablo " + measured + ", palet "
+                    + current + "); satırlar palet sırasına bağlı, tablo yeniden ölçülmeli");
         }
     }
 

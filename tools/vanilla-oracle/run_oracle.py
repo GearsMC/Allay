@@ -6,6 +6,7 @@ Kullanım:
     python3 tools/vanilla-oracle/run_oracle.py --bds-version 1.26.51.1
     python3 tools/vanilla-oracle/run_oracle.py --mode dump --output <dosya>   # kayıt dökümü + yakıt ölçümü
     python3 tools/vanilla-oracle/run_oracle.py --mode faces --output <dosya>  # çit/parmaklık bağlantı yüzü tablosu
+    python3 tools/vanilla-oracle/run_oracle.py --mode palette --output <dosya> # kanonik blok durumu listesi
 
 BDS depoya konmaz; önbellek dizinine indirilir (varsayılan ~/.cache/gears-vanilla-oracle).
 """
@@ -218,7 +219,8 @@ def face_batches(palette, dump_blocks):
     return batches
 
 
-def install(server_dir, scenarios, area, port, mode="scenarios", fuel_grid=None, face_batches_data=None):
+def install(server_dir, scenarios, area, port, mode="scenarios", fuel_grid=None, face_batches_data=None,
+            palette_plan=None):
     pack_target = server_dir / "development_behavior_packs" / PACK_DIR_NAME
     shutil.rmtree(pack_target, ignore_errors=True)
     shutil.copytree(TOOL_DIR / "pack", pack_target)
@@ -228,7 +230,8 @@ def install(server_dir, scenarios, area, port, mode="scenarios", fuel_grid=None,
         + "export const AREA = " + json.dumps(area) + ";\n"
         + "export const FUEL_GRID = " + json.dumps(fuel_grid) + ";\n"
         + f"export const FUEL_CAP_TICKS = {FUEL_CAP_TICKS};\n"
-        + "export const FACE_BATCHES = " + json.dumps(face_batches_data or [], ensure_ascii=False) + ";\n",
+        + "export const FACE_BATCHES = " + json.dumps(face_batches_data or [], ensure_ascii=False) + ";\n"
+        + "export const PALETTE_PLAN = " + json.dumps(palette_plan or [], ensure_ascii=False) + ";\n",
         encoding="utf-8",
     )
 
@@ -264,7 +267,7 @@ def run(server_dir, timeout):
         stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1,
     )
     results, fatal, log = {}, [], []
-    records = {"BLOCK": [], "ITEM": [], "FUEL": [], "FACE": []}
+    records = {"BLOCK": [], "ITEM": [], "FUEL": [], "FACE": [], "PALETTE": []}
     done = threading.Event()
 
     def reader():
@@ -310,7 +313,7 @@ def main():
     parser.add_argument("--port", type=int, default=19140, help="BDS UDP portu (Allay'in 19132'siyle çakışmamalı)")
     parser.add_argument("--timeout", type=int, default=600)
     parser.add_argument("--output", type=Path, help="altın tablo yolu")
-    parser.add_argument("--mode", choices=["scenarios", "dump", "faces"], default="scenarios")
+    parser.add_argument("--mode", choices=["scenarios", "dump", "faces", "palette"], default="scenarios")
     args = parser.parse_args()
 
     version = args.bds_version or latest_linux_version()
@@ -318,6 +321,8 @@ def main():
         return dump(args, version)
     if args.mode == "faces":
         return faces(args, version)
+    if args.mode == "palette":
+        return palette_dump(args, version)
     scenario_file = TOOL_DIR / "scenarios.json"
     scenarios = json.loads(scenario_file.read_text(encoding="utf-8"))["scenarios"]
     server_dir = ensure_bds(version, args.cache_dir)
@@ -385,8 +390,70 @@ def dump(args, version):
             print(f"  {kind} hatası {len(ids)}: {ids[:10]}")
 
 
+# Mojang'ın meta verisinde olmayan bloklar (oyunda 1477 tür, listede 1463). Betiğin kendi `getAllStates()`'i
+# bunlarda eski takma adları da veriyor (kullanımdan kalkmış örsün `damage`/`direction`'ı, purpur'un `chisel_type`'ı)
+# ve tahta yazının yön aralığını dar ölçüyor; dördü elle yazılır. Kullanımdan kalkmış bloklar olduğu için
+# sürümle değişmiyorlar.
+PALETTE_OVERRIDES = {
+    "minecraft:chalkboard": {"properties": ["direction"], "values": {"direction": list(range(16))}},
+    "minecraft:deprecated_anvil": {"properties": ["minecraft:cardinal_direction"]},
+    "minecraft:deprecated_purpur_block_1": {"properties": ["pillar_axis"]},
+    "minecraft:deprecated_purpur_block_2": {"properties": ["pillar_axis"]},
+}
+
+
+def palette_plan():
+    """Blok başına özellik adları, Mojang'ın kendi meta verisinden (bedrock-samples).
+
+    Betik API'sinin `getAllStates()`'i eski takma adları da veriyor (acacia_wood'da `wood_type`), palette onlar yok.
+    Mojang'ın listesi 1463 blok kapsıyor; oyunda 1477 tür var (gizli/kullanımdan kalkmış bloklar), kalanlar için
+    betik kendi ad listesini kullanır.
+    """
+    path = REPO_ROOT / "data" / "resources" / "unpacked" / "mojang-blocks.json"
+    blocks = json.loads(path.read_text(encoding="utf-8"))["data_items"]
+    plan = [{"id": block["name"], "properties": sorted(p["name"] for p in block.get("properties", []))}
+            for block in blocks]
+    plan += [{"id": block_id, **override} for block_id, override in PALETTE_OVERRIDES.items()]
+    return plan
+
+
+def palette_dump(args, version):
+    server_dir = ensure_bds(version, args.cache_dir)
+    # Palet için ölçüm alanı gerekmiyor; kayıt defteri dünyadan bağımsız okunuyor, küçük bir alan yeter.
+    area = {"from": [0, BASE_Y, 0], "to": [15, BASE_Y, 15]}
+    manifest = install(server_dir, [], area, args.port, mode="palette", palette_plan=palette_plan())
+    print(f"BDS {version}, kanonik blok durumu listesi", flush=True)
+
+    _, records, fatal, finished, log = run(server_dir, args.timeout)
+    (args.cache_dir / "last_run.log").write_text("\n".join(log) + "\n", encoding="utf-8")
+    if fatal or not finished:
+        sys.exit(f"palet dökümü tamamlanmadı: bitti={finished}, ölümcül={fatal}; günlük: {args.cache_dir / 'last_run.log'}")
+
+    rows = sorted(records["PALETTE"], key=lambda row: row["id"])
+    states = [{"name": row["id"], "states": state} for row in rows for state in row.get("states", [])]
+    table = {
+        "bedrockVersion": version,
+        "scriptModule": manifest["dependencies"][0],
+        "blockTypes": len(rows),
+        "blockStates": len(states),
+        "palette": states,
+    }
+    output = args.output or TOOL_DIR / f"palette-{version}.json"
+    output.parent.mkdir(parents=True, exist_ok=True)
+    output.write_text(json.dumps(table, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    errored = [row for row in rows if row.get("error")]
+    rejected = sum(row.get("rejected", 0) for row in rows)
+    print(f"palet yazıldı: {output} ({len(rows)} blok türü, {len(states)} durum, {rejected} kombinasyon reddedildi)")
+    for row in errored[:20]:
+        print(f"  hata {row['id']}: {row['error']}")
+    if errored:
+        print(f"  toplam hatalı tür: {len(errored)}")
+
+
 def faces(args, version):
-    palette = read_block_palette(REPO_ROOT / "data" / "resources" / "unpacked" / "block_palette.nbt")
+    palette_path = REPO_ROOT / "data" / "resources" / "unpacked" / "block_palette.nbt"
+    palette_sha1 = hashlib.sha1(palette_path.read_bytes()).hexdigest()
+    palette = read_block_palette(palette_path)
     dump_file = REPO_ROOT / "data" / "resources" / "unpacked" / "bds_registry_dump.json"
     dump_blocks = json.loads(dump_file.read_text(encoding="utf-8"))["blocks"]
     batches = face_batches(palette, dump_blocks)
@@ -440,7 +507,8 @@ def faces(args, version):
         lines.append(json.dumps([name] + [cell(row) for row in rows], ensure_ascii=False, separators=(",", ":")))
     header = {
         "bedrockVersion": version, "scriptModule": manifest["dependencies"][0],
-        "palette": "block_palette.nbt", "probes": FACE_PROBES, "sides": FACE_SIDE_ORDER,
+        # Satırlar palet SIRASINA göre numaralı; palet değişirse tablo sessizce kayar. Parmak izi bunu yakalar.
+        "palette": "block_palette.nbt", "paletteSha1": palette_sha1, "probes": FACE_PROBES, "sides": FACE_SIDE_ORDER,
     }
     output = args.output or TOOL_DIR / f"connection-faces-{version}.json"
     output.parent.mkdir(parents=True, exist_ok=True)

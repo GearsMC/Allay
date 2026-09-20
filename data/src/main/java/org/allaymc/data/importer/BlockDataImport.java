@@ -8,6 +8,7 @@ import org.allaymc.api.utils.hash.HashUtils;
 import org.cloudburstmc.nbt.NbtMap;
 import org.cloudburstmc.nbt.NbtType;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 /**
@@ -19,19 +20,68 @@ final class BlockDataImport {
     private static final String UNKNOWN = "minecraft:unknown";
 
     /**
-     * CloudburstMC paletini Allay'in {@code unpacked/block_palette.nbt} biçimine indirger. Ağa özgü alanlar
-     * ({@code block_id}, {@code name_hash}, {@code network_id}) atılır, sıra korunur.
+     * Vanilla kahinin palet dökümünü ({@code --mode palette}) Allay'in {@code unpacked/block_palette.nbt} biçimine çevirir.
+     *
+     * <p>Palet ağda gelmiyor, istemci kendi içinde taşıyor; bu yüzden eskiden CloudburstMC/Data'dan alınıyordu. Kahin
+     * onu oyunun kendisinden üretiyor (özellik adları Mojang meta verisinden, değer aralıkları BDS'te ölçülerek) ve
+     * 26.50'de CloudburstMC paletiyle birebir aynı 22091 durumu veriyor.</p>
+     *
+     * <p><b>Sıra:</b> tür sırası vanilla ile aynı olsun diye ada göre FNV-1 (64 bit) ile sıralanır — CloudburstMC
+     * paletindeki {@code name_hash} alanı tam olarak budur ve palet ona göre artan sırada. Tür içindeki durum sırası
+     * vanilla'nın kendi iç sırası; tek bir odometre kuralıyla açıklanmıyor (1477 türün 172'si hiçbir düzeni izlemiyor),
+     * bu yüzden kahinin ürettiği sıra korunur. Sıra yalnızca kendi yüz ölçümümüzü etkiler: {@code bds_connection_faces.json}
+     * satırları palet sırasına göre numaralı, dolayısıyla palet değişince tablo yeniden ölçülmeli
+     * ({@code run_oracle.py --mode faces}). Sunucu ve testler durumları hash'le okuduğu için sıradan etkilenmez.</p>
+     *
+     * @param stateVersion blok durumu sürümü; paletteki bütün girdilerde aynı ({@link BedrockDataImporter})
      */
-    static NbtMap palette(NbtMap cloudburstPalette) {
-        var blocks = new ArrayList<NbtMap>();
-        for (var state : cloudburstPalette.getList("blocks", NbtType.COMPOUND)) {
-            blocks.add(NbtMap.builder()
-                    .putString("name", state.getString("name"))
-                    .putCompound("states", state.getCompound("states"))
-                    .putInt("version", state.getInt("version"))
-                    .build());
+    static NbtMap palette(JsonObject oraclePalette, int stateVersion) {
+        record Entry(long nameHash, int index, NbtMap state) {
         }
+
+        var states = oraclePalette.getAsJsonArray("palette");
+        var entries = new ArrayList<Entry>(states.size());
+        for (var index = 0; index < states.size(); index++) {
+            var entry = states.get(index).getAsJsonObject();
+            var name = entry.get("name").getAsString();
+            entries.add(new Entry(fnv1(name), index, NbtMap.builder()
+                    .putString("name", name)
+                    .putCompound("states", stateCompound(entry.getAsJsonObject("states")))
+                    .putInt("version", stateVersion)
+                    .build()));
+        }
+        // Hash işaretsiz karşılaştırılır: yüksek bitli adlar yoksa sıra vanilla ile tutmaz.
+        entries.sort(Comparator.comparing(Entry::nameHash, Long::compareUnsigned).thenComparingInt(Entry::index));
+
+        var blocks = new ArrayList<NbtMap>(entries.size());
+        entries.forEach(entry -> blocks.add(entry.state()));
         return NbtMap.builder().putList("blocks", NbtType.COMPOUND, blocks).build();
+    }
+
+    /** JSON durumları NBT'ye: mantıksal değer bayt, tam sayı int, geri kalanı dize. */
+    private static NbtMap stateCompound(JsonObject states) {
+        var builder = NbtMap.builder();
+        for (var state : states.entrySet()) {
+            var value = state.getValue().getAsJsonPrimitive();
+            if (value.isBoolean()) {
+                builder.putByte(state.getKey(), (byte) (value.getAsBoolean() ? 1 : 0));
+            } else if (value.isNumber()) {
+                builder.putInt(state.getKey(), value.getAsInt());
+            } else {
+                builder.putString(state.getKey(), value.getAsString());
+            }
+        }
+        return builder.build();
+    }
+
+    /** Vanilla'nın blok adı hash'i: FNV-1 (FNV-1a değil), 64 bit. */
+    private static long fnv1(String name) {
+        var hash = 0xcbf29ce484222325L;
+        for (var b : name.getBytes(StandardCharsets.UTF_8)) {
+            hash *= 0x100000001b3L;
+            hash ^= b & 0xff;
+        }
+        return hash;
     }
 
     /**

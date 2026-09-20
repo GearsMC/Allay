@@ -15,8 +15,14 @@ import static org.allaymc.data.importer.DataFiles.*;
  * Bedrock veri setini Endstone dökümü yerine herkese açık kaynaklardan üretir (yol haritası Adım 5.2).
  *
  * <p>Endstone DevTools yalnızca Windows'ta çalışıyor. Bu araç aynı dosyaları CloudburstMC/Data, Altay
- * (PocketMine'ın devamı), Mojang {@code bedrock-samples} ve vanilla kahinin BDS kayıt dökümünden
- * ({@code tools/vanilla-oracle}, {@code --mode dump}) üretir. Kaynaklar commit özetine sabitlidir.</p>
+ * (PocketMine'ın devamı), Mojang {@code bedrock-samples} ve vanilla kahinin BDS dökümlerinden
+ * ({@code tools/vanilla-oracle}, {@code --mode dump} ve {@code --mode palette}) üretir. Kaynaklar commit özetine
+ * sabitlidir.</p>
+ *
+ * <p>Kahinden gelen iki dosya {@link #OUTPUT} altında hazır bulunmalı: {@code bds_registry_dump.json} ve
+ * {@code oracle_block_palette.json}. Blok paleti 2026-09-20'den beri CloudburstMC'den değil kahinden geliyor
+ * (üretilen 22091 durum CloudburstMC paletiyle birebir aynıydı); CloudburstMC'den kalan tek blok dosyası durum
+ * başına fizik verisi ({@code blocks.json}), çünkü o ne ağda ne de Betik API'sinde var.</p>
  *
  * <p>Çıktı {@link #OUTPUT} altına yazılır ve sunucu tarafından okunmaz. {@code resources/} ile {@code unpacked/}
  * alt klasörleri {@code data/resources} ve {@code data/resources/unpacked} düzenini aynen izler; veri devreye
@@ -28,6 +34,14 @@ import static org.allaymc.data.importer.DataFiles.*;
 public final class BedrockDataImporter {
 
     static final Path OUTPUT = Path.of("data/resources/unpacked/staging-1.26.50");
+
+    /**
+     * Palet girdilerinin blok durumu sürümü; 26.50 verisinde 22091 girdinin hepsinde aynı (1.21.60.33).
+     *
+     * <p>Kahin bunu ölçmüyor (Betik API'si sürüm alanını vermiyor). Yeni Bedrock sürümünde değişip değişmediği
+     * {@code BedrockDataTest} ile resmî palete karşı denetlenir.</p>
+     */
+    private static final int BLOCK_STATE_VERSION = 18168865;
 
     private static final String CLOUDBURST = "CloudburstMC/Data";
     private static final String CLOUDBURST_COMMIT = "3255e82c0f89496abb2fb9747f32f1bc2926bea6";
@@ -58,7 +72,8 @@ public final class BedrockDataImporter {
         var dump = readJson(OUTPUT.resolve("bds_registry_dump.json")).getAsJsonObject();
 
         // Bloklar
-        var palette = BlockDataImport.palette(readGzipNbt(fetcher.fetch(CLOUDBURST, CLOUDBURST_COMMIT, "block_palette.nbt")));
+        var palette = BlockDataImport.palette(
+                readJson(OUTPUT.resolve("oracle_block_palette.json")).getAsJsonObject(), BLOCK_STATE_VERSION);
         writeGzipNbt(outUnpacked.resolve("block_palette.nbt"), palette);
         writeJson(outUnpacked.resolve("block_states_raw.json"), readJson(fetcher.fetch(CLOUDBURST, CLOUDBURST_COMMIT, "blocks.json")));
         var blockTypes = BlockDataImport.blockTypes(

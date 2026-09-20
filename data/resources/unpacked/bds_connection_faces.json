@@ -1,4 +1,4 @@
-{"bedrockVersion": "1.26.51.1", "scriptModule": {"module_name": "@minecraft/server", "version": "2.10.0"}, "palette": "block_palette.nbt", "probes": ["minecraft:nether_brick_fence", "minecraft:iron_bars"], "sides": ["north", "east", "south", "west"],"states":[
+{"bedrockVersion": "1.26.51.1", "scriptModule": {"module_name": "@minecraft/server", "version": "2.10.0"}, "palette": "block_palette.nbt", "paletteSha1": "05a0f81b63276a691041113a32857f8dd2da54dc", "probes": ["minecraft:nether_brick_fence", "minecraft:iron_bars"], "sides": ["north", "east", "south", "west"],"states":[
 ["minecraft:cyan_terracotta","1111","1111"],
 ["minecraft:hard_pink_stained_glass","1111","1111"],
 ["minecraft:blue_candle","0000","0000"],
