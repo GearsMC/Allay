@@ -47,6 +47,8 @@ public final class BedrockDataImporter {
     private static final String CLOUDBURST_COMMIT = "3255e82c0f89496abb2fb9747f32f1bc2926bea6";
     private static final String ALTAY = "altayofficial/BedrockData";
     private static final String ALTAY_COMMIT = "190703c701dbb7fcd9ac38f5978af456a6365718";
+    /** Fizik tablosu sürüm dalında duruyor (26.50 dalının başı); kimlik haritası commit'inde bu dosya 26.40 değerlerinde. */
+    private static final String ALTAY_PHYSICS_COMMIT = "1210998008ad866b8176042c82716956f8fe86ab";
     private static final String MOJANG = "Mojang/bedrock-samples";
     private static final String MOJANG_COMMIT = "46ba6ea985fb5a92d79a9419198f10dda14c199d";
 
@@ -75,7 +77,10 @@ public final class BedrockDataImporter {
         var palette = BlockDataImport.palette(
                 readJson(OUTPUT.resolve("oracle_block_palette.json")).getAsJsonObject(), BLOCK_STATE_VERSION);
         writeGzipNbt(outUnpacked.resolve("block_palette.nbt"), palette);
-        writeJson(outUnpacked.resolve("block_states_raw.json"), readJson(fetcher.fetch(CLOUDBURST, CLOUDBURST_COMMIT, "blocks.json")));
+        writeJson(outUnpacked.resolve("block_states_raw.json"), BlockDataImport.blockStatesRaw(
+                readJson(fetcher.fetch(CLOUDBURST, CLOUDBURST_COMMIT, "blocks.json")).getAsJsonArray(),
+                readJson(fetcher.fetch(ALTAY, ALTAY_PHYSICS_COMMIT, "block_properties_table.json")).getAsJsonObject(),
+                dump.getAsJsonObject("blocks")));
         var blockTypes = BlockDataImport.blockTypes(
                 palette, dump.getAsJsonObject("blocks"), readJson(resources.resolve("block_types.json")).getAsJsonObject());
         writeJson(outResources.resolve("block_types.json"), blockTypes);

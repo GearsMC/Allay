@@ -37,7 +37,10 @@ python3 tools/vanilla-oracle/run_oracle.py --mode dump --bds-version 1.26.51.1 \
     --output data/resources/unpacked/staging-1.26.50/bds_registry_dump.json
 ```
 
-- **`blocks`**: her blok türünün varsayılan durumu (`BlockPermutation.resolve`), etiketleri ve çeviri anahtarı.
+- **`blocks`**: her blok türünün varsayılan durumu (`BlockPermutation.resolve`), etiketleri, çeviri anahtarı ve sıvı
+  davranışı (`liquid`: kaynak tutabilir mi, sıvıyı engeller mi, yayılma kırar mı, yayılma canlandırır mı). Sıvı alanları
+  dünyaya blok koymadan okunuyor; içe aktarmada CloudburstMC'nin `canContainLiquidSource` ve `liquidReactionOnTouch`
+  değerleriyle karşılaştırılıyor (26.50'de 1477 türde birebir).
 - **`items`**: `ItemTypes.getAll()` içindeki her eşyanın yığın sayısı, etiketleri, dayanıklılığı, büyü yuvaları,
   yiyecek bileşeni ve çeviri anahtarı.
 - **`fuel`**: her eşya bir fırının yakıt yuvasına konur (girdi 64 kırıktaş), fırının `lit_furnace` kaldığı tik

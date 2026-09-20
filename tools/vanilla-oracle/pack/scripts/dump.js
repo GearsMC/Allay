@@ -17,6 +17,14 @@ export function dumpRegistries(emit) {
         states: permutation.getAllStates(),
         tags: permutation.getTags().sort(),
         localizationKey: permutation.localizationKey,
+        // Sıvı davranışı: blok verisindeki canContainLiquidSource ve liquidReactionOnTouch'ın ölçülen karşılığı.
+        // Dünyaya koymaya gerek yok, permutation doğrudan cevaplıyor.
+        liquid: {
+          canContain: permutation.canContainLiquid("Water"),
+          blocking: permutation.isLiquidBlocking("Water"),
+          destroyedBySpread: permutation.canBeDestroyedByLiquidSpread("Water"),
+          spreadCausesSpawn: permutation.liquidSpreadCausesSpawn("Water"),
+        },
       });
     } catch (error) {
       emit("BLOCK", { id: type.id, error: String(error) });

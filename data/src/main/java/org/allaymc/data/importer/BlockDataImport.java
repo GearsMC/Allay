@@ -85,6 +85,108 @@ final class BlockDataImport {
     }
 
     /**
+     * Durum başına fizik verisi: CloudburstMC'nin {@code blocks.json}'u, tür başına sabit alanlar Altay'ın
+     * {@code block_properties_table.json}'undan doğrulanarak.
+     *
+     * <p>Bu dosyanın içeriği ne ağda ne de Betik API'sinde var; ikisi de BDS'i modlayarak üretiliyor, yani tek kaynağa
+     * bağlı kalmamak için iki bağımsız kaynak karşılaştırılır. 26.50'de beş alan (sertlik, patlama direnci, sürtünme,
+     * yanma ve alev oranı) 1477 türün hepsinde birebir aynıydı; ayrıldıkları gün biri yanlış demektir ve üretim durur.</p>
+     *
+     * <p>Şekiller, harita rengi, saydamlık gibi alanlar yalnızca CloudburstMC'de var; onlar olduğu gibi geçer.
+     * Altay'ın {@code opacity} alanı {@code lightDampening} değil (farklı ölçek, CB'de 0 olan 134 türde 1.0),
+     * {@code brightness} ise yalnızca varsayılan durumun ışığı — ikisi de alınmaz, yalnızca ışık varsayılan durumda
+     * denetlenir.</p>
+     */
+    static JsonArray blockStatesRaw(JsonArray cloudburstStates, JsonObject altayTable, JsonObject dumpBlocks) {
+        record Light(int dimmest, int brightest) {
+        }
+
+        var firstState = new LinkedHashMap<String, JsonObject>();
+        var light = new HashMap<String, Light>();
+        for (var element : cloudburstStates) {
+            var state = element.getAsJsonObject();
+            var name = state.get("name").getAsString();
+            firstState.putIfAbsent(name, state);
+            var emission = state.get("lightEmission").getAsInt();
+            light.merge(name, new Light(emission, emission),
+                    (a, b) -> new Light(Math.min(a.dimmest(), b.dimmest()), Math.max(a.brightest(), b.brightest())));
+        }
+
+        var mismatches = new ArrayList<String>();
+        for (var entry : firstState.entrySet()) {
+            var name = entry.getKey();
+            var altay = altayTable.getAsJsonObject(name);
+            if (altay == null) {
+                mismatches.add(name + ": Altay tablosunda yok");
+                continue;
+            }
+            for (var field : PHYSICS_FIELDS.entrySet()) {
+                var mine = entry.getValue().get(field.getKey()).getAsDouble();
+                var theirs = altay.get(field.getValue()).getAsDouble();
+                // CloudburstMC değerleri altı basamağa yuvarlıyor, Altay ham float yazıyor (4.199999 ↔ 4.199999809).
+                if (Math.abs(mine - theirs) > PHYSICS_EPSILON) {
+                    mismatches.add(name + "." + field.getKey() + ": CloudburstMC " + mine + ", Altay " + theirs);
+                }
+            }
+            checkLiquid(name, entry.getValue(), dumpBlocks.getAsJsonObject(name), mismatches);
+            // Altay yalnızca varsayılan durumun ışığını veriyor; ışık 51 türde duruma göre değiştiği için aralık denetlenir.
+            var brightness = altay.get("brightness").getAsInt();
+            var range = light.get(name);
+            if (dumpBlocks.has(name) && (brightness < range.dimmest() || brightness > range.brightest())) {
+                mismatches.add(name + ".lightEmission: Altay " + brightness
+                        + ", CloudburstMC " + range.dimmest() + ".." + range.brightest());
+            }
+        }
+        if (!mismatches.isEmpty()) {
+            throw new IllegalStateException("Fizik verisi iki kaynakta ayrışıyor (" + mismatches.size() + "): "
+                    + mismatches.subList(0, Math.min(mismatches.size(), 10)));
+        }
+        return cloudburstStates;
+    }
+
+    /**
+     * Sıvı alanlarının ölçülen karşılığı: kahin dökümü bunları {@code BlockPermutation} üzerinden okuyor, dünyaya
+     * koymadan. 26.50'de 1477 türün hepsinde CloudburstMC ile aynı çıktı; eşleme tek anlamlı (dört desen, örtüşme yok):
+     * engelliyorsa BLOCKING, yayılma canlandırıyorsa POPPED, yayılma kırıyorsa BROKEN, hiçbiri değilse NOREACTION.
+     */
+    private static void checkLiquid(String name, JsonObject state, JsonObject dumpBlock, List<String> mismatches) {
+        if (dumpBlock == null || !dumpBlock.has("liquid")) {
+            return;
+        }
+        var liquid = dumpBlock.getAsJsonObject("liquid");
+        var canContain = liquid.get("canContain").getAsBoolean();
+        if (state.get("canContainLiquidSource").getAsBoolean() != canContain) {
+            mismatches.add(name + ".canContainLiquidSource: CloudburstMC "
+                    + state.get("canContainLiquidSource").getAsBoolean() + ", ölçüm " + canContain);
+        }
+        String measured;
+        if (liquid.get("blocking").getAsBoolean()) {
+            measured = "BLOCKING";
+        } else if (liquid.get("spreadCausesSpawn").getAsBoolean()) {
+            measured = "POPPED";
+        } else if (liquid.get("destroyedBySpread").getAsBoolean()) {
+            measured = "BROKEN";
+        } else {
+            measured = "NOREACTION";
+        }
+        var theirs = state.get("liquidReactionOnTouch").getAsString();
+        if (!theirs.equals(measured)) {
+            mismatches.add(name + ".liquidReactionOnTouch: CloudburstMC " + theirs + ", ölçüm " + measured);
+        }
+    }
+
+    /** CloudburstMC altı basamağa yuvarlıyor; gerçek fark her zaman bundan büyük (en küçüğü 0.01). */
+    private static final double PHYSICS_EPSILON = 1e-5;
+
+    /** CloudburstMC alanı -> Altay alanı; hepsi tür başına sabit (26.50'de durum içinde değişen yok). */
+    private static final Map<String, String> PHYSICS_FIELDS = Map.of(
+            "hardness", "hardness",
+            "explosionResistance", "blastResistance",
+            "friction", "friction",
+            "burnOdds", "flammability",
+            "flameOdds", "flameEncouragement");
+
+    /**
      * Tür başına varsayılan durum hash'i ve etiketler ({@code block_types.json}).
      *
      * <p>Varsayılan durum BDS dökümünden gelir ({@code BlockPermutation.resolve}). Script API durum listesine palette

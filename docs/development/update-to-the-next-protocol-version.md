@@ -39,15 +39,22 @@ Endstone DevTools only runs on Windows. The same files can be produced from publ
    Note that the order of states **within** a block type is vanilla's internal order and is not reproduced, so the
    connection-face table has to be measured again (step 7.5); `ConnectionFaceImport` refuses to run against a table
    measured with a different palette.
-3. Pin the source commits in `data/src/main/java/org/allaymc/data/importer/BedrockDataImporter.java`
+3. Physics data (`blocks.json`) is the one file neither the network nor the Script API exposes, so it comes from
+   CloudburstMC/Data. The importer does not trust a single source for it: the five per-type constants (hardness,
+   blast resistance, friction, burn and flame odds) are checked against Altay's `block_properties_table.json`, which is
+   produced by a different tool chain. For 26.50 both agreed on all 1477 types; a divergence stops the import. Altay's
+   `brightness` is only the default state's light level (range-checked) and its `opacity` is **not** `lightDampening`.
+   Two more fields are not imported on trust at all: `canContainLiquidSource` and `liquidReactionOnTouch` are measured
+   by the oracle through `BlockPermutation` (no block placement needed) and compared field by field.
+4. Pin the source commits in `data/src/main/java/org/allaymc/data/importer/BedrockDataImporter.java`
    ([CloudburstMC/Data](https://github.com/CloudburstMC/Data), [altayofficial/BedrockData](https://github.com/altayofficial/BedrockData),
    [Mojang/bedrock-samples](https://github.com/Mojang/bedrock-samples)) and run `./gradlew :data:importBedrockData`.
    The output mirrors `data/resources` and `data/resources/unpacked` under the staging folder and records the SHA-1 of
    every source in `SOURCES.md`.
-4. Compare the staged set with the official block palette and with the current data in a test (the 26.30 → 26.50
+5. Compare the staged set with the official block palette and with the current data in a test (the 26.30 → 26.50
    update used `StagedBedrockDataTest`, see git history). Every difference must end up either listed by name as a real
    change of the new version or fixed in the importer as a measured conversion rule — never as a guessed value.
-5. Move the staged files into place and continue with the steps below. `BedrockDataTest` then checks the live data
+6. Move the staged files into place and continue with the steps below. `BedrockDataTest` then checks the live data
    against the official palette and the BDS dump on every build.
 
 ## 2. Update Resource Files (`data/resources`)
