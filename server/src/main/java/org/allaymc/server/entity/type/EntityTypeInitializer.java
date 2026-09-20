@@ -1358,6 +1358,38 @@ public final class EntityTypeInitializer {
                 .build();
     }
 
+    public static void initEnderDragon() {
+        EntityTypes.ENDER_DRAGON = AllayEntityType
+                .builder(EntityEnderDragonImpl.class)
+                .vanillaEntity(EntityId.ENDER_DRAGON)
+                .addComponent(() -> {
+                    var component = new EntityLivingComponentImpl() {
+                        @Override
+                        public boolean hasFireDamage() {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean hasDrowningDamage() {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean isFireproof() {
+                            return true;
+                        }
+
+                        @Override
+                        protected boolean hasDeadTimer() {
+                            return false;
+                        }
+                    };
+                    component.setMaxHealth(17600);
+                    return component;
+                }, EntityLivingComponentImpl.class)
+                .build();
+    }
+
     public static void initProjectile() {
         EntityTypes.SNOWBALL = AllayEntityType
                 .builder(EntitySnowballImpl.class)
