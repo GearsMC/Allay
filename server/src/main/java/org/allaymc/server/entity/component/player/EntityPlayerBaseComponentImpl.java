@@ -94,13 +94,6 @@ public class EntityPlayerBaseComponentImpl extends EntityBaseComponentImpl imple
     @Getter
     protected GameMode gameMode;
     protected boolean phantom;
-    /**
-     * Izleyici basina gorunurluk suzgeci; {@code null} ise suzgec yok.
-     * <p>
-     * {@code volatile}: suzgeci eklenti is parcacigindan ayarlanabilir, dunya is parcacigindan
-     * okunur.
-     */
-    protected volatile java.util.function.Predicate<org.allaymc.api.world.WorldViewer> visibilityFilter;
     @Getter
     protected Skin skin;
     protected Location3ic spawnPoint;
@@ -260,14 +253,16 @@ public class EntityPlayerBaseComponentImpl extends EntityBaseComponentImpl imple
 
     @Override
     public void setVisibilityFilter(java.util.function.Predicate<WorldViewer> filter) {
+        // Alan temel bilesende (her varlik icin ortak); oyuncuda oyuncu listesi de etkilendigi
+        // icin temelin refreshVisibility'si yerine refreshPhantom calisir.
         this.visibilityFilter = filter;
         // Suzgec degisti: su an goren ama gormemesi gerekenler dusurulur, tersi dogurulur.
         refreshPhantom();
     }
 
     @Override
-    public java.util.function.Predicate<WorldViewer> getVisibilityFilter() {
-        return this.visibilityFilter;
+    public void refreshVisibility() {
+        refreshPhantom();
     }
 
     @Override

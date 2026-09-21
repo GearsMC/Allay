@@ -119,6 +119,14 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
     protected boolean invisible;
     @Getter
     protected boolean immobile;
+    /** GearsMC fork: istemciye SITTING bayrağıyla giden oturma pozu. */
+    @Getter
+    protected boolean sitting;
+    /**
+     * GearsMC fork: izleyici başına görünürlük süzgeci; {@code null} ise süzgeç yok.
+     * {@code volatile}: eklenti iş parçacığından ayarlanabilir, dünya iş parçacığından okunur.
+     */
+    protected volatile java.util.function.Predicate<WorldViewer> visibilityFilter;
     @Getter
     protected double scale;
     protected AABBdc customBaseAABB;
@@ -368,6 +376,12 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
     }
 
     @Override
+    public void setSitting(boolean sitting) {
+        this.sitting = sitting;
+        broadcastState();
+    }
+
+    @Override
     public void setScale(double scale) {
         this.scale = scale;
         broadcastState();
@@ -568,6 +582,9 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
      */
     @Override
     public void spawnTo(WorldViewer viewer) {
+        if (!passesVisibilityFilter(viewer)) {
+            return;
+        }
         if (!viewers.add(viewer)) {
             return;
         }
@@ -587,6 +604,46 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
         }
 
         viewer.removeEntity(thisEntity);
+    }
+
+    @Override
+    public void setVisibilityFilter(java.util.function.Predicate<WorldViewer> filter) {
+        this.visibilityFilter = filter;
+        refreshVisibility();
+    }
+
+    @Override
+    public java.util.function.Predicate<WorldViewer> getVisibilityFilter() {
+        return this.visibilityFilter;
+    }
+
+    protected boolean passesVisibilityFilter(WorldViewer viewer) {
+        var filter = this.visibilityFilter;
+        return filter == null || filter.test(viewer);
+    }
+
+    @Override
+    public void refreshVisibility() {
+        if (!isSpawned()) {
+            return;
+        }
+
+        for (var viewer : new ArrayList<>(viewers)) {
+            if (!passesVisibilityFilter(viewer)) {
+                despawnFrom(viewer);
+            }
+        }
+
+        var chunk = thisEntity.getCurrentChunk();
+        if (chunk == null) {
+            return;
+        }
+
+        chunk.getChunkLoaders().stream()
+                .map(ChunkLoader::toWorldViewer)
+                .filter(Objects::nonNull)
+                .filter(viewer -> !viewers.contains(viewer))
+                .forEach(this::spawnTo);
     }
 
     @Override

@@ -49,6 +49,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * Defines the core lifecycle, state, movement, persistence, and viewer interaction hooks shared by entities.
@@ -227,6 +228,51 @@ public interface EntityBaseComponent extends EntityComponent, CommandSender, Has
      * @param immobile {@code true} to make the entity immobile, {@code false} to make it mobile.
      */
     void setImmobile(boolean immobile);
+
+    /**
+     * Varlığın oturma pozunda olup olmadığını döndürür.
+     *
+     * @return oturuyorsa {@code true}
+     */
+    boolean isSitting();
+
+    /**
+     * Varlığın oturma pozunu ayarlar; istemciye {@code SITTING} bayrağıyla gider. Oturma
+     * pozu olan modeller (kurt, kedi, papağan…) bunu çizer, olmayanlar yok sayar. Hareketi
+     * kendisi durdurmaz; bunun için {@link #setImmobile(boolean)} ayrıca çağrılır.
+     *
+     * @param sitting oturma pozu açılacaksa {@code true}
+     */
+    void setSitting(boolean sitting);
+
+    /**
+     * İzleyici başına görünürlük süzgecini ayarlar (GearsMC fork).
+     * <p>
+     * Süzgeç {@code false} döndüğü izleyiciye varlık hiç doğurulmaz, zaten görüyorsa düşürülür.
+     * Motorun doğurma yolunun içinde sorulduğu için chunk yeniden yüklenmesine ve yeni gelen
+     * izleyicilere karşı da kalıcıdır; periyodik gizleme döngüsüne gerek yoktur. Oyuncularda
+     * görünmezlik (vanish) bunu kullanır; evcil hayvan gibi sahibine bağlı varlıklar da sahibinin
+     * görünürlüğünü bununla izler.
+     * <p>
+     * Süzgeç her doğurma denemesinde çağrılır; ucuz ve yan etkisiz olmalıdır. {@code null}
+     * süzgeci kaldırır. Süzgecin kararı dışarıdan değişirse {@link #refreshVisibility()} çağrılır.
+     *
+     * @param filter izleyici başına görünürlük kararı; {@code null} ise süzgeç yok
+     */
+    void setVisibilityFilter(Predicate<WorldViewer> filter);
+
+    /**
+     * Görünürlük süzgecini döndürür.
+     *
+     * @return süzgeç; ayarlanmamışsa {@code null}
+     */
+    Predicate<WorldViewer> getVisibilityFilter();
+
+    /**
+     * Görünürlüğü süzgece göre yeniden uygular: görmemesi gereken izleyicilerden düşürür,
+     * chunk'ı yükleyip görmesi gereken ama görmeyenlere doğurur.
+     */
+    void refreshVisibility();
 
     /**
      * Gets the scale of the entity, greater scale will result in a bigger model and aabb.

@@ -4,6 +4,7 @@ import lombok.experimental.Delegate;
 import org.allaymc.api.component.Component;
 import org.allaymc.api.entity.EntityInitInfo;
 import org.allaymc.api.entity.component.EntityAIComponent;
+import org.allaymc.api.entity.component.EntityBabyComponent;
 import org.allaymc.api.entity.component.EntityHeadYawComponent;
 import org.allaymc.api.entity.component.EntityLivingComponent;
 import org.allaymc.api.entity.component.EntityParallelTickComponent;
@@ -25,6 +26,8 @@ public class EntityAxolotlImpl extends EntityImpl implements EntityAxolotl {
     private EntityParallelTickComponent parallelTickComponent;
     @Delegate
     private EntityHeadYawComponent headYawComponent;
+    @Delegate
+    private EntityBabyComponent babyComponent;
 
     public EntityAxolotlImpl(EntityInitInfo initInfo,
                 List<ComponentProvider<? extends Component>> componentProviders) {

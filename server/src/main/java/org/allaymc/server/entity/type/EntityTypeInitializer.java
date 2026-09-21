@@ -313,6 +313,38 @@ public final class EntityTypeInitializer {
                 .build();
     }
 
+    /**
+     * Kedi. Yapay zekasi henuz yok; canli varlik, yurume fizigi, bas donusu ve yavru
+     * bilesenleriyle yercekimine uyar ve {@code setMotion} ile yurutulebilir (evcil hayvan).
+     */
+    public static void initCat() {
+        EntityTypes.CAT = AllayEntityType
+                .builder(EntityCatImpl.class)
+                .vanillaEntity(EntityId.CAT)
+                .addComponent(() -> {
+                    var component = new EntityLivingComponentImpl();
+                    component.setMaxHealth(10);
+                    return component;
+                }, EntityLivingComponentImpl.class)
+                .addComponent(EntityMobPhysicsComponentImpl::new, EntityMobPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityBabyComponentImpl::new, EntityBabyComponentImpl.class)
+                .build();
+    }
+
+    /**
+     * Fantom. Yapay zekasi henuz yok; ucus fizigi (yercekimsiz) ve bas donusuyle
+     * {@code setMotion} ile havada hareket ettirilebilir (evcil hayvan).
+     */
+    public static void initPhantom() {
+        EntityTypes.PHANTOM = AllayEntityType
+                .builder(EntityPhantomImpl.class)
+                .vanillaEntity(EntityId.PHANTOM)
+                .addComponent(EntityFlyingPhysicsComponentImpl::new, EntityFlyingPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .build();
+    }
+
     public static void initFallingBlock() {
         EntityTypes.FALLING_BLOCK = AllayEntityType
                 .builder(EntityFallingBlockImpl.class)
@@ -501,6 +533,7 @@ public final class EntityTypeInitializer {
                 .addComponent(EntityWolfLivingComponentImpl::new, EntityWolfLivingComponentImpl.class)
                 .addComponent(EntityMobPhysicsComponentImpl::new, EntityMobPhysicsComponentImpl.class)
                 .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityBabyComponentImpl::new, EntityBabyComponentImpl.class)
                 .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
                 .addComponent(() -> {
                     var behaviorGroup = BehaviorGroupImpl.builder()
@@ -1213,6 +1246,7 @@ public final class EntityTypeInitializer {
                 .addComponent(EntityAxolotlLivingComponentImpl::new, EntityAxolotlLivingComponentImpl.class)
                 .addComponent(EntityAquaticPhysicsComponentImpl::new, EntityAquaticPhysicsComponentImpl.class)
                 .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityBabyComponentImpl::new, EntityBabyComponentImpl.class)
                 .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
                 .addComponent(() -> {
                     var posEvaluator = new SwimmingPosEvaluator();
@@ -1387,6 +1421,20 @@ public final class EntityTypeInitializer {
                     component.setMaxHealth(17600);
                     return component;
                 }, EntityLivingComponentImpl.class)
+                // Vanilla ejderha itilmez ve bloktan disari itilmez; yalnizca verilen hareketi
+                // uygular. Isinlanarak yonetilen boss'un hizi sifir kaldigi icin fizik onu oynatmaz.
+                .addComponent(() -> new EntityFlyingPhysicsComponentImpl() {
+                    @Override
+                    public boolean computeEntityCollisionMotion() {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean computeBlockCollisionMotion() {
+                        return false;
+                    }
+                }, EntityFlyingPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
                 .build();
     }
 
