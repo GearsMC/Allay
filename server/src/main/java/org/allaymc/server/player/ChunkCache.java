@@ -11,6 +11,7 @@ import org.cloudburstmc.protocol.bedrock.packet.ClientCacheMissResponsePacket;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * Global chunk blob cache with LRU eviction for client-side chunk caching.
@@ -33,6 +34,15 @@ public final class ChunkCache {
 
     private final Cache<Long, byte[]> blobs;
     private final ConcurrentHashMap<UUID, PlayerCacheState> playerStates;
+    /**
+     * GearsMC eki: istemciye duyurulan ve istemcinin geri istedigi blob sayisi.
+     *
+     * <p>Caffeine'in isabet orani "istenen blob elimizde miydi" sorusunu olcer, yani kacirma = istemcide eksik
+     * chunk demektir. Kazanci olcen sayi baska: duyurulan blob'larin kaci NAK ile geri istenmedi. Ilk ziyarette
+     * ikisi de esittir, ayni bolgeye donuste fark acilir.</p>
+     */
+    private final LongAdder advertisedBlobs = new LongAdder();
+    private final LongAdder requestedBlobs = new LongAdder();
 
     private ChunkCache(int maxBlobs) {
         this.blobs = Caffeine.newBuilder()
@@ -138,6 +148,7 @@ public final class ChunkCache {
             // Open transaction for this player
             var transaction = new LongOpenHashSet(hashes);
             state.openTransactions.add(transaction);
+            advertisedBlobs.add(hashes.length);
 
             return hashes;
         }
@@ -175,6 +186,7 @@ public final class ChunkCache {
         }
 
         // Build miss response for naks (read from global cache, no lock needed)
+        requestedBlobs.add(naks.length);
         if (naks.length == 0) {
             return null;
         }
@@ -246,7 +258,9 @@ public final class ChunkCache {
         return new CacheStats(
                 blobs.estimatedSize(),
                 playerStates.size(),
-                blobs.stats()
+                blobs.stats(),
+                advertisedBlobs.sum(),
+                requestedBlobs.sum()
         );
     }
 
@@ -271,6 +285,15 @@ public final class ChunkCache {
     public record CacheStats(
             long blobCount,
             int playerCount,
-            com.github.benmanes.caffeine.cache.stats.CacheStats caffeineStats
-    ) {}
+            com.github.benmanes.caffeine.cache.stats.CacheStats caffeineStats,
+            long advertisedBlobs,
+            long requestedBlobs
+    ) {
+        /**
+         * Oran: duyurulan blob'larin kaci istemcide zaten vardi (NAK gelmedi). Asil bant genisligi kazanci budur.
+         */
+        public double clientHitRate() {
+            return advertisedBlobs == 0 ? 0d : (advertisedBlobs - Math.min(requestedBlobs, advertisedBlobs)) * 100d / advertisedBlobs;
+        }
+    }
 }

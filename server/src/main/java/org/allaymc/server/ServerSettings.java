@@ -174,16 +174,23 @@ public class ServerSettings extends OkaeriConfig {
         @CustomKey("max-decompressed-bytes")
         private int maxDecompressedBytes = 1024 * 1024 * 50;
 
+        // GearsMC sapması: varsayılan açık. Oyuncu aynı bölgeye döndüğünde chunk verisi yeniden gönderilmiyor,
+        // yalnızca blob özeti gidiyor; istemcide yoksa NAK ile isteniyor. Açamayacağı durum yok: istemci
+        // desteklemiyorsa (ClientCacheStatusPacket false) ya da blob işlemi açılamazsa paket sıkıştırılmamış
+        // haliyle gönderiliyor (PacketEncoder_v766, cachingEnabled=false dalı).
         @Comment("Whether to enable client-side chunk caching using blob hashes, which can significantly reduce bandwidth when players revisit areas")
-        @Comment("Please note that you should set network-settings.enable-encoding-protection to false to use this feature")
+        @Comment("If players get kicked while this is on, set network-settings.enable-encoding-protection to false")
         @CustomKey("enable-client-chunk-cache")
-        private boolean enableClientChunkCache = false;
+        private boolean enableClientChunkCache = true;
 
+        // GearsMC sapması: 4096 yerine 8192. Her ada ayrı bir dünya olduğu için oyuncular arasında blob paylaşımı
+        // düşük; bir oyuncunun 8 chunk görüş alanı kabaca 1500-1700 blob tutuyor, 4096 üç oyuncuda dolup LRU'ya
+        // düşüyordu. 8192 blob ~20 MB yer kaplar.
         @Comment("Maximum number of chunk blobs to cache globally across all players")
         @Comment("Each blob is typically 1-4KB. Higher values use more memory but improve cache hit rate")
         @Comment("Recommended: 4096 for small servers, 8192-16384 for larger servers")
         @CustomKey("max-chunk-cache-blobs")
-        private int maxChunkCacheBlobs = 4096;
+        private int maxChunkCacheBlobs = 8192;
 
         public enum CompressionAlgorithm {
             ZLIB,

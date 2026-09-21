@@ -38,6 +38,119 @@ public interface TrKeys {
      * {@literal Get the status of the server}
      */
     String ALLAY_COMMAND_STATUS_DESCRIPTION = "allay:command.status.description";
+    /**
+     * {@literal Chunk cache: %s/%s blobs, %s players, hit rate %s% (%s requests, %s evictions)}
+     */
+    String ALLAY_COMMAND_STATUS_CHUNKCACHE = "allay:command.status.chunkcache";
+    /**
+     * {@literal Chunk cache: disabled}
+     */
+    String ALLAY_COMMAND_STATUS_CHUNKCACHE_DISABLED = "allay:command.status.chunkcache.disabled";
+    /**
+     * {@literal CPU: %s physical / %s logical cores, load %s%}
+     */
+    String ALLAY_COMMAND_STATUS_CPU = "allay:command.status.cpu";
+    /**
+     * {@literal CPU features: %s, %s, micro-arch: %s}
+     */
+    String ALLAY_COMMAND_STATUS_CPU_FEATURES = "allay:command.status.cpu.features";
+    /**
+     * {@literal CPU: %s (%s baseline)}
+     */
+    String ALLAY_COMMAND_STATUS_CPU_MODEL = "allay:command.status.cpu.model";
+    /**
+     * {@literal --- CPU Info ---}
+     */
+    String ALLAY_COMMAND_STATUS_CPUINFO_HEADER = "allay:command.status.cpuinfo.header";
+    /**
+     * {@literal Memory hardware:}
+     */
+    String ALLAY_COMMAND_STATUS_HARDWARE_HEADER = "allay:command.status.hardware.header";
+    /**
+     * {@literal --- Server Status ---}
+     */
+    String ALLAY_COMMAND_STATUS_HEADER = "allay:command.status.header";
+    /**
+     * {@literal JVM: %s %s %s}
+     */
+    String ALLAY_COMMAND_STATUS_JVM = "allay:command.status.jvm";
+    /**
+     * {@literal Physical memory}
+     */
+    String ALLAY_COMMAND_STATUS_MEMORY_PHYSICAL = "allay:command.status.memory.physical";
+    /**
+     * {@literal %s: N/A}
+     */
+    String ALLAY_COMMAND_STATUS_MEMORY_UNAVAILABLE = "allay:command.status.memory.unavailable";
+    /**
+     * {@literal %s: %s / %s (%s%)}
+     */
+    String ALLAY_COMMAND_STATUS_MEMORY_USAGE = "allay:command.status.memory.usage";
+    /**
+     * {@literal JVM memory: %s MB used of %s MB (max %s MB, %s%)}
+     */
+    String ALLAY_COMMAND_STATUS_MEMORY_USED = "allay:command.status.memory.used";
+    /**
+     * {@literal Virtual memory}
+     */
+    String ALLAY_COMMAND_STATUS_MEMORY_VIRTUAL = "allay:command.status.memory.virtual";
+    /**
+     * {@literal --- Memory Info ---}
+     */
+    String ALLAY_COMMAND_STATUS_MEMORYINFO_HEADER = "allay:command.status.memoryinfo.header";
+    /**
+     * {@literal Failed to read network info.}
+     */
+    String ALLAY_COMMAND_STATUS_NETWORK_FAILED = "allay:command.status.network.failed";
+    /**
+     * {@literal --- Network Info ---}
+     */
+    String ALLAY_COMMAND_STATUS_NETWORKINFO_HEADER = "allay:command.status.networkinfo.header";
+    /**
+     * {@literal OS: %s %s %s %s %sbit, build %s}
+     */
+    String ALLAY_COMMAND_STATUS_OS = "allay:command.status.os";
+    /**
+     * {@literal --- OS & JVM Info ---}
+     */
+    String ALLAY_COMMAND_STATUS_OSINFO_HEADER = "allay:command.status.osinfo.header";
+    /**
+     * {@literal Players: %s/%s}
+     */
+    String ALLAY_COMMAND_STATUS_PLAYERS = "allay:command.status.players";
+    /**
+     * {@literal Threads: %s}
+     */
+    String ALLAY_COMMAND_STATUS_THREADS = "allay:command.status.threads";
+    /**
+     * {@literal Total: %s chunks, %s entities, %s block entities}
+     */
+    String ALLAY_COMMAND_STATUS_TOTALS = "allay:command.status.totals";
+    /**
+     * {@literal Uptime: %s}
+     */
+    String ALLAY_COMMAND_STATUS_UPTIME = "allay:command.status.uptime";
+
+    /**
+     * {@literal %s days %s hours %s minutes %s seconds}
+     */
+    String ALLAY_COMMAND_STATUS_UPTIME_VALUE = "allay:command.status.uptime.value";
+    /**
+     * {@literal Virtual environment: %s}
+     */
+    String ALLAY_COMMAND_STATUS_VM = "allay:command.status.vm";
+    /**
+     * {@literal   Chunks: %s | Entities: %s | Block entities: %s}
+     */
+    String ALLAY_COMMAND_STATUS_WORLD_CONTENTS = "allay:command.status.world.contents";
+    /**
+     * {@literal   TPS: %s | MSPT: %s | tick usage: %s%}
+     */
+    String ALLAY_COMMAND_STATUS_WORLD_TICK = "allay:command.status.world.tick";
+    /**
+     * {@literal --- Worlds (%s) ---}
+     */
+    String ALLAY_COMMAND_STATUS_WORLDS_HEADER = "allay:command.status.worlds.header";
 
     /**
      * {@literal Show TPS or MSPT of the current world}

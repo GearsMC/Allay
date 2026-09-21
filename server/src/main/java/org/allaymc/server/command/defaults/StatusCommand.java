@@ -5,11 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.allaymc.api.command.Command;
 import org.allaymc.api.command.CommandSender;
 import org.allaymc.api.command.tree.CommandTree;
+import org.allaymc.api.message.I18n;
 import org.allaymc.api.message.TrKeys;
 import org.allaymc.api.permission.Permissions;
 import org.allaymc.api.server.Server;
 import org.allaymc.api.utils.TextFormat;
 import org.allaymc.api.world.Dimension;
+import org.allaymc.server.AllayServer;
+import org.allaymc.server.player.ChunkCache;
 import oshi.SystemInfo;
 import oshi.util.platform.windows.WmiQueryHandler;
 
@@ -31,7 +34,6 @@ import static org.allaymc.api.math.MathUtils.round;
  */
 @Slf4j
 public class StatusCommand extends Command {
-    protected static final String UPTIME_FORMAT = "%d days %d hours %d minutes %d seconds";
 
     protected static final Map<String, String> VM_VENDOR = new HashMap<>(10, 0.99f);
     protected static final Map<String, String> VM_MAC = new HashMap<>(10, 0.99f);
@@ -71,37 +73,37 @@ public class StatusCommand extends Command {
     }
 
     public StatusCommand() {
-        // GearsMC forkunda ad "allaystatus": /status adi GearsCore'un sunucu
-        // durumu komutunun Ingilizce ikizine ait (Turkce adi /durum). Ayni adla
-        // kayit yapilsaydi biri digerinin uzerine sessizce yazacak ve motorun
-        // sistem bilgisi komutu erisilemez hale gelecekti.
-        super("allaystatus", TrKeys.ALLAY_COMMAND_STATUS_DESCRIPTION, Permissions.COMMAND_STATUS);
+        // GearsMC: bir sure "allaystatus" adini tasidi, cunku GearsCore /durum'a "status" diye Ingilizce
+        // ikiz kaydediyordu ve eklenti motordan sonra yuklendigi icin bu komutu eziyordu. Cikti Turkcelestirilip
+        // zenginlestirilince (2026-09-21) "status" motora geri verildi; GearsCore'da /durum tek basina kaldi.
+        super("status", TrKeys.ALLAY_COMMAND_STATUS_DESCRIPTION, Permissions.COMMAND_STATUS);
     }
 
     protected static void printOperationSystemMemoryInfo(CommandSender sender) {
-        sender.sendMessage("--- Memory Info ---");
+        sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_MEMORYINFO_HEADER);
         var globalMemory = SYSTEM_INFO.getHardware().getMemory();
         var virtualMemory = globalMemory.getVirtualMemory();
 
         // Physical Memory
         var totalPhys = globalMemory.getTotal();
         var usedPhys = totalPhys - globalMemory.getAvailable();
-        sendMemoryUsage(sender, "Physical memory", usedPhys, totalPhys);
+        sendMemoryUsage(sender, TrKeys.ALLAY_COMMAND_STATUS_MEMORY_PHYSICAL, usedPhys, totalPhys);
 
         // Virtual Memory
         var totalVirt = virtualMemory.getVirtualMax();
         var usedVirt = virtualMemory.getVirtualInUse();
         // Some hosts report 0 virtual max; avoid div/0
         if (totalVirt > 0) {
-            sendMemoryUsage(sender, "Virtual memory", usedVirt, totalVirt);
+            sendMemoryUsage(sender, TrKeys.ALLAY_COMMAND_STATUS_MEMORY_VIRTUAL, usedVirt, totalVirt);
         } else {
-            sender.sendMessage("Virtual memory: " + TextFormat.GREEN + "N/A");
+            sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_MEMORY_UNAVAILABLE,
+                    I18n.get().tr(TrKeys.ALLAY_COMMAND_STATUS_MEMORY_VIRTUAL));
         }
 
         // Hardware
         var physicalMemories = globalMemory.getPhysicalMemory();
         if (!physicalMemories.isEmpty()) {
-            sender.sendMessage("Hardware list:");
+            sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_HARDWARE_HEADER);
             for (var each : physicalMemories) {
                 sender.sendMessage("- " + TextFormat.GREEN + each.getBankLabel() + " " + formatFreq(each.getClockSpeed())
                                    + TextFormat.WHITE + " " + toMB(each.getCapacity()));
@@ -115,18 +117,12 @@ public class StatusCommand extends Command {
         var cpu = SYSTEM_INFO.getHardware().getProcessor();
         var processorIdentifier = cpu.getProcessorIdentifier();
 
-        sender.sendMessage("--- CPU Info ---");
-        sender.sendMessage(
-                "CPU: " + TextFormat.GREEN + processorIdentifier.getName().trim() + TextFormat.YELLOW +
-                " (" + formatFreq(cpu.getMaxFreq()) + " baseline; " +
-                cpu.getPhysicalProcessorCount() + " cores, " + cpu.getLogicalProcessorCount() + " logical cores)"
-        );
-        sender.sendMessage("Thread count: " + TextFormat.GREEN + Thread.getAllStackTraces().size());
-        sender.sendMessage(
-                "CPU Features: " + TextFormat.GREEN +
-                (processorIdentifier.isCpu64bit() ? "64bit, " : "32bit, ") +
-                processorIdentifier.getModel() + ", micro-arch: " + processorIdentifier.getMicroarchitecture()
-        );
+        sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_CPUINFO_HEADER);
+        sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_CPU_MODEL,
+                TextFormat.GREEN + processorIdentifier.getName().trim(), formatFreq(cpu.getMaxFreq()));
+        sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_CPU_FEATURES,
+                processorIdentifier.isCpu64bit() ? "64bit" : "32bit",
+                processorIdentifier.getModel(), processorIdentifier.getMicroarchitecture());
         sender.sendMessage("\n");
     }
 
@@ -137,8 +133,7 @@ public class StatusCommand extends Command {
                 return;
             }
 
-            sender.sendMessage("--- Network Info ---");
-            sender.sendMessage("Network hardware list:");
+            sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_NETWORKINFO_HEADER);
             for (var nic : networkIFs) {
                 var addresses = Stream.concat(
                         Arrays.stream(nic.getIPv4addr()),
@@ -153,7 +148,7 @@ public class StatusCommand extends Command {
             }
             sender.sendMessage("\n");
         } catch (Exception e) {
-            sender.sendMessage(TextFormat.RED + "Failed to get network info.");
+            sender.sendTranslatable(TextFormat.RED + I18n.get().tr(TrKeys.ALLAY_COMMAND_STATUS_NETWORK_FAILED));
             log.debug("Network info retrieval failed", e);
         }
     }
@@ -162,48 +157,107 @@ public class StatusCommand extends Command {
         var os = SYSTEM_INFO.getOperatingSystem();
         var mxBean = ManagementFactory.getRuntimeMXBean();
 
-        sender.sendMessage("--- OS & JVM Info ---");
+        sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_OSINFO_HEADER);
         var versionInfo = os.getVersionInfo();
-        sender.sendMessage(
-                "OS: " + TextFormat.GREEN +
-                os.getFamily() + " " + os.getManufacturer() + " " +
-                versionInfo.getVersion() + " " + versionInfo.getCodeName() + " " +
-                os.getBitness() + "bit, build " + versionInfo.getBuildNumber()
-        );
-        sender.sendMessage("JVM: " + TextFormat.GREEN + mxBean.getVmName() + " " + mxBean.getVmVendor() + " " + mxBean.getVmVersion());
+        sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_OS,
+                TextFormat.GREEN + os.getFamily(), os.getManufacturer(), versionInfo.getVersion(),
+                String.valueOf(versionInfo.getCodeName()), String.valueOf(os.getBitness()),
+                String.valueOf(versionInfo.getBuildNumber()));
+        sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_JVM,
+                TextFormat.GREEN + mxBean.getVmName(), mxBean.getVmVendor(), mxBean.getVmVersion());
         try {
             String vm = detectVM();
-            sender.sendMessage("Virtual environment: " + TextFormat.GREEN + (vm == null ? "N/A" : vm));
+            sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_VM, TextFormat.GREEN + (vm == null ? "N/A" : vm));
         } catch (Exception e) {
-            sender.sendMessage("Virtual environment: " + TextFormat.GREEN + "N/A");
+            sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_VM, TextFormat.GREEN + "N/A");
             log.debug("VM detection error", e);
         }
         sender.sendMessage("\n");
     }
 
-    protected static void printWorldInfo(CommandSender sender) {
-        sender.sendMessage("--- Worlds Status ---");
-        for (var world : Server.getInstance().getWorldPool().getWorlds().values()) {
-            sender.sendMessage("- " + world.getWorldData().getDisplayName());
-            sender.sendMessage("  TPS: " + TextFormat.GREEN + world.getTPS());
-            sender.sendMessage("  MSPT: " + TextFormat.GREEN + world.getMSPT());
-            sender.sendMessage("  TickUsage: " + TextFormat.GREEN + (world.getTickUsage() * 100f) + "%");
+    /**
+     * GearsMC eki: istemci chunk onbelleginin durumu.
+     *
+     * <p>Onbellek varsayilan acik oldugu icin gercekten ise yarayip yaramadigini gorebilmek gerekiyor; isabet
+     * orani dusukse {@code max-chunk-cache-blobs} kucuk demektir (LRU blob'lari erken atiyor) ya da oyuncular
+     * ayni bolgeleri hic paylasmiyordur.</p>
+     */
+    protected static void printChunkCacheInfo(CommandSender sender) {
+        var settings = AllayServer.getSettings().networkSettings();
+        if (!settings.enableClientChunkCache()) {
+            sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_CHUNKCACHE_DISABLED);
+            return;
+        }
 
+        var stats = ChunkCache.getInstance().getStats();
+        var caffeine = stats.caffeineStats();
+        var requests = caffeine.requestCount();
+        var hitRate = requests == 0 ? 0d : caffeine.hitRate() * 100d;
+        sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_CHUNKCACHE,
+                TextFormat.GREEN + String.valueOf(stats.blobCount()), String.valueOf(settings.maxChunkCacheBlobs()),
+                String.valueOf(stats.playerCount()), String.format(Locale.ROOT, "%.1f", stats.clientHitRate()),
+                String.valueOf(stats.advertisedBlobs()), String.format(Locale.ROOT, "%.1f", hitRate),
+                String.valueOf(caffeine.evictionCount()));
+    }
+
+    /**
+     * GearsMC eki: kisa ciktida da islemci ozeti. Cekirdek sayisi ve yuk, tik suresinin neden uzadigini anlamak
+     * icin gerekli; "full" argumaniyla gelen tam donanim dokumunu beklemeye gerek kalmasin.
+     */
+    protected static void printCpuSummary(CommandSender sender) {
+        var cpu = SYSTEM_INFO.getHardware().getProcessor();
+        // Bir dakikalik yuk ortalamasi; Linux'ta hazir, diger sistemlerde -1 gelebilir.
+        var load = cpu.getSystemLoadAverage(1)[0];
+        var loadPct = load < 0 ? 0d : load * 100d / Math.max(cpu.getLogicalProcessorCount(), 1);
+        sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_CPU,
+                TextFormat.GREEN + String.valueOf(cpu.getPhysicalProcessorCount()),
+                String.valueOf(cpu.getLogicalProcessorCount()),
+                load < 0 ? "?" : String.format(Locale.ROOT, "%.1f", loadPct));
+        sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_THREADS,
+                TextFormat.GREEN + String.valueOf(Thread.getAllStackTraces().size()));
+    }
+
+    protected static void printWorldInfo(CommandSender sender) {
+        var worlds = Server.getInstance().getWorldPool().getWorlds().values();
+        sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_WORLDS_HEADER, TextFormat.GREEN + String.valueOf(worlds.size()));
+
+        var totalChunks = 0;
+        var totalEntities = 0;
+        var totalBlockEntities = 0;
+        for (var world : worlds) {
             var dims = world.getDimensions().values();
             var chunks = dims.stream().mapToInt(d -> d.getChunkManager().getLoadedChunks().size()).sum();
             var entities = dims.stream().mapToInt(Dimension::getEntityCount).sum();
             var blockEntities = dims.stream().mapToInt(Dimension::getBlockEntityCount).sum();
+            totalChunks += chunks;
+            totalEntities += entities;
+            totalBlockEntities += blockEntities;
 
-            sender.sendMessage("  Chunks: " + TextFormat.GREEN + chunks);
-            sender.sendMessage("  Entities: " + TextFormat.GREEN + entities);
-            sender.sendMessage("  BlockEntities: " + TextFormat.GREEN + blockEntities);
-            sender.sendMessage("\n");
+            var tickUsage = world.getTickUsage() * 100f;
+            sender.sendMessage("- " + TextFormat.AQUA + world.getWorldData().getDisplayName());
+            sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_WORLD_TICK,
+                    colorizeTps(world.getTPS()) + String.format(Locale.ROOT, "%.1f", world.getTPS()),
+                    String.format(Locale.ROOT, "%.2f", world.getMSPT()),
+                    String.format(Locale.ROOT, "%.1f", tickUsage));
+            sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_WORLD_CONTENTS,
+                    TextFormat.GREEN + String.valueOf(chunks), String.valueOf(entities), String.valueOf(blockEntities));
         }
+        sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_TOTALS,
+                TextFormat.GREEN + String.valueOf(totalChunks), String.valueOf(totalEntities),
+                String.valueOf(totalBlockEntities));
+        sender.sendMessage("\n");
+    }
+
+    /** Tik hizi dustukce renk koyulasir; 20 tik normal, 15'in altinda sorun var demektir. */
+    private static TextFormat colorizeTps(float tps) {
+        if (tps < 15f) return TextFormat.RED;
+        if (tps < 19f) return TextFormat.GOLD;
+        return TextFormat.GREEN;
     }
 
     protected static void printUpTimeInfo(CommandSender sender) {
         var time = System.currentTimeMillis() - Server.getInstance().getStartTime();
-        sender.sendMessage("Uptime: " + TextFormat.GREEN + formatUptime(time));
+        sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_UPTIME, TextFormat.GREEN + formatUptime(time));
     }
 
     protected static void printMemoryUsageInfo(CommandSender sender) {
@@ -213,9 +267,9 @@ public class StatusCommand extends Command {
         var maxMB = bytesToMB(runtime.maxMemory());
         var usagePct = maxMB > 0 ? (usedMB / maxMB) * 100d : 0d;
 
-        sender.sendMessage("Used VM memory: " + colorizeUsage(usagePct) + round(usedMB, 2) + " MB (" + round(usagePct, 2) + "%)");
-        sender.sendMessage("Total VM memory: " + TextFormat.GREEN + round(totalMB, 2) + " MB");
-        sender.sendMessage("Maximum JVM memory: " + TextFormat.GREEN + round(maxMB, 2) + " MB");
+        sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_MEMORY_USED,
+                colorizeUsage(usagePct) + String.valueOf(round(usedMB, 2)), TextFormat.GREEN + String.valueOf(round(totalMB, 2)),
+                String.valueOf(round(maxMB, 2)), String.valueOf(round(usagePct, 2)));
     }
 
     protected static void printOnlinePlayerInfo(CommandSender sender) {
@@ -233,7 +287,7 @@ public class StatusCommand extends Command {
             color = TextFormat.RED;
         }
 
-        sender.sendMessage("Players: " + color + online + "/" + maxPlayerCount);
+        sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_PLAYERS, color + String.valueOf(online), String.valueOf(maxPlayerCount));
     }
 
     protected static String detectVM() {
@@ -307,18 +361,16 @@ public class StatusCommand extends Command {
         return null;
     }
 
-    private static void sendMemoryUsage(CommandSender sender, String label, long usedBytes, long totalBytes) {
+    private static void sendMemoryUsage(CommandSender sender, String labelKey, long usedBytes, long totalBytes) {
+        var label = I18n.get().tr(labelKey);
         if (totalBytes <= 0) {
-            sender.sendMessage(label + ": " + TextFormat.GREEN + "N/A");
+            sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_MEMORY_UNAVAILABLE, label);
             return;
         }
 
         var usagePct = usedBytes * 100d / totalBytes;
-        sender.sendMessage(
-                label + ": " + colorizeUsage(usagePct) +
-                toMB(usedBytes) + " / " + toMB(totalBytes) +
-                " (" + round(usagePct, 2) + "%)"
-        );
+        sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_MEMORY_USAGE, label,
+                colorizeUsage(usagePct) + toMB(usedBytes), toMB(totalBytes), String.valueOf(round(usagePct, 2)));
     }
 
     private static TextFormat colorizeUsage(double usagePercent) {
@@ -364,7 +416,8 @@ public class StatusCommand extends Command {
         uptime -= TimeUnit.MINUTES.toMillis(minutes);
 
         long seconds = TimeUnit.MILLISECONDS.toSeconds(uptime);
-        return String.format(UPTIME_FORMAT, days, hours, minutes, seconds);
+        return I18n.get().tr(TrKeys.ALLAY_COMMAND_STATUS_UPTIME_VALUE,
+                String.valueOf(days), String.valueOf(hours), String.valueOf(minutes), String.valueOf(seconds));
     }
 
     @Override
@@ -373,10 +426,12 @@ public class StatusCommand extends Command {
             boolean full = context.getResult(0);
             var sender = context.getSender();
 
-            sender.sendMessage("--- Server Status ---");
+            sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_HEADER);
             printUpTimeInfo(sender);
             printMemoryUsageInfo(sender);
             printOnlinePlayerInfo(sender);
+            printCpuSummary(sender);
+            printChunkCacheInfo(sender);
             sender.sendMessage("\n");
 
             printWorldInfo(sender);
