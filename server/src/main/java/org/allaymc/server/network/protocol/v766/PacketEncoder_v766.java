@@ -1192,6 +1192,9 @@ public class PacketEncoder_v766 extends PacketEncoder {
         metadata.setFlag(EntityFlag.CAN_CLIMB, true);
         metadata.setFlag(EntityFlag.INVISIBLE, entity.isInvisible());
         metadata.setFlag(EntityFlag.NO_AI, entity.isImmobile());
+        if (entity.hasTag("gears_sitting")) {
+            metadata.setFlag(EntityFlag.SITTING, true);
+        }
         var aabb = entity.getAABB();
         var hitbox = NbtMap.builder()
                 .putFloat("MinX", 0)
