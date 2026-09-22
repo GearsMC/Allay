@@ -22,7 +22,9 @@ public class EffectResistanceType extends AbstractEffectType {
         if (
                 damage.getDamageType() == DamageType.VOID ||
                 damage.getDamageType() == DamageType.STARVE ||
-                damage.getDamageType() == DamageType.COMMAND
+                damage.getDamageType() == DamageType.COMMAND ||
+                // Fork: sabit yetenek hasari Direnc indirimini de atlar (PM MODIFIER_RESISTANCE = 0).
+                damage.isIgnoreReduction()
         ) return;
 
         var level = entity.getEffectLevel(EffectTypes.RESISTANCE);

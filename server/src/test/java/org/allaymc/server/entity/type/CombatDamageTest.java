@@ -4,6 +4,7 @@ import org.allaymc.api.entity.EntityInitInfo;
 import org.allaymc.api.entity.damage.DamageContainer;
 import org.allaymc.api.entity.interfaces.EntityZombie;
 import org.allaymc.api.entity.type.EntityTypes;
+import org.allaymc.api.entity.effect.EffectTypes;
 import org.allaymc.api.eventbus.EventHandler;
 import org.allaymc.api.eventbus.event.entity.EntityDamageAttemptEvent;
 import org.allaymc.api.eventbus.event.entity.EntityDamageEvent;
@@ -62,6 +63,22 @@ public class CombatDamageTest {
             assertFalse(victim.attack(DamageContainer.simpleAttack(3), true));
             assertSame(accepted, victim.getLastDamage());
         } finally { bus.unregisterListener(listener); }
+    }
+
+    @Test
+    void ignoreReductionSkipsResistanceLikeFixedSkillDamage() {
+        // Direnc II %40 indirir; sabit yetenek hasari (PM MODIFIER_RESISTANCE = 0) bunu atlamali.
+        var reduced = victim();
+        reduced.addEffect(EffectTypes.RESISTANCE.createInstance(1, 600));
+        assertTrue(reduced.attack(DamageContainer.simpleAttack(10)));
+        assertEquals(14.0f, reduced.getHealth(), 0.001f);
+
+        var fixed = victim();
+        fixed.addEffect(EffectTypes.RESISTANCE.createInstance(1, 600));
+        var damage = DamageContainer.simpleAttack(10);
+        damage.setIgnoreReduction(true);
+        assertTrue(fixed.attack(damage));
+        assertEquals(10.0f, fixed.getHealth(), 0.001f);
     }
 
     @Test

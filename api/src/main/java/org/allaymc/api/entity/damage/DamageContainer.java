@@ -48,7 +48,7 @@ public class DamageContainer {
     @Setter
     protected boolean hasKnockback;
     /**
-     * Zırh, koruma büyüleri ve emilim (absorption) indirimlerini atlar.
+     * Zırh, koruma büyüleri, Direnç (resistance) etkisi ve emilim (absorption) indirimlerini atlar.
      *
      * <p>Eklenti yeteneklerinin sabit hasarı için: PHP tarafta yetenek hasarı
      * verilirken zırh/dayanıklılık/emilim değiştiricileri sıfırlanıyordu.
