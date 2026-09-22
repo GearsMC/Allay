@@ -227,7 +227,7 @@ public class EntityLivingComponentImpl implements EntityLivingComponent {
     }
 
     protected void applyArmor(DamageContainer damage) {
-        if (!damage.canBeReducedByArmor() || containerHolderComponent == null) {
+        if (damage.isIgnoreReduction() || !damage.canBeReducedByArmor() || containerHolderComponent == null) {
             return;
         }
 
@@ -333,7 +333,7 @@ public class EntityLivingComponentImpl implements EntityLivingComponent {
 
     protected void applyEffects(DamageContainer damage) {
         // Damage absorption
-        if (this.absorption > 0) {
+        if (!damage.isIgnoreReduction() && this.absorption > 0) {
             setAbsorption(Math.max(0, this.absorption - damage.getFinalDamage()));
             damage.updateFinalDamage(d -> Math.max(0, d - this.absorption));
         }

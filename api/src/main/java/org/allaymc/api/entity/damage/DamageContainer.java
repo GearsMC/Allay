@@ -48,6 +48,16 @@ public class DamageContainer {
     @Setter
     protected boolean hasKnockback;
     /**
+     * Zırh, koruma büyüleri ve emilim (absorption) indirimlerini atlar.
+     *
+     * <p>Eklenti yeteneklerinin sabit hasarı için: PHP tarafta yetenek hasarı
+     * verilirken zırh/dayanıklılık/emilim değiştiricileri sıfırlanıyordu.
+     * {@code true} iken hasar yalnızca kaynak hasar (ve güç/zayıflık gibi
+     * saldıran tarafı etkileri) üzerinden uygulanır.</p>
+     */
+    @Setter
+    protected boolean ignoreReduction;
+    /**
      * The cooldown after this damage. When an entity is on cooldown, it cannot be damaged.
      */
     @Setter
