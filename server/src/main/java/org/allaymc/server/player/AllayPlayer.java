@@ -95,6 +95,7 @@ import org.allaymc.server.network.protocol.Protocol;
 import org.allaymc.server.network.protocol.ProtocolSession;
 import org.allaymc.server.world.AllayDimension;
 import org.allaymc.server.world.dimension.DimensionEffects;
+import org.cloudburstmc.nbt.NbtMap;
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
 import org.cloudburstmc.protocol.bedrock.data.Ability;
 import org.cloudburstmc.protocol.bedrock.data.AttributeData;
@@ -2246,6 +2247,11 @@ public class AllayPlayer implements Player {
     @Override
     public void viewCamera(CameraInstruction instruction) {
         sendPacket(getProtocol().getEncoder().encodeCameraInstruction(instruction));
+    }
+
+    @Override
+    public void viewFakeBlockEntityData(Vector3ic pos, NbtMap nbt) {
+        sendPacket(getProtocol().getEncoder().encodeBlockEntityData(pos, nbt));
     }
 
     @Override

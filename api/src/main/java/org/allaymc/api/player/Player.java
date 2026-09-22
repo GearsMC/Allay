@@ -16,7 +16,9 @@ import org.allaymc.api.world.gamerule.GameRule;
 import org.allaymc.api.world.WorldViewer;
 import org.allaymc.api.world.dimension.DimensionType;
 import org.jetbrains.annotations.UnmodifiableView;
+import org.cloudburstmc.nbt.NbtMap;
 import org.joml.Vector3dc;
+import org.joml.Vector3ic;
 
 import java.awt.image.BufferedImage;
 import java.net.SocketAddress;
@@ -39,6 +41,19 @@ public interface Player extends MessageReceiver, WorldViewer, ContainerViewer, B
      * @see #clearCamera()
      */
     void viewCamera(CameraInstruction instruction);
+
+    /**
+     * Blok varlığı verisini dünyaya dokunmadan yalnızca bu oyuncuya gönderir.
+     *
+     * <p>{@link #viewBlockUpdate} ile istemciye gösterilen sahte bir bloğa ad
+     * ({@code CustomName}) gibi blok varlığı alanları vermek için kullanılır; örneğin
+     * bloksuz açılan bir ender sandığının başlığı. Dünyadaki gerçek blok varlığı değişmez.
+     * PocketMine'da {@code BlockActorDataPacket} doğrudan gönderilerek yapılıyordu.</p>
+     *
+     * @param pos istemcideki sahte bloğun konumu
+     * @param nbt gönderilecek blok varlığı verisi ({@code id}, {@code x}, {@code y}, {@code z} dahil)
+     */
+    void viewFakeBlockEntityData(Vector3ic pos, NbtMap nbt);
 
     /**
      * Releases the camera back to the player, undoing {@link #viewCamera}.
