@@ -718,6 +718,9 @@ public class PacketEncoder_v766 extends PacketEncoder {
                     packet.setType(LevelEvent.PARTICLE_SOUND_GUARDIAN_GHOST);
             case SimpleParticle.DUST_PLUME -> packet.setType(ParticleType.DUST_PLUME);
             case SimpleParticle.WHITE_SMOKE -> packet.setType(ParticleType.WHITE_SMOKE);
+            // GearsMC fork: PocketMine'in temel alev/duman parcaciklari (Isi Blogu bulucu).
+            case SimpleParticle.FLAME -> packet.setType(ParticleType.FLAME);
+            case SimpleParticle.SMOKE -> packet.setType(ParticleType.SMOKE);
             case SimpleParticle.FIREWORK_CONTRAIL -> packet.setType(ParticleType.FIREWORKS);
             case SimpleParticle.SMASH_ATTACK_GROUND_DUST ->
                     packet.setType(LevelEvent.PARTICLE_SMASH_ATTACK_GROUND_DUST);

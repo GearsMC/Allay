@@ -70,5 +70,11 @@ public enum SimpleParticle implements Particle {
     /// `PARTICLE_SOUND_GUARDIAN_GHOST`. Ham paket gonderimi API'den kaldirildigi
     /// icin efekt buraya bir parcacik olarak eklendi: paketi hangi protokol
     /// surumune gore kuracagina sunucu karar verir.
-    GUARDIAN_CURSE
+    GUARDIAN_CURSE,
+
+    /// GearsMC fork: temel alev parcacigi (PocketMine FlameParticle).
+    FLAME,
+
+    /// GearsMC fork: temel duman parcacigi (PocketMine SmokeParticle).
+    SMOKE
 }
