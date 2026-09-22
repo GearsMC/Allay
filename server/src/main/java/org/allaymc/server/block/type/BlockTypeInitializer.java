@@ -560,6 +560,19 @@ public final class BlockTypeInitializer {
                 .build();
     }
 
+    /**
+     * Mob doguran blok varligini tasir. Blok varligi turu kayitliydi ama bloga baglanmamisti; yeni
+     * konan doguranin blok varligi hic olusmuyor, dolayisiyla {@code EntityIdentifier} (istemcinin
+     * kafeste cizdigi mob) ve eklentinin yazdigi kalici veri tutulamiyordu.
+     */
+    public static void initMobSpawner() {
+        BlockTypes.MOB_SPAWNER = AllayBlockType
+                .builder(BlockMobSpawnerBehaviorImpl.class)
+                .vanillaBlock(BlockId.MOB_SPAWNER)
+                .bindBlockEntity(BlockEntityTypes.MOB_SPAWNER)
+                .build();
+    }
+
     public static void initCraftingTable() {
         BlockTypes.CRAFTING_TABLE = AllayBlockType
                 .builder(BlockCraftingTableBehaviorImpl.class)

@@ -1,5 +1,7 @@
 package org.allaymc.server.blockentity;
 
+import org.allaymc.api.block.component.BlockBlockEntityHolderComponent;
+import org.allaymc.api.block.type.BlockTypes;
 import org.allaymc.api.blockentity.BlockEntityInitInfo;
 import org.allaymc.api.blockentity.type.BlockEntityType;
 import org.allaymc.api.blockentity.type.BlockEntityTypes;
@@ -16,6 +18,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * PocketMine hub dunyalarinda bulunan ama motorda karsiligi olmayan vanilla
@@ -102,6 +105,16 @@ class HubBlockEntityTypeTest {
         assertEquals(6, saved.getShort("MaxNearbyEntities"));
         assertEquals(16, saved.getShort("RequiredPlayerRange"));
         assertEquals(4, saved.getShort("SpawnRange"));
+    }
+
+    @Test
+    void mobSpawnerBlockCarriesItsBlockEntity() {
+        // Blok varligi bloga bagli degilse yeni konan doguranin blok varligi hic olusmaz:
+        // istemci kafeste mob cizmez, eklentinin yazdigi kalici veri de tutulamaz.
+        var behavior = BlockTypes.MOB_SPAWNER.getBlockBehavior();
+        assertTrue(behavior instanceof BlockBlockEntityHolderComponent<?>);
+        assertEquals(BlockEntityTypes.MOB_SPAWNER,
+                ((BlockBlockEntityHolderComponent<?>) behavior).getBlockEntityType());
     }
 
     private static org.allaymc.api.blockentity.BlockEntity create(BlockEntityType<?> type) {

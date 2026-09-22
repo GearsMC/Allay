@@ -6,6 +6,7 @@ import org.allaymc.api.entity.component.EntityContainerHolderComponent;
 import org.allaymc.api.entity.damage.DamageContainer;
 import org.allaymc.api.entity.interfaces.EntityPlayer;
 import org.allaymc.api.eventbus.EventHandler;
+import org.allaymc.api.eventbus.event.entity.EntityDamageEvent;
 import org.allaymc.api.item.interfaces.ItemAirStack;
 import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.api.player.GameMode;
@@ -29,6 +30,13 @@ public class EntityArmorStandLivingComponentImpl extends EntityLivingComponentIm
 
     @Override
     public boolean attack(DamageContainer damage, boolean ignoreCoolDown) {
+        // Iki vurusta kirma genel attack() yolunu atladigi icin EntityDamageEvent hic cagrilmiyordu;
+        // eklenti hologram olarak kullandigi standin kirilmasini (ve zirh standi esyasi dusurmesini)
+        // engelleyemiyordu. Olay iptal edilirse vurus sayilmaz.
+        if (!thisEntity.isAlive() || !new EntityDamageEvent(thisEntity, damage).call()) {
+            return false;
+        }
+
         var currentTime = baseComponent.getTick();
         var interval = currentTime - this.lastDamageTime;
         this.lastDamage = damage;
