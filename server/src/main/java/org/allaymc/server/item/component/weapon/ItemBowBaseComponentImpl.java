@@ -44,14 +44,15 @@ public class ItemBowBaseComponentImpl extends ItemBaseComponentImpl {
         var speed = force * 5;
 
         var infinity = getEnchantmentLevel(EnchantmentTypes.INFINITY) != 0;
+        ArrowSelection selection = null;
         PotionType potionType = null;
         if (!creative) {
-            var arrow = findArrow(player, infinity);
-            if (arrow == null) {
+            selection = findArrow(player);
+            if (selection == null) {
                 return false;
             }
 
-            potionType = arrow.getPotionType();
+            potionType = selection.arrow().getPotionType();
         }
 
         var powerLevel = getEnchantmentLevel(EnchantmentTypes.POWER);
@@ -90,6 +91,9 @@ public class ItemBowBaseComponentImpl extends ItemBaseComponentImpl {
             return false;
         }
 
+        if (!creative) {
+            consumeArrow(selection, infinity);
+        }
         dimension.getEntityManager().addEntity(arrow);
         if (!creative) {
             tryIncreaseDamage(1);
@@ -117,7 +121,7 @@ public class ItemBowBaseComponentImpl extends ItemBaseComponentImpl {
         return false;
     }
 
-    protected ItemArrowStack findArrow(EntityPlayer player, boolean infinity) {
+    protected ArrowSelection findArrow(EntityPlayer player) {
         Container container;
         int slot;
         ItemArrowStack arrow = null;
@@ -147,17 +151,22 @@ public class ItemBowBaseComponentImpl extends ItemBaseComponentImpl {
             return null;
         }
 
+        return new ArrowSelection(container, slot, arrow);
+    }
+
+    protected void consumeArrow(ArrowSelection selection, boolean infinity) {
+        var arrow = selection.arrow();
         // Bows with infinity enchantment do not consume normal types of arrows when shooting
         if (!infinity || arrow.getPotionType() != null) {
             if (arrow.getCount() == 1) {
-                container.clearSlot(slot);
+                selection.container().clearSlot(selection.slot());
             } else {
                 arrow.reduceCount(1);
-                container.notifySlotChange(slot);
+                selection.container().notifySlotChange(selection.slot());
             }
         }
-
-        return arrow;
     }
 
+    protected record ArrowSelection(Container container, int slot, ItemArrowStack arrow) {
+    }
 }

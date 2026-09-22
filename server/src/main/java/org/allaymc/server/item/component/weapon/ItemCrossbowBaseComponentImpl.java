@@ -248,10 +248,6 @@ public class ItemCrossbowBaseComponentImpl extends ItemBaseComponentImpl impleme
             } else {
                 projectiles.add(createFirework(player, shootPos, 0, fireworkStack));
             }
-            // Fireworks cost 3 durability
-            if (!creative) {
-                tryIncreaseDamage(3);
-            }
         } else {
             // Create arrow(s)
             if (hasMultishot) {
@@ -262,16 +258,16 @@ public class ItemCrossbowBaseComponentImpl extends ItemBaseComponentImpl impleme
             } else {
                 projectiles.add(createArrow(player, shootPos, 0, piercingLevel, false));
             }
-            // Arrows cost 1 durability
-            if (!creative) {
-                tryIncreaseDamage(1);
-            }
         }
 
         // Fire event
         var event = new EntityShootCrossbowEvent(player, thisItemStack, projectiles);
         if (!event.call()) {
             return;
+        }
+
+        if (!creative) {
+            tryIncreaseDamage(loadedProjectile instanceof ItemFireworkRocketStack ? 3 : 1);
         }
 
         // Spawn all projectiles

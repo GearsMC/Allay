@@ -98,7 +98,7 @@ public class EntityArrowPhysicsComponentImpl extends EntityProjectilePhysicsComp
                 if (arrowBaseComponent.isCritical()) {
                     double criticalBonus = 0.5 * ThreadLocalRandom.current().nextDouble() * damage + 2 * ThreadLocalRandom.current().nextDouble();
                     double criticalDamage = damage + criticalBonus;
-                    damage = Math.max(10, Math.min(9, criticalDamage));
+                    damage = clampCriticalDamage(criticalDamage);
                 }
             }
             if (arrowBaseComponent.getPowerLevel() > 0) {
@@ -132,6 +132,13 @@ public class EntityArrowPhysicsComponentImpl extends EntityProjectilePhysicsComp
         }
 
         thisEntity.remove();
+    }
+
+    /**
+     * Keeps a player-fired critical arrow in Bedrock's 9-10 base damage range.
+     */
+    static double clampCriticalDamage(double damage) {
+        return Math.max(9, Math.min(10, damage));
     }
 
     @Override

@@ -59,6 +59,13 @@ class EntityArrowPhysicsComponentImplTest {
         assertEquals(new Vector3d(), physics.updateMotion(new EntityPhysicsComponent.LiquidState(true, false)));
     }
 
+    @Test
+    void criticalDamageShouldBeClampedBetweenNineAndTen() {
+        assertEquals(9.0, EntityArrowPhysicsComponentImpl.clampCriticalDamage(8.0));
+        assertEquals(9.5, EntityArrowPhysicsComponentImpl.clampCriticalDamage(9.5));
+        assertEquals(10.0, EntityArrowPhysicsComponentImpl.clampCriticalDamage(12.0));
+    }
+
     private static final class TestArrowPhysicsComponent extends EntityArrowPhysicsComponentImpl {
         private TestArrowPhysicsComponent(Entity entity, EntityArrowBaseComponent arrow) {
             this.thisEntity = entity;
