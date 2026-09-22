@@ -166,6 +166,8 @@ public final class EntityTypeInitializer {
 
     /** Vanilla allay cani. */
     private static final int ALLAY_HEALTH = 20;
+    /** Eklentiler cani kendileri ayarlayana kadar kullanilan vanilla Wither cani. */
+    private static final int WITHER_HEALTH = 600;
     /** Vanilla yarasa cani. */
     private static final int BAT_HEALTH = 6;
     /** Vanilla kurbaga cani. */
@@ -467,6 +469,106 @@ public final class EntityTypeInitializer {
                 .addComponent(EntityPlayerPhysicsComponentImpl::new, EntityPlayerPhysicsComponentImpl.class)
                 .addComponent(EntitySleepableComponentImpl::new, EntitySleepableComponentImpl.class)
                 .build();
+    }
+
+    /**
+     * Wither'i vurulabilen ve eklenti tarafindan ucurulabilen bir canli varlik olarak kaydeder.
+     * Yapay zekasi burada kurulmaz; sunucuya ozel boss dongusu hareketi ve saldirilari yonetir.
+     */
+    public static void initWither() {
+        EntityTypes.WITHER = AllayEntityType
+                .builder(EntityWitherImpl.class)
+                .vanillaEntity(EntityId.WITHER)
+                .addComponent(EntityBaseComponentImpl::new, EntityBaseComponentImpl.class)
+                .addComponent(() -> {
+                    var component = new EntityLivingComponentImpl() {
+                        @Override
+                        public boolean hasFallDamage() {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean hasFireDamage() {
+                            return false;
+                        }
+                    };
+                    component.setMaxHealth(WITHER_HEALTH);
+                    return component;
+                }, EntityLivingComponentImpl.class)
+                .addComponent(() -> new EntityFlyingPhysicsComponentImpl() {
+                    @Override
+                    public boolean computeEntityCollisionMotion() {
+                        return false;
+                    }
+                }, EntityFlyingPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityUndeadComponentImpl::new, EntityUndeadComponentImpl.class)
+                .build();
+    }
+
+    /** Boss'un cagirdigi iskeletlere can ve kara fizigi saglar; hedeflerini eklenti yonetir. */
+    public static void initWitherSkeleton() {
+        EntityTypes.WITHER_SKELETON = AllayEntityType
+                .builder(EntityWitherSkeletonImpl.class)
+                .vanillaEntity(EntityId.WITHER_SKELETON)
+                .addComponent(initInfo -> new EntityArmedBaseComponentImpl(
+                                initInfo, () -> ItemTypes.STONE_SWORD, 0.6d, 2.4d),
+                        EntityArmedBaseComponentImpl.class)
+                .addComponent(EntityHumanLikeContainerHolderComponentImpl::new,
+                        EntityHumanLikeContainerHolderComponentImpl.class)
+                .addComponent(() -> {
+                    var component = new EntityLivingComponentImpl() {
+                        @Override
+                        public boolean hasFireDamage() {
+                            return false;
+                        }
+
+                        @Override
+                        public boolean isFireproof() {
+                            return true;
+                        }
+                    };
+                    component.setMaxHealth(20);
+                    return component;
+                }, EntityLivingComponentImpl.class)
+                .addComponent(EntityHumanPhysicsComponentImpl::new, EntityHumanPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityUndeadComponentImpl::new, EntityUndeadComponentImpl.class)
+                .build();
+    }
+
+    /** Wither kafataslarina carpma olayi ve yercekimsiz projectile fizigi kazandirir. */
+    public static void initWitherProjectiles() {
+        EntityTypes.WITHER_SKULL = AllayEntityType
+                .builder(EntityWitherSkullImpl.class)
+                .vanillaEntity(EntityId.WITHER_SKULL)
+                .addComponent(EntityProjectileBaseComponentImpl::new, EntityProjectileBaseComponentImpl.class)
+                .addComponent(EntityTypeInitializer::witherSkullPhysics, EntityProjectilePhysicsComponentImpl.class)
+                .addComponent(EntityProjectileComponentImpl::new, EntityProjectileComponentImpl.class)
+                .addComponent(() -> new EntityAgeComponentImpl(20 * 8), EntityAgeComponentImpl.class)
+                .build();
+        EntityTypes.WITHER_SKULL_DANGEROUS = AllayEntityType
+                .builder(EntityWitherSkullDangerousImpl.class)
+                .vanillaEntity(EntityId.WITHER_SKULL_DANGEROUS)
+                .addComponent(EntityProjectileBaseComponentImpl::new, EntityProjectileBaseComponentImpl.class)
+                .addComponent(EntityTypeInitializer::witherSkullPhysics, EntityProjectilePhysicsComponentImpl.class)
+                .addComponent(EntityProjectileComponentImpl::new, EntityProjectileComponentImpl.class)
+                .addComponent(() -> new EntityAgeComponentImpl(20 * 8), EntityAgeComponentImpl.class)
+                .build();
+    }
+
+    private static EntityProjectilePhysicsComponentImpl witherSkullPhysics() {
+        return new EntityProjectilePhysicsComponentImpl() {
+            @Override
+            public double getGravity() {
+                return 0.0d;
+            }
+
+            @Override
+            public double getDragFactorInAir() {
+                return 0.01d;
+            }
+        };
     }
 
     public static void initVillagerV2() {

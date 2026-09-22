@@ -1,7 +1,5 @@
 package org.allaymc.api.entity.interfaces;
 
-import org.allaymc.api.entity.Entity;
-
-public interface EntityWitherSkullDangerous extends Entity {
+public interface EntityWitherSkullDangerous extends EntityProjectile {
 
 }

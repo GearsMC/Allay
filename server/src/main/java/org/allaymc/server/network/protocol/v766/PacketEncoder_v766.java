@@ -88,6 +88,7 @@ import org.cloudburstmc.math.vector.Vector3f;
 import org.cloudburstmc.math.vector.Vector3i;
 import org.cloudburstmc.protocol.bedrock.data.camera.CameraAudioListener;
 import org.cloudburstmc.protocol.bedrock.data.camera.CameraEase;
+import org.cloudburstmc.protocol.bedrock.data.camera.CameraFadeInstruction;
 import org.cloudburstmc.protocol.bedrock.data.camera.CameraSetInstruction;
 import org.cloudburstmc.protocol.bedrock.definition.NamedDefinition;
 import org.cloudburstmc.protocol.bedrock.util.OptionalBoolean;
@@ -113,6 +114,8 @@ import org.cloudburstmc.protocol.bedrock.packet.*;
 import org.cloudburstmc.protocol.bedrock.util.OptionalBoolean;
 import org.joml.Vector3d;
 import org.joml.Vector3dc;
+
+import java.awt.Color;
 import org.joml.Vector3ic;
 
 import java.awt.*;
@@ -1353,6 +1356,12 @@ public class PacketEncoder_v766 extends PacketEncoder {
                 metadata.put(EntityDataTypes.VARIANT, networkBlockId(fallingBlock.getBlockState()));
             }
             case EntityXpOrb xpOrb -> metadata.put(EntityDataTypes.VALUE, xpOrb.getExperienceValue());
+            case EntityWither wither -> {
+                metadata.put(EntityDataTypes.WITHER_INVULNERABLE_TICKS, wither.getWitherInvulnerableTicks());
+                metadata.put(EntityDataTypes.WITHER_TARGET_A, wither.getWitherTargetA());
+                metadata.put(EntityDataTypes.WITHER_TARGET_B, wither.getWitherTargetB());
+                metadata.put(EntityDataTypes.WITHER_TARGET_C, wither.getWitherTargetC());
+            }
             case EntityArrow arrow -> metadata.setFlag(EntityFlag.CRITICAL, arrow.isCritical());
             case EntityFox fox -> metadata.setFlag(EntityFlag.SLEEPING, fox.isSleeping());
             // Wolves and endermen have a distinct hostile look (bared teeth, open mouth) that the
@@ -2738,26 +2747,34 @@ public class PacketEncoder_v766 extends PacketEncoder {
     @Override
     public CameraInstructionPacket encodeCameraInstruction(CameraInstruction instruction) {
         Objects.requireNonNull(instruction, "instruction");
-        var set = new CameraSetInstruction();
-        set.setPreset(new PresetDefinition(instruction.getPreset()));
-        if (instruction.hasEase()) {
-            set.setEase(new CameraSetInstruction.EaseData(
-                    CameraEase.valueOf(instruction.getEaseType().name()), instruction.getEaseSeconds()));
-        }
-        var position = instruction.getPosition();
-        if (position != null) {
-            set.setPos(Vector3f.from((float) position.x(), (float) position.y(), (float) position.z()));
-        }
-        var facing = instruction.getFacing();
-        if (facing != null) {
-            set.setFacing(Vector3f.from((float) facing.x(), (float) facing.y(), (float) facing.z()));
-        }
-        if (instruction.hasRotation()) {
-            set.setRot(Vector2f.from(instruction.getPitch().floatValue(), instruction.getYaw().floatValue()));
-        }
-
         var packet = new CameraInstructionPacket();
-        packet.setSetInstruction(set);
+        if (instruction.getPreset() != null) {
+            var set = new CameraSetInstruction();
+            set.setPreset(new PresetDefinition(instruction.getPreset()));
+            if (instruction.hasEase()) {
+                set.setEase(new CameraSetInstruction.EaseData(
+                        CameraEase.valueOf(instruction.getEaseType().name()), instruction.getEaseSeconds()));
+            }
+            var position = instruction.getPosition();
+            if (position != null) {
+                set.setPos(Vector3f.from((float) position.x(), (float) position.y(), (float) position.z()));
+            }
+            var facing = instruction.getFacing();
+            if (facing != null) {
+                set.setFacing(Vector3f.from((float) facing.x(), (float) facing.y(), (float) facing.z()));
+            }
+            if (instruction.hasRotation()) {
+                set.setRot(Vector2f.from(instruction.getPitch().floatValue(), instruction.getYaw().floatValue()));
+            }
+            packet.setSetInstruction(set);
+        }
+        if (instruction.hasFade()) {
+            var fade = new CameraFadeInstruction();
+            fade.setTimeData(new CameraFadeInstruction.TimeData(
+                    instruction.getFadeInSeconds(), instruction.getFadeStaySeconds(), instruction.getFadeOutSeconds()));
+            fade.setColor(new Color(instruction.getFadeRed(), instruction.getFadeGreen(), instruction.getFadeBlue()));
+            packet.setFadeInstruction(fade);
+        }
         return packet;
     }
 

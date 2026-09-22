@@ -33,6 +33,12 @@ public final class CameraInstruction {
     private Vector3dc facing;
     private Double pitch;
     private Double yaw;
+    private Float fadeInSeconds;
+    private Float fadeStaySeconds;
+    private Float fadeOutSeconds;
+    private Float fadeRed;
+    private Float fadeGreen;
+    private Float fadeBlue;
 
     private CameraInstruction(CameraPreset preset) {
         this.preset = preset;
@@ -49,6 +55,29 @@ public final class CameraInstruction {
             throw new IllegalArgumentException("preset cannot be null");
         }
         return new CameraInstruction(preset);
+    }
+
+    /**
+     * Kamerayi verilen renge gecirip yeniden goruntuyu acar.
+     *
+     * @param fadeInSeconds kararma suresi
+     * @param staySeconds rengin ekranda kalma suresi
+     * @param fadeOutSeconds goruntunun acilma suresi
+     * @param red kirmizi kanal, 0 ile 1 arasinda
+     * @param green yesil kanal, 0 ile 1 arasinda
+     * @param blue mavi kanal, 0 ile 1 arasinda
+     * @return yalnizca renk gecisi tasiyan kamera talimati
+     */
+    public static CameraInstruction fade(float fadeInSeconds, float staySeconds, float fadeOutSeconds,
+                                         float red, float green, float blue) {
+        var instruction = new CameraInstruction(null);
+        instruction.fadeInSeconds = fadeInSeconds;
+        instruction.fadeStaySeconds = staySeconds;
+        instruction.fadeOutSeconds = fadeOutSeconds;
+        instruction.fadeRed = red;
+        instruction.fadeGreen = green;
+        instruction.fadeBlue = blue;
+        return instruction;
     }
 
     /**
@@ -115,5 +144,10 @@ public final class CameraInstruction {
      */
     public boolean hasRotation() {
         return pitch != null && yaw != null;
+    }
+
+    /** Talimatin bir kamera renk gecisi tasiyip tasimadigini bildirir. */
+    public boolean hasFade() {
+        return fadeInSeconds != null;
     }
 }
