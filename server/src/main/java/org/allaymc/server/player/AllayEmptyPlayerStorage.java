@@ -4,6 +4,8 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.allaymc.api.player.PlayerData;
 
+import java.util.Set;
+
 /**
  * @author daoge_cmd
  */
@@ -30,5 +32,10 @@ public class AllayEmptyPlayerStorage extends AllayPlayerStorage {
     @Override
     public boolean hasPlayerData(String xuid) {
         return false;
+    }
+
+    @Override
+    public Set<String> getStoredXuids() {
+        return Set.of();
     }
 }

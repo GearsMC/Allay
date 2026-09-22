@@ -8,12 +8,18 @@ import org.cloudburstmc.nbt.NbtUtils;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author daoge_cmd
  */
 @Slf4j
 public class AllayNBTFilePlayerStorage extends AllayPlayerStorage {
+    private static final String DATA_FILE_SUFFIX = ".nbt";
+    private static final String OLD_DATA_FILE_SUFFIX = "_old.nbt";
+
     protected Path dataFolderPath;
 
     @SneakyThrows
@@ -74,6 +80,21 @@ public class AllayNBTFilePlayerStorage extends AllayPlayerStorage {
     @Override
     public boolean hasPlayerData(String xuid) {
         return Files.exists(buildPlayerDataFilePath(xuid));
+    }
+
+    @SneakyThrows
+    @Override
+    public Set<String> getStoredXuids() {
+        var xuids = new HashSet<String>();
+        try (var files = Files.list(dataFolderPath)) {
+            files.map(file -> file.getFileName().toString())
+                    // Yarım kalmış kayıttan kalan "<xuid>_old.nbt" ayrı bir oyuncu değildir.
+                    .filter(name -> name.endsWith(DATA_FILE_SUFFIX) && !name.endsWith(OLD_DATA_FILE_SUFFIX))
+                    .map(name -> name.substring(0, name.length() - DATA_FILE_SUFFIX.length()))
+                    .filter(xuid -> !xuid.isEmpty())
+                    .forEach(xuids::add);
+        }
+        return Collections.unmodifiableSet(xuids);
     }
 
     protected Path buildPlayerDataFilePath(String xuid) {

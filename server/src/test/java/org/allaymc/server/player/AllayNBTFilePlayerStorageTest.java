@@ -7,6 +7,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -44,5 +45,22 @@ class AllayNBTFilePlayerStorageTest {
 
         assertTrue(storage.removePlayerData(XUID));
         assertFalse(storage.hasPlayerData(XUID));
+    }
+
+    @Test
+    void testStoredXuidsIgnoreLeftoverOldFiles() throws Exception {
+        var storage = new AllayNBTFilePlayerStorage(tempDir);
+        var playerData = PlayerData.builder()
+                .nbt(NbtMap.builder().putString("Test", "Value").build())
+                .world("world")
+                .dimension("minecraft:overworld")
+                .build();
+        storage.savePlayerData(XUID, playerData);
+        storage.savePlayerData("2535000000000001", playerData);
+        // Yarım kalmış kayıttan kalan dosya ayrı bir oyuncu sayılmamalı.
+        Files.writeString(tempDir.resolve("2535000000000002_old.nbt"), "");
+        Files.writeString(tempDir.resolve("notes.txt"), "");
+
+        assertEquals(Set.of(XUID, "2535000000000001"), storage.getStoredXuids());
     }
 }

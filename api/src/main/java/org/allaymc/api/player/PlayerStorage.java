@@ -1,5 +1,7 @@
 package org.allaymc.api.player;
 
+import java.util.Set;
+
 /**
  * PlayerStorage, her oyuncunun verisini oyuncunun xuid'i ile anahtarlayarak saklar. Xuid,
  * oyuncu xbox hesabının ismini değiştirse bile asla değişmediğinden isim değişikliği sonrası
@@ -59,6 +61,17 @@ public interface PlayerStorage {
      * @return oyuncu verisi varsa {@code true}, aksi halde {@code false}.
      */
     boolean hasPlayerData(String xuid);
+
+    /**
+     * Depoda verisi kayıtlı bütün oyuncuların xuid'lerini döndürür.
+     *
+     * <p>Çevrimdışı oyuncuların verisini toplu düzenleyen yönetici araçları içindir
+     * (PocketMine'da {@code players/} klasörü taranarak yapılıyordu). Dönen küme bir anlık
+     * görüntüdür; çağrıdan sonra giren ya da ilk kez kaydedilen oyuncuyu içermeyebilir.</p>
+     *
+     * @return kayıtlı xuid'ler; değiştirilemez
+     */
+    Set<String> getStoredXuids();
 
     /**
      * Verilen oyuncu için oyuncu verisinin var olup olmadığını kontrol eder.
