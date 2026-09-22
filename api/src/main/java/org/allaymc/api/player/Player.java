@@ -422,6 +422,16 @@ public interface Player extends MessageReceiver, WorldViewer, ContainerViewer, B
     void sendPopup(String message);
 
     /**
+     * Müzik kutusu satırında ("şimdi çalıyor" konumu) metin gösterir.
+     *
+     * <p>PocketMine {@code Player::sendJukeboxPopup} karşılığı; geri sayım çubukları gibi
+     * normal popup'la çakışmaması gereken metinler için kullanılır.</p>
+     *
+     * @param message gösterilecek metin
+     */
+    void sendJukeboxPopup(String message);
+
+    /**
      * Send a toast to the player. The toast will be displayed at the top of the screen
      * with a title and content in a period of time.
      *

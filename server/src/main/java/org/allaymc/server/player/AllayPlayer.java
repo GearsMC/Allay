@@ -1129,6 +1129,11 @@ public class AllayPlayer implements Player {
     }
 
     @Override
+    public void sendJukeboxPopup(String message) {
+        sendSimpleMessage(message, TextPacket.Type.JUKEBOX_POPUP);
+    }
+
+    @Override
     public void sendTranslatable(String translatable, Object... args) {
         sendMessage(I18n.get().tr(this.loginData.getLangCode(), translatable, args));
     }
