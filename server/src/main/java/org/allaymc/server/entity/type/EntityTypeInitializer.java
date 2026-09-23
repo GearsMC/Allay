@@ -108,6 +108,10 @@ public final class EntityTypeInitializer {
     private static final int PILLAGER_COOLDOWN = 60;
 
     private static final float VINDICATOR_SPEED = 0.18f;
+    /** Demir golem yavaş ve ağır yürür. */
+    private static final float IRON_GOLEM_SPEED = 0.12f;
+    /** Zombi domuz adam piglin'den biraz hızlı kovalar. */
+    private static final float ZOMBIE_PIGMAN_SPEED = 0.15f;
 
     private static final float WITCH_SPEED = 0.11f;
     private static final double WITCH_PREFERRED_RANGE = 8;
@@ -1075,6 +1079,75 @@ public final class EntityTypeInitializer {
                     return new EntityAIComponentImpl(behaviorGroup);
                 }, EntityAIComponentImpl.class)
                 .build();
+    }
+
+    /**
+     * Demir golem: tarafsız; kendisine vuranı kovalar, yoksa dolaşır.
+     *
+     * <p>Vanilla'nın köy savunması ve düşman moblara saldırması yok; GearsCore'da golem ada
+     * spawner'ından doğar ve orada zaten yapay zekâsı dondurulur.</p>
+     */
+    public static void initIronGolem() {
+        EntityTypes.IRON_GOLEM = AllayEntityType
+                .builder(EntityIronGolemImpl.class)
+                .vanillaEntity(EntityId.IRON_GOLEM)
+                .addComponent(EntityIronGolemBaseComponentImpl::new, EntityIronGolemBaseComponentImpl.class)
+                .addComponent(EntityIronGolemLivingComponentImpl::new, EntityIronGolemLivingComponentImpl.class)
+                .addComponent(EntityMobPhysicsComponentImpl::new, EntityMobPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> buildNeutralMeleeBehaviorGroup(IRON_GOLEM_SPEED), EntityAIComponentImpl.class)
+                .build();
+    }
+
+    /**
+     * Zombi domuz adam: altın kılıçla doğar, tarafsızdır; kendisine vuranı kovalar, yoksa dolaşır.
+     *
+     * <p>Vanilla'daki sürü öfkesi (bir tanesine vurulunca çevredekilerin de saldırması) yok.</p>
+     */
+    public static void initZombiePigman() {
+        EntityTypes.ZOMBIE_PIGMAN = AllayEntityType
+                .builder(EntityZombiePigmanImpl.class)
+                .vanillaEntity(EntityId.ZOMBIE_PIGMAN)
+                .addComponent(initInfo -> new EntityArmedBaseComponentImpl(initInfo, () -> ItemTypes.GOLDEN_SWORD, 0.6, 1.95),
+                        EntityArmedBaseComponentImpl.class)
+                .addComponent(EntityHumanLikeContainerHolderComponentImpl::new, EntityHumanLikeContainerHolderComponentImpl.class)
+                .addComponent(EntityZombiePigmanLivingComponentImpl::new, EntityZombiePigmanLivingComponentImpl.class)
+                .addComponent(EntityHumanPhysicsComponentImpl::new, EntityHumanPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(EntityUndeadComponentImpl::new, EntityUndeadComponentImpl.class)
+                .addComponent(() -> buildNeutralMeleeBehaviorGroup(ZOMBIE_PIGMAN_SPEED), EntityAIComponentImpl.class)
+                .build();
+    }
+
+    /**
+     * Tarafsız yakın dövüşçülerin davranış grubu: yalnızca kendisini yaralayan oyuncuyu kovala
+     * ({@code ATTACK_TARGET}'i {@link EntityHostileLivingComponentImpl} yazar), yoksa dolaş.
+     */
+    private static EntityAIComponentImpl buildNeutralMeleeBehaviorGroup(float speed) {
+        var behaviorGroup = BehaviorGroupImpl.builder()
+                .sensor(new NearestPlayerSensor(16, 0, 20))
+                .behavior(BehaviorImpl.builder()
+                        .executor(new MeleeAttackExecutor(MemoryTypes.ATTACK_TARGET, speed, 40, true, 20))
+                        .evaluator(all(
+                                new MemoryCheckNotEmptyEvaluator(MemoryTypes.ATTACK_TARGET),
+                                entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.ATTACK_TARGET))
+                        ))
+                        .priority(2)
+                        .build())
+                .behavior(BehaviorImpl.builder()
+                        .executor(new FlatRandomRoamExecutor(0.1f, 12, 100, false, -1, true, 10))
+                        .evaluator(entity -> true)
+                        .priority(1)
+                        .build())
+                .controller(new WalkController())
+                .controller(new FluctuateController())
+                .controller(new LookController(true, true))
+                .routeFinder(new FlatAStarRouteFinder(new WalkingPosEvaluator()))
+                .build();
+
+        return new EntityAIComponentImpl(behaviorGroup);
     }
 
     /**

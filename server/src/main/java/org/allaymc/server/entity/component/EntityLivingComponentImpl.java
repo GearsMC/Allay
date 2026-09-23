@@ -43,6 +43,7 @@ import org.cloudburstmc.nbt.NbtMap;
 import org.cloudburstmc.nbt.NbtType;
 import org.joml.Vector3d;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -748,16 +749,9 @@ public class EntityLivingComponentImpl implements EntityLivingComponent {
         }
 
         // Drop loot items
+        List<ItemStack> drops = new ArrayList<>();
         if (thisEntity.getWorld().getWorldData().<Boolean>getGameRuleValue(GameRule.DO_MOB_LOOT)) {
-            var drops = getDrops(lootingLevel);
-            if (!drops.isEmpty()) {
-                var dimension = baseComponent.getDimension();
-                var dropPos = dieEvent.getDropPosition();
-                var motionFactory = dieEvent.getDropMotionFactory();
-                for (var drop : drops) {
-                    dimension.dropItem(drop, dropPos, motionFactory.get(), 40);
-                }
-            }
+            drops.addAll(getDrops(lootingLevel));
         }
 
         // Drop XP if killed by player. A dying player keeps their experience when
@@ -765,13 +759,31 @@ public class EntityLivingComponentImpl implements EntityLivingComponent {
         // the player would both keep their level and leave orbs behind, doubling it.
         var keepPlayerXp = thisEntity instanceof EntityPlayer &&
                            thisEntity.getWorld().getWorldData().<Boolean>getGameRuleValue(GameRule.KEEP_INVENTORY);
+        int xpAmount = 0;
         if (!keepPlayerXp && lastDamage != null && lastDamage.getAttacker() instanceof EntityPlayer) {
-            var xpAmount = getDropXpAmount();
-            if (xpAmount > 0) {
-                baseComponent.getDimension().splitAndDropXpOrb(
-                    new Vector3d(pos.x(), pos.y(), pos.z()), xpAmount
-                );
+            xpAmount = getDropXpAmount();
+        }
+
+        // Ganimet ve deneyim dünyaya bırakılmadan önce eklentiye açılır (yığılmış mob gibi
+        // tek varlıkta birden çok mobu temsil eden sistemler burada çarpar).
+        var lootEvent = new EntityLootEvent(thisEntity, drops, xpAmount);
+        lootEvent.call();
+
+        if (!lootEvent.getDrops().isEmpty()) {
+            var dimension = baseComponent.getDimension();
+            var dropPos = dieEvent.getDropPosition();
+            var motionFactory = dieEvent.getDropMotionFactory();
+            for (var drop : lootEvent.getDrops()) {
+                if (drop != null && drop.getCount() > 0) {
+                    dimension.dropItem(drop, dropPos, motionFactory.get(), 40);
+                }
             }
+        }
+
+        if (lootEvent.getXp() > 0) {
+            baseComponent.getDimension().splitAndDropXpOrb(
+                new Vector3d(pos.x(), pos.y(), pos.z()), lootEvent.getXp()
+            );
         }
 
         this.effects.values().forEach(effect -> effect.getType().onEntityDies(thisEntity, effect));
