@@ -294,7 +294,11 @@ public class BlockEntityFurnaceBaseComponentImpl extends BlockEntityBaseComponen
         var event = new FurnaceConsumeFuelEvent(thisBlockEntityFurnace, fuel);
         if (!event.call()) return false;
 
-        if (fuel.getItemType() == ItemTypes.LAVA_BUCKET) {
+        // Sure, yakit yuvasi degismeden once okunur (artik esya baska bir tur olabilir).
+        int fuelDuration = (int) fuel.getItemType().getItemData().furnaceBurnDuration();
+        if (event.getResidue() != null) {
+            container.setFuel(event.getResidue());
+        } else if (fuel.getItemType() == ItemTypes.LAVA_BUCKET) {
             container.setFuel(ItemTypes.BUCKET.createItemStack(1));
         } else {
             if (fuel.getCount() > 1) {
@@ -305,7 +309,7 @@ public class BlockEntityFurnaceBaseComponentImpl extends BlockEntityBaseComponen
             }
         }
 
-        burnDuration = (int) fuel.getItemType().getItemData().furnaceBurnDuration();
+        burnDuration = fuelDuration;
         burnTime = burnDuration;
 
         return true;

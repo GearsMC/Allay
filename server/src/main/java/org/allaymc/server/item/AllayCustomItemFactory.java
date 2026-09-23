@@ -80,6 +80,7 @@ public class AllayCustomItemFactory implements CustomItemFactory {
                 .maxDamage(definition.maxDamage())
                 .attackDamage(definition.attackDamage())
                 .armorValue(definition.armorValue())
+                .furnaceBurnDuration(definition.furnaceBurnTicks())
                 .build();
 
         var builder = AllayItemType.builder(BEHAVIOR_CLASSES.get(behavior))

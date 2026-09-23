@@ -123,6 +123,13 @@ public class CustomItemDefinition {
      */
     @Builder.Default
     private final boolean canBeAlwaysEaten = false;
+    /**
+     * Firinda yakit olarak yanma suresi (tik); 0 ise yakit degildir. Yanan esyanin yerine ne
+     * kalacagi {@link org.allaymc.api.eventbus.event.container.FurnaceConsumeFuelEvent#setResidue}
+     * ile belirlenir; belirtilmezse esya bir adet eksilir.
+     */
+    @Builder.Default
+    private final int furnaceBurnTicks = 0;
 
     /**
      * The item type this item can be repaired with in an anvil.
