@@ -57,6 +57,11 @@ public class EntityThrownTridentPhysicsComponentImpl extends EntityProjectilePhy
             return updateReturningMotion();
         }
 
+        if (shouldReturnFromVoid()) {
+            startReturning();
+            return updateReturningMotion();
+        }
+
         if (liquidState.inLiquid() && computeLiquidPhysics()) {
             return updateMotionInLiquid(liquidState);
         }
@@ -264,6 +269,28 @@ public class EntityThrownTridentPhysicsComponentImpl extends EntityProjectilePhy
         if (canReturnToShooter(projectileComponent.getShooter())) {
             startReturning();
         }
+    }
+
+    /**
+     * Sadakatli trident boşluğa düşünce geri döner (GearsMC fork; HeartCore e1a2ab23).
+     *
+     * <p>Yukarı akışta dönüş yalnızca bir bloğa ya da varlığa çarpınca başlıyordu; adanın kenarından
+     * atılan trident hiçbir şeye çarpmadan dünyanın altına düşüp kayboluyordu. Hiçbir yere saplanmamış
+     * trident dünya tabanının bir blok üstüne indiğinde ya da bir sonraki konumu yüklü olmayan bir
+     * chunk'a düştüğünde dönüşe geçer.</p>
+     */
+    protected boolean shouldReturnFromVoid() {
+        if (this.hitBlock || !canReturnToShooter(projectileComponent.getShooter())) {
+            return false;
+        }
+        var dimension = thisEntity.getDimension();
+        var location = thisEntity.getLocation();
+        if (location.y() <= dimension.getDimensionType().getMinHeight() + 1) {
+            return true;
+        }
+        int nextX = (int) Math.floor(location.x() + this.motion.x);
+        int nextZ = (int) Math.floor(location.z() + this.motion.z);
+        return !dimension.getChunkManager().isChunkLoaded(nextX >> 4, nextZ >> 4);
     }
 
     /**
