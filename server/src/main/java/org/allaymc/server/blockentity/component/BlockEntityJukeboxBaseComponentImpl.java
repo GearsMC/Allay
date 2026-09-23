@@ -1,11 +1,12 @@
 package org.allaymc.server.blockentity.component;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.allaymc.api.blockentity.BlockEntityInitInfo;
 import org.allaymc.api.blockentity.component.BlockEntityJukeboxBaseComponent;
 import org.allaymc.api.eventbus.EventHandler;
+import org.allaymc.api.item.ItemStack;
 import org.allaymc.api.item.interfaces.ItemMusicDiscStack;
+import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.api.utils.NBTIO;
 import org.allaymc.api.world.sound.MusicDiscPlaySound;
 import org.allaymc.api.world.sound.SimpleSound;
@@ -22,12 +23,27 @@ import java.util.concurrent.ThreadLocalRandom;
 public class BlockEntityJukeboxBaseComponentImpl extends BlockEntityBaseComponentImpl implements BlockEntityJukeboxBaseComponent {
     protected static final String TAG_RECORD_ITEM = "RecordItem";
 
-    @Getter
-    private ItemMusicDiscStack musicDiscItem;
+    // Vanilla disk ya da eklentinin ozel plagi; ikisi de ayni yuvada durur.
+    private ItemStack musicDiscItem;
+
+    @Override
+    public ItemMusicDiscStack getMusicDiscItem() {
+        return this.musicDiscItem instanceof ItemMusicDiscStack disc ? disc : null;
+    }
 
     @Override
     public void setMusicDiscItem(ItemMusicDiscStack musicDiscItem) {
-        this.musicDiscItem = musicDiscItem;
+        setRecordItem(musicDiscItem);
+    }
+
+    @Override
+    public ItemStack getRecordItem() {
+        return this.musicDiscItem;
+    }
+
+    @Override
+    public void setRecordItem(ItemStack item) {
+        this.musicDiscItem = item;
         // Update comparators that may be reading this jukebox
         this.getDimension().updateComparatorOutputLevel(this.getPosition());
     }
@@ -38,7 +54,9 @@ public class BlockEntityJukeboxBaseComponentImpl extends BlockEntityBaseComponen
 
     @Override
     public void play() {
-        this.getDimension().addSound(this.getPosition(), new MusicDiscPlaySound(this.musicDiscItem.getDiscType()));
+        if (this.musicDiscItem instanceof ItemMusicDiscStack disc) {
+            this.getDimension().addSound(this.getPosition(), new MusicDiscPlaySound(disc.getDiscType()));
+        }
     }
 
     @Override
@@ -79,8 +97,9 @@ public class BlockEntityJukeboxBaseComponentImpl extends BlockEntityBaseComponen
         super.loadNBT(nbt);
         nbt.listenForCompound(TAG_RECORD_ITEM, value -> {
             var item = NBTIO.getAPI().fromItemStackNBT(value);
-            if (item instanceof ItemMusicDiscStack musicDiscStack) {
-                this.musicDiscItem = musicDiscStack;
+            // Ozel plak (eklenti esyasi) de korunur; yalnizca okunamayan kayit atlanir.
+            if (item != null && item.getItemType() != ItemTypes.AIR) {
+                this.musicDiscItem = item;
             } else {
                 log.warn("Invalid music disc item {} in jukebox at {}", item.getItemType().getIdentifier(), this.getPosition());
             }

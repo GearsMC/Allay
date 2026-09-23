@@ -34,9 +34,9 @@ public class BlockJukeboxBaseComponentImpl extends BlockBaseComponentImpl {
         }
 
         var blockEntity = blockEntityHolderComponent.getBlockEntity(new Position3i(interactInfo.clickedBlockPos(), dimension));
-        var oldMusicDiscItem = blockEntity.getMusicDiscItem();
+        var oldMusicDiscItem = blockEntity.getRecordItem();
         if (oldMusicDiscItem != null) {
-            blockEntity.setMusicDiscItem(null);
+            blockEntity.setRecordItem(null);
             blockEntity.stop();
             dimension.dropItem(oldMusicDiscItem, new Position3d(blockEntity.getPosition()).add(0.5, 1, 0.5));
             return true;
@@ -70,12 +70,12 @@ public class BlockJukeboxBaseComponentImpl extends BlockBaseComponentImpl {
         if (jukebox == null) {
             return 0;
         }
-        var disc = jukebox.getMusicDiscItem();
-        if (disc == null) {
+        var record = jukebox.getRecordItem();
+        if (record == null) {
             return 0;
         }
         // Return signal based on disc type (1-15)
-        // Each disc type has a unique comparator output
-        return disc.getComparatorSignal();
+        // Each disc type has a unique comparator output; ozel plak 1 verir (Bedrock record bileseni).
+        return record instanceof ItemMusicDiscStack disc ? disc.getComparatorSignal() : 1;
     }
 }
