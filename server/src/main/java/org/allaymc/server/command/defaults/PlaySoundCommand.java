@@ -18,7 +18,9 @@ import java.util.List;
  */
 public class PlaySoundCommand extends Command {
     public PlaySoundCommand() {
-        super("playsound", TrKeys.MC_COMMANDS_PLAYSOUND_DESCRIPTION, Permissions.COMMAND_PLAYSOUND);
+        // GearsMC forkunda ad "allayplaysound": /playsound adi sunucunun yetkili ses
+        // denemesine aittir. Ayni adla kayit yapilsaydi biri digerinin uzerine sessizce yazardi.
+        super("allayplaysound", TrKeys.MC_COMMANDS_PLAYSOUND_DESCRIPTION, Permissions.COMMAND_PLAYSOUND);
     }
 
     @Override

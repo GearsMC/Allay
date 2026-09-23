@@ -13,7 +13,10 @@ import java.util.StringJoiner;
  */
 public class ListCommand extends Command {
     public ListCommand() {
-        super("list", TrKeys.MC_COMMANDS_LIST_DESCRIPTION, Permissions.COMMAND_LIST);
+        // GearsMC forkunda ad "allaylist": /list adi sunucunun kendi oyuncu listesine
+        // (yetkili/oyuncu ayrimi, gorunmezlik suzgeci) aittir. Ayni adla kayit yapilsaydi
+        // biri digerinin uzerine sessizce yazardi.
+        super("allaylist", TrKeys.MC_COMMANDS_LIST_DESCRIPTION, Permissions.COMMAND_LIST);
     }
 
     @Override

@@ -18,7 +18,9 @@ import org.joml.Vector3dc;
 public class SummonCommand extends Command {
 
     public SummonCommand() {
-        super("summon", TrKeys.MC_COMMANDS_SUMMON_DESCRIPTION, Permissions.COMMAND_SUMMON);
+        // GearsMC forkunda ad "allaysummon": /summon adi sunucunun seviyeli mob cagirma
+        // komutuna aittir. Ayni adla kayit yapilsaydi biri digerinin uzerine sessizce yazardi.
+        super("allaysummon", TrKeys.MC_COMMANDS_SUMMON_DESCRIPTION, Permissions.COMMAND_SUMMON);
     }
 
     @Override
