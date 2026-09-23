@@ -11,6 +11,7 @@ import org.allaymc.api.block.type.BlockTypes;
 import org.allaymc.api.eventbus.event.block.BlockBreakEvent;
 import org.allaymc.api.eventbus.event.player.PlayerJumpEvent;
 import org.allaymc.api.eventbus.event.player.PlayerPunchAirEvent;
+import org.allaymc.api.eventbus.event.player.PlayerToggleFlightEvent;
 import org.allaymc.api.eventbus.event.player.PlayerPunchBlockEvent;
 import org.allaymc.api.eventbus.event.server.PlayerControlModeUpdateEvent;
 import org.allaymc.api.math.MathUtils;
@@ -363,12 +364,18 @@ public class PlayerAuthInputPacketProcessor extends PacketProcessor<PlayerAuthIn
                         return;
                     }
 
+                    // Durum değişmeden önce sorulur; iptalde istemci düzeltilir.
+                    if (!new PlayerToggleFlightEvent(entity, true).call()) {
+                        player.viewPlayerAbilities(player);
+                        return;
+                    }
                     entity.setFlying(true);
                 }
                 case STOP_FLYING -> {
-                    entity.setFlying(player.isAlwaysFlying());
                     if (player.isAlwaysFlying()) {
                         entity.setFlying(true);
+                        player.viewPlayerAbilities(player);
+                    } else if (!new PlayerToggleFlightEvent(entity, false).call()) {
                         player.viewPlayerAbilities(player);
                     } else {
                         entity.setFlying(false);

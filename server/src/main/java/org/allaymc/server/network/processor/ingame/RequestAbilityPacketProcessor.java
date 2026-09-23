@@ -1,5 +1,6 @@
 package org.allaymc.server.network.processor.ingame;
 
+import org.allaymc.api.eventbus.event.player.PlayerToggleFlightEvent;
 import org.allaymc.api.player.Player;
 import org.allaymc.server.network.processor.PacketProcessor;
 import org.cloudburstmc.protocol.bedrock.data.Ability;
@@ -19,7 +20,7 @@ public class RequestAbilityPacketProcessor extends PacketProcessor<RequestAbilit
 
         var entity = player.getControlledEntity();
         if (packet.isBoolValue()) {
-            if (!player.canFly()) {
+            if (!player.canFly() || !new PlayerToggleFlightEvent(entity, true).call()) {
                 player.viewPlayerAbilities(player);
                 return;
             }
@@ -28,7 +29,7 @@ public class RequestAbilityPacketProcessor extends PacketProcessor<RequestAbilit
             return;
         }
 
-        if (player.isAlwaysFlying()) {
+        if (player.isAlwaysFlying() || !new PlayerToggleFlightEvent(entity, false).call()) {
             entity.setFlying(true);
             player.viewPlayerAbilities(player);
             return;
