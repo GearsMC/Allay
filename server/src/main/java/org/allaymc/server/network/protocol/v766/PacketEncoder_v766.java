@@ -771,6 +771,10 @@ public class PacketEncoder_v766 extends PacketEncoder {
                 customPacket.setPosition(networkPosition);
                 return List.of(customPacket);
             }
+            case MobSpawnParticle mobSpawn -> {
+                packet.setType(LevelEvent.PARTICLE_MOB_BLOCK_SPAWN);
+                packet.setData((mobSpawn.width() & 0xff) | ((mobSpawn.height() & 0xff) << 8));
+            }
             case DragonEggTeleportParticle teleport -> {
                 int xSign = teleport.diff().x() < 0 ? 1 << 24 : 0;
                 int ySign = teleport.diff().y() < 0 ? 1 << 25 : 0;

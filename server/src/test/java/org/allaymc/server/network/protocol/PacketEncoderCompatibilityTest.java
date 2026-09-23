@@ -193,6 +193,22 @@ class PacketEncoderCompatibilityTest {
         }
     }
 
+    /** Mob doğum bulutu her protokolde kodlanabilmeli (ada spawner'ı her doğumda yollar). */
+    @Test
+    void mobSpawnParticleIsEncodable() {
+        var position = new org.joml.Vector3d(3, 64, -5);
+        for (var protocol : List.of(
+                protocol(ClientVariant.NETEASE, 766),
+                protocol(ClientVariant.INTERNATIONAL, 1001),
+                protocol(ClientVariant.INTERNATIONAL, 2193)
+        )) {
+            var packets = protocol.getEncoder().encodeParticle(
+                    new org.allaymc.api.world.particle.MobSpawnParticle(1, 2), position, 0);
+            assertFalse(packets.isEmpty());
+            packets.forEach(packet -> assertPacketEncodes(protocol, packet));
+        }
+    }
+
     /**
      * Her {@link SimpleSound} sabitinin kodlanabildigini dogrular.
      *
