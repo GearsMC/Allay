@@ -27,13 +27,33 @@ public class EntityThrownTridentPhysicsComponentImpl extends EntityProjectilePhy
     /**
      * The base damage dealt by the trident.
      */
-    protected static final float BASE_DAMAGE = 8.0f;
+    protected static final float BASE_DAMAGE = 11.0f;
+
+    /** PHP {@code MAX_BONUS_DAMAGE}: mesafe bonusunun ust siniri. */
+    protected static final float MAX_BONUS_DAMAGE = 12.0f;
+
+    /** PHP {@code MAX_BONUS_DISTANCE}: bonusun doldugu mesafe (blok). */
+    protected static final float MAX_BONUS_DISTANCE = 35.0f;
+
+    /** PHP {@code BONUS_DAMAGE_ON_RETURN_HIT}: 25 blok sonrasi donus isabeti bonusu. */
+    protected static final float RETURN_HIT_DISTANCE = 25.0f;
+
+    /** PHP {@code BONUS_DAMAGE_ON_RETURN_HIT}. */
+    protected static final float RETURN_HIT_BONUS = 2.0f;
+
+    /** PHP {@code LOYALTY_AIR_RETURN_TICKS}: havada bu kadar tik sonra doner. */
+    protected static final int AIR_RETURN_TICKS = 20;
 
     @Dependency
     protected EntityThrownTridentBaseComponent tridentBaseComponent;
+    @Dependency
+    protected org.allaymc.api.entity.component.EntityAgeComponent ageComponent;
 
     // Indicates whether the trident has already hit a block (like arrow's hitBlock)
     protected boolean hitBlock;
+
+    /** Firlatildigi konum; mesafe bonusu icin (PHP {@code startPosition}). */
+    protected Vector3d startPosition;
 
     @Override
     public double getGravity() {
@@ -57,7 +77,21 @@ public class EntityThrownTridentPhysicsComponentImpl extends EntityProjectilePhy
             return updateReturningMotion();
         }
 
+        if (startPosition == null) {
+            startPosition = new Vector3d(thisEntity.getLocation());
+        }
+
         if (shouldReturnFromVoid()) {
+            startReturning();
+            return updateReturningMotion();
+        }
+
+        // PHP LOYALTY_AIR_RETURN_TICKS: sadakatli trident havada 20 tik sonra
+        // sahibine doner (yalnizca sadakat buyusu varsa; startReturning zaten
+        // buyu yoksa donusu baslatmaz).
+        if (tridentBaseComponent.getLoyaltyLevel() > 0
+                && !tridentBaseComponent.isReturning()
+                && ageComponent.getAge() >= AIR_RETURN_TICKS) {
             startReturning();
             return updateReturningMotion();
         }
@@ -185,6 +219,13 @@ public class EntityThrownTridentPhysicsComponentImpl extends EntityProjectilePhy
 
         if (other instanceof EntityLiving living) {
             float damage = BASE_DAMAGE;
+            // PHP TridentEntity: mesafe bonusu (35 blokta dolar, en cok +12) ve
+            // 25 blok sonrasi +2 donus isabeti bonusu.
+            float traveled = traveledDistance();
+            damage += Math.min(traveled / MAX_BONUS_DISTANCE, 1.0f) * MAX_BONUS_DAMAGE;
+            if (traveled >= RETURN_HIT_DISTANCE) {
+                damage += RETURN_HIT_BONUS;
+            }
 
             // Apply impaling damage bonus in water or rain
             var impalingLevel = tridentBaseComponent.getImpalingLevel();
@@ -291,6 +332,14 @@ public class EntityThrownTridentPhysicsComponentImpl extends EntityProjectilePhy
         int nextX = (int) Math.floor(location.x() + this.motion.x);
         int nextZ = (int) Math.floor(location.z() + this.motion.z);
         return !dimension.getChunkManager().isChunkLoaded(nextX >> 4, nextZ >> 4);
+    }
+
+    /** PHP {@code traveledDistance}: firlatildigi noktadan bu yana alinan yol. */
+    protected float traveledDistance() {
+        if (startPosition == null) {
+            return 0.0f;
+        }
+        return (float) startPosition.distance(thisEntity.getLocation());
     }
 
     /**
