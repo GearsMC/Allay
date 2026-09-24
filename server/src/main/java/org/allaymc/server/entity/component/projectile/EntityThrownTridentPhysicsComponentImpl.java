@@ -152,9 +152,14 @@ public class EntityThrownTridentPhysicsComponentImpl extends EntityProjectilePhy
             return new Vector3d(0, 0, 0);
         }
 
-        // Percentage-based movement, higher loyalty = faster return
+        // PHP: donus hizi = 0.6 + seviye * 0.35; 30 bloktan uzaksa
+        // min(mesafe / 30, 3) ile olceklenir (TridentEntity::entityBaseTick).
         var loyaltyLevel = tridentBaseComponent.getLoyaltyLevel();
-        var force = 0.05 * loyaltyLevel;
+        var speed = 0.6 + loyaltyLevel * 0.35;
+        if (distance > 30.0) {
+            speed *= Math.min(distance / 30.0, 3.0);
+        }
+        var force = speed / Math.max(distance, 0.001);
 
         // Calculate velocity (percentage of remaining distance)
         // Motion will be applied by applyMotionNoClip(), so don't update position here

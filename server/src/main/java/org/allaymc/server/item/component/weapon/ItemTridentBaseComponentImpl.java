@@ -29,19 +29,38 @@ public class ItemTridentBaseComponentImpl extends ItemBaseComponentImpl {
     protected static final int MIN_CHARGE_TICKS = 5;
 
     /**
-     * Minimum force required to throw.
+     * En dusuk firlatma hizi — PHP {@code MIN_FORCE}.
      */
-    protected static final double MIN_FORCE = 0.1;
+    protected static final double MIN_FORCE = 1.15;
 
     /**
-     * Base speed for riptide propulsion.
+     * En yuksek firlatma hizi — PHP {@code MAX_FORCE}.
      */
-    protected static final double RIPTIDE_BASE_SPEED = 1.5;
+    protected static final double MAX_FORCE = 3.6;
 
     /**
-     * Additional speed per riptide enchantment level.
+     * Eklenti dunya/hava kurali kapisi: girdap burada kullanilamazsa
+     * mizrak firlatilir (PHP {@code canActivateRiptide} basarisizligi).
+     * Varsayilan serbest; GearsCore kurulumda baglar.
      */
-    protected static final double RIPTIDE_SPEED_PER_LEVEL = 1.0;
+    public static java.util.function.Predicate<EntityPlayer> riptideGuard = player -> true;
+
+    /**
+     * Girdap itki tabani (saniye basina blok) — PHP {@code 3.0}.
+     */
+    protected static final double RIPTIDE_FORCE_BASE = 3.0;
+
+    /**
+     * Girdap itki adimi (tik) — PHP {@code RIPTIDE_MOTION_TICKS}.
+     */
+    protected static final int RIPTIDE_MOTION_TICKS = 10;
+
+    /**
+     * Girdap donusu suresi (tik) — PHP {@code 10 + seviye * 5}.
+     */
+    protected static int riptideSpinDuration(int level) {
+        return 10 + level * 5;
+    }
 
     public ItemTridentBaseComponentImpl(ItemStackInitInfo initInfo) {
         super(initInfo);
@@ -64,17 +83,18 @@ public class ItemTridentBaseComponentImpl extends ItemBaseComponentImpl {
             return false;
         }
 
-        // Calculate force based on charge time
+        // Calculate force based on charge time (PHP ile ayni egri)
         double p = usedTime / 20.0;
         double force = Math.min((p * p + p * 2) / 3.0, 1.0);
 
-        if (force < MIN_FORCE) {
+        // PHP MIN_FORCE esigi hiz cinsindendir (1.15 blok/tik).
+        if (force * MAX_FORCE < MIN_FORCE) {
             return false;
         }
 
-        // Check for riptide enchantment
+        // Check for riptide enchantment (PHP: hava sarti tutmuyorsa firlatilir)
         int riptideLevel = getEnchantmentLevel(EnchantmentTypes.RIPTIDE);
-        if (riptideLevel > 0) {
+        if (riptideLevel > 0 && riptideGuard.test(player)) {
             return handleRiptide(player, riptideLevel);
         }
 
@@ -89,9 +109,9 @@ public class ItemTridentBaseComponentImpl extends ItemBaseComponentImpl {
         var location = player.getLocation();
         var shootPos = new Vector3d(location.x(), location.y() + player.getEyeHeight() - 0.1, location.z());
 
-        // Calculate motion based on player's look direction
+        // Calculate motion based on player's look direction (PHP MAX_FORCE = 3.6)
         var direction = MathUtils.getDirectionVector(location);
-        var speed = force * 2.5;
+        var speed = force * MAX_FORCE;
         var motion = direction.mul(speed);
 
         // Add player's motion if on ground
@@ -130,9 +150,14 @@ public class ItemTridentBaseComponentImpl extends ItemBaseComponentImpl {
         }
 
         // Fire event
-        var event = new ProjectileLaunchEvent(trident, player, force);
+        var event = new ProjectileLaunchEvent(trident, player, speed);
         if (!event.call()) {
             return false;
+        }
+        // Eklenti kuvveti degistirdiyse (ör. dunya kurallari) uygula.
+        if (event.getThrowForce() != speed) {
+            trident.setMotion(MathUtils.getDirectionVector(location)
+                    .mul(event.getThrowForce(), new Vector3d()));
         }
 
         // Spawn trident
@@ -173,11 +198,10 @@ public class ItemTridentBaseComponentImpl extends ItemBaseComponentImpl {
         var dimension = player.getDimension();
         var location = player.getLocation();
 
-        // Calculate propulsion direction and speed
-        // Bedrock Edition: 3 + 6 * level blocks distance
-        // Speed formula calibrated to achieve approximately correct distances
+        // PHP: itki = 3.0 * (1 + seviye) / 4.0; hareket 10 tik boyunca
+        // yeniden uygulanir ve donus suresi 10 + seviye * 5 tiktir.
         var direction = MathUtils.getDirectionVector(location);
-        var speed = RIPTIDE_BASE_SPEED + riptideLevel * RIPTIDE_SPEED_PER_LEVEL;
+        var speed = RIPTIDE_FORCE_BASE * (1 + riptideLevel) / 4.0;
 
         // Apply propulsion to player
         var propulsion = direction.mul(speed, new Vector3d());
@@ -186,6 +210,19 @@ public class ItemTridentBaseComponentImpl extends ItemBaseComponentImpl {
         // Set spin attack state
         player.setSpinAttacking(true);
         player.resetFallDistance();
+
+        var spinDuration = riptideSpinDuration(riptideLevel);
+        var counter = new java.util.concurrent.atomic.AtomicInteger();
+        dimension.getScheduler().scheduleRepeating(player, () -> {
+            if (counter.incrementAndGet() >= RIPTIDE_MOTION_TICKS || !player.isAlive()) {
+                player.setSpinAttacking(false);
+                return false;
+            }
+            player.setMotion(direction.mul(speed, new Vector3d()));
+            return true;
+        }, 1);
+        dimension.getScheduler().scheduleDelayed(player,
+                () -> player.setSpinAttacking(false), spinDuration);
 
         // Play riptide sound
         dimension.addSound(location, new TridentRiptideSound(riptideLevel));
