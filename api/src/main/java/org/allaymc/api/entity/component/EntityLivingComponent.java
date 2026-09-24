@@ -360,4 +360,44 @@ public interface EntityLivingComponent extends EntityComponent {
      * @param maxHealth the maximum health value to set, must be a positive floating-point number
      */
     void setMaxHealth(float maxHealth);
+
+    /**
+     * Olumden sonra govdenin dunyada kac tik kalacagini dondurur.
+     *
+     * <p>Motor {@code deadTimer} sayaci sifira indiginde olum parcacigini birakip
+     * varligi dunyadan siler. Varsayilan sure {@value #DEFAULT_DEAD_TIMER} tiktir;
+     * PocketMine'daki {@code Living::$maxDeadTicks} karsiligi.</p>
+     *
+     * @return kalan tik
+     */
+    int getDeadTimer();
+
+    /**
+     * Olum sayacini elle ayarlar (olum aninda {@link #getDefaultDeadTimer()} ile baslar).
+     *
+     * @param ticks kalan tik; negatif degerler sifira cekilir
+     */
+    void setDeadTimer(int ticks);
+
+    /**
+     * Olum aninda sayacin baslayacagi varsayilan sureyi dondurur.
+     *
+     * @return varsayilan tik
+     */
+    int getDefaultDeadTimer();
+
+    /**
+     * Olum aninda sayacin baslayacagi varsayilan sureyi ayarlar.
+     *
+     * <p>GearsCore ejderha govdesinin sinematik boyunca (PHP
+     * {@code maxDeadTicks = 180 + 80}) dunyada kalmasi icin kullanir.</p>
+     *
+     * @param ticks varsayilan tik; negatif degerler sifira cekilir
+     */
+    void setDefaultDeadTimer(int ticks);
+
+    /**
+     * Varsayilan olum suresi (tik) — motorun eski sabit degeri.
+     */
+    int DEFAULT_DEAD_TIMER = 20;
 }

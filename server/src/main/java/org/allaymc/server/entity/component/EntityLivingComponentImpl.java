@@ -101,6 +101,9 @@ public class EntityLivingComponentImpl implements EntityLivingComponent {
     protected Map<EffectType, EffectInstance> effects;
     protected int deadTimer;
 
+    /** Olum aninda {@link #deadTimer}'in baslayacagi sure — PHP {@code maxDeadTicks}. */
+    protected int defaultDeadTimer = EntityLivingComponent.DEFAULT_DEAD_TIMER;
+
     public EntityLivingComponentImpl() {
         this.effects = new HashMap<>();
         this.airSupplyTicks = this.airSupplyMaxTicks = DEFAULT_MAX_AIR_SUPPLY;
@@ -718,6 +721,26 @@ public class EntityLivingComponentImpl implements EntityLivingComponent {
     }
 
     @Override
+    public int getDeadTimer() {
+        return this.deadTimer;
+    }
+
+    @Override
+    public void setDeadTimer(int ticks) {
+        this.deadTimer = Math.max(0, ticks);
+    }
+
+    @Override
+    public int getDefaultDeadTimer() {
+        return this.defaultDeadTimer;
+    }
+
+    @Override
+    public void setDefaultDeadTimer(int ticks) {
+        this.defaultDeadTimer = Math.max(0, ticks);
+    }
+
+    @Override
     public List<ItemStack> getDrops(int lootingLevel) {
         var event = new CEntityGetDropEvent(lootingLevel);
         manager.callEvent(event);
@@ -789,7 +812,7 @@ public class EntityLivingComponentImpl implements EntityLivingComponent {
         this.effects.values().forEach(effect -> effect.getType().onEntityDies(thisEntity, effect));
         ((EntityBaseComponentImpl) this.baseComponent).setState(EntityState.DEAD);
         if (hasDeadTimer()) {
-            this.deadTimer = 20;
+            this.deadTimer = this.defaultDeadTimer;
         }
 
         this.baseComponent.applyAction(SimpleEntityAction.DEATH);
