@@ -39,13 +39,6 @@ public class ItemTridentBaseComponentImpl extends ItemBaseComponentImpl {
     protected static final double MAX_FORCE = 3.6;
 
     /**
-     * Eklenti dunya/hava kurali kapisi: girdap burada kullanilamazsa
-     * mizrak firlatilir (PHP {@code canActivateRiptide} basarisizligi).
-     * Varsayilan serbest; GearsCore kurulumda baglar.
-     */
-    public static java.util.function.Predicate<EntityPlayer> riptideGuard = player -> true;
-
-    /**
      * Girdap itki tabani (saniye basina blok) — PHP {@code 3.0}.
      */
     protected static final double RIPTIDE_FORCE_BASE = 3.0;
@@ -94,7 +87,8 @@ public class ItemTridentBaseComponentImpl extends ItemBaseComponentImpl {
 
         // Check for riptide enchantment (PHP: hava sarti tutmuyorsa firlatilir)
         int riptideLevel = getEnchantmentLevel(EnchantmentTypes.RIPTIDE);
-        if (riptideLevel > 0 && riptideGuard.test(player)) {
+        if (riptideLevel > 0
+                && org.allaymc.api.item.component.TridentRiptideGate.allows(player)) {
             return handleRiptide(player, riptideLevel);
         }
 
