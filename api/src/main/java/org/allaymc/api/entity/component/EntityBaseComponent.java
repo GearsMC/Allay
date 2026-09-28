@@ -598,6 +598,17 @@ public interface EntityBaseComponent extends EntityComponent, CommandSender, Has
     }
 
     /**
+     * Varlığın başka varlıklarla çarpışmasını açıp kapatır. Kapalıyken varlık oyuncular ve
+     * diğer varlıklar tarafından itilmez, kendisi de kimseyi itmez (PocketMine
+     * {@code canBeCollidedWith(): false} karşılığı). Bu ayar kaydedilmez; varlık her
+     * doğduğunda yeniden verilmelidir.
+     *
+     * @param entityCollision {@code false} ise varlık çarpışmaya kapalı olur
+     */
+    default void setEntityCollision(boolean entityCollision) {
+    }
+
+    /**
      * Called when the entity collides with another entity.
      *
      * @param other the entity collides with
