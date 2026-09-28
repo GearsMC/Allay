@@ -143,6 +143,8 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
     @Getter
     @Setter
     protected boolean persistent = true;
+    /** Varlık çarpışması; {@link #setEntityCollision(boolean)} ile kapatılabilir. */
+    protected volatile boolean entityCollision = true;
     @Getter
     @Setter
     protected int portalTicks;
@@ -895,5 +897,15 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
         }
         primitiveShape.setAttachedEntity(null);
         this.primitiveShapes.remove(primitiveShape);
+    }
+
+    @Override
+    public boolean hasEntityCollision() {
+        return entityCollision;
+    }
+
+    @Override
+    public void setEntityCollision(boolean entityCollision) {
+        this.entityCollision = entityCollision;
     }
 }
