@@ -195,8 +195,8 @@ public class AllayLoginData implements LoginData {
             skinBuilder.geometryDataEngineVersion(new String(Base64.getDecoder().decode(skinMap.get("SkinGeometryDataEngineVersion").getAsString()), StandardCharsets.UTF_8));
         }
 
-        if (skinMap.has("AnimationData")) {
-            skinBuilder.animationData(new String(Base64.getDecoder().decode(skinMap.get("AnimationData").getAsString()), StandardCharsets.UTF_8));
+        if (skinMap.has("SkinAnimationData")) {
+            skinBuilder.animationData(new String(Base64.getDecoder().decode(skinMap.get("SkinAnimationData").getAsString()), StandardCharsets.UTF_8));
         }
 
         if (skinMap.has("CapeId")) {

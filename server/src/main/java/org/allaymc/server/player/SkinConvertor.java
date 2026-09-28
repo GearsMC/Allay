@@ -31,18 +31,18 @@ public final class SkinConvertor {
                 skin.capeData().width(), skin.capeData().height(), skin.capeData().data().clone());
 
         // Convert list of animations
-        List<AnimationData> serializedAnimations = skin.animations().stream()
+        List<AnimationData> serializedAnimations = orEmpty(skin.animations()).stream()
                 .map(SkinConvertor::convertAnimationToSerialized)
                 .collect(Collectors.toList());
 
         // Convert list of persona pieces
-        List<PersonaPieceData> serializedPersonaPieces = skin.personaPieces().stream()
+        List<PersonaPieceData> serializedPersonaPieces = orEmpty(skin.personaPieces()).stream()
                 .map(SkinConvertor::convertPersonaPiece)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
         // Convert list of persona piece tint colors
-        List<PersonaPieceTintData> serializedTintColors = skin.pieceTintColors().stream()
+        List<PersonaPieceTintData> serializedTintColors = orEmpty(skin.pieceTintColors()).stream()
                 .map(tint -> new PersonaPieceTintData(
                         tint.pieceType(),
                         new ArrayList<>(tint.colors())
@@ -52,26 +52,30 @@ public final class SkinConvertor {
         // Use the SerializedSkin builder to construct the final object
         return SerializedSkin.builder()
                 .skinId(skin.skinId())
-                .playFabId(skin.playFabId())
+                .playFabId(Objects.requireNonNullElse(skin.playFabId(), ""))
                 .skinResourcePatch(skin.skinResourcePatch())
                 .skinData(serializedSkinData)
                 .animations(serializedAnimations)
                 .capeData(serializedCapeData)
-                .geometryData(skin.skinGeometry())
-                .geometryDataEngineVersion(skin.geometryDataEngineVersion())
-                .animationData(skin.animationData())
+                .geometryData(Objects.requireNonNullElse(skin.skinGeometry(), ""))
+                .geometryDataEngineVersion(Objects.requireNonNullElse(skin.geometryDataEngineVersion(), ""))
+                .animationData(Objects.requireNonNullElse(skin.animationData(), ""))
                 .premium(skin.premiumSkin())
                 .persona(skin.personaSkin())
                 .capeOnClassic(skin.personaCapeOnClassicSkin())
                 .primaryUser(skin.primaryUser())
-                .capeId(skin.capeId())
+                .capeId(Objects.requireNonNullElse(skin.capeId(), ""))
                 .fullSkinId(skin.fullId())
-                .armSize(skin.armSize())
-                .skinColor(skin.skinColor())
+                .armSize(Objects.requireNonNullElse(skin.armSize(), Skin.ARM_SIZE_WIDE))
+                .skinColor(Objects.requireNonNullElse(skin.skinColor(), "#0"))
                 .personaPieces(serializedPersonaPieces)
                 .tintColors(serializedTintColors)
                 .overridingPlayerAppearance(skin.overrideAppearance())
                 .build();
+    }
+
+    private static <T> List<T> orEmpty(List<T> list) {
+        return list == null ? List.of() : list;
     }
 
     /**

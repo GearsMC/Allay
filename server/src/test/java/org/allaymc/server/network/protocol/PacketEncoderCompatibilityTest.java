@@ -17,6 +17,8 @@ import org.allaymc.api.entity.type.EntityTypes;
 import org.allaymc.api.item.data.DiscType;
 import org.allaymc.api.math.location.Location3d;
 import org.allaymc.api.player.GameMode;
+import org.allaymc.api.player.LoginData;
+import org.allaymc.api.player.Player;
 import org.allaymc.api.player.PlayerData;
 import org.allaymc.api.player.Skin;
 import org.allaymc.api.primitiveshape.PrimitiveSphere;
@@ -623,6 +625,43 @@ class PacketEncoderCompatibilityTest {
     }
 
     @Test
+    void playerListAndSkinWithClientOmittedSkinFieldsAreEncodedByEveryRegisteredProtocol() {
+        var skin = loginSkinWithoutOptionalFields();
+
+        var entity = mock(EntityPlayer.class);
+        when(entity.getUniqueId()).thenReturn(UUID.fromString("0f0e0d0c-0b0a-0908-0706-050403020100"));
+        when(entity.getSkin()).thenReturn(skin);
+        var loginData = mock(LoginData.class);
+        when(loginData.getUuid()).thenReturn(UUID.fromString("00112233-4455-6677-8899-aabbccddeeff"));
+        when(loginData.getXuid()).thenReturn("2535400000000001");
+        when(loginData.getDeviceInfo()).thenReturn(new LoginData.DeviceInfo(
+                "Device", "device-id", 1L, LoginData.Device.WINDOWS, LoginData.UIProfile.CLASSIC
+        ));
+        when(loginData.getSkin()).thenReturn(skin);
+        var player = mock(Player.class);
+        when(player.getLoginData()).thenReturn(loginData);
+        when(player.getControlledEntity()).thenReturn(entity);
+        when(player.getOriginName()).thenReturn("Oyuncu");
+
+        for (var protocol : registry.getProtocols()) {
+            var encoder = protocol.getEncoder();
+            var list = encoder.encodePlayerList(List.of(player), true, true);
+            assertEquals(1, list.getEntries().size(), protocol::toString);
+            assertPacketEncodes(protocol, list);
+
+            when(entity.isActualPlayer()).thenReturn(true);
+            for (var packet : encoder.encodePlayerSkin(entity, true)) {
+                assertPacketEncodes(protocol, packet);
+            }
+
+            when(entity.isActualPlayer()).thenReturn(false);
+            for (var packet : encoder.encodePlayerSkin(entity, true)) {
+                assertPacketEncodes(protocol, packet);
+            }
+        }
+    }
+
+    @Test
     void everyProtocolCodecAcceptsAllConnectionIndependentEncoderOutput() {
         for (var protocol : registry.getProtocols()) {
             var encoder = protocol.getEncoder();
@@ -859,6 +898,15 @@ class PacketEncoderCompatibilityTest {
         when(entity.getScale()).thenReturn(1.0);
         when(entity.getPropertyValues()).thenReturn(Map.of());
         return entity;
+    }
+
+    private static Skin loginSkinWithoutOptionalFields() {
+        return Skin.builder()
+                .skinId("Standard_Custom")
+                .skinResourcePatch("{\"geometry\":{\"default\":\"geometry.humanoid.custom\"}}")
+                .skinData(new Skin.ImageData(64, 64, new byte[64 * 64 * 4]))
+                .capeData(Skin.ImageData.EMPTY)
+                .build();
     }
 
     private static Skin networkSkin() {
