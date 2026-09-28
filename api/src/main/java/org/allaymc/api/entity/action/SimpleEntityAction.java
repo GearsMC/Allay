@@ -27,5 +27,6 @@ public enum SimpleEntityAction implements EntityAction {
     /// EAT_GRASS makes an entity display the grass eating animation to viewers (used by sheep)
     EAT_GRASS,
     /// JUMP makes an entity play its jump animation (used by cube mobs that hop instead of walking)
-    JUMP
+    JUMP,
+    SERVER_SWING_ARM
 }

@@ -1691,6 +1691,12 @@ public class PacketEncoder_v766 extends PacketEncoder {
                 }
                 yield List.of(createEntityEventPacket(entity, EntityEventType.ATTACK_START, 0));
             }
+            case SimpleEntityAction.SERVER_SWING_ARM -> {
+                if (entity instanceof EntityPlayer && !self) {
+                    yield List.of(createAnimatePacket(entity, AnimatePacket.Action.SWING_ARM, 0));
+                }
+                yield List.of(createEntityEventPacket(entity, EntityEventType.ATTACK_START, 0));
+            }
             case SimpleEntityAction.JUMP ->
                     List.of(createEntityEventPacket(entity, EntityEventType.JUMP, 0));
             case SimpleEntityAction.HURT ->
