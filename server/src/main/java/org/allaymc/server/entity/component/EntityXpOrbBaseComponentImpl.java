@@ -47,7 +47,8 @@ public class EntityXpOrbBaseComponentImpl extends EntityPickableBaseComponentImp
 
     @Override
     public void onCollideWithEntity(Entity other) {
-        if (this.experienceValue == 0 || !canBePicked() || !(other instanceof EntityPlayer player)) {
+        if (this.experienceValue == 0 || !canBePicked() || !(other instanceof EntityPlayer player)
+                || !player.isActualPlayer()) {
             return;
         }
 

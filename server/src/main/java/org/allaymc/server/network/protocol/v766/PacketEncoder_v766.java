@@ -2321,7 +2321,12 @@ public class PacketEncoder_v766 extends PacketEncoder {
             return SoundEvent.ARMOR_EQUIP_ELYTRA;
         }
 
-        return switch (ItemHelper.getArmorTier(itemType)) {
+        var tier = ItemHelper.getArmorTier(itemType);
+        if (tier == null) {
+            // Kademesiz giyilebilir esya (kabak, kafa, ozel zirh): genel giyme sesi, NPE yerine
+            return SoundEvent.ARMOR_EQUIP_GENERIC;
+        }
+        return switch (tier) {
             case LEATHER -> SoundEvent.ARMOR_EQUIP_LEATHER;
             case IRON -> SoundEvent.ARMOR_EQUIP_IRON;
             case CHAIN -> SoundEvent.ARMOR_EQUIP_CHAIN;
