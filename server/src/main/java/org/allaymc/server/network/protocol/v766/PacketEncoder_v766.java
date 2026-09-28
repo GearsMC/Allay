@@ -1788,6 +1788,7 @@ public class PacketEncoder_v766 extends PacketEncoder {
         packet.setPosition(pos);
         packet.setIdentifier(":");
         packet.setExtraData(-1);
+        packet.setEntityUniqueId(-1);
         packet.setRelativeVolumeDisabled(!relative);
 
         switch (sound) {
@@ -2219,6 +2220,7 @@ public class PacketEncoder_v766 extends PacketEncoder {
                     case DISC_PRECIPICE -> packet.setSound(SoundEvent.RECORD_PRECIPICE);
                     case DISC_TEARS -> packet.setSound(SoundEvent.RECORD_TEARS);
                     case DISC_LAVA_CHICKEN -> packet.setSound(SoundEvent.RECORD_LAVA_CHICKEN);
+                    case DISC_BOUNCE -> packet.setSound(SoundEvent.RECORD_BOUNCE);
                     default -> throw new IllegalArgumentException();
                 }
             }

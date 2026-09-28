@@ -4,6 +4,8 @@ import lombok.Getter;
 import org.allaymc.api.message.MayContainTrKey;
 import org.allaymc.api.message.TrKeys;
 
+import java.util.Locale;
+
 /**
  * DiscType represents the type of music disc.
  * <p>
@@ -47,5 +49,9 @@ public enum DiscType {
     DiscType(String translationKey, int comparatorSignal) {
         this.translationKey = translationKey;
         this.comparatorSignal = comparatorSignal;
+    }
+
+    public String soundName() {
+        return "record." + name().substring(5).toLowerCase(Locale.ROOT);
     }
 }

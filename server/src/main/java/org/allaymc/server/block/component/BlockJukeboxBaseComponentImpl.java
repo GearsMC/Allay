@@ -7,11 +7,15 @@ import org.allaymc.api.block.dto.PlayerInteractInfo;
 import org.allaymc.api.block.type.BlockType;
 import org.allaymc.api.blockentity.interfaces.BlockEntityJukebox;
 import org.allaymc.api.entity.Entity;
+import org.allaymc.api.entity.interfaces.EntityPlayer;
 import org.allaymc.api.item.ItemStack;
 import org.allaymc.api.item.interfaces.ItemMusicDiscStack;
 import org.allaymc.api.math.position.Position3d;
 import org.allaymc.api.math.position.Position3i;
+import org.allaymc.api.message.I18n;
+import org.allaymc.api.message.TrKeys;
 import org.allaymc.api.world.Dimension;
+import org.allaymc.api.world.sound.SimpleSound;
 import org.allaymc.server.component.annotation.Dependency;
 
 import java.util.List;
@@ -36,14 +40,23 @@ public class BlockJukeboxBaseComponentImpl extends BlockBaseComponentImpl {
         var blockEntity = blockEntityHolderComponent.getBlockEntity(new Position3i(interactInfo.clickedBlockPos(), dimension));
         var oldMusicDiscItem = blockEntity.getRecordItem();
         if (oldMusicDiscItem != null) {
-            blockEntity.setRecordItem(null);
             blockEntity.stop();
+            silencePredictedRecord(interactInfo.player(), oldMusicDiscItem);
+            blockEntity.setRecordItem(null);
             dimension.dropItem(oldMusicDiscItem, new Position3d(blockEntity.getPosition()).add(0.5, 1, 0.5));
             return true;
         } else if (itemStack instanceof ItemMusicDiscStack musicDiscItem) {
-            blockEntity.setMusicDiscItem(musicDiscItem);
-            interactInfo.player().clearItemInHand();
+            var stored = musicDiscItem.copy();
+            stored.setCount(1);
+            blockEntity.setRecordItem(stored);
+            interactInfo.player().tryConsumeItemInHand();
             blockEntity.play();
+            var controller = interactInfo.player().getController();
+            if (controller != null && controller.getLoginData() != null && controller.getLoginData().getLangCode() != null) {
+                var lang = controller.getLoginData().getLangCode();
+                var discName = I18n.get().tr(lang, musicDiscItem.getDiscType().getTranslationKey());
+                controller.sendJukeboxPopup(I18n.get().tr(lang, TrKeys.MC_RECORD_NOWPLAYING, discName));
+            }
             return true;
         }
 
@@ -52,10 +65,26 @@ public class BlockJukeboxBaseComponentImpl extends BlockBaseComponentImpl {
 
     @Override
     public void onBreak(Block block, ItemStack usedItem, Entity entity, List<ItemStack> drops) {
-        super.onBreak(block, usedItem, entity, drops);
-        var blockEntity = blockEntityHolderComponent.getBlockEntity(block.getPosition());
-        if (blockEntity instanceof BlockEntityJukebox jukebox) {
+        if (block.getDimension().getBlockEntity(block.getPosition()) instanceof BlockEntityJukebox jukebox) {
             jukebox.stop();
+            if (entity instanceof EntityPlayer player) {
+                silencePredictedRecord(player, jukebox.getRecordItem());
+            }
+        }
+        super.onBreak(block, usedItem, entity, drops);
+    }
+
+    private void silencePredictedRecord(EntityPlayer player, ItemStack record) {
+        if (player == null) {
+            return;
+        }
+        var controller = player.getController();
+        if (controller == null) {
+            return;
+        }
+        controller.viewSound(SimpleSound.MUSIC_DISC_END, player.getLocation(), true);
+        if (record instanceof ItemMusicDiscStack disc) {
+            controller.stopSound(disc.getDiscType().soundName());
         }
     }
 

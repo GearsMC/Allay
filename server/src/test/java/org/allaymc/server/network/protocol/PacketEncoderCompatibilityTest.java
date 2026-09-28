@@ -151,6 +151,25 @@ class PacketEncoderCompatibilityTest {
         assertSoundEncodes(protocol(ClientVariant.INTERNATIONAL, 819), lavaChicken, position);
         assertSoundEncodes(protocol(ClientVariant.NETEASE, 819), lavaChicken, position);
 
+        var current = protocol(ClientVariant.INTERNATIONAL, 2193);
+        var positionBlock = new org.joml.Vector3d(4, 64, 4);
+        for (var sound : List.of(
+                SimpleSound.MUSIC_DISC_END,
+                new MusicDiscPlaySound(DiscType.DISC_CAT),
+                new MusicDiscPlaySound(DiscType.DISC_BOUNCE)
+        )) {
+            var packets = current.getEncoder().encodeSound(sound, positionBlock, true);
+            assertEquals(1, packets.size(), sound.toString());
+            var packet = assertInstanceOf(LevelSoundEventPacket.class, packets.iterator().next());
+            assertEquals(-1L, packet.getEntityUniqueId(), sound.toString());
+            assertFalse(packet.isRelativeVolumeDisabled(), sound.toString());
+            assertEquals(":", packet.getIdentifier(), sound.toString());
+            assertPacketEncodes(current, packet);
+        }
+        assertEquals("record.cat", DiscType.DISC_CAT.soundName());
+        assertEquals("record.bounce", DiscType.DISC_BOUNCE.soundName());
+        assertEquals("record.creator_music_box", DiscType.DISC_CREATOR_MUSIC_BOX.soundName());
+
         for (var sound : List.of(SimpleSound.SHELF_SWAP_SINGLE, SimpleSound.SHELF_SWAP_MULTI)) {
             assertTrue(protocol(ClientVariant.INTERNATIONAL, 827).getEncoder()
                     .encodeSound(sound, position, false)

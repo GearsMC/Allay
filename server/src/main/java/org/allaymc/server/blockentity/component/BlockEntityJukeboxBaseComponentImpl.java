@@ -44,8 +44,8 @@ public class BlockEntityJukeboxBaseComponentImpl extends BlockEntityBaseComponen
     @Override
     public void setRecordItem(ItemStack item) {
         this.musicDiscItem = item;
-        // Update comparators that may be reading this jukebox
         this.getDimension().updateComparatorOutputLevel(this.getPosition());
+        sendBlockEntityToViewers();
     }
 
     public BlockEntityJukeboxBaseComponentImpl(BlockEntityInitInfo initInfo) {
@@ -67,17 +67,17 @@ public class BlockEntityJukeboxBaseComponentImpl extends BlockEntityBaseComponen
     @EventHandler
     protected void onBlockReplace(CBlockOnReplaceEvent event) {
         if (this.musicDiscItem != null) {
+            var drop = this.musicDiscItem;
             var current = event.getCurrentBlock();
             var pos = current.getPosition();
             var rand = ThreadLocalRandom.current();
-
-            current.getDimension().dropItem(this.musicDiscItem, new Vector3d(
+            this.stop();
+            this.setRecordItem(null);
+            current.getDimension().dropItem(drop, new Vector3d(
                     pos.x() + rand.nextDouble(0.5) + 0.25,
                     pos.y() + rand.nextDouble(0.5) + 0.25,
                     pos.z() + rand.nextDouble(0.5) + 0.25
             ));
-            this.musicDiscItem = null;
-            this.stop();
         }
     }
 
