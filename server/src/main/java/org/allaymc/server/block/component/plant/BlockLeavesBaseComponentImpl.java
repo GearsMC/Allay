@@ -14,6 +14,7 @@ import org.allaymc.api.entity.Entity;
 import org.allaymc.api.eventbus.event.block.BlockFadeEvent;
 import org.allaymc.api.item.ItemStack;
 import org.allaymc.api.item.type.ItemType;
+import org.allaymc.api.item.data.ItemTags;
 import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.server.block.FortuneDropHelper;
 import org.allaymc.server.block.component.BlockBaseComponentImpl;
@@ -137,7 +138,7 @@ public class BlockLeavesBaseComponentImpl extends BlockBaseComponentImpl {
 
     @Override
     public Set<ItemStack> getDrops(Block block, ItemStack usedItem, Entity entity) {
-        if (usedItem != null && usedItem.getItemType() == ItemTypes.SHEARS) {
+        if (usedItem != null && ItemTags.isShears(usedItem.getItemType())) {
             return super.getDrops(block, usedItem, entity);
         }
 

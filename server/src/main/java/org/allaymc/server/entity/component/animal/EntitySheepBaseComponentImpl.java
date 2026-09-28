@@ -7,6 +7,7 @@ import org.allaymc.api.entity.interfaces.EntityPlayer;
 import org.allaymc.api.eventbus.EventHandler;
 import org.allaymc.api.item.ItemStack;
 import org.allaymc.api.item.component.ItemDyeComponent;
+import org.allaymc.api.item.data.ItemTags;
 import org.allaymc.api.item.type.ItemTypes;
 
 import org.allaymc.api.utils.DyeColor;
@@ -70,7 +71,7 @@ public class EntitySheepBaseComponentImpl extends EntityBaseComponentImpl implem
         if (itemStack == null) return false;
 
         // Shearing
-        if (itemStack.getItemType() == ItemTypes.SHEARS && !sheared && !babyComponent.isBaby()) {
+        if (ItemTags.isShears(itemStack.getItemType()) && !sheared && !babyComponent.isBaby()) {
             setSheared(true);
             dropWool();
             itemStack.tryIncreaseDamage(1);

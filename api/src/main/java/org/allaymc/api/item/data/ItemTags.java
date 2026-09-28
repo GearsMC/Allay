@@ -1,5 +1,8 @@
 package org.allaymc.api.item.data;
 
+import org.allaymc.api.item.type.ItemType;
+import org.allaymc.api.item.type.ItemTypes;
+
 import java.util.HashMap;
 import java.util.Map;
 import org.allaymc.api.annotation.MinecraftVersionSensitive;
@@ -101,6 +104,22 @@ public interface ItemTags {
     ItemTag LEATHER_TIER = create("minecraft:leather_tier");
 
     ItemTag IS_SHEARS = create("minecraft:is_shears");
+
+    /**
+     * GearsMC fork: verilen esya turu makas sayilir mi.
+     *
+     * <p>Vanilla makasin yani sira {@code minecraft:is_shears} etiketli ozel
+     * esyalar (ornegin GearsCore'daki {@code core:amethyst_shears}) da makas
+     * gibi davranir: yaprak/uzum/kabak kirpma, koyun kirkma, tall grass ve
+     * sulfur kupu kesme yollari bu yardimciyi kullanir.</p>
+     *
+     * @param itemType incelenen esya turu
+     * @return makas ise {@code true}
+     */
+    static boolean isShears(ItemType<?> itemType) {
+        return itemType != null
+                && (itemType == ItemTypes.SHEARS || itemType.hasItemTag(IS_SHEARS));
+    }
 
     ItemTag SULFUR_CUBE_ARCHETYPE_FAST_FLAT = create("minecraft:sulfur_cube_archetype_fast_flat");
 

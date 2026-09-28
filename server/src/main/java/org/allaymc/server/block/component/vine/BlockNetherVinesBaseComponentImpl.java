@@ -12,6 +12,7 @@ import org.allaymc.api.entity.Entity;
 import org.allaymc.api.eventbus.event.block.BlockGrowEvent;
 import org.allaymc.api.item.ItemStack;
 import org.allaymc.api.item.enchantment.EnchantmentTypes;
+import org.allaymc.api.item.data.ItemTags;
 import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.api.math.MathUtils;
 import org.allaymc.api.math.position.Position3i;
@@ -181,7 +182,7 @@ public class BlockNetherVinesBaseComponentImpl extends BlockBaseComponentImpl {
     @Override
     public Set<ItemStack> getDrops(Block block, ItemStack usedItem, Entity entity) {
         if (usedItem != null) {
-            if (usedItem.getItemType() == ItemTypes.SHEARS) {
+            if (ItemTags.isShears(usedItem.getItemType())) {
                 return Set.of(blockType.getItemType().createItemStack());
             }
 

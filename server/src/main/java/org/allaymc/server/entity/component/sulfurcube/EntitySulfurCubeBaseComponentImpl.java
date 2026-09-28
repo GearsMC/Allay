@@ -11,6 +11,7 @@ import org.allaymc.api.entity.interfaces.EntityPlayer;
 import org.allaymc.api.eventbus.EventHandler;
 import org.allaymc.api.item.ItemStack;
 import org.allaymc.api.item.interfaces.ItemAirStack;
+import org.allaymc.api.item.data.ItemTags;
 import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.api.registry.Registries;
 import org.allaymc.api.world.WorldViewer;
@@ -218,7 +219,7 @@ public class EntitySulfurCubeBaseComponentImpl extends EntityBaseComponentImpl i
         }
 
         // Resmi tanim makasi yalnizca comelmiyorken kabul ediyor.
-        if (itemType == ItemTypes.SHEARS && absorbedBlock != null && !player.isSneaking()) {
+        if (ItemTags.isShears(itemType) && absorbedBlock != null && !player.isSneaking()) {
             dropAbsorbedBlock();
             setAbsorbedBlock(null);
             return true;

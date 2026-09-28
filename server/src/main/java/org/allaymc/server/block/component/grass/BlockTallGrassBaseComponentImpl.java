@@ -9,6 +9,7 @@ import org.allaymc.api.block.type.BlockType;
 import org.allaymc.api.entity.Entity;
 import org.allaymc.api.item.ItemStack;
 import org.allaymc.api.item.type.ItemType;
+import org.allaymc.api.item.data.ItemTags;
 import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.api.world.Dimension;
 import org.allaymc.server.item.data.ItemId;
@@ -79,7 +80,7 @@ public class BlockTallGrassBaseComponentImpl extends BlockShortGrassBaseComponen
 
     @Override
     public Set<ItemStack> getDrops(Block block, ItemStack usedItem, Entity entity) {
-        if (usedItem != null && usedItem.getItemType() == ItemTypes.SHEARS) {
+        if (usedItem != null && ItemTags.isShears(usedItem.getItemType())) {
             return Set.of(shearDropItemType.get().createItemStack(2));
         }
 

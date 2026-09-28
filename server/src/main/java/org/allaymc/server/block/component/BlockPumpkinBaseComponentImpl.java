@@ -5,6 +5,7 @@ import org.allaymc.api.block.dto.PlayerInteractInfo;
 import org.allaymc.api.block.type.BlockType;
 import org.allaymc.api.block.type.BlockTypes;
 import org.allaymc.api.item.ItemStack;
+import org.allaymc.api.item.data.ItemTags;
 import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.api.world.Dimension;
 
@@ -22,7 +23,7 @@ public class BlockPumpkinBaseComponentImpl extends BlockBaseComponentImpl {
             return true;
         }
 
-        if (itemStack.getItemType() != ItemTypes.SHEARS) {
+        if (!ItemTags.isShears(itemStack.getItemType())) {
             return false;
         }
 

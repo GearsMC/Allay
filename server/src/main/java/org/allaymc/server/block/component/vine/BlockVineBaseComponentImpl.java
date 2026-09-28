@@ -10,6 +10,7 @@ import org.allaymc.api.block.type.BlockType;
 import org.allaymc.api.block.type.BlockTypes;
 import org.allaymc.api.entity.Entity;
 import org.allaymc.api.item.ItemStack;
+import org.allaymc.api.item.data.ItemTags;
 import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.api.world.Dimension;
 import org.allaymc.server.block.component.BlockBaseComponentImpl;
@@ -100,7 +101,7 @@ public class BlockVineBaseComponentImpl extends BlockBaseComponentImpl {
     public boolean isDroppable(Block block, ItemStack usedItem, Entity entity) {
         return super.isDroppable(block, usedItem, entity) &&
                usedItem != null &&
-               usedItem.getItemType() == ItemTypes.SHEARS;
+               ItemTags.isShears(usedItem.getItemType());
     }
 
     @Override

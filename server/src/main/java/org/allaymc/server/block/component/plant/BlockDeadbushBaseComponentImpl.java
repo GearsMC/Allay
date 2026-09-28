@@ -8,6 +8,7 @@ import org.allaymc.api.block.type.BlockState;
 import org.allaymc.api.block.type.BlockType;
 import org.allaymc.api.entity.Entity;
 import org.allaymc.api.item.ItemStack;
+import org.allaymc.api.item.data.ItemTags;
 import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.server.block.component.BlockBaseComponentImpl;
 
@@ -48,7 +49,7 @@ public class BlockDeadbushBaseComponentImpl extends BlockBaseComponentImpl {
 
     @Override
     public Set<ItemStack> getDrops(Block block, ItemStack usedItem, Entity entity) {
-        if (usedItem != null && usedItem.getItemType() == ItemTypes.SHEARS) {
+        if (usedItem != null && ItemTags.isShears(usedItem.getItemType())) {
             return super.getDrops(block, usedItem, entity);
         }
 

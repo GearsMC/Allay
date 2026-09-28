@@ -22,6 +22,7 @@ import org.allaymc.api.item.enchantment.EnchantmentInstance;
 import org.allaymc.api.item.enchantment.EnchantmentType;
 import org.allaymc.api.item.enchantment.EnchantmentTypes;
 import org.allaymc.api.item.type.ItemType;
+import org.allaymc.api.item.data.ItemTags;
 import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.api.pdc.PersistentDataContainer;
 import org.allaymc.api.registry.Registries;
@@ -503,7 +504,7 @@ public class ItemBaseComponentImpl implements ItemBaseComponent {
             }
         }
 
-        if (itemType == ItemTypes.SHEARS) {
+        if (ItemTags.isShears(itemType)) {
             if (blockType == BlockTypes.VINE || blockType == BlockTypes.GLOW_LICHEN) {
                 return true;
             }

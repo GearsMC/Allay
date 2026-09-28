@@ -11,6 +11,7 @@ import org.allaymc.api.block.type.BlockType;
 import org.allaymc.api.block.type.BlockTypes;
 import org.allaymc.api.entity.Entity;
 import org.allaymc.api.item.ItemStack;
+import org.allaymc.api.item.data.ItemTags;
 import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.api.math.MathUtils;
 import org.allaymc.api.world.Dimension;
@@ -92,7 +93,7 @@ public class BlockSmallDripleafBaseComponentImpl extends BlockBaseComponentImpl 
     @Override
     public Set<ItemStack> getDrops(Block block, ItemStack usedItem, Entity entity) {
         // Only drops with shears
-        if (usedItem != null && usedItem.getItemType() == ItemTypes.SHEARS) {
+        if (usedItem != null && ItemTags.isShears(usedItem.getItemType())) {
             return Set.of(ItemTypes.SMALL_DRIPLEAF_BLOCK.createItemStack());
         }
         return Set.of();

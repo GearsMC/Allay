@@ -9,6 +9,7 @@ import org.allaymc.api.block.type.BlockType;
 import org.allaymc.api.block.type.BlockTypes;
 import org.allaymc.api.entity.Entity;
 import org.allaymc.api.item.ItemStack;
+import org.allaymc.api.item.data.ItemTags;
 import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.api.world.Dimension;
 import org.allaymc.server.block.component.BlockBaseComponentImpl;
@@ -131,7 +132,7 @@ public class BlockTripWireBaseComponentImpl extends BlockBaseComponentImpl {
         Vector3ic pos = block.getPosition();
 
         // Check if broken with shears
-        if (usedItem != null && usedItem.getItemType() == ItemTypes.SHEARS) {
+        if (usedItem != null && ItemTags.isShears(usedItem.getItemType())) {
             // Disarm the tripwire silently
             dimension.updateBlockProperty(DISARMED_BIT, true, pos);
             Block updatedBlock = new Block(dimension, pos);
