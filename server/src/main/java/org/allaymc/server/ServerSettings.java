@@ -43,140 +43,144 @@ public class ServerSettings extends OkaeriConfig {
     public static class GenericSettings extends OkaeriConfig {
 
         // GearsMC: PocketMine server.properties ile ayni (motd=GearsMC Skyblock)
+        @Comment("Sunucu listesinde görünen ad (MOTD). PocketMine'daki motd ile aynı.")
         private String motd = "GearsMC Skyblock";
 
+        @Comment("İkinci satır MOTD. Genellikle yalnızca yerel ağ (LAN) listesinde görünür.")
         @CustomKey("sub-motd")
-        @Comment("Usually only visible on the LAN interface")
         private String subMotd = "GearsMC Skyblock";
 
-        @CustomKey("max-player-count")
         // GearsMC: PocketMine server.properties (max-players=100)
+        @Comment("Aynı anda sunucuda bulunabilecek en fazla oyuncu sayısı (PocketMine: max-players).")
+        @CustomKey("max-player-count")
         private int maxPlayerCount = 100;
 
-        @CustomKey("default-game-mode")
-        @Comment("Determines the default game mode of a world when it is created")
-        @Comment("Possible values: SURVIVAL, CREATIVE, ADVENTURE, SPECTATOR")
         // GearsMC: PocketMine gamemode=SURVIVAL
+        @Comment("Yeni oluşturulan bir dünyanın varsayılan oyun modu.")
+        @Comment("Olası değerler: SURVIVAL (hayatta kalma), CREATIVE (yaratıcı), ADVENTURE (macera), SPECTATOR (izleyici)")
+        @CustomKey("default-game-mode")
         private GameMode defaultGameMode = GameMode.SURVIVAL;
 
-        @CustomKey("default-difficulty")
-        @Comment("Determines the default difficulty of a world when it is created")
-        @Comment("Possible values: PEACEFUL, EASY, NORMAL, HARD")
         // GearsMC: PocketMine difficulty=3 (zor)
+        @Comment("Yeni oluşturulan bir dünyanın varsayılan zorluğu.")
+        @Comment("Olası değerler: PEACEFUL (huzurlu), EASY (kolay), NORMAL (normal), HARD (zor)")
+        @CustomKey("default-difficulty")
         private Difficulty defaultDifficulty = Difficulty.HARD;
 
+        @Comment("Oyuncuların varsayılan yetki seviyesi.")
+        @Comment("Olası değerler: VISITOR (ziyaretçi), MEMBER (üye), OPERATOR (operatör)")
         @CustomKey("default-permission")
-        @Comment("Possible values: VISITOR, MEMBER, OPERATOR")
         private String defaultPermission = "MEMBER";
 
-        @Comment("The language used by console")
         // GearsMC: PocketMine language=tur
+        @Comment("Konsolun kullandığı dil (ör. tr_TR, en_US).")
         private LangCode language = LangCode.tr_TR;
 
-        @Comment("If debug mode is enabled, the console will output more detailed information")
+        @Comment("Hata ayıklama kipi açıksa konsol daha ayrıntılı bilgi yazar.")
         private boolean debug = false;
 
-        @Comment("If whitelist is enabled, only players in the whitelist can join the server")
+        @Comment("Beyaz liste açıksa yalnızca listedeki oyuncular sunucuya girebilir.")
         @CustomKey("enable-whitelist")
         private boolean enableWhitelist = false;
 
-        @CustomKey("enable-gui")
         // GearsMC: sunucu VDS'te ekransiz calisiyor
+        @Comment("Masaüstü kontrol paneli penceresini açar. Ekransız sunucuda (VDS) kapalı kalmalıdır.")
+        @CustomKey("enable-gui")
         private boolean enableGui = false;
 
+        @Comment("Hesaplama iş parçacığı havuzundaki en fazla iş parçacığı sayısı.")
+        @Comment("Değer 0 veya daha küçükse işlemci çekirdeği sayısı kadar kullanılır.")
         @CustomKey("max-compute-thread-count")
-        @Comment("Decide the maximum count of threads in compute thread pool")
-        @Comment("If the value <= 0, the count will be same to the count of available processors")
         private int maxComputeThreadCount = 0;
 
+        @Comment("Sentry, hata takibi ve performans izleme hizmetidir. Geliştirme sürümünde varsayılan olarak kapalıdır;")
+        @Comment("buraya true yazarak zorla açabilirsiniz.")
         @CustomKey("force-enable-sentry")
-        @Comment("Sentry is an error tracking and performance monitoring platform, which is disabled by")
-        @Comment("default in development build, however you can force turn it on by setting this to true")
         private boolean forceEnableSentry = false;
     }
 
     @Getter
     @Accessors(fluent = true)
     public static class NetworkSettings extends OkaeriConfig {
-        @Comment("The IPv4 address of this server")
+        @Comment("Sunucunun dinleyeceği IPv4 adresi (0.0.0.0 = tüm ağ arayüzleri).")
         private String ip = "0.0.0.0";
 
-        @Comment("The IPv4 port of this server")
+        @Comment("Sunucunun IPv4 portu (UDP). Bedrock varsayılanı 19132.")
         private int port = 19132;
 
-        @Comment("Whether IPv6 is enabled")
+        @Comment("IPv6 desteği açık mı. Açıkken IPv6 kullanan oyuncular da bağlanabilir.")
         private boolean enablev6 = true;
 
-        @Comment("The IPv6 address of this server. Works only when enablev6 is true")
+        @Comment("Sunucunun dinleyeceği IPv6 adresi. Yalnızca enablev6 true iken geçerlidir.")
         private String ipv6 = "::";
 
-        @Comment("The IPv6 port of this server. Works only when enablev6 is true")
+        @Comment("Sunucunun IPv6 portu (UDP). Yalnızca enablev6 true iken geçerlidir.")
         private int portv6 = 19133;
 
+        @Comment("Xbox hesabı doğrulaması. Açıkken yalnızca Xbox'a giriş yapmış oyuncular girebilir.")
         @CustomKey("xbox-auth")
         private boolean xboxAuth = true;
 
-        @Comment("Turning this on is highly recommended for security reasons")
+        @Comment("Ağ trafiği şifrelemesi. Güvenlik için açık tutulması önemle önerilir.")
         @CustomKey("enable-network-encryption")
         private boolean enableNetworkEncryption = true;
 
-        @Comment("Log detailed packet information for each player session")
+        @Comment("Her oyuncu oturumu için ayrıntılı paket bilgisini loga yazar (yalnızca hata ayıklama için).")
         @CustomKey("debug-packets")
         private boolean debugPackets = false;
 
-        @Comment("The compression algorithm used for network data streams. Possible values: ZLIB, SNAPPY")
-        @Comment("ZLIB has better compression ratios and SNAPPY has better compression performance")
+        @Comment("Ağ veri akışında kullanılan sıkıştırma algoritması. Olası değerler: ZLIB, SNAPPY")
+        @Comment("ZLIB daha iyi sıkıştırır, SNAPPY daha hızlı çalışır.")
         @CustomKey("compression-algorithm")
         private CompressionAlgorithm compressionAlgorithm = CompressionAlgorithm.ZLIB;
 
+        @Comment("Ağ iş parçacığı sayısı. 0 yazılırsa sunucu sayıyı kendisi belirler.")
         @CustomKey("network-thread-number")
-        @Comment("The number of network threads. If put zero here, the server will automatically determine the number of network threads")
         private int networkThreadNumber = 0;
 
+        @Comment("Bir seferde işlenebilecek en fazla paket sayısı.")
         @CustomKey("max-synced-packets-handle-count-once")
-        @Comment("The maximum number of packets that can be processed at once")
         private int maxSyncedPacketsHandleCountAtOnce = 128;
 
-        @Comment("The maximum number of datagram packets each address can send within one RakNet tick (10ms)")
-        @Comment("Default value is 120 packets, and will be Integer.MAX_VALUE if the server is running in dev mode")
+        @Comment("Bir RakNet tikinde (10 ms) her adresin gönderebileceği en fazla datagram paketi sayısı.")
+        @Comment("Varsayılan 120'dir; geliştirme kipinde sunucu Integer.MAX_VALUE kullanır.")
         @CustomKey("raknet-packet-limit")
         private int raknetPacketLimit = 120;
 
-        @Comment("A number of all datagrams that will be handled within one RakNet tick before server starts dropping any incoming data")
-        @Comment("Default value is 100000 (raknetPacketLimit * 0.56 * 1500 different connections), and will be Integer.MAX_VALUE if the server is running in dev mode")
+        @Comment("Bir RakNet tikinde, sunucu gelen veriyi düşürmeye başlamadan önce işlenecek toplam datagram sayısı.")
+        @Comment("Varsayılan 100000'dir (raknetPacketLimit * 0.56 * 1500 farklı bağlantı); geliştirme kipinde Integer.MAX_VALUE olur.")
         @CustomKey("raknet-global-packet-limit")
         private int raknetGlobalPacketLimit = 100000;
 
-        @Comment("Maximum allowed MTU that the RakNet server connection can use")
-        @Comment("The internet supports a maximum MTU of 1492 but could cause issues with packet fragmentation.")
-        @Comment("Default value is 1400")
+        @Comment("RakNet sunucu bağlantısının kullanabileceği en büyük MTU.")
+        @Comment("İnternet en fazla 1492 MTU destekler ama bu paket parçalanmasında sorun çıkarabilir.")
+        @Comment("Varsayılan 1400'dür.")
         @CustomKey("raknet-max-mtu")
         private int raknetMaxMtu = 1400;
 
-        @Comment("The max time (unit: gt) that a client can have in login stage")
-        @Comment("This would prevent the server from being stuck by a lot")
-        @Comment("of fake clients that are keep in login stage maliciously")
-        @Comment("To disable it, just make the value <= 0")
+        @Comment("Bir istemcinin giriş aşamasında kalabileceği en uzun süre (birim: gt, 20 gt = 1 sn).")
+        @Comment("Kötü niyetle giriş aşamasında bekletilen çok sayıda sahte istemcinin sunucuyu tıkamasını önler.")
+        @Comment("Kapatmak için değeri 0 veya daha küçük yapın.")
         @CustomKey("max-login-time")
         private int maxLoginTime = 90 * 20;
 
-        @Comment("Encoding protection will prevent client from sending large garbage data")
-        @Comment("It is recommended to enable this feature, however if clients are kicked due")
-        @Comment("to misjudgment (usually when changing skin), disable this feature will help you")
+        @Comment("Kodlama koruması, istemcinin büyük çöp veri göndermesini engeller.")
+        @Comment("Açık tutulması önerilir; ancak istemciler yanlış değerlendirme yüzünden atılıyorsa")
+        @Comment("(genellikle görünüm/skin değişirken) bu korumayı kapatmak sorunu çözer.")
         @CustomKey("enable-encoding-protection")
         private boolean enableEncodingProtection = true;
 
-        @Comment("Enable support for NetEase (China) Minecraft clients")
+        @Comment("NetEase (Çin) Minecraft istemcileri için destek.")
         @CustomKey("netease-client-support")
         private boolean neteaseClientSupport = false;
 
-        @Comment("If set to true, only NetEase clients can join the server")
-        @Comment("This option only takes effect when netease-client-support is enabled")
+        @Comment("true ise yalnızca NetEase istemcileri sunucuya girebilir.")
+        @Comment("Bu ayar yalnızca netease-client-support açıkken geçerlidir.")
         @CustomKey("only-allow-netease-client")
         private boolean onlyAllowNeteaseClient = false;
 
-        @Comment("Maximum size in bytes for decompressed packet data. Default is 50MB (52428800)")
-        @Comment("Increase this if you encounter decompression errors with large packets")
+        @Comment("Sıkıştırması açılmış paket verisi için en büyük boyut (bayt). Varsayılan 50 MB (52428800).")
+        @Comment("Büyük paketlerde açma hatası alıyorsanız artırın.")
         @CustomKey("max-decompressed-bytes")
         private int maxDecompressedBytes = 1024 * 1024 * 50;
 
@@ -184,17 +188,17 @@ public class ServerSettings extends OkaeriConfig {
         // yalnızca blob özeti gidiyor; istemcide yoksa NAK ile isteniyor. Açamayacağı durum yok: istemci
         // desteklemiyorsa (ClientCacheStatusPacket false) ya da blob işlemi açılamazsa paket sıkıştırılmamış
         // haliyle gönderiliyor (PacketEncoder_v766, cachingEnabled=false dalı).
-        @Comment("Whether to enable client-side chunk caching using blob hashes, which can significantly reduce bandwidth when players revisit areas")
-        @Comment("If players get kicked while this is on, set network-settings.enable-encoding-protection to false")
+        @Comment("Blob özetleriyle istemci tarafı chunk önbelleğini açar; oyuncular aynı bölgeye döndüğünde bant genişliğini ciddi biçimde azaltır.")
+        @Comment("Bu açıkken oyuncular sunucudan atılıyorsa network-settings.enable-encoding-protection ayarını false yapın.")
         @CustomKey("enable-client-chunk-cache")
         private boolean enableClientChunkCache = true;
 
         // GearsMC sapması: 4096 yerine 8192. Her ada ayrı bir dünya olduğu için oyuncular arasında blob paylaşımı
         // düşük; bir oyuncunun 8 chunk görüş alanı kabaca 1500-1700 blob tutuyor, 4096 üç oyuncuda dolup LRU'ya
         // düşüyordu. 8192 blob ~20 MB yer kaplar.
-        @Comment("Maximum number of chunk blobs to cache globally across all players")
-        @Comment("Each blob is typically 1-4KB. Higher values use more memory but improve cache hit rate")
-        @Comment("Recommended: 4096 for small servers, 8192-16384 for larger servers")
+        @Comment("Tüm oyuncular arasında paylaşılan önbellekteki en fazla chunk blob sayısı.")
+        @Comment("Bir blob genellikle 1-4 KB'tır. Yüksek değer daha çok bellek kullanır ama isabet oranını artırır.")
+        @Comment("Öneri: küçük sunucular için 4096, büyük sunucular için 8192-16384.")
         @CustomKey("max-chunk-cache-blobs")
         private int maxChunkCacheBlobs = 8192;
 
@@ -208,59 +212,56 @@ public class ServerSettings extends OkaeriConfig {
     @Accessors(fluent = true)
     public static class WorldSettings extends OkaeriConfig {
 
-        @Comment("Determines how far away from the chunk loader chunks will be ticked")
+        @Comment("Chunk yükleyicisinden (oyuncudan) ne kadar uzaktaki chunk'ların tiklenmeye devam edeceğini belirler.")
         @CustomKey("tick-radius")
         private int tickRadius = 4;
 
-        @Comment("Determines how far away from the chunk loader chunks will be loaded and sent")
+        @Comment("Chunk yükleyicisinden (oyuncudan) ne kadar uzaktaki chunk'ların yükleneceğini ve gönderileceğini belirler (chunk cinsinden).")
         @CustomKey("view-distance")
         private int viewDistance = 8;
 
-        @Comment("Determines the maximum number of chunks that can be sent during a tick (per chunk loader)")
+        @Comment("Bir tikte (chunk yükleyici başına) gönderilebilecek en fazla chunk sayısı.")
         @CustomKey("chunk-max-send-count-per-tick")
         private int chunkMaxSendCountPerTick = 16;
 
+        @Comment("Alt-chunk gönderim sistemini kullanır.")
         @CustomKey("use-sub-chunk-sending-system")
         private boolean useSubChunkSendingSystem = false;
 
-        @Comment("Possible values: ASYNC, SYNC")
+        @Comment("Chunk gönderim stratejisi. Olası değerler: ASYNC (eşzamansız), SYNC (eşzamanlı)")
         @CustomKey("chunk-sending-strategy")
         private ChunkSendingStrategy chunkSendingStrategy = ChunkSendingStrategy.ASYNC;
 
-        @Comment("Determines the minimum number of chunks that must be sent to the client which is joining the server")
-        @Comment("Decrease this value may reduce the time on joining server. However, client may see a lot of unloaded chunks if the value is too low")
+        @Comment("Sunucuya giren istemciye gönderilmesi gereken en az chunk sayısı.")
+        @Comment("Değeri düşürmek girişi hızlandırabilir; ancak çok düşükse istemci çok sayıda yüklenmemiş chunk görebilir.")
         @CustomKey("fully-join-chunk-threshold")
         private int fullyJoinChunkThreshold = 30;
 
-        @Comment("Determines how long a chunk without chunk loaders will remain loaded (gt)")
+        @Comment("Chunk yükleyicisi kalmayan bir chunk'ın bellekte ne kadar kalacağı (gt, 20 gt = 1 sn).")
         @CustomKey("remove-unused-full-chunk-cycle")
         private int removeUnusedFullChunkCycle = 60 * 20;
 
-        @Comment("Determines how long a proto chunk will remain in memory (gt)")
+        @Comment("Yarım (proto) bir chunk'ın bellekte ne kadar kalacağı (gt, 20 gt = 1 sn).")
         @CustomKey("remove-unused-proto-chunk-cycle")
         private int removeUnusedProtoChunkCycle = 30 * 20;
 
-        @Comment("If set to true, the server will load chunks around the spawn point")
-        @Comment("Which will reduce the time on joining server")
-        @Comment("However, this will increase the server's memory usage")
-        @Comment("Also note that this adds a fake chunk loader, so these chunks will be")
-        @Comment("actively ticked (crop growth, redstone, etc.) even without any real")
-        @Comment("player nearby, for every world. Servers with many small/instanced worlds")
-        @Comment("(e.g. per-player islands) should keep this false to avoid idle worlds")
-        @Comment("simulating forever near their spawn point")
+        @Comment("true ise sunucu doğuş noktası çevresindeki chunk'ları yüklü tutar; bu, sunucuya girişi hızlandırır.")
+        @Comment("Ancak bellek kullanımını artırır. Ayrıca sahte bir chunk yükleyici eklendiği için her dünyada bu chunk'lar")
+        @Comment("yakında gerçek oyuncu olmasa bile sürekli tiklenir (ekin büyümesi, kızıltaş vb.). Çok sayıda küçük/ayrı dünyası olan")
+        @Comment("sunucular (ör. oyuncu başına ada) boş dünyaların doğuş noktası çevresinde sonsuza dek çalışmaması için bunu false bırakmalıdır.")
         @CustomKey("load-spawn-point-chunks")
         private boolean loadSpawnPointChunks = false;
 
-        @Comment("Determines how many chunks around the spawn point will be loaded")
+        @Comment("Doğuş noktası çevresinde kaç chunk yarıçapında yükleneceğini belirler.")
         @CustomKey("spawn-point-chunk-radius")
         private int spawnPointChunkRadius = 3;
 
-        @Comment("If set to true, dimensions in the same world will be ticked in parallel during world tick")
+        @Comment("true ise aynı dünyadaki boyutlar dünya tikinde paralel olarak tiklenir.")
         @CustomKey("tick-dimension-in-parallel")
         private boolean tickDimensionInParallel = true;
 
-        @Comment("Indicate the max light update count per dimension, if the count is exceeded, light in")
-        @Comment("newly loaded chunks won't be calculated immediately to avoid taking too much memory")
+        @Comment("Boyut başına en fazla ışık güncelleme sayısı. Aşılırsa çok bellek harcamamak için")
+        @Comment("yeni yüklenen chunk'lardaki ışık hemen hesaplanmaz.")
         @CustomKey("max-light-update-count")
         private int maxLightUpdateCountPerDimension = 1280000;
 
@@ -274,19 +275,19 @@ public class ServerSettings extends OkaeriConfig {
     @Accessors(fluent = true)
     public static class EntitySettings extends OkaeriConfig {
 
-        @Comment("Entity physics engine settings")
-        @Comment("Do not change them if you don't know what you are doing!")
+        @Comment("Varlık fizik motoru ayarları.")
+        @Comment("Ne yaptığınızı bilmiyorsanız değiştirmeyin!")
         @CustomKey("physics-engine-settings")
         private PhysicsEngineSettings physicsEngineSettings = new PhysicsEngineSettings();
 
         @Getter
         @Accessors(fluent = true)
         public static class PhysicsEngineSettings extends OkaeriConfig {
-            @Comment("When the motion falls below this value, its motion is zeroed")
+            @Comment("Hareket bu değerin altına düşerse sıfırlanır.")
             @CustomKey("motion-threshold")
             private float motionThreshold = 0.003f;
 
-            @Comment("This usually determines how quickly an entity item is moved when getting stuck in a block")
+            @Comment("Blok içinde sıkışan eşya varlığının ne kadar hızlı dışarı itileceğini belirler.")
             @CustomKey("block-collision-motion")
             private float blockCollisionMotion = 0.2f;
         }
@@ -295,21 +296,21 @@ public class ServerSettings extends OkaeriConfig {
     @Getter
     @Accessors(fluent = true)
     public static class StorageSettings extends OkaeriConfig {
+        @Comment("false yapılırsa oyuncu verisi kaydedilmez.")
         @CustomKey("save-player-data")
-        @Comment("If set to false, the player's data will not be saved")
         private boolean savePlayerData = true;
 
+        @Comment("Oyuncu verisinin otomatik kayıt döngüsü (gt, 20 gt = 1 sn; 6000 = 5 dk).")
         @CustomKey("player-data-auto-save-cycle")
-        @Comment("Determines the cycle of player data auto saving")
         private int playerDataAutoSaveCycle = 20 * 60 * 5;
 
+        @Comment("Chunk'ların otomatik kayıt döngüsü (gt, 20 gt = 1 sn; 6000 = 5 dk).")
         @CustomKey("chunk-auto-save-cycle")
-        @Comment("Determines the cycle of chunk auto saving")
         private int chunkAutoSaveCycle = 20 * 60 * 5;
 
+        @Comment("Varlıkların otomatik kayıt döngüsü (gt, 20 gt = 1 sn). Tetiklendiğinde varlık yöneticisi")
+        @Comment("yüklü olmayan chunk'lardaki kaydedilebilir tüm varlıkları bulup kaydeder.")
         @CustomKey("entity-auto-save-cycle")
-        @Comment("Determines the cycle of entity auto saving. When entity auto saving is triggered, the")
-        @Comment("entity manager will find all savable entities in unloaded chunks and save them")
         private int entityAutoSaveCycle = 20 * 60;
     }
 
@@ -317,31 +318,31 @@ public class ServerSettings extends OkaeriConfig {
     @Accessors(fluent = true)
     public static class ResourcePackSettings extends OkaeriConfig {
 
+        @Comment("true ise kaynak paketleri otomatik şifrelenir.")
+        @Comment("Bu açıkken Vibrant Visuals (Canlı Görseller) devre dışı kalır.")
         @CustomKey("auto-encrypt-packs")
-        @Comment("If set to true, packs will be automatically encrypted")
-        @Comment("Notes that Vibrant Visuals will be disabled if this is set to true")
         private boolean autoEncryptPacks = true;
 
+        @Comment("Bir kaynak paketi parçasının en büyük boyutu (birim: KB).")
+        @Comment("Değeri düşürmek, paketler birden çok istemciye gönderilirken ağ yükünü azaltabilir.")
+        @Comment("Ancak paketlerin gönderilme süresini uzatabilir.")
         @CustomKey("max-chunk-size")
-        @Comment("The maximum size of a resource pack chunk (unit: KB)")
-        @Comment("Decrease this value may reduce the pressure on the network when sending packs to multiple clients")
-        @Comment("However, it may also increase the time it takes to send the packs")
         private int maxChunkSize = 100; // 100KB, from BDS
 
-        @Comment("true - the player must accept resource packs, otherwise he will not log in to the server")
-        @Comment("false - the player can log in to the server without accepting resource packs")
+        @Comment("true - oyuncu kaynak paketlerini kabul etmek zorundadır, etmezse sunucuya giremez.")
+        @Comment("false - oyuncu kaynak paketlerini kabul etmeden de girebilir.")
         @CustomKey("force-resource-packs")
         private boolean forceResourcePacks = false;
 
-        @Comment("If set to true, the client resource packs will be allowed")
+        @Comment("true ise istemcinin kendi kaynak paketlerine izin verilir.")
         @CustomKey("allow-client-resource-packs")
         private boolean allowClientResourcePacks = false;
 
-        @Comment("If set to true, all skins will be marked as trusted")
+        @Comment("true ise tüm görünümler (skin) güvenilir olarak işaretlenir.")
         @CustomKey("trust-all-skins")
         private boolean trustAllSkins = true;
 
-        @Comment("If set to true, Vibrant Visuals will be disabled")
+        @Comment("true ise Vibrant Visuals (Canlı Görseller) devre dışı bırakılır.")
         @CustomKey("disable-vibrant-visuals")
         private boolean disableVibrantVisuals = false;
 
@@ -351,21 +352,24 @@ public class ServerSettings extends OkaeriConfig {
     @Getter
     @Accessors(fluent = true)
     public static class BStatsSettings extends OkaeriConfig {
-        @Comment("bStats (https://bStats.org) collects some basic information for plugin authors, like how")
-        @Comment("many people use their plugin and their total player count. It's recommended to keep bStats")
-        @Comment("enabled, but if you're not comfortable with this, you can turn this setting off. There is no")
-        @Comment("performance penalty associated with having metrics enabled, and data sent to bStats is fully anonymous.")
+        @Comment("bStats (https://bStats.org), eklenti yazarları için kaç kişinin eklentiyi kullandığı ve toplam oyuncu sayısı gibi")
+        @Comment("temel bilgileri toplar. Açık bırakmanız önerilir; rahat değilseniz kapatabilirsiniz. Ölçümlerin performansa")
+        @Comment("etkisi yoktur ve bStats'a gönderilen veri tamamen anonimdir.")
         private boolean enable = true;
 
+        @Comment("bStats için bu sunucuya rastgele atanan kimlik.")
         @CustomKey("server-uuid")
         private String serverUUID = UUID.randomUUID().toString();
 
+        @Comment("Başarısız bStats isteklerini loga yazar.")
         @CustomKey("log-failed-requests")
         private boolean logFailedRequests = false;
 
+        @Comment("bStats'a gönderilen veriyi loga yazar.")
         @CustomKey("log-sent-data")
         private boolean logSentData = false;
 
+        @Comment("bStats yanıtının durum metnini loga yazar.")
         @CustomKey("log-response-status-text")
         private boolean logResponseStatusText = false;
     }
