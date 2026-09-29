@@ -193,14 +193,15 @@ public class ServerSettings extends OkaeriConfig {
         @CustomKey("enable-client-chunk-cache")
         private boolean enableClientChunkCache = true;
 
-        // GearsMC sapması: 4096 yerine 8192. Her ada ayrı bir dünya olduğu için oyuncular arasında blob paylaşımı
+        // GearsMC prod (8 GB RAM, 5 GB heap): 8192'nin 5 katı, 40960 blob ~100 MB tutar.
+        // Önceki not: 4096 yerine 8192. Her ada ayrı bir dünya olduğu için oyuncular arasında blob paylaşımı
         // düşük; bir oyuncunun 8 chunk görüş alanı kabaca 1500-1700 blob tutuyor, 4096 üç oyuncuda dolup LRU'ya
         // düşüyordu. 8192 blob ~20 MB yer kaplar.
         @Comment("Tüm oyuncular arasında paylaşılan önbellekteki en fazla chunk blob sayısı.")
         @Comment("Bir blob genellikle 1-4 KB'tır. Yüksek değer daha çok bellek kullanır ama isabet oranını artırır.")
-        @Comment("Öneri: küçük sunucular için 4096, büyük sunucular için 8192-16384.")
+        @Comment("Öneri: küçük sunucular için 4096, büyük sunucular için 8192-16384 (GearsMC prod: 40960).")
         @CustomKey("max-chunk-cache-blobs")
-        private int maxChunkCacheBlobs = 8192;
+        private int maxChunkCacheBlobs = 40960;
 
         public enum CompressionAlgorithm {
             ZLIB,
@@ -218,11 +219,13 @@ public class ServerSettings extends OkaeriConfig {
 
         @Comment("Chunk yükleyicisinden (oyuncudan) ne kadar uzaktaki chunk'ların yükleneceğini ve gönderileceğini belirler (chunk cinsinden).")
         @CustomKey("view-distance")
-        private int viewDistance = 8;
+        // GearsMC prod (4 çekirdek): ada dünyaları VOID ve hub'da ışık hesabı kapalı olduğu için chunk maliyeti düşük.
+        private int viewDistance = 12;
 
         @Comment("Bir tikte (chunk yükleyici başına) gönderilebilecek en fazla chunk sayısı.")
         @CustomKey("chunk-max-send-count-per-tick")
-        private int chunkMaxSendCountPerTick = 16;
+        // GearsMC prod: geniş görüş mesafesinde yüklemeyi hızlandırmak için 16'nın iki katı.
+        private int chunkMaxSendCountPerTick = 32;
 
         @Comment("Alt-chunk gönderim sistemini kullanır.")
         @CustomKey("use-sub-chunk-sending-system")
@@ -239,11 +242,12 @@ public class ServerSettings extends OkaeriConfig {
 
         @Comment("Chunk yükleyicisi kalmayan bir chunk'ın bellekte ne kadar kalacağı (gt, 20 gt = 1 sn).")
         @CustomKey("remove-unused-full-chunk-cycle")
-        private int removeUnusedFullChunkCycle = 60 * 20;
+        // GearsMC prod: RAM bol; ada/hub chunk'ları oyuncu dönünce yeniden yüklenmesin diye 2 dk.
+        private int removeUnusedFullChunkCycle = 120 * 20;
 
         @Comment("Yarım (proto) bir chunk'ın bellekte ne kadar kalacağı (gt, 20 gt = 1 sn).")
         @CustomKey("remove-unused-proto-chunk-cycle")
-        private int removeUnusedProtoChunkCycle = 30 * 20;
+        private int removeUnusedProtoChunkCycle = 60 * 20;
 
         @Comment("true ise sunucu doğuş noktası çevresindeki chunk'ları yüklü tutar; bu, sunucuya girişi hızlandırır.")
         @Comment("Ancak bellek kullanımını artırır. Ayrıca sahte bir chunk yükleyici eklendiği için her dünyada bu chunk'lar")
