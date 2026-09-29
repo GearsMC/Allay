@@ -17,6 +17,7 @@ public class EntityIronGolemLivingComponentImpl extends EntityHostileLivingCompo
 
     public EntityIronGolemLivingComponentImpl() {
         setMaxHealth(100);
+        initHealthToMax();
     }
 
     @Override

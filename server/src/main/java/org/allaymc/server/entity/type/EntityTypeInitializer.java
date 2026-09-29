@@ -496,7 +496,10 @@ public final class EntityTypeInitializer {
                             return false;
                         }
                     };
+                    // setMaxHealth yalnizca cani asagi kirpar; varsayilan 20'den buyuk
+                    // maksimum canda varlik tam canla dogmali.
                     component.setMaxHealth(WITHER_HEALTH);
+                    component.initHealthToMax();
                     return component;
                 }, EntityLivingComponentImpl.class)
                 .addComponent(() -> new EntityFlyingPhysicsComponentImpl() {
@@ -1593,7 +1596,10 @@ public final class EntityTypeInitializer {
                             return false;
                         }
                     };
+                    // setMaxHealth yalnizca cani asagi kirpar; varsayilan 20'den buyuk
+                    // maksimum canda varlik tam canla dogmali.
                     component.setMaxHealth(17600);
+                    component.initHealthToMax();
                     return component;
                 }, EntityLivingComponentImpl.class)
                 // Vanilla ejderha itilmez ve bloktan disari itilmez; yalnizca verilen hareketi

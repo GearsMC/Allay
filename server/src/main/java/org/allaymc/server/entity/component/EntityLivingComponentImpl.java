@@ -582,6 +582,12 @@ public class EntityLivingComponentImpl implements EntityLivingComponent {
         this.health = Math.min(this.health, this.maxHealth);
     }
 
+    /// Varlik dunyaya eklenmeden once cani maksimuma esitler. Olay atmaz; yalnizca varlik tipi
+    /// kurulurken kullanilir (kayitli NBT'deki can bunu sonradan ezer).
+    public void initHealthToMax() {
+        this.health = this.maxHealth;
+    }
+
     @EventHandler
     protected void onTick(CEntityTickEvent event) {
         var currentTick = event.getCurrentTick();

@@ -14,6 +14,7 @@ public class EntityEndermanLivingComponentImpl extends EntityHostileLivingCompon
 
     public EntityEndermanLivingComponentImpl() {
         setMaxHealth(40);
+        initHealthToMax();
     }
 
     @Override

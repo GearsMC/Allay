@@ -22,6 +22,7 @@ public class EntityIllagerLivingComponentImpl extends EntityHostileLivingCompone
 
     public EntityIllagerLivingComponentImpl() {
         setMaxHealth(24);
+        initHealthToMax();
     }
 
     @Override

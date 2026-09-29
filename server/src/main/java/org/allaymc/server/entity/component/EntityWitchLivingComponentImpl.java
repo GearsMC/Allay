@@ -23,6 +23,7 @@ public class EntityWitchLivingComponentImpl extends EntityHostileLivingComponent
 
     public EntityWitchLivingComponentImpl() {
         setMaxHealth(26);
+        initHealthToMax();
     }
 
     /**

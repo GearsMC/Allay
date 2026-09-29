@@ -1060,6 +1060,14 @@ public class PacketEncoder_v766 extends PacketEncoder {
                 packet.setHeadRotation((float) getHeadYaw(entity, location.yaw()));
                 packet.setBodyRotation((float) location.yaw());
                 packet.getMetadata().putAll(encodeEntityMetadata(entity, nameTag));
+                if (entity instanceof EntityLiving living) {
+                    // PMMP gibi canı doğuş paketinde gönder. Gönderilmezse istemci bazı varlıkları
+                    // (ör. Ender ejderhası) cansız sanıp ölüm animasyonuna sokar ve patlama
+                    // parçacıkları varlık kaldırılana kadar sürer.
+                    packet.getAttributes().add(new AttributeData(
+                            "minecraft:health", 0, living.getMaxHealth(), living.getHealth(), living.getMaxHealth()
+                    ));
+                }
                 var properties = NetworkHelper.toNetworkProperties(entity);
                 packet.getProperties().intProperties().addAll(properties.intProperties());
                 packet.getProperties().floatProperties().addAll(properties.floatProperties());
