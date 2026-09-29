@@ -25,6 +25,10 @@ public class PlayerSkinPacketProcessor extends PacketProcessor<PlayerSkinPacket>
         var event = new PlayerChangeSkinEvent(entity, entity.getSkin(), SkinConvertor.fromSerializedSkin(newSkin));
         if (event.call()) {
             entity.setSkin(event.getNewSkin());
+        } else {
+            // GearsMC fork: PocketMine gibi iptalde eski gorunumu oyuncuya geri gonder; istemci
+            // secimi kendinde uygulamis olabilir ve sunucuyla ayrisik kalir.
+            player.viewPlayerSkin(entity);
         }
     }
 

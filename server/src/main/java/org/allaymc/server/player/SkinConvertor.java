@@ -5,9 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.allaymc.api.player.Skin;
 import org.cloudburstmc.protocol.bedrock.data.skin.*;
 
+import java.awt.Color;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -43,11 +50,11 @@ public final class SkinConvertor {
 
         // Convert list of persona piece tint colors
         List<PersonaPieceTintData> serializedTintColors = orEmpty(skin.pieceTintColors()).stream()
-                .map(tint -> new PersonaPieceTintData(
-                        tint.pieceType(),
-                        new ArrayList<>(tint.colors())
-                ))
+                .map(SkinConvertor::convertTintColor)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
+
+        String skinColor = Objects.requireNonNullElse(skin.skinColor(), "#0");
 
         // Use the SerializedSkin builder to construct the final object
         return SerializedSkin.builder()
@@ -65,17 +72,137 @@ public final class SkinConvertor {
                 .capeOnClassic(skin.personaCapeOnClassicSkin())
                 .primaryUser(skin.primaryUser())
                 .capeId(Objects.requireNonNullElse(skin.capeId(), ""))
-                .fullSkinId(skin.fullId())
+                .fullSkinId(fullSkinId(skin))
                 .armSize(Objects.requireNonNullElse(skin.armSize(), Skin.ARM_SIZE_WIDE))
-                .skinColor(Objects.requireNonNullElse(skin.skinColor(), "#0"))
+                .skinColor(skinColor)
+                .color(parseColor(skinColor))
                 .personaPieces(serializedPersonaPieces)
                 .tintColors(serializedTintColors)
-                .overridingPlayerAppearance(skin.overrideAppearance())
+                // GearsMC fork: PocketMine her gonderimde true yollar (SkinData varsayilani). false giden
+                // bir gorunumu istemci kendi oyuncusuna uygulamaz, kendi eski gorunumunde kalir; bu yuzden
+                // oyuncunun degistirdigi kostum ve takilan pelerin kendi ekraninda hic gorunmuyordu.
+                .overridingPlayerAppearance(true)
                 .build();
     }
 
     private static <T> List<T> orEmpty(List<T> list) {
         return list == null ? List.of() : list;
+    }
+
+    /**
+     * GearsMC fork: gorunumun iceriginden turetilen tam kimlik.
+     *
+     * <p>Istemci gorunumleri {@code fullSkinId} ile onbellege alir; ayni kimlikle gelen yeni bir
+     * gorunumu yok sayip eskisini gostermeye devam eder. Oyuncunun istemciden gelen kimligi ya da
+     * {@code toBuilder} ile kopyalanan eski kimlik pelerin takilip cikarildiginda da ayni kaldigi icin
+     * {@code /pelerin} ve kostum degisimi ekrana yansimiyordu. PocketMine her {@code SkinData} icin
+     * yeni bir UUID uretiyordu; burada icerik ozeti kullanilir: icerik degisince kimlik de degisir,
+     * ayni gorunum tekrar gonderildiginde istemci onbellegi bosa gitmez.</p>
+     */
+    static String fullSkinId(Skin skin) {
+        // Bir gorunum degisimi ayni Skin nesnesini her izleyiciye ayri ayri kodlar; ozeti bir kez hesapla.
+        var cached = lastFullSkinId;
+        if (cached != null && cached.skin() == skin) {
+            return cached.id();
+        }
+        var id = computeFullSkinId(skin);
+        lastFullSkinId = new CachedId(skin, id);
+        return id;
+    }
+
+    private record CachedId(Skin skin, String id) {
+    }
+
+    private static volatile CachedId lastFullSkinId;
+
+    private static String computeFullSkinId(Skin skin) {
+        try {
+            var digest = MessageDigest.getInstance("SHA-256");
+            update(digest, skin.fullId());
+            update(digest, skin.skinId());
+            update(digest, skin.skinResourcePatch());
+            update(digest, skin.skinData());
+            update(digest, skin.capeId());
+            update(digest, skin.capeData());
+            update(digest, skin.skinGeometry());
+            update(digest, skin.animationData());
+            update(digest, skin.armSize());
+            update(digest, skin.skinColor());
+            for (var animation : orEmpty(skin.animations())) {
+                update(digest, animation.imageData());
+                update(digest, animation.animationType().name() + animation.frameCount() + animation.expressionType().name());
+            }
+            for (var piece : orEmpty(skin.personaPieces())) {
+                update(digest, piece.pieceId() + "|" + piece.pieceType() + "|" + piece.packId() + "|" + piece.productId());
+            }
+            for (var tint : orEmpty(skin.pieceTintColors())) {
+                update(digest, tint.pieceType() + "|" + String.join(",", orEmpty(tint.colors())));
+            }
+            digest.update((byte) ((skin.premiumSkin() ? 1 : 0) | (skin.personaSkin() ? 2 : 0) | (skin.personaCapeOnClassicSkin() ? 4 : 0)));
+            return HexFormat.of().formatHex(digest.digest(), 0, 16);
+        } catch (NoSuchAlgorithmException exception) {
+            return UUID.randomUUID().toString();
+        }
+    }
+
+    private static void update(MessageDigest digest, String value) {
+        if (value != null) {
+            digest.update(value.getBytes(StandardCharsets.UTF_8));
+        }
+        digest.update((byte) 0);
+    }
+
+    private static void update(MessageDigest digest, Skin.ImageData image) {
+        if (image != null) {
+            digest.update(ByteBuffer.allocate(8).putInt(image.width()).putInt(image.height()).array());
+            digest.update(image.data());
+        }
+        digest.update((byte) 0);
+    }
+
+    /**
+     * GearsMC fork: renk tonunu hem eski (metin) hem v2168 (ARGB) alanina acikca yazar.
+     *
+     * <p>Protokol metinden ARGB'ye cevirirken {@code #rrggbb} bicimini alfa 0 (tamamen saydam) olarak
+     * okuyor; oysa kendi ters cevirisi opak renkleri tam da bu bicimde uretiyor. Istemciden gelen bir
+     * gorunum sunucudan geri gonderilirken tum persona renkleri boylece saydamlasiyordu.</p>
+     */
+    private static PersonaPieceTintData convertTintColor(Skin.PersonaPieceTintColor tint) {
+        try {
+            var colors = new ArrayList<>(orEmpty(tint.colors()));
+            var data = new PersonaPieceTintData(tint.pieceType(), colors);
+            var argb = new ArrayList<Color>(colors.size());
+            for (var color : colors) {
+                argb.add(parseColor(color));
+            }
+            data.setColorsNew(argb);
+            return data;
+        } catch (IllegalArgumentException | NullPointerException exception) {
+            log.debug("Skipping unusable persona tint (type={}): {}", tint.pieceType(), exception.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * {@code #0} saydam, {@code #rrggbb} opak, {@code #aarrggbb} oldugu gibi okunur.
+     */
+    static Color parseColor(String value) {
+        if (value == null) {
+            return new Color(0, true);
+        }
+        var hex = value.startsWith("#") ? value.substring(1) : value;
+        try {
+            if (hex.isEmpty() || hex.equals("0")) {
+                return new Color(0, true);
+            }
+            long parsed = Long.parseLong(hex, 16);
+            if (hex.length() <= 6) {
+                parsed |= 0xFF000000L;
+            }
+            return new Color((int) parsed, true);
+        } catch (NumberFormatException exception) {
+            return new Color(0, true);
+        }
     }
 
     /**

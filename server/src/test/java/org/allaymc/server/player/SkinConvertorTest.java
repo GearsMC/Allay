@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SkinConvertorTest {
 
@@ -72,6 +74,50 @@ class SkinConvertorTest {
         var second = SkinConvertor.toSerializedSkin(skin);
         assertNotSame(serialized.getSkinData().getImage(), second.getSkinData().getImage());
         assertNotSame(serialized.getTintColors().getFirst().colors(), second.getTintColors().getFirst().colors());
+    }
+
+    @Test
+    void opaqueColorsSurviveRoundTripThroughClientSkin() {
+        var skin = createSkin(new byte[]{1}, new byte[]{2}, new byte[]{3}, new ArrayList<>(List.of("#ff112233", "#0", "#445566", "#80aabbcc")));
+
+        var serialized = SkinConvertor.toSerializedSkin(skin);
+        assertEquals(0xFFABCDEF, serialized.getColor().getRGB());
+        var colors = serialized.getTintColors().getFirst().getColorsNew();
+        assertEquals(0xFF112233, colors.get(0).getRGB());
+        assertEquals(0, colors.get(1).getAlpha());
+        assertEquals(0xFF445566, colors.get(2).getRGB());
+        assertEquals(0x80AABBCC, colors.get(3).getRGB());
+
+        // Istemciden gelen v2168 gorunumu metne cevrilip geri gonderildiginde renkler saydamlasmamali.
+        var echoed = SkinConvertor.toSerializedSkin(SkinConvertor.fromSerializedSkin(serialized));
+        assertEquals(0xFFABCDEF, echoed.getColor().getRGB());
+        assertEquals(0xFF112233, echoed.getTintColors().getFirst().getColorsNew().getFirst().getRGB());
+    }
+
+    @Test
+    void fullSkinIdFollowsSkinContent() {
+        var skin = createSkin(new byte[]{1}, new byte[]{2}, new byte[]{3}, new ArrayList<>(List.of("#111111")));
+        var sameContent = createSkin(new byte[]{1}, new byte[]{2}, new byte[]{3}, new ArrayList<>(List.of("#111111")));
+        var withOtherCape = skin.toBuilder()
+                .capeId("gears:goldage")
+                .capeData(new Skin.ImageData(1, 1, new byte[]{9}))
+                .build();
+        var withOtherPixels = skin.toBuilder().skinData(new Skin.ImageData(1, 1, new byte[]{7})).build();
+
+        String id = SkinConvertor.toSerializedSkin(skin).getFullSkinId();
+        assertEquals(id, SkinConvertor.toSerializedSkin(sameContent).getFullSkinId());
+        assertNotEquals(id, SkinConvertor.toSerializedSkin(withOtherCape).getFullSkinId());
+        assertNotEquals(id, SkinConvertor.toSerializedSkin(withOtherPixels).getFullSkinId());
+    }
+
+    @Test
+    void encodedSkinAlwaysOverridesClientAppearance() {
+        var skin = createSkin(new byte[]{1}, new byte[]{2}, new byte[]{3}, new ArrayList<>())
+                .toBuilder()
+                .overrideAppearance(false)
+                .build();
+
+        assertTrue(SkinConvertor.toSerializedSkin(skin).isOverridingPlayerAppearance());
     }
 
     private static Skin createSkin(

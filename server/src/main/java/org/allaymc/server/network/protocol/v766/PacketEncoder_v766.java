@@ -2660,7 +2660,9 @@ public class PacketEncoder_v766 extends PacketEncoder {
             entry.setXuid(player.getLoginData().getXuid());
             entry.setPlatformChatId(player.getLoginData().getDeviceInfo().deviceName());
             entry.setBuildPlatform(BuildPlatform.from(player.getLoginData().getDeviceInfo().device().getId()));
-            entry.setSkin(SkinConvertor.toSerializedSkin(player.getLoginData().getSkin()));
+            // GearsMC fork: giris gorunumu degil guncel gorunum; aksi halde sonradan giren oyuncular
+            // degistirilmis kostumu ve takili pelerini tab listesinde eski haliyle goruyordu.
+            entry.setSkin(SkinConvertor.toSerializedSkin(Objects.requireNonNullElse(entity.getSkin(), player.getLoginData().getSkin())));
             entry.setTrustedSkin(trustSkins);
             entry.setColor(new Color(player.getOriginName().hashCode() & 0xFFFFFF));
             packet.getEntries().add(entry);
