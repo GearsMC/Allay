@@ -14,6 +14,7 @@ import org.allaymc.server.player.AllayPlayer;
 import org.allaymc.server.world.AllayDimension;
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacketType;
 import org.cloudburstmc.protocol.bedrock.packet.RespawnPacket;
+import org.joml.Vector3i;
 
 /**
  * @author IWareQ | daoge_cmd
@@ -30,6 +31,16 @@ public class RespawnPacketProcessor extends PacketProcessor<RespawnPacket> {
 
         var entity = player.getControlledEntity();
         if (!entity.canBeSpawned()) {
+            if (entity.isAlive() && entity.getHealth() > 0) {
+                // Sunucuda oyuncu zaten yeniden dogmus ama istemci hala olum ekraninda (ör. dogustan
+                // sonra 0 can gordu). Yoksaymak ekrani kilitliyordu; istemciyi bulundugu yerde
+                // yeniden dogur ve gercek cani tekrar gonder.
+                var allayPlayer = (AllayPlayer) player;
+                var location = entity.getLocation();
+                allayPlayer.sendPacket(allayPlayer.getProtocol().getEncoder().encodeRespawn(new Vector3i(
+                        (int) Math.floor(location.x()), (int) Math.floor(location.y()), (int) Math.floor(location.z()))));
+                allayPlayer.sendHealth(entity.getHealth(), entity.getMaxHealth());
+            }
             // Wait until the entity can be spawned again
             return;
         }
@@ -86,8 +97,11 @@ public class RespawnPacketProcessor extends PacketProcessor<RespawnPacket> {
     }
 
     private void resetData(EntityPlayer player) {
-        player.removeAllEffects();
+        // Can efektlerden once doldurulur: saglik artisi kaldirilirken azami can degisince istemciye
+        // can ozelligi gonderiliyor; can o an hala 0 oldugu icin istemci yeniden dogar dogmaz
+        // tekrar olum ekranini aciyordu.
         player.resetHealth();
+        player.removeAllEffects();
         player.resetFoodData();
         player.extinguish();
         player.setAirSupplyTicks(player.getAirSupplyMaxTicks());

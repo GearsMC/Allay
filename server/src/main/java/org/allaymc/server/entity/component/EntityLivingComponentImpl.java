@@ -519,11 +519,15 @@ public class EntityLivingComponentImpl implements EntityLivingComponent {
 
         effectInstance = event.getEffect();
         var old = effects.put(effectInstance.getType(), effectInstance);
+        // Efekt paketi, efektin yan etkilerinden (ör. saglik artisinin azami can ozelligi) once
+        // gitmeli. Istemci saglik artisini kendi azami canina da uyguluyor; ozellik paketi once
+        // gelirse ustune bir kez daha ekleyip ya da cikarip yanlis kalp sayisi gosteriyor.
+        // PMMP de ozellikleri tick sonunda, efekt paketinden sonra gonderiyor.
+        sendEffects(effectInstance, old);
         if (old == null) {
             effectInstance.getType().onAdd(thisEntity, effectInstance);
             this.baseComponent.broadcastState();
         }
-        sendEffects(effectInstance, old);
 
         return true;
     }
@@ -541,8 +545,9 @@ public class EntityLivingComponentImpl implements EntityLivingComponent {
         }
 
         effects.remove(effectType);
-        effectType.onRemove(thisEntity, removed);
+        // Bkz. addEffect: efekt paketi once, azami can gibi ozellikler sonra.
         sendEffects(null, removed);
+        effectType.onRemove(thisEntity, removed);
         this.baseComponent.broadcastState();
     }
 
