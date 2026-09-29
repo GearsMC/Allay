@@ -50,24 +50,28 @@ public class ServerSettings extends OkaeriConfig {
         private String subMotd = "GearsMC Skyblock";
 
         @CustomKey("max-player-count")
-        private int maxPlayerCount = 20;
+        // GearsMC: PocketMine server.properties (max-players=100)
+        private int maxPlayerCount = 100;
 
         @CustomKey("default-game-mode")
         @Comment("Determines the default game mode of a world when it is created")
         @Comment("Possible values: SURVIVAL, CREATIVE, ADVENTURE, SPECTATOR")
-        private GameMode defaultGameMode = GameMode.CREATIVE;
+        // GearsMC: PocketMine gamemode=SURVIVAL
+        private GameMode defaultGameMode = GameMode.SURVIVAL;
 
         @CustomKey("default-difficulty")
         @Comment("Determines the default difficulty of a world when it is created")
         @Comment("Possible values: PEACEFUL, EASY, NORMAL, HARD")
-        private Difficulty defaultDifficulty = Difficulty.NORMAL;
+        // GearsMC: PocketMine difficulty=3 (zor)
+        private Difficulty defaultDifficulty = Difficulty.HARD;
 
         @CustomKey("default-permission")
         @Comment("Possible values: VISITOR, MEMBER, OPERATOR")
         private String defaultPermission = "MEMBER";
 
         @Comment("The language used by console")
-        private LangCode language = LangCode.en_US;
+        // GearsMC: PocketMine language=tur
+        private LangCode language = LangCode.tr_TR;
 
         @Comment("If debug mode is enabled, the console will output more detailed information")
         private boolean debug = false;
@@ -77,7 +81,8 @@ public class ServerSettings extends OkaeriConfig {
         private boolean enableWhitelist = false;
 
         @CustomKey("enable-gui")
-        private boolean enableGui = true;
+        // GearsMC: sunucu VDS'te ekransiz calisiyor
+        private boolean enableGui = false;
 
         @CustomKey("max-compute-thread-count")
         @Comment("Decide the maximum count of threads in compute thread pool")
@@ -100,7 +105,8 @@ public class ServerSettings extends OkaeriConfig {
         private int port = 19132;
 
         @Comment("Whether IPv6 is enabled")
-        private boolean enablev6 = true;
+        // GearsMC: PocketMine enable-ipv6=off
+        private boolean enablev6 = false;
 
         @Comment("The IPv6 address of this server. Works only when enablev6 is true")
         private String ipv6 = "::";
