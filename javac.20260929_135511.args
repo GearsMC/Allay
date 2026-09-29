@@ -1,6 +1,0 @@
--proc:none
--d
-/tmp/claude-0/-home-claude/b36eb408-4b2c-5d81-a16e-e384b57b632f/scratchpad/jc
--sourcepath
-api/src/main/java:server/src/main/java
-server/src/main/java/org/allaymc/server/network/processor/ingame/BlockPickRequestPacketProcessor.java
