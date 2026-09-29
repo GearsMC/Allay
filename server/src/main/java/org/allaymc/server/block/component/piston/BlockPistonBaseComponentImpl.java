@@ -5,19 +5,24 @@ import org.allaymc.api.block.BlockBehavior;
 import org.allaymc.api.block.data.BlockFace;
 import org.allaymc.api.block.dto.Block;
 import org.allaymc.api.block.dto.PlayerInteractInfo;
+import org.allaymc.api.block.property.enums.MinecraftVerticalHalf;
 import org.allaymc.api.block.type.BlockState;
 import org.allaymc.api.block.type.BlockType;
 import org.allaymc.api.block.type.BlockTypes;
 import org.allaymc.api.blockentity.component.BlockEntityContainerHolderComponent;
+import org.allaymc.api.blockentity.interfaces.BlockEntityHopper;
 import org.allaymc.api.blockentity.interfaces.BlockEntityMovingBlock;
 import org.allaymc.api.blockentity.interfaces.BlockEntityPistonArm;
 import org.allaymc.api.entity.Entity;
 import org.allaymc.api.eventbus.event.block.BlockPistonEvent;
 import org.allaymc.api.item.ItemStack;
+import org.allaymc.api.math.position.Position3i;
 import org.allaymc.api.server.Server;
 import org.allaymc.api.world.Dimension;
+import org.allaymc.api.world.particle.BlockBreakParticle;
 import org.allaymc.api.world.sound.SimpleSound;
 import org.allaymc.server.block.component.BlockBaseComponentImpl;
+import org.joml.Vector3d;
 import org.joml.Vector3i;
 import org.joml.Vector3ic;
 
@@ -28,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 
 import static org.allaymc.api.block.property.type.BlockPropertyTypes.FACING_DIRECTION;
+import static org.allaymc.api.block.property.type.BlockPropertyTypes.MINECRAFT_VERTICAL_HALF;
+import static org.allaymc.api.block.property.type.BlockPropertyTypes.TOGGLE_BIT;
 
 /**
  * Base component implementation for piston and sticky piston blocks.
@@ -243,14 +250,7 @@ public class BlockPistonBaseComponentImpl extends BlockBaseComponentImpl {
             pistonArm.preExtending(blocksToMove, originalStates);
         }
 
-        // 2. Destroy blocks that should be destroyed
-        for (Vector3ic pos : blocksToDestroy) {
-            BlockState state = originalStates.get(pos);
-            if (state != null) {
-                // Break the block (drop items)
-                dimension.breakBlock(pos, null, null);
-            }
-        }
+        destroyPushedBlocks(dimension, blocksToDestroy, originalStates);
 
         // 3. Save block entity NBT and prevent container items from dropping
         Map<Vector3ic, org.cloudburstmc.nbt.NbtMap> blockEntityNBTs = new HashMap<>();
@@ -329,13 +329,7 @@ public class BlockPistonBaseComponentImpl extends BlockBaseComponentImpl {
             pistonArm.preRetracting(blocksToMove, originalStates);
         }
 
-        // 2. Destroy blocks that should be destroyed
-        for (Vector3ic pos : blocksToDestroy) {
-            BlockState state = originalStates.get(pos);
-            if (state != null) {
-                dimension.breakBlock(pos, null, null);
-            }
-        }
+        destroyPushedBlocks(dimension, blocksToDestroy, originalStates);
 
         // 3. For sticky piston, move blocks
         if (isSticky() && !blocksToMove.isEmpty()) {
@@ -496,5 +490,111 @@ public class BlockPistonBaseComponentImpl extends BlockBaseComponentImpl {
      */
     protected boolean isSticky() {
         return false;
+    }
+
+    private void destroyPushedBlocks(Dimension dimension, List<Vector3ic> blocksToDestroy, Map<Vector3ic, BlockState> originalStates) {
+        for (Vector3ic pos : blocksToDestroy) {
+            if (originalStates.get(pos) == null) {
+                continue;
+            }
+            var state = dimension.getBlockState(pos);
+            if (state.getBlockType().getIdentifier().path().endsWith("shulker_box")) {
+                breakShulkerBox(dimension, pos, state);
+            } else {
+                dimension.breakBlock(pos, null, null);
+            }
+        }
+    }
+
+    private void breakShulkerBox(Dimension dimension, Vector3ic pos, BlockState state) {
+        var block = new Block(state, new Position3i(pos, dimension), 0);
+        var drops = new ArrayList<ItemStack>();
+        for (var drop : state.getBehavior().getDrops(block, null, null)) {
+            if (drop != null && !drop.isEmptyOrAir()) {
+                drops.add(drop.copy());
+            }
+        }
+        dimension.addParticle(pos.x() + 0.5, pos.y() + 0.5, pos.z() + 0.5, new BlockBreakParticle(state));
+        dimension.setBlockState(pos, BlockTypes.AIR.getDefaultState());
+
+        var dropPos = hopperFriendlyDropPos(dimension, pos);
+        wakeHoppersAround(dimension, pos);
+        var motion = new Vector3d(0, 0, 0);
+        for (var drop : drops) {
+            if (!offerDropToHopper(dimension, pos.x(), pos.y() - 1, pos.z(), dropPos, drop)
+                    && !offerDropToHopper(dimension, pos.x(), pos.y() - 2, pos.z(), dropPos, drop)) {
+                dimension.dropItem(drop, dropPos, motion, 0);
+            }
+        }
+    }
+
+    private boolean offerDropToHopper(Dimension dimension, int x, int y, int z, Vector3d dropPos, ItemStack drop) {
+        if (!dimension.isInWorld(x, y, z) || drop.isEmptyOrAir()) {
+            return false;
+        }
+        var state = dimension.getBlockState(x, y, z);
+        if (state.getBlockType() != BlockTypes.HOPPER || state.getPropertyValue(TOGGLE_BIT)) {
+            return false;
+        }
+        if (dropPos.x() < x || dropPos.x() >= x + 1 || dropPos.y() < y || dropPos.y() >= y + 2 || dropPos.z() < z || dropPos.z() >= z + 1) {
+            return false;
+        }
+        if (!(dimension.getBlockEntity(x, y, z) instanceof BlockEntityHopper hopper) || hopper.getContainer().isFull()) {
+            return false;
+        }
+        if (hopper.getContainer().tryAddItem(drop) == -1) {
+            return false;
+        }
+        hopper.setTransferCooldown(8);
+        return true;
+    }
+
+    private Vector3d hopperFriendlyDropPos(Dimension dimension, Vector3ic pos) {
+        var belowPos = BlockFace.DOWN.offsetPos(pos);
+        if (!dimension.isInWorld(belowPos.x(), belowPos.y(), belowPos.z())) {
+            return new Vector3d(pos.x() + 0.5, pos.y() + 0.25, pos.z() + 0.5);
+        }
+
+        var below = dimension.getBlockState(belowPos);
+        if (below.getBlockType() == BlockTypes.HOPPER) {
+            return new Vector3d(pos.x() + 0.5, pos.y() + 0.25, pos.z() + 0.5);
+        }
+        if (below.getBlockType().hasProperty(MINECRAFT_VERTICAL_HALF)) {
+            double surfaceY = below.getPropertyValue(MINECRAFT_VERTICAL_HALF) == MinecraftVerticalHalf.BOTTOM ? 0.51 : 0.01;
+            return new Vector3d(belowPos.x() + 0.5, belowPos.y() + surfaceY, belowPos.z() + 0.5);
+        }
+        if (below.getBlockType() == BlockTypes.SOUL_SAND || below.getBlockType() == BlockTypes.MUD) {
+            return new Vector3d(belowPos.x() + 0.5, belowPos.y() + 0.9, belowPos.z() + 0.5);
+        }
+        return new Vector3d(pos.x() + 0.5, pos.y() + 0.25, pos.z() + 0.5);
+    }
+
+    private void wakeHoppersAround(Dimension dimension, Vector3ic pos) {
+        int x = pos.x();
+        int y = pos.y();
+        int z = pos.z();
+        wakeHopperAt(dimension, x, y - 1, z, null);
+        wakeHopperAt(dimension, x, y - 2, z, null);
+        wakeHopperAt(dimension, x, y + 1, z, BlockFace.DOWN);
+        wakeHopperAt(dimension, x, y, z + 1, BlockFace.NORTH);
+        wakeHopperAt(dimension, x, y, z - 1, BlockFace.SOUTH);
+        wakeHopperAt(dimension, x + 1, y, z, BlockFace.WEST);
+        wakeHopperAt(dimension, x - 1, y, z, BlockFace.EAST);
+    }
+
+    private void wakeHopperAt(Dimension dimension, int x, int y, int z, BlockFace requiredFacing) {
+        if (!dimension.isInWorld(x, y, z)) {
+            return;
+        }
+        var state = dimension.getBlockState(x, y, z);
+        if (state.getBlockType() != BlockTypes.HOPPER) {
+            return;
+        }
+        if (requiredFacing != null && BlockFace.fromIndex(state.getPropertyValue(FACING_DIRECTION)) != requiredFacing) {
+            return;
+        }
+        if (dimension.getBlockEntity(x, y, z) instanceof BlockEntityHopper hopper) {
+            hopper.setTransferCooldown(0);
+        }
     }
 }

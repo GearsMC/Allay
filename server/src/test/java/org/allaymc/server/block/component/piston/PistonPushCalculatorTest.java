@@ -48,6 +48,32 @@ class PistonPushCalculatorTest {
         assertFalse(calculator.calculate());
     }
 
+    @Test
+    void testShulkerBoxBreaksWhenPushed() {
+        var calculator = new PistonPushCalculator(
+                dimensionWithBlockAbovePiston(BlockTypes.UNDYED_SHULKER_BOX.getDefaultState()),
+                PISTON_POS, BlockFace.UP, false, true
+        );
+
+        assertTrue(calculator.calculate());
+        assertEquals(0, calculator.getBlocksToMove().size());
+        assertEquals(1, calculator.getBlocksToDestroy().size());
+    }
+
+    @Test
+    void testShulkerBoxIsNotPulled() {
+        var shulker = BlockTypes.BLACK_SHULKER_BOX.getDefaultState();
+        var dimension = mock(Dimension.class);
+        when(dimension.getBlockState(any(Vector3ic.class))).thenAnswer(invocation -> {
+            Vector3ic pos = invocation.getArgument(0);
+            return pos.x() == 0 && pos.y() == 66 && pos.z() == 0 ? shulker : BlockTypes.AIR.getDefaultState();
+        });
+        var calculator = new PistonPushCalculator(dimension, PISTON_POS, BlockFace.UP, true, false);
+
+        assertFalse(calculator.calculate());
+        assertEquals(0, calculator.getBlocksToDestroy().size());
+    }
+
     private static Dimension dimensionWithBlockAbovePiston(BlockState blockState) {
         var dimension = mock(Dimension.class);
         when(dimension.getBlockState(any(Vector3ic.class))).thenAnswer(invocation -> {

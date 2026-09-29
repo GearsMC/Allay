@@ -83,7 +83,12 @@ public class DispenserBehaviorRegistryLoader implements RegistryLoader<Void, Map
         // TODO: DyeDispenseBehavior - Bone meal/fertilizer functionality on fertilizable blocks
         // TODO: MinecartDispenseBehavior - Spawns minecart entities on rail blocks (all minecart variants)
         // TODO: ShearsDispenseBehavior - Shears shearable entities (sheep, snow golem, mooshroom, etc.)
-        // TODO: ShulkerBoxDispenseBehavior - Places shulker boxes in front of dispenser
+        var shulkerBoxBehavior = new ShulkerBoxDispenseBehavior();
+        for (var itemType : Registries.ITEMS.getContent().values()) {
+            if (itemType.getIdentifier().path().endsWith("shulker_box")) {
+                map.put(itemType, shulkerBoxBehavior);
+            }
+        }
 
         return map;
     }

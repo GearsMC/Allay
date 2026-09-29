@@ -358,6 +358,10 @@ public class PistonPushCalculator {
             return false;
         }
 
+        if (isShulkerBox(state) && !pushing) {
+            return false;
+        }
+
         return true;
     }
 
@@ -365,7 +369,14 @@ public class PistonPushCalculator {
      * Check if a block should be destroyed when pushed.
      */
     private boolean shouldDestroyBlock(BlockState state) {
+        if (isShulkerBox(state)) {
+            return true;
+        }
         return state.getBlockType().hasBlockTag(BlockTags.BREAK_WHEN_PUSHED);
+    }
+
+    private boolean isShulkerBox(BlockState state) {
+        return state.getBlockType().getIdentifier().path().endsWith("shulker_box");
     }
 
     /**

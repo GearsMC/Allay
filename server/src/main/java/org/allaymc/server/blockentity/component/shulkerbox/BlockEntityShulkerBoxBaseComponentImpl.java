@@ -62,6 +62,10 @@ public class BlockEntityShulkerBoxBaseComponentImpl extends BlockEntityBaseCompo
                 .build();
     }
 
+    public void setFacing(BlockFace facing) {
+        this.facing = facing;
+    }
+
     @EventHandler
     protected void onBlockPlace(CBlockOnPlaceEvent event) {
         var placementInfo = event.getPlacementInfo();
