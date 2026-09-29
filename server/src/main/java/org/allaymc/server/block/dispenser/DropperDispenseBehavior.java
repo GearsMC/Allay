@@ -10,6 +10,7 @@ import org.allaymc.api.container.interfaces.SidedContainer;
 import org.allaymc.api.item.ItemStack;
 import org.allaymc.api.item.interfaces.ItemAirStack;
 import org.allaymc.api.math.MathUtils;
+import org.allaymc.api.registry.Registries;
 import org.allaymc.api.world.particle.ShootParticle;
 import org.allaymc.api.world.sound.SimpleSound;
 import org.joml.Vector3d;
@@ -40,6 +41,12 @@ public class DropperDispenseBehavior implements DispenseBehavior {
                 // No sound when transferring to container (vanilla behavior)
                 return DispenseResult.success();
             }
+        }
+
+        // Shulker boxes are placed in front of the dropper when possible instead of being dropped as an item
+        if (Registries.DISPENSER_BEHAVIORS.get(item.getItemType()) instanceof ShulkerBoxDispenseBehavior shulkerBoxBehavior
+                && shulkerBoxBehavior.dispense(block, face, item).succeeded()) {
+            return DispenseResult.success();
         }
 
         dropItem(block, face, item);
