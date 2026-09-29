@@ -447,8 +447,50 @@ public class AllayPlayer implements Player {
         }
 
         boolean trustSkin = AllayServer.getSettings().resourcePackSettings().trustAllSkins();
-        sendPackets(getProtocol().getEncoder().encodePlayerSkin(player, trustSkin));
+        var packets = getProtocol().getEncoder().encodePlayerSkin(player, trustSkin);
+        if (player == this.controlledEntity) {
+            packets.forEach(this::useClientUuidForSelf);
+        }
+        sendPackets(packets);
         sendPackets(getProtocol().getEncoder().encodeSkinConfirmation(player, skin));
+    }
+
+    /**
+     * GearsMC fork: oyuncunun kendisini anlatan paketlerde sunucu UUID'si yerine istemcinin kendi UUID'sini
+     * kullanir (bkz. {@link AllayLoginData#getClientUuid()}). Istemci {@code PlayerSkinPacket}'i yalnizca
+     * UUID tam eslesirse uygular; eslesmedigi icin oyuncu kostum degisimini ve pelerini kendinde goremiyordu.
+     */
+    private void useClientUuidForSelf(BedrockPacket packet) {
+        var serverUuid = this.loginData.getUuid();
+        var clientUuid = this.loginData.getClientUuid();
+        if (clientUuid == null || clientUuid.equals(serverUuid)) {
+            return;
+        }
+        if (packet instanceof PlayerSkinPacket skinPacket && serverUuid.equals(skinPacket.getUuid())) {
+            skinPacket.setUuid(clientUuid);
+        } else if (packet instanceof PlayerListPacket listPacket) {
+            var entries = listPacket.getEntries();
+            for (int i = 0; i < entries.size(); i++) {
+                var entry = entries.get(i);
+                if (!serverUuid.equals(entry.getUuid())) {
+                    continue;
+                }
+                var copy = new PlayerListPacket.Entry(clientUuid);
+                copy.setAction(entry.getAction());
+                copy.setEntityId(entry.getEntityId());
+                copy.setName(entry.getName());
+                copy.setXuid(entry.getXuid());
+                copy.setPlatformChatId(entry.getPlatformChatId());
+                copy.setSkin(entry.getSkin());
+                copy.setBuildPlatform(entry.getBuildPlatform());
+                copy.setTeacher(entry.isTeacher());
+                copy.setHost(entry.isHost());
+                copy.setTrustedSkin(entry.isTrustedSkin());
+                copy.setSubClient(entry.isSubClient());
+                copy.setColor(entry.getColor());
+                entries.set(i, copy);
+            }
+        }
     }
 
     @Override
@@ -1972,11 +2014,13 @@ public class AllayPlayer implements Player {
             return;
         }
 
-        sendPacket(getProtocol().getEncoder().encodePlayerList(
+        var packet = getProtocol().getEncoder().encodePlayerList(
                 visible,
                 add,
                 AllayServer.getSettings().resourcePackSettings().trustAllSkins()
-        ));
+        );
+        useClientUuidForSelf(packet);
+        sendPacket(packet);
     }
 
     /**

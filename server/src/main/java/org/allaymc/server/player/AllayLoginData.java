@@ -40,6 +40,13 @@ public class AllayLoginData implements LoginData {
     private InputMode currentInputMode;
     private InputMode defaultInputMode;
     private Skin skin;
+    /**
+     * GearsMC fork: istemcinin kendisi icin bildigi UUID. Sunucu kimligi ({@link #uuid}) depolama icin
+     * {@code xuid:} onekiyle uretiliyor; istemci ise kendini zincirdeki kimlikle (yeni girislerde
+     * {@code pocket-auth-1-xuid:} + xuid) taniyor. Oyuncunun kendisine giden gorunum ve oyuncu listesi
+     * paketleri bu UUID'yi tasimali, yoksa istemci paketi kendi oyuncusuna uygulamaz.
+     */
+    private UUID clientUuid;
     private String identityPublicKey;
     private NetEaseData netEaseData;
 
@@ -77,6 +84,9 @@ public class AllayLoginData implements LoginData {
 
         try {
             loginData.uuid = resolveUuid(loginData.xuid, loginData.xname);
+            if (loginData.clientUuid == null) {
+                loginData.clientUuid = loginData.uuid;
+            }
         } catch (Throwable t) {
             log.warn("Failed to resolve player UUID!", t);
             return null;
@@ -109,6 +119,7 @@ public class AllayLoginData implements LoginData {
         var extraData = result.identityClaims().extraData;
         this.xname = extraData.displayName;
         this.xuid = extraData.xuid;
+        this.clientUuid = extraData.identity;
         this.identityPublicKey = result.identityClaims().identityPublicKey;
 
         if (isNetEaseClient) {
