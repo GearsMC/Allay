@@ -1212,13 +1212,34 @@ public class PacketEncoder_v766 extends PacketEncoder {
         metadata.setFlag(EntityFlag.INVISIBLE, entity.isInvisible());
         metadata.setFlag(EntityFlag.NO_AI, entity.isImmobile());
         metadata.setFlag(EntityFlag.SITTING, entity.isSitting());
-        // PocketMine gibi: istemci genislik/yuksekligi SCALE ile kendisi carpiyor, bu yuzden
-        // olceksiz kutu gidiyor. Olcekli kutu gonderilince olcek iki kez uygulaniyordu.
-        // HITBOX ve COLLISION_BOX PocketMine'da gonderilmiyor; ozel vurus kutusu olan
-        // varliklarda (Ender ejderhasi) istemcinin carpisma kutusunu bozuyordu.
-        var base = entity.getBaseAABB();
-        metadata.put(EntityDataTypes.WIDTH, (float) (base.maxX() - base.minX()));
-        metadata.put(EntityDataTypes.HEIGHT, (float) (base.maxY() - base.minY()));
+        if (entity.isPocketMineSizeMetadata()) {
+            // PocketMine gibi: istemci genislik/yuksekligi SCALE ile kendisi carpiyor, bu yuzden
+            // olceksiz kutu gidiyor; HITBOX ve COLLISION_BOX gonderilmiyor.
+            var base = entity.getBaseAABB();
+            metadata.put(EntityDataTypes.WIDTH, (float) (base.maxX() - base.minX()));
+            metadata.put(EntityDataTypes.HEIGHT, (float) (base.maxY() - base.minY()));
+        } else {
+            var aabb = entity.getAABB();
+            var hitbox = NbtMap.builder()
+                    .putFloat("MinX", 0)
+                    .putFloat("MinY", 0)
+                    .putFloat("MinZ", 0)
+                    .putFloat("MaxX", (float) (aabb.maxX() - aabb.minX()))
+                    .putFloat("MaxY", (float) (aabb.maxY() - aabb.minY()))
+                    .putFloat("MaxZ", (float) (aabb.maxZ() - aabb.minZ()))
+                    .putFloat("PivotX", 0)
+                    .putFloat("PivotY", 0)
+                    .putFloat("PivotZ", 0)
+                    .build();
+            metadata.put(EntityDataTypes.HITBOX, hitbox);
+            metadata.put(EntityDataTypes.COLLISION_BOX, Vector3f.from(
+                    (float) (aabb.maxX() - aabb.minX()),
+                    (float) (aabb.maxY() - aabb.minY()),
+                    (float) (aabb.maxZ() - aabb.minZ())
+            ));
+            metadata.put(EntityDataTypes.WIDTH, (float) (aabb.maxX() - aabb.minX()));
+            metadata.put(EntityDataTypes.HEIGHT, (float) (aabb.maxY() - aabb.minY()));
+        }
         metadata.put(EntityDataTypes.SCALE, (float) entity.getScale());
         // v766-v827 clients crash if HAS_NPC is true for an item entity.
         metadata.put(EntityDataTypes.HAS_NPC, !(entity instanceof EntityItem));

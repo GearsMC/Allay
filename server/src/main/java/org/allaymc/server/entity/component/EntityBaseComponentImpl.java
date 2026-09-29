@@ -130,6 +130,8 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
     @Getter
     protected double scale;
     protected AABBdc customBaseAABB;
+    @Getter
+    protected boolean pocketMineSizeMetadata;
     protected Double customEyeHeight;
     protected Set<String> tags;
     @Getter
@@ -392,6 +394,12 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
     @Override
     public void setBaseAABB(AABBdc aabb) {
         this.customBaseAABB = aabb == null ? null : new AABBd(aabb);
+        broadcastState();
+    }
+
+    @Override
+    public void setPocketMineSizeMetadata(boolean enabled) {
+        this.pocketMineSizeMetadata = enabled;
         broadcastState();
     }
 

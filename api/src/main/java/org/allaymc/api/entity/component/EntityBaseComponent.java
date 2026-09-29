@@ -540,6 +540,22 @@ public interface EntityBaseComponent extends EntityComponent, CommandSender, Has
     void setBaseAABB(AABBdc aabb);
 
     /**
+     * Istemciye giden boyut verisini PocketMine gibi gonderir: genislik/yukseklik olceksiz
+     * temel kutudan gider (istemci SCALE ile kendisi carpar), HITBOX ve COLLISION_BOX gitmez.
+     * Varsayilan kapali; yalnizca acilan varliklari etkiler.
+     *
+     * <p>GearsMC fork eki.</p>
+     *
+     * @param enabled {@code true} ise PocketMine bicimi kullanilir
+     */
+    void setPocketMineSizeMetadata(boolean enabled);
+
+    /**
+     * @return {@link #setPocketMineSizeMetadata(boolean)} acik mi
+     */
+    boolean isPocketMineSizeMetadata();
+
+    /**
      * Bu varligin goz yuksekligini, varsayilan hesabi ezerek ayarlar.
      *
      * <p>Varsayilan hesap: olceklenmis carpisma kutusu yuksekliginin %90'i
