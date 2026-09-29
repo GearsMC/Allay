@@ -392,10 +392,13 @@ public class EntityPlayerBaseComponentImpl extends EntityBaseComponentImpl imple
         }
 
         var itemInHand = thisPlayer.getItemInHand();
-        if (itemInHand != null && !itemInHand.isEmptyOrAir()) {
-            long usedTime = currentTick - startUsingItemInAirTime;
-            itemInHand.onUseInAirTick(thisPlayer, usedTime);
+        if (itemInHand == null || itemInHand.isEmptyOrAir()) {
+            // Kullanılan eşya elden çıktı (atıldı, taşındı): kullanım askıda kalmasın
+            setUsingItemInAir(false);
+            return;
         }
+        long usedTime = currentTick - startUsingItemInAirTime;
+        itemInHand.onUseInAirTick(thisPlayer, usedTime);
     }
 
     protected void tickFood() {

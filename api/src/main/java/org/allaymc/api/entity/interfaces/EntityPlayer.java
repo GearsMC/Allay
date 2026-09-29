@@ -183,6 +183,13 @@ public interface EntityPlayer extends
             return;
         }
 
+        // Vanilla/PocketMine gibi: slot değişince süren kullanım (yay çekme, yemek) iptal edilir.
+        // Aksi halde USING_ITEM bayrağı açık kalır, oyuncu koşamaz ve eski slota dönünce yay
+        // kendiliğinden çekili görünür. Olaydan önce temizlenir ki dinleyiciler yeniden açabilsin.
+        if (isUsingItemInAir()) {
+            setUsingItemInAir(false);
+        }
+
         var oldItemStack = container.getItemInHand();
         var newItemStack = container.getItemStack(handSlot);
         var event = new PlayerItemHeldEvent(this, oldItemStack, oldHandSlot, newItemStack, handSlot);
