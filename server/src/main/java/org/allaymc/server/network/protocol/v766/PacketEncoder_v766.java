@@ -1212,6 +1212,12 @@ public class PacketEncoder_v766 extends PacketEncoder {
         metadata.setFlag(EntityFlag.INVISIBLE, entity.isInvisible());
         metadata.setFlag(EntityFlag.NO_AI, entity.isImmobile());
         metadata.setFlag(EntityFlag.SITTING, entity.isSitting());
+        var ridingVehicle = entity.getRidingVehicle();
+        if (ridingVehicle != null) {
+            metadata.setFlag(EntityFlag.RIDING, true);
+            var seat = ridingVehicle.getPassengerSeatOffset();
+            metadata.put(EntityDataTypes.SEAT_OFFSET, Vector3f.from(seat.x(), seat.y(), seat.z()));
+        }
         if (entity.isPocketMineSizeMetadata()) {
             // PocketMine gibi: istemci genislik/yuksekligi SCALE ile kendisi carpiyor, bu yuzden
             // olceksiz kutu gidiyor; HITBOX ve COLLISION_BOX gonderilmiyor.
@@ -1383,6 +1389,7 @@ public class PacketEncoder_v766 extends PacketEncoder {
             // Sunucu ates gecirmez esyayi (minecraft:fireproof etiketi) yakmasa bile bu bayrak
             // yoksa istemci onu yaniyor gibi gosterip gizler; FIRE_IMMUNE bunu engeller.
             case EntityItem item -> metadata.setFlag(EntityFlag.FIRE_IMMUNE, item.isFireproof());
+            case EntityCushion cushion -> metadata.put(EntityDataTypes.VARIANT, cushion.getColor().ordinalInverted());
             case EntityXpOrb xpOrb -> metadata.put(EntityDataTypes.VALUE, xpOrb.getExperienceValue());
             case EntityWither wither -> {
                 metadata.put(EntityDataTypes.WITHER_INVULNERABLE_TICKS, wither.getWitherInvulnerableTicks());

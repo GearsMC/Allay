@@ -1712,6 +1712,15 @@ public final class EntityTypeInitializer {
                 .build();
     }
 
+    public static void initCushion() {
+        EntityTypes.CUSHION = AllayEntityType
+                .builder(EntityCushionImpl.class)
+                .vanillaEntity(EntityId.CUSHION)
+                .addComponent(EntityCushionBaseComponentImpl::new, EntityCushionBaseComponentImpl.class)
+                .addComponent(EntityLivingComponentImpl::new, EntityLivingComponentImpl.class)
+                .build();
+    }
+
     public static void initFireworkRocket() {
         EntityTypes.FIREWORKS_ROCKET = AllayEntityType
                 .builder(EntityFireworksRocketImpl.class)

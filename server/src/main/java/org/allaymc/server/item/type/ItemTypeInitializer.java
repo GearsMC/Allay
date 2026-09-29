@@ -9,6 +9,7 @@ import org.allaymc.api.entity.interfaces.EntitySplashPotion;
 import org.allaymc.api.entity.property.enums.ClimateVariant;
 import org.allaymc.api.item.ItemStack;
 import org.allaymc.api.item.data.ArmorType;
+import org.allaymc.api.item.data.ItemData;
 import org.allaymc.api.item.data.DiscType;
 import org.allaymc.api.item.data.PotionType;
 import org.allaymc.api.item.interfaces.*;
@@ -36,6 +37,7 @@ import org.allaymc.server.item.component.tool.ItemToolComponentImpl;
 import org.allaymc.server.item.component.weapon.*;
 import org.allaymc.server.item.data.ItemId;
 import org.allaymc.server.item.impl.*;
+import org.allaymc.server.registry.InternalRegistries;
 import org.joml.Vector3d;
 
 import java.util.function.Supplier;
@@ -1184,6 +1186,50 @@ public final class ItemTypeInitializer {
                 .builder(ItemCarvedPumpkinStackImpl.class)
                 .vanillaItem(ItemId.CARVED_PUMPKIN)
                 .addComponent(() -> new ItemWearableComponentImpl(ArmorType.HELMET), ItemWearableComponentImpl.class)
+                .build();
+    }
+
+    public static void initCushions() {
+        ItemTypes.WHITE_CUSHION = buildCushion(ItemWhiteCushionStackImpl.class, ItemId.WHITE_CUSHION);
+        ItemTypes.ORANGE_CUSHION = buildCushion(ItemOrangeCushionStackImpl.class, ItemId.ORANGE_CUSHION);
+        ItemTypes.MAGENTA_CUSHION = buildCushion(ItemMagentaCushionStackImpl.class, ItemId.MAGENTA_CUSHION);
+        ItemTypes.LIGHT_BLUE_CUSHION = buildCushion(ItemLightBlueCushionStackImpl.class, ItemId.LIGHT_BLUE_CUSHION);
+        ItemTypes.YELLOW_CUSHION = buildCushion(ItemYellowCushionStackImpl.class, ItemId.YELLOW_CUSHION);
+        ItemTypes.LIME_CUSHION = buildCushion(ItemLimeCushionStackImpl.class, ItemId.LIME_CUSHION);
+        ItemTypes.PINK_CUSHION = buildCushion(ItemPinkCushionStackImpl.class, ItemId.PINK_CUSHION);
+        ItemTypes.GRAY_CUSHION = buildCushion(ItemGrayCushionStackImpl.class, ItemId.GRAY_CUSHION);
+        ItemTypes.LIGHT_GRAY_CUSHION = buildCushion(ItemLightGrayCushionStackImpl.class, ItemId.LIGHT_GRAY_CUSHION);
+        ItemTypes.CYAN_CUSHION = buildCushion(ItemCyanCushionStackImpl.class, ItemId.CYAN_CUSHION);
+        ItemTypes.PURPLE_CUSHION = buildCushion(ItemPurpleCushionStackImpl.class, ItemId.PURPLE_CUSHION);
+        ItemTypes.BLUE_CUSHION = buildCushion(ItemBlueCushionStackImpl.class, ItemId.BLUE_CUSHION);
+        ItemTypes.BROWN_CUSHION = buildCushion(ItemBrownCushionStackImpl.class, ItemId.BROWN_CUSHION);
+        ItemTypes.GREEN_CUSHION = buildCushion(ItemGreenCushionStackImpl.class, ItemId.GREEN_CUSHION);
+        ItemTypes.RED_CUSHION = buildCushion(ItemRedCushionStackImpl.class, ItemId.RED_CUSHION);
+        ItemTypes.BLACK_CUSHION = buildCushion(ItemBlackCushionStackImpl.class, ItemId.BLACK_CUSHION);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T extends ItemStack> ItemType<T> buildCushion(Class<? extends ItemStack> stackClass, ItemId itemId) {
+        return (ItemType<T>) AllayItemType.builder(stackClass)
+                .vanillaItem(itemId)
+                .itemData(cushionItemData(itemId))
+                .addComponent(ItemCushionBaseComponentImpl::new, ItemCushionBaseComponentImpl.class)
+                .build();
+    }
+
+    private static ItemData cushionItemData(ItemId itemId) {
+        var source = InternalRegistries.ITEM_DATA.get(itemId);
+        return ItemData.builder()
+                .armorValue(source.armorValue())
+                .enchantValue(source.enchantValue())
+                .attackDamage(source.attackDamage())
+                .isDamageable(source.isDamageable())
+                .maxDamage(source.maxDamage())
+                .maxStackSize(source.maxStackSize())
+                .toughnessValue(source.toughnessValue())
+                .furnaceBurnDuration(200)
+                .furnaceXPMultiplier(source.furnaceXPMultiplier())
+                .translationKey(source.translationKey())
                 .build();
     }
 

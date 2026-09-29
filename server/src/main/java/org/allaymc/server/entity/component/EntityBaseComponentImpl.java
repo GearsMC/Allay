@@ -51,6 +51,8 @@ import org.cloudburstmc.nbt.NbtMap;
 import org.cloudburstmc.nbt.NbtMapBuilder;
 import org.cloudburstmc.nbt.NbtType;
 import org.jetbrains.annotations.UnmodifiableView;
+import org.joml.Vector3d;
+import org.joml.Vector3dc;
 import org.joml.primitives.AABBd;
 import org.joml.primitives.AABBdc;
 
@@ -122,6 +124,8 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
     /** GearsMC fork: istemciye SITTING bayrağıyla giden oturma pozu. */
     @Getter
     protected boolean sitting;
+    protected Entity ridingVehicle;
+    protected Entity passenger;
     /**
      * GearsMC fork: izleyici başına görünürlük süzgeci; {@code null} ise süzgeç yok.
      * {@code volatile}: eklenti iş parçacığından ayarlanabilir, dünya iş parçacığından okunur.
@@ -293,7 +297,7 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
         }
 
         newLocation = event.getTo();
-        if (this.immobile) {
+        if (this.immobile || this.ridingVehicle != null) {
             // immobile entity cannot move around, but is still allowed to look around
             var loc = new Location3d(newLocation);
             loc.set(this.location.x, this.location.y, this.location.z);
@@ -386,6 +390,88 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
     }
 
     @Override
+    public Entity getRidingVehicle() {
+        return ridingVehicle;
+    }
+
+    @Override
+    public void setRidingVehicle(Entity vehicle) {
+        this.ridingVehicle = vehicle;
+    }
+
+    @Override
+    public Entity getPassenger() {
+        return passenger;
+    }
+
+    @Override
+    public boolean mountPassenger(Entity passenger) {
+        if (passenger == null || passenger == thisEntity || passenger.getRidingVehicle() != null || this.passenger != null) {
+            return false;
+        }
+        for (var vehicle = this.ridingVehicle; vehicle != null; vehicle = vehicle.getRidingVehicle()) {
+            if (vehicle == passenger) {
+                return false;
+            }
+        }
+
+        this.passenger = passenger;
+        passenger.setRidingVehicle(thisEntity);
+        if (passenger.isSpawned() && isSpawned() && passenger.getDimension() == getDimension()) {
+            passenger.teleport(seatLocation(passenger));
+        }
+        sendRideLink(passenger, true);
+        return true;
+    }
+
+    @Override
+    public void dismountPassenger(boolean standUp) {
+        var rider = this.passenger;
+        if (rider == null) {
+            return;
+        }
+
+        this.passenger = null;
+        if (rider.getRidingVehicle() == thisEntity) {
+            rider.setRidingVehicle(null);
+        }
+        sendRideLink(rider, false);
+        if (standUp && rider.isSpawned() && isSpawned() && rider.getDimension() == getDimension()) {
+            rider.teleport(seatLocation(rider));
+        }
+    }
+
+    @Override
+    public Vector3dc getPassengerSeatOffset() {
+        return new Vector3d();
+    }
+
+    private Location3d seatLocation(Entity rider) {
+        var seat = getPassengerSeatOffset();
+        var from = rider.getLocation();
+        var target = new Location3d(location.x() + seat.x(), location.y() + seat.y(), location.z() + seat.z(), getDimension());
+        target.setYaw(from.yaw());
+        target.setPitch(from.pitch());
+        return target;
+    }
+
+    private void sendRideLink(Entity rider, boolean riding) {
+        var targets = new HashSet<WorldViewer>();
+        targets.addAll(getViewers());
+        targets.addAll(rider.getViewers());
+        if (rider instanceof EntityPlayer player && player.getController() != null) {
+            targets.add(player.getController());
+        }
+        for (var viewer : targets) {
+            viewer.viewEntityRider(thisEntity, rider, riding);
+        }
+        rider.broadcastState();
+        if (rider instanceof EntityPlayer player && player.getController() != null) {
+            player.getController().viewEntityState(rider);
+        }
+    }
+
+    @Override
     public void setScale(double scale) {
         this.scale = scale;
         broadcastState();
@@ -437,6 +523,12 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
 
     @Override
     public void remove(Runnable callback) {
+        if (this.passenger != null) {
+            dismountPassenger(true);
+        }
+        if (this.ridingVehicle != null) {
+            this.ridingVehicle.dismountPassenger(false);
+        }
         getDimension().getEntityManager().removeEntity(thisEntity, callback);
     }
 
@@ -601,6 +693,12 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
 
         viewer.viewEntity(thisEntity);
         viewer.viewEntityState(thisEntity);
+        if (this.passenger != null) {
+            viewer.viewEntityRider(thisEntity, this.passenger, true);
+        }
+        if (this.ridingVehicle != null) {
+            viewer.viewEntityRider(this.ridingVehicle, thisEntity, true);
+        }
     }
 
     /**

@@ -14,6 +14,13 @@ public class InteractPacketProcessor extends PacketProcessor<InteractPacket> {
     public void handleSync(Player player, InteractPacket packet, long receiveTime) {
         if (packet.getAction() == InteractPacket.Action.OPEN_INVENTORY) {
             player.getControlledEntity().getContainer(ContainerTypes.INVENTORY).addViewer(player);
+            return;
+        }
+        if (packet.getAction() == InteractPacket.Action.LEAVE_VEHICLE) {
+            var ridden = player.getControlledEntity().getRidingVehicle();
+            if (ridden != null) {
+                ridden.dismountPassenger(true);
+            }
         }
     }
 

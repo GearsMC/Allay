@@ -30,6 +30,7 @@ public final class LegacyEntityNames {
             Map.entry("FallingSand", "minecraft:falling_block"),
             Map.entry("Item", "minecraft:item"),
             Map.entry("Minecart", "minecraft:minecart"),
+            Map.entry("Cushion", "minecraft:cushion"),
             Map.entry("ChestMinecart", "minecraft:chest_minecart"),
             Map.entry("HopperMinecart", "minecraft:hopper_minecart"),
             Map.entry("Painting", "minecraft:painting"),

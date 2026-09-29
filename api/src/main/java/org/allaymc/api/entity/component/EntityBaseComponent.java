@@ -245,6 +245,18 @@ public interface EntityBaseComponent extends EntityComponent, CommandSender, Has
      */
     void setSitting(boolean sitting);
 
+    Entity getRidingVehicle();
+
+    void setRidingVehicle(Entity vehicle);
+
+    Entity getPassenger();
+
+    boolean mountPassenger(Entity passenger);
+
+    void dismountPassenger(boolean standUp);
+
+    Vector3dc getPassengerSeatOffset();
+
     /**
      * İzleyici başına görünürlük süzgecini ayarlar (GearsMC fork).
      * <p>

@@ -271,7 +271,7 @@ public abstract class PacketEncoder {
                                                  boolean riding) {
         var packet = new SetEntityLinkPacket();
         packet.setEntityLink(new EntityLinkData(vehicleRuntimeId, riderRuntimeId,
-                riding ? EntityLinkData.Type.RIDER : EntityLinkData.Type.REMOVE, false, false, 0f));
+                riding ? EntityLinkData.Type.RIDER : EntityLinkData.Type.REMOVE, true, riding, riding ? 1f : 0f));
         return packet;
     }
 
