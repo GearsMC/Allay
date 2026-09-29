@@ -42,11 +42,12 @@ public class ServerSettings extends OkaeriConfig {
     @Accessors(fluent = true)
     public static class GenericSettings extends OkaeriConfig {
 
-        private String motd = "An allay-powered server";
+        // GearsMC: PocketMine server.properties ile ayni (motd=GearsMC Skyblock)
+        private String motd = "GearsMC Skyblock";
 
         @CustomKey("sub-motd")
         @Comment("Usually only visible on the LAN interface")
-        private String subMotd = "https://github.com/AllayMC/Allay";
+        private String subMotd = "GearsMC Skyblock";
 
         @CustomKey("max-player-count")
         private int maxPlayerCount = 20;
