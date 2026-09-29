@@ -191,11 +191,14 @@ public class EntitySulfurCubeBaseComponentImpl extends EntityBaseComponentImpl i
         growthBlocked = true;
     }
 
-    /**
-     * @return buyumesinin engellenip engellenmedigi
-     */
+    @Override
     public boolean isGrowthBlocked() {
         return growthBlocked;
+    }
+
+    @Override
+    public void setGrowthBlocked(boolean growthBlocked) {
+        this.growthBlocked = growthBlocked;
     }
 
     @Override

@@ -21,6 +21,18 @@ public interface EntitySulfurCubeBaseComponent extends EntityBaseComponent {
     void setLarge(boolean large);
 
     /**
+     * @return kupun buyumesinin engellenip engellenmedigi
+     */
+    boolean isGrowthBlocked();
+
+    /**
+     * Kucuk kupun zamanla buyuyup buyumeyecegini ayarlar; altin karahindiba bunu acar.
+     *
+     * @param growthBlocked buyumeyi durdurmak icin {@code true}
+     */
+    void setGrowthBlocked(boolean growthBlocked);
+
+    /**
      * @return kupun icindeki blok; bos ise {@code null}
      */
     BlockState getAbsorbedBlock();

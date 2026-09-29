@@ -1476,6 +1476,9 @@ public class PacketEncoder_v766 extends PacketEncoder {
                 // Resmi davranis paketinde kucuk kup 1, buyuk kup 2. Sifir hicbir boyuta karsilik
                 // gelmiyor; kucuge 0 gondermek istemciye tanimsiz bir durum birakiyordu.
                 metadata.put(EntityDataTypes.VARIANT, sulfurCube.isLarge() ? 2 : 1);
+                // Istemci kucuk kupu VARIANT'tan degil yavru bayragindan cizer: kucuk kup vanilla'da
+                // buyuyen bir yavru. Bayrak olmadan kucuk kup de tam boy (yetiskin) gorunuyordu.
+                metadata.setFlag(EntityFlag.BABY, !sulfurCube.isLarge());
                 metadata.setFlag(EntityFlag.IGNITED, sulfurCube.isIgnited());
                 // Ziplama animasyonu: bayrak animasyonu baslatir, sure ise ne kadar oynayacagini
                 // soyler. Sure bir bayta sigmali.
