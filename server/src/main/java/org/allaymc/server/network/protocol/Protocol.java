@@ -47,6 +47,7 @@ import org.cloudburstmc.protocol.bedrock.data.inventory.crafting.RecipeUnlocking
 import org.cloudburstmc.protocol.bedrock.data.inventory.crafting.recipe.*;
 import org.cloudburstmc.protocol.bedrock.data.inventory.descriptor.ItemDescriptorWithCount;
 import org.cloudburstmc.protocol.bedrock.definition.DefinitionRegistry;
+import org.cloudburstmc.protocol.bedrock.definition.NamedDefinition;
 import org.cloudburstmc.protocol.bedrock.definition.SimpleDefinitionRegistry;
 import org.joml.Vector3fc;
 
@@ -70,6 +71,7 @@ public abstract class Protocol {
     private PacketEncoder encoder;
     private DefinitionRegistry<ItemDefinition> itemDefinitionRegistry;
     private DefinitionRegistry<BlockDefinition> blockDefinitionRegistry;
+    private DefinitionRegistry<NamedDefinition> cameraPresetDefinitionRegistry;
     private BlockNetworkIdMapping blockNetworkIds;
     private volatile boolean initialized;
 
@@ -126,10 +128,12 @@ public abstract class Protocol {
             this.processorRegistry = registry;
             this.data = protocolData;
             this.encoder = packetEncoder;
+            this.cameraPresetDefinitionRegistry = packetEncoder.getCameraPresetDefinitions();
             this.initialized = true;
         } catch (RuntimeException | Error exception) {
             this.itemDefinitionRegistry = null;
             this.blockDefinitionRegistry = null;
+            this.cameraPresetDefinitionRegistry = null;
             this.blockNetworkIds = null;
             throw exception;
         }
@@ -1025,6 +1029,11 @@ public abstract class Protocol {
     final DefinitionRegistry<BlockDefinition> getBlockDefinitionRegistry() {
         ensureInitialized();
         return blockDefinitionRegistry;
+    }
+
+    final DefinitionRegistry<NamedDefinition> getCameraPresetDefinitions() {
+        ensureInitialized();
+        return cameraPresetDefinitionRegistry;
     }
 
     /**

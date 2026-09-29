@@ -51,6 +51,7 @@ import org.cloudburstmc.protocol.bedrock.data.inventory.ContainerType;
 import org.cloudburstmc.protocol.bedrock.data.inventory.ItemData;
 import org.cloudburstmc.protocol.bedrock.data.inventory.itemstack.response.ItemStackResponse;
 import org.cloudburstmc.protocol.bedrock.definition.DefinitionRegistry;
+import org.cloudburstmc.protocol.bedrock.definition.NamedDefinition;
 import org.cloudburstmc.protocol.bedrock.definition.SimpleDefinitionRegistry;
 import org.cloudburstmc.protocol.bedrock.packet.*;
 import org.joml.Vector3dc;
@@ -67,6 +68,8 @@ public abstract class PacketEncoder {
     private final ProtocolData data;
     private final DefinitionRegistry<ItemDefinition> itemDefinitions;
     private final DefinitionRegistry<BlockDefinition> blockDefinitions;
+    private DefinitionRegistry<NamedDefinition> cameraPresetDefinitions =
+            SimpleDefinitionRegistry.<NamedDefinition>builder().build();
 
     /**
      * Creates an encoder backed by the supplied protocol data.
@@ -87,6 +90,14 @@ public abstract class PacketEncoder {
     /** Returns the immutable data for the target protocol. */
     public final ProtocolData getData() {
         return data;
+    }
+
+    public final DefinitionRegistry<NamedDefinition> getCameraPresetDefinitions() {
+        return cameraPresetDefinitions;
+    }
+
+    protected final void setCameraPresetDefinitions(DefinitionRegistry<NamedDefinition> cameraPresetDefinitions) {
+        this.cameraPresetDefinitions = Objects.requireNonNull(cameraPresetDefinitions, "cameraPresetDefinitions");
     }
 
     /**
@@ -262,15 +273,15 @@ public abstract class PacketEncoder {
      * sahip oldugu icin surume ozel bir dal gerekmez; yine de paket kurulumu
      * eklentide degil burada durur ki sekil degisirse tek yerden guncellensin.</p>
      *
-     * @param vehicleRuntimeId binilen varligin runtime kimligi
-     * @param riderRuntimeId   binen varligin runtime kimligi
-     * @param riding           {@code true} bindirir, {@code false} indirir
+     * @param vehicleUniqueId binilen varligin benzersiz kimligi; runtime kimligi istemcide eslesmez
+     * @param riderUniqueId   binen varligin benzersiz kimligi
+     * @param riding          {@code true} bindirir, {@code false} indirir
      * @return gonderilecek paket
      */
-    public SetEntityLinkPacket encodeEntityRider(long vehicleRuntimeId, long riderRuntimeId,
+    public SetEntityLinkPacket encodeEntityRider(long vehicleUniqueId, long riderUniqueId,
                                                  boolean riding) {
         var packet = new SetEntityLinkPacket();
-        packet.setEntityLink(new EntityLinkData(vehicleRuntimeId, riderRuntimeId,
+        packet.setEntityLink(new EntityLinkData(vehicleUniqueId, riderUniqueId,
                 riding ? EntityLinkData.Type.RIDER : EntityLinkData.Type.REMOVE, true, riding, riding ? 1f : 0f));
         return packet;
     }

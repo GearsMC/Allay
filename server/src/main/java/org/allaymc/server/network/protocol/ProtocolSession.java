@@ -11,6 +11,7 @@ import org.allaymc.server.network.processor.PacketProcessorHolder;
 import org.allaymc.server.player.AllayPlayer;
 import org.allaymc.server.world.AllayWorld;
 import org.cloudburstmc.protocol.bedrock.BedrockServerSession;
+import org.cloudburstmc.protocol.bedrock.codec.v575.BedrockCodecHelper_v575;
 import org.cloudburstmc.protocol.bedrock.data.PacketRecipient;
 import org.cloudburstmc.protocol.bedrock.packet.BedrockPacket;
 import org.cloudburstmc.protocol.bedrock.packet.PacketSignal;
@@ -71,11 +72,17 @@ public final class ProtocolSession {
         var previousHelper = session.getPeer().getCodecHelper();
         var previousItemDefinitions = previousHelper.getItemDefinitions();
         var previousBlockDefinitions = previousHelper.getBlockDefinitions();
+        var previousCameraPresets = previousHelper instanceof BedrockCodecHelper_v575 supported
+                ? supported.getCameraPresetDefinitions()
+                : null;
         try {
             session.setCodec(protocol.getCodec());
             var helper = session.getPeer().getCodecHelper();
             helper.setItemDefinitions(protocol.getItemDefinitionRegistry());
             helper.setBlockDefinitions(protocol.getBlockDefinitionRegistry());
+            if (helper instanceof BedrockCodecHelper_v575 supported) {
+                supported.setCameraPresetDefinitions(protocol.getCameraPresetDefinitions());
+            }
             codecInstalled = true;
         } catch (RuntimeException exception) {
             try {
@@ -83,6 +90,9 @@ public final class ProtocolSession {
                 var restoredHelper = session.getPeer().getCodecHelper();
                 restoredHelper.setItemDefinitions(previousItemDefinitions);
                 restoredHelper.setBlockDefinitions(previousBlockDefinitions);
+                if (restoredHelper instanceof BedrockCodecHelper_v575 supported) {
+                    supported.setCameraPresetDefinitions(previousCameraPresets);
+                }
             } catch (RuntimeException rollbackException) {
                 exception.addSuppressed(rollbackException);
             }

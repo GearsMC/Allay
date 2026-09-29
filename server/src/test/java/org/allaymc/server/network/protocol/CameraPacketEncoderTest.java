@@ -1,12 +1,17 @@
 package org.allaymc.server.network.protocol;
 
+import io.netty.buffer.Unpooled;
 import org.allaymc.api.camera.CameraInstruction;
+import org.allaymc.api.camera.CameraPreset;
 import org.allaymc.server.network.protocol.v766.PacketEncoder_v766;
+import org.cloudburstmc.protocol.bedrock.codec.v2193.Bedrock_v2193;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 class CameraPacketEncoderTest {
@@ -26,5 +31,24 @@ class CameraPacketEncoderTest {
         assertEquals(31, packet.getFadeInstruction().getColor().getRed());
         assertEquals(8, packet.getFadeInstruction().getColor().getGreen());
         assertEquals(3, packet.getFadeInstruction().getColor().getBlue());
+    }
+
+    @Test
+    void serbestKameraTalimatiKayitliOnAyarlaKodlanir() {
+        var encoder = new PacketEncoder_v766(mock(ProtocolData.class));
+        var packet = encoder.encodeCameraInstruction(
+                CameraInstruction.preset(CameraPreset.FREE).position(1, 2, 3).facing(4, 5, 6));
+        var eased = encoder.encodeCameraInstruction(
+                CameraInstruction.preset(CameraPreset.FREE).ignoreStartingValues(false).position(1, 2, 3));
+
+        assertTrue(packet.getSetInstruction().isRemoveIgnoreStartingValues());
+        assertEquals(false, eased.getSetInstruction().isRemoveIgnoreStartingValues());
+        assertTrue(encoder.getCameraPresetDefinitions().isRegistered(packet.getSetInstruction().getPreset()));
+
+        var helper = Bedrock_v2193.CODEC.createHelper();
+        helper.setCameraPresetDefinitions(encoder.getCameraPresetDefinitions());
+        var buffer = Unpooled.buffer();
+        assertDoesNotThrow(() -> Bedrock_v2193.CODEC.tryEncode(helper, buffer, packet));
+        assertTrue(buffer.isReadable());
     }
 }

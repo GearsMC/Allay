@@ -76,5 +76,9 @@ public enum SimpleParticle implements Particle {
     FLAME,
 
     /// GearsMC fork: temel duman parcacigi (PocketMine SmokeParticle).
-    SMOKE
+    SMOKE,
+
+    PORTAL,
+
+    HUGE_EXPLODE
 }

@@ -380,7 +380,9 @@ public class AllayPlayer implements Player {
     @Override
     public void viewEntityRider(Entity vehicle, Entity rider, boolean riding) {
         sendPacket(getProtocol().getEncoder().encodeEntityRider(
-                vehicle.getRuntimeId(), rider.getRuntimeId(), riding));
+                vehicle.getUniqueId().getLeastSignificantBits(),
+                rider.getUniqueId().getLeastSignificantBits(),
+                riding));
     }
 
     protected EntityDataMap parseMetadata(Entity entity) {

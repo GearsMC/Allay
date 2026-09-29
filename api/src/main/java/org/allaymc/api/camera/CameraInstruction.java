@@ -39,6 +39,7 @@ public final class CameraInstruction {
     private Float fadeRed;
     private Float fadeGreen;
     private Float fadeBlue;
+    private boolean ignoreStartingValues = true;
 
     private CameraInstruction(CameraPreset preset) {
         this.preset = preset;
@@ -129,6 +130,11 @@ public final class CameraInstruction {
     public CameraInstruction rotation(double pitch, double yaw) {
         this.pitch = pitch;
         this.yaw = yaw;
+        return this;
+    }
+
+    public CameraInstruction ignoreStartingValues(boolean ignore) {
+        this.ignoreStartingValues = ignore;
         return this;
     }
 

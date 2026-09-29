@@ -80,6 +80,10 @@ public class PlayerAuthInputPacketProcessor extends PacketProcessor<PlayerAuthIn
     protected void handleMovement(Player player, Vector3f newPos, Vector3f newRot) {
         var entity = player.getControlledEntity();
         var world = entity.getLocation().dimension();
+        if (entity.getRidingVehicle() != null) {
+            var loc = entity.getLocation();
+            newPos = Vector3f.from(loc.x(), loc.y(), loc.z());
+        }
         ((AllayEntityPhysicsEngine) world.getEntityManager().getPhysicsService()).offerClientMove(entity, new Location3d(
                 newPos.getX(), newPos.getY(), newPos.getZ(),
                 newRot.getX(), newRot.getY(), world

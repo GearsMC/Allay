@@ -92,6 +92,7 @@ import org.cloudburstmc.protocol.bedrock.data.camera.CameraEase;
 import org.cloudburstmc.protocol.bedrock.data.camera.CameraFadeInstruction;
 import org.cloudburstmc.protocol.bedrock.data.camera.CameraSetInstruction;
 import org.cloudburstmc.protocol.bedrock.definition.NamedDefinition;
+import org.cloudburstmc.protocol.bedrock.definition.SimpleDefinitionRegistry;
 import org.cloudburstmc.protocol.bedrock.util.OptionalBoolean;
 import org.cloudburstmc.nbt.NbtList;
 import org.cloudburstmc.nbt.NbtMap;
@@ -131,6 +132,8 @@ public class PacketEncoder_v766 extends PacketEncoder {
 
     protected static final int CRAFTER_RECIPE_PREVIEW_SLOT = 9;
 
+    private final PresetDefinition[] cameraPresets;
+
     /**
      * GearsMC fork: istemcinin kendi icinde gomulu olarak gelen kimya paketleri.
      *
@@ -151,6 +154,15 @@ public class PacketEncoder_v766 extends PacketEncoder {
 
     public PacketEncoder_v766(ProtocolData data) {
         super(data);
+        var presets = CameraPreset.values();
+        var definitions = new PresetDefinition[presets.length];
+        var builder = SimpleDefinitionRegistry.<NamedDefinition>builder();
+        for (int index = 0; index < presets.length; index++) {
+            definitions[index] = new PresetDefinition(presets[index]);
+            builder.add(definitions[index]);
+        }
+        this.cameraPresets = definitions;
+        setCameraPresetDefinitions(builder.build());
     }
 
     @Override
@@ -722,6 +734,8 @@ public class PacketEncoder_v766 extends PacketEncoder {
             // GearsMC fork: PocketMine'in temel alev/duman parcaciklari (Isi Blogu bulucu).
             case SimpleParticle.FLAME -> packet.setType(ParticleType.FLAME);
             case SimpleParticle.SMOKE -> packet.setType(ParticleType.SMOKE);
+            case SimpleParticle.PORTAL -> packet.setType(ParticleType.PORTAL);
+            case SimpleParticle.HUGE_EXPLODE -> packet.setType(ParticleType.HUGE_EXPLOSION);
             case SimpleParticle.FIREWORK_CONTRAIL -> packet.setType(ParticleType.FIREWORKS);
             case SimpleParticle.SMASH_ATTACK_GROUND_DUST ->
                     packet.setType(LevelEvent.PARTICLE_SMASH_ATTACK_GROUND_DUST);
@@ -1736,6 +1750,8 @@ public class PacketEncoder_v766 extends PacketEncoder {
                     List.of(createEntityEventPacket(entity, EntityEventType.HURT, 0));
             case SimpleEntityAction.DEATH ->
                     List.of(createEntityEventPacket(entity, EntityEventType.DEATH, 0));
+            case SimpleEntityAction.ENDER_DRAGON_DEATH ->
+                    List.of(createEntityEventPacket(entity, EntityEventType.ENDER_DRAGON_DEATH, 0));
             case SimpleEntityAction.EAT -> {
                 if (!(entity instanceof ContainerHolder holder)
                         || !holder.hasContainer(ContainerTypes.INVENTORY)) {
@@ -2805,7 +2821,8 @@ public class PacketEncoder_v766 extends PacketEncoder {
         var packet = new CameraInstructionPacket();
         if (instruction.getPreset() != null) {
             var set = new CameraSetInstruction();
-            set.setPreset(new PresetDefinition(instruction.getPreset()));
+            set.setPreset(cameraPresets[instruction.getPreset().ordinal()]);
+            set.setRemoveIgnoreStartingValues(instruction.isIgnoreStartingValues());
             if (instruction.hasEase()) {
                 set.setEase(new CameraSetInstruction.EaseData(
                         CameraEase.valueOf(instruction.getEaseType().name()), instruction.getEaseSeconds()));
