@@ -282,12 +282,12 @@ public abstract class BlockRedstoneDiodeBaseComponentImpl extends BlockBaseCompo
 
     /**
      * Checks if a block can support a redstone diode (repeater/comparator).
-     * The block needs to have a full top surface (collision shape covers the entire UP face).
+     * The block needs to have a full top surface, see {@link BlockRedstoneWireBaseComponentImpl#canSupportRedstone(BlockState)}.
      *
      * @param blockState the block state to check
      * @return true if the block can support a redstone diode
      */
     protected boolean canSupportRedstoneDiode(BlockState blockState) {
-        return blockState.getBlockStateData().collisionShape().isFull(BlockFace.UP);
+        return BlockRedstoneWireBaseComponentImpl.canSupportRedstone(blockState);
     }
 }

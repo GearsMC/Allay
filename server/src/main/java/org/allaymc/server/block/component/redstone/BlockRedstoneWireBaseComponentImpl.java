@@ -36,11 +36,27 @@ public class BlockRedstoneWireBaseComponentImpl extends BlockBaseComponentImpl {
         super(blockType);
     }
 
+    /**
+     * Checks if a block can support redstone components (wire, repeater, comparator) on its top face.
+     * <p>
+     * Mud and soul sand have a lowered collision box but still count as a full top face in vanilla.
+     *
+     * @param blockState the block state below the redstone component
+     * @return true if the block can support redstone components
+     */
+    public static boolean canSupportRedstone(BlockState blockState) {
+        var blockType = blockState.getBlockType();
+        if (blockType == BlockTypes.MUD || blockType == BlockTypes.SOUL_SAND) {
+            return true;
+        }
+        return blockState.getBlockStateData().collisionShape().isFull(BlockFace.UP);
+    }
+
     @Override
     public boolean place(Dimension dimension, BlockState blockState, Vector3ic placeBlockPos, PlayerInteractInfo placementInfo) {
         // Redstone wire requires a block with full top face below
         BlockState below = dimension.getBlockState(BlockFace.DOWN.offsetPos(placeBlockPos));
-        if (!below.getBlockStateData().collisionShape().isFull(BlockFace.UP)) {
+        if (!canSupportRedstone(below)) {
             return false;
         }
 
@@ -61,7 +77,7 @@ public class BlockRedstoneWireBaseComponentImpl extends BlockBaseComponentImpl {
         super.onNeighborUpdate(block, neighbor, face, oldNeighborState);
 
         // Break if block below no longer has full top face
-        if (face == BlockFace.DOWN && !neighbor.getBlockStateData().collisionShape().isFull(BlockFace.UP)) {
+        if (face == BlockFace.DOWN && !canSupportRedstone(neighbor.getBlockState())) {
             block.breakBlock();
             return;
         }
@@ -200,9 +216,10 @@ public class BlockRedstoneWireBaseComponentImpl extends BlockBaseComponentImpl {
 
         for (BlockFace face : BlockFace.getHorizontalBlockFaces()) {
             Vector3i horizontalPos = new Vector3i(face.offsetPos(pos));
-            var neighborData = dimension.getBlockState(horizontalPos).getBlockStateData();
+            var neighborState = dimension.getBlockState(horizontalPos);
+            var neighborData = neighborState.getBlockStateData();
             // Neighbor can support wire if it has a full top face (e.g., glass can support wire)
-            boolean neighborCanSupport = neighborData.collisionShape().isFull(BlockFace.UP);
+            boolean neighborCanSupport = canSupportRedstone(neighborState);
             // Neighbor blocks line of sight if it's solid AND not transparent
             boolean neighborBlocksView = neighborData.isSolid() && !neighborData.isTransparent();
 
@@ -382,7 +399,7 @@ public class BlockRedstoneWireBaseComponentImpl extends BlockBaseComponentImpl {
 
         // Check for diagonal connections (wire going up/down slopes)
         var neighborData = neighborState.getBlockStateData();
-        boolean neighborCanSupport = neighborData.collisionShape().isFull(BlockFace.UP);
+        boolean neighborCanSupport = canSupportRedstone(neighborState);
         boolean neighborBlocksView = neighborData.isSolid() && !neighborData.isTransparent();
 
         var aboveData = dimension.getBlockState(pos.x(), pos.y() + 1, pos.z()).getBlockStateData();
@@ -495,5 +512,10 @@ public class BlockRedstoneWireBaseComponentImpl extends BlockBaseComponentImpl {
     @Override
     public Set<ItemStack> getDrops(Block block, ItemStack usedItem, Entity entity) {
         return Set.of(ItemTypes.REDSTONE.createItemStack());
+    }
+
+    @Override
+    public ItemStack getPickItem(Block block) {
+        return ItemTypes.REDSTONE.createItemStack();
     }
 }
