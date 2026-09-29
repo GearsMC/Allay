@@ -1370,6 +1370,10 @@ public class PacketEncoder_v766 extends PacketEncoder {
                 metadata.setFlag(EntityFlag.FIRE_IMMUNE, true);
                 metadata.put(EntityDataTypes.VARIANT, networkBlockId(fallingBlock.getBlockState()));
             }
+            // GearsMC: istemci yere dusmus esyanin lavda yanip yanmayacagini kendi tahmin eder.
+            // Sunucu ates gecirmez esyayi (minecraft:fireproof etiketi) yakmasa bile bu bayrak
+            // yoksa istemci onu yaniyor gibi gosterip gizler; FIRE_IMMUNE bunu engeller.
+            case EntityItem item -> metadata.setFlag(EntityFlag.FIRE_IMMUNE, item.isFireproof());
             case EntityXpOrb xpOrb -> metadata.put(EntityDataTypes.VALUE, xpOrb.getExperienceValue());
             case EntityWither wither -> {
                 metadata.put(EntityDataTypes.WITHER_INVULNERABLE_TICKS, wither.getWitherInvulnerableTicks());

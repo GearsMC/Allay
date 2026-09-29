@@ -223,6 +223,13 @@ public abstract class Protocol {
         if (!tags.isEmpty()) {
             components.putList("item_tags", NbtType.STRING, tags.stream().map(ItemTag::name).toArray(String[]::new));
         }
+        if (itemType.hasItemTag(ItemTags.FIREPROOF)) {
+            // GearsMC: minecraft:fireproof etiketi yalnizca sunucu tarafini etkiler; istemcinin
+            // ozel esyayi lavda/ateste yanmaz saymasi icin bu bilesen gerekir.
+            components.putCompound("minecraft:fire_resistant", NbtMap.builder()
+                    .putBoolean("value", true)
+                    .build());
+        }
         if (itemData.isDamageable()) {
             components.putCompound("minecraft:durability", NbtMap.builder()
                     .putInt("max_durability", itemData.maxDamage())
