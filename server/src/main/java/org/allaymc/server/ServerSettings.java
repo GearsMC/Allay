@@ -105,8 +105,7 @@ public class ServerSettings extends OkaeriConfig {
         private int port = 19132;
 
         @Comment("Whether IPv6 is enabled")
-        // GearsMC: PocketMine enable-ipv6=off
-        private boolean enablev6 = false;
+        private boolean enablev6 = true;
 
         @Comment("The IPv6 address of this server. Works only when enablev6 is true")
         private String ipv6 = "::";
