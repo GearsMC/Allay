@@ -11,6 +11,8 @@ import org.allaymc.api.entity.interfaces.EntityPlayer;
 import org.allaymc.api.entity.type.EntityTypes;
 import org.allaymc.api.player.GameMode;
 import org.allaymc.api.world.sound.SimpleSound;
+import org.allaymc.server.entity.component.EntityBlazeBaseComponentImpl;
+import org.allaymc.server.entity.impl.EntityImpl;
 import org.joml.Vector3d;
 
 /**
@@ -86,6 +88,7 @@ public class FireballAttackExecutor implements BehaviorExecutor {
         lastMoveTarget = null;
         entity.setMovementSpeed(speed);
         entity.setPitchEnabled(true);
+        setCharging(entity, isCharging());
     }
 
     @Override
@@ -133,7 +136,27 @@ public class FireballAttackExecutor implements BehaviorExecutor {
             nextShotTick = tick + (shotsLeft > 0 ? SHOT_INTERVAL : coolDown + chargeTime);
         }
 
+        setCharging(entity, isCharging());
         return true;
+    }
+
+    /**
+     * HeartCore {@code RangedFireballAttackStrategy::isCharging}: bekleme bittikten sonraki sarj
+     * penceresinde ve seri boyunca {@code true}; seri bitince bekleme suresince {@code false}.
+     *
+     * @return mob su an sarj ediyor ya da seri savuruyor mu
+     */
+    protected boolean isCharging() {
+        return shotsLeft > 0 || nextShotTick - tick <= chargeTime;
+    }
+
+    /**
+     * Sarj durumunu, istemciye blaze'in parlayan pozu olarak yansiyacak sekilde yazar.
+     */
+    protected static void setCharging(EntityIntelligent entity, boolean charging) {
+        if (entity instanceof EntityImpl impl && impl.getBaseComponent() instanceof EntityBlazeBaseComponentImpl blaze) {
+            blaze.setCharging(charging);
+        }
     }
 
     @Override
@@ -143,6 +166,7 @@ public class FireballAttackExecutor implements BehaviorExecutor {
         entity.setPitchEnabled(false);
         entity.setMovementSpeed(MemoryTypes.MOVEMENT_SPEED.defaultData().get());
         lastMoveTarget = null;
+        setCharging(entity, false);
         if (clearTargetAfterLose) {
             entity.getMemoryStorage().clear(targetIdMemory);
         }

@@ -37,8 +37,9 @@ public class EntityBlazeLivingComponentImpl extends EntityHostileLivingComponent
 
     @Override
     public boolean hasFallDamage() {
-        // Blaze ucar; hicbir zaman canini yakacak kadar sert inmez.
-        return false;
+        // Blaze ucar; hicbir zaman canini yakacak kadar sert inmez. Yercekimi acildiysa
+        // (orn. yapay zekasi dondurulmus spawner blaze'i) artik ucmuyor, diger moblar gibi duser.
+        return physicsComponent != null && physicsComponent.hasGravity();
     }
 
     @EventHandler

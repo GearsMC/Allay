@@ -23,6 +23,7 @@ import org.allaymc.api.entity.data.EntityAnimation;
 import org.allaymc.api.entity.data.EntityNameTag;
 import org.allaymc.api.entity.data.WeaponStance;
 import org.allaymc.server.entity.component.EntityAngerableBaseComponentImpl;
+import org.allaymc.server.entity.component.EntityBlazeBaseComponentImpl;
 import org.allaymc.api.entity.effect.EffectInstance;
 import org.allaymc.api.entity.interfaces.*;
 import org.allaymc.api.entity.interfaces.EntityAxolotl;
@@ -1390,10 +1391,12 @@ public class PacketEncoder_v766 extends PacketEncoder {
                     metadata.setFlag(EntityFlag.ANGRY, EntityAngerableBaseComponentImpl.isHunting(enderman));
             // The blaze's flames are part of its own model, so ON_FIRE is deliberately left alone —
             // setting it would stack a second burning overlay on top. CHARGED is the flare it puts
-            // on once it has locked on and is winding up a fireball burst.
+            // on only while winding up and firing a fireball burst (HeartCore did the same), not
+            // merely because a player is nearby.
             case EntityBlaze blaze -> {
                 metadata.setFlag(EntityFlag.FIRE_IMMUNE, true);
-                metadata.setFlag(EntityFlag.CHARGED, EntityAngerableBaseComponentImpl.isHunting(blaze));
+                metadata.setFlag(EntityFlag.CHARGED,
+                        ((EntityImpl) blaze).getBaseComponent() instanceof EntityBlazeBaseComponentImpl base && base.isCharging());
             }
             // IGNITED is what makes the creeper flash white and swell up before it goes off.
             case EntityCreeper creeper -> metadata.setFlag(EntityFlag.IGNITED, creeper.isSwelling());
