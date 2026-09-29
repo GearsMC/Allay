@@ -194,7 +194,8 @@ public class HostileMobAITest {
         assertTrue(living.isFireproof(), "blaze kendi elementinden zarar gormemeli");
 
         var physics = assertInstanceOf(EntityPhysicsComponent.class, blaze);
-        assertEquals(0, physics.getGravity(), "blaze havada durur, yercekimi onu asagi cekmemeli");
+        // Yercekimi degeri artik sifirlanmiyor; kapatma hasGravity bayragiyla (eklenti acabilsin diye).
+        assertFalse(physics.hasGravity(), "blaze havada durur, yercekimi onu asagi cekmemeli");
     }
 
     @Test
