@@ -6,6 +6,7 @@ import org.allaymc.api.entity.component.EntityFishingHookBaseComponent;
 import org.allaymc.api.entity.damage.DamageContainer;
 import org.allaymc.api.entity.interfaces.EntityFishingHook;
 import org.allaymc.api.entity.interfaces.EntityLiving;
+import org.allaymc.api.entity.interfaces.EntityPlayer;
 import org.allaymc.api.math.location.Location3dc;
 import org.allaymc.server.component.annotation.ComponentObject;
 import org.allaymc.server.component.annotation.Dependency;
@@ -21,11 +22,39 @@ import org.joml.Vector3dc;
  */
 public class EntityFishingHookPhysicsComponentImpl extends EntityProjectilePhysicsComponentImpl {
 
+    /**
+     * GearsMC fork: PM kancasinin havadaki surtunme carpani ({@code motion * 0.95}).
+     */
+    protected static final double PM_AIR_DRAG_MULTIPLIER = 0.95;
+    /**
+     * GearsMC fork: PM kancasinin tik basina dusus payi. PM'de yercekimi 0.05 idi ama
+     * kanca tikte iki kez hareket ettigi icin tek hareketli karsiligi iki katidir
+     * (bkz. {@code ItemFishingRodBaseComponentImpl.THROW_FORCE}).
+     */
+    protected static final double PM_AIR_GRAVITY_PER_TICK = 0.1;
+
     @ComponentObject
     protected EntityFishingHook thisEntity;
 
     @Dependency
     protected EntityFishingHookBaseComponent fishingHookBaseComponent;
+
+    /**
+     * GearsMC fork: kanca yalnizca baska oyunculara takilir — PM {@code FishingHook::canCollideWith}.
+     *
+     * <p>Vanilla kanca carptigi her fizik varligina takiliyordu: yerdeki esyalara,
+     * baska kancalara, yakalama gosterim esyasina ve 10 tikten sonra oltayi atan
+     * oyuncunun kendisine. Kendine takilan kanca cekilince oyuncuyu kendine dogru
+     * "cekiyordu". PM'de atan oyuncu hic carpismaz, yerde duran kanca kimseye
+     * carpmaz ve oyuncu disindaki varliklarla cekme hic yoktu.</p>
+     */
+    @Override
+    protected boolean shouldSkipEntityCollision(Entity entity) {
+        if (onGround || !(entity instanceof EntityPlayer)) {
+            return true;
+        }
+        return entity == projectileComponent.getShooter();
+    }
 
     @Override
     protected void onHitEntity(Entity entity, Vector3dc hitPos) {
@@ -73,10 +102,11 @@ public class EntityFishingHookPhysicsComponentImpl extends EntityProjectilePhysi
             }
         } else {
             // Air physics: normal gravity
+            // GearsMC fork: PM kancasinin hava fizigi (bkz. PM_AIR_GRAVITY_PER_TICK).
             return new Vector3d(
-                    motion.x * (1 - getDragFactorInAir()),
-                    (motion.y - getGravity()) * (1 - getDragFactorInAir()),
-                    motion.z * (1 - getDragFactorInAir())
+                    motion.x * PM_AIR_DRAG_MULTIPLIER,
+                    motion.y * PM_AIR_DRAG_MULTIPLIER - PM_AIR_GRAVITY_PER_TICK,
+                    motion.z * PM_AIR_DRAG_MULTIPLIER
             );
         }
     }

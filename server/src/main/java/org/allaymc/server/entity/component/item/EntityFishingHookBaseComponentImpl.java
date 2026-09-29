@@ -48,9 +48,13 @@ public class EntityFishingHookBaseComponentImpl extends EntityBaseComponentImpl 
      */
     protected static final int LURE_TIME_REDUCTION = 100;
     /**
-     * Maximum distance from owner before auto-despawn (32 blocks).
+     * Maximum distance from owner before auto-despawn.
+     *
+     * <p>GearsMC fork: PM kancasi oyuncudan 20 bloktan uzaklasinca siliniyordu; vanilla 32.
+     * Hizlanan atisla (bkz. {@code ItemFishingRodBaseComponentImpl.THROW_FORCE}) kancanin
+     * menzili de PM'deki gibi bu sinirla belirlenir.</p>
      */
-    protected static final double MAX_DISTANCE_FROM_OWNER_SQUARED = 32 * 32;
+    protected static final double MAX_DISTANCE_FROM_OWNER_SQUARED = 20 * 20;
     /**
      * GearsMC fork: balik isirdiktan sonra oltayi cekmek icin taninan varsayilan sure.
      */
