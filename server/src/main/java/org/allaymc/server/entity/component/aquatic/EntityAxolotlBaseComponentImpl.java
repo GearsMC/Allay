@@ -39,6 +39,9 @@ public class EntityAxolotlBaseComponentImpl extends EntityBaseComponentImpl {
 
     @Override
     public AABBdc getBaseAABB() {
+        if (customBaseAABB != null) {
+            return customBaseAABB;
+        }
         return new AABBd(-0.375, 0.0, -0.375, 0.375, 0.42, 0.375);
     }
 }

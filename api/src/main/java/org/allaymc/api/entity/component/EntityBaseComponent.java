@@ -530,7 +530,7 @@ public interface EntityBaseComponent extends EntityComponent, CommandSender, Has
      * Deger NBT'ye yazilmaz.</p>
      *
      * <p><b>Dikkat:</b> kendi {@code getBaseAABB()} uygulamasini tanimlayan varlik turlerinden
-     * su an yalnizca tilki bu degeri dikkate alir; digerlerinde cagri hata vermeden etkisiz
+     * su an yalnizca tilki, kurt, aksolotl ve sulfur kupu bu degeri dikkate alir; digerlerinde cagri hata vermeden etkisiz
      * kalir. Kendi uygulamasi olmayan turler (temel uygulamayi kullananlar) destekler.</p>
      *
      * <p>GearsMC fork eki.</p>

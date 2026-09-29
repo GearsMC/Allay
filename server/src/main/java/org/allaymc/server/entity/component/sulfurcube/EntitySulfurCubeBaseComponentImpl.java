@@ -203,6 +203,9 @@ public class EntitySulfurCubeBaseComponentImpl extends EntityBaseComponentImpl i
 
     @Override
     public AABBdc getBaseAABB() {
+        if (customBaseAABB != null) {
+            return customBaseAABB;
+        }
         var edge = large ? LARGE_EDGE : SMALL_EDGE;
         var half = edge / 2;
         return new AABBd(-half, 0.0, -half, half, edge, half);
