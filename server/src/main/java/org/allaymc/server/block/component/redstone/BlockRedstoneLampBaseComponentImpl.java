@@ -7,6 +7,8 @@ import org.allaymc.api.block.dto.PlayerInteractInfo;
 import org.allaymc.api.block.type.BlockState;
 import org.allaymc.api.block.type.BlockType;
 import org.allaymc.api.block.type.BlockTypes;
+import org.allaymc.api.item.ItemStack;
+import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.server.block.component.BlockBaseComponentImpl;
 
 import java.time.Duration;
@@ -67,5 +69,15 @@ public class BlockRedstoneLampBaseComponentImpl extends BlockBaseComponentImpl {
 
     protected void switchToUnlit(Block block) {
         block.replaceState(BlockTypes.REDSTONE_LAMP.getDefaultState());
+    }
+
+    @Override
+    public ItemStack getSilkTouchDrop(Block block) {
+        return ItemTypes.REDSTONE_LAMP.createItemStack();
+    }
+
+    @Override
+    public ItemStack getPickItem(Block block) {
+        return getSilkTouchDrop(block);
     }
 }

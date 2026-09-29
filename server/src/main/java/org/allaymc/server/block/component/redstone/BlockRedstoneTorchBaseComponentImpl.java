@@ -10,6 +10,8 @@ import org.allaymc.api.block.type.BlockType;
 import org.allaymc.api.block.type.BlockTypes;
 import org.allaymc.api.math.position.Position3i;
 import org.allaymc.api.world.Dimension;
+import org.allaymc.api.item.ItemStack;
+import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.server.block.component.BlockBaseComponentImpl;
 import org.joml.Vector3ic;
 
@@ -289,5 +291,15 @@ public class BlockRedstoneTorchBaseComponentImpl extends BlockBaseComponentImpl 
         // For top placement, only center needs to be full (allows fences, walls, etc.)
         // For wall placement, entire face must be full
         return supportFace == BlockFace.UP ? shape.isCenterFull(BlockFace.UP) : shape.isFull(supportFace);
+    }
+
+    @Override
+    public ItemStack getSilkTouchDrop(Block block) {
+        return ItemTypes.REDSTONE_TORCH.createItemStack();
+    }
+
+    @Override
+    public ItemStack getPickItem(Block block) {
+        return getSilkTouchDrop(block);
     }
 }

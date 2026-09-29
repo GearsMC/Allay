@@ -124,4 +124,9 @@ public class BlockRedstoneOreBaseComponentImpl extends BlockOreBaseComponentImpl
     private BlockType<?> getUnlitBlockType() {
         return Registries.BLOCKS.get(unlitBlockIdentifier);
     }
+
+    @Override
+    public ItemStack getPickItem(Block block) {
+        return getSilkTouchDrop(block);
+    }
 }

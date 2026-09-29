@@ -274,6 +274,19 @@ public interface BlockBaseComponent extends BlockComponent {
     }
 
     /**
+     * Retrieves the item a creative player receives when picking this block (middle click).
+     * <p>
+     * Blocks whose block item is an internal-only item (such as redstone wire or repeaters) should
+     * return their actual item form instead.
+     *
+     * @param block the block being picked
+     * @return the picked item as an {@link ItemStack}
+     */
+    default ItemStack getPickItem(Block block) {
+        return block.toItemStack();
+    }
+
+    /**
      * Retrieves the amount of XP that should be dropped when the block is broken.
      *
      * @param block    the block being broken

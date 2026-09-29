@@ -35,7 +35,10 @@ public class BlockPickRequestPacketProcessor extends PacketProcessor<BlockPickRe
             return;
         }
 
-        var item = block.toItemStack();
+        var item = block.getBehavior().getPickItem(block);
+        if (item == null || item.isEmptyOrAir()) {
+            return;
+        }
 
         var event = new PlayerBlockPickEvent(entity, block, packet.isAddUserData(), item);
         if (!event.call()) {

@@ -9,6 +9,7 @@ import org.allaymc.api.block.type.BlockType;
 import org.allaymc.api.block.type.BlockTypes;
 import org.allaymc.api.item.ItemStack;
 import org.allaymc.api.world.Dimension;
+import org.allaymc.api.item.type.ItemTypes;
 import org.allaymc.server.block.component.BlockBaseComponentImpl;
 import org.joml.Vector3ic;
 
@@ -161,5 +162,15 @@ public class BlockDaylightDetectorBaseComponentImpl extends BlockBaseComponentIm
     @Override
     public int getWeakPower(Block block, BlockFace face) {
         return block.getPropertyValue(REDSTONE_SIGNAL);
+    }
+
+    @Override
+    public ItemStack getSilkTouchDrop(Block block) {
+        return ItemTypes.DAYLIGHT_DETECTOR.createItemStack();
+    }
+
+    @Override
+    public ItemStack getPickItem(Block block) {
+        return getSilkTouchDrop(block);
     }
 }

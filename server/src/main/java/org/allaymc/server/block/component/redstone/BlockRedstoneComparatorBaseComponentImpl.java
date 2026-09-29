@@ -273,4 +273,9 @@ public class BlockRedstoneComparatorBaseComponentImpl extends BlockRedstoneDiode
         BlockFace outputFace = getFacing(block);
         updateNeighborsOnStateChange(dimension, pos, outputFace);
     }
+
+    @Override
+    public ItemStack getPickItem(Block block) {
+        return ItemTypes.COMPARATOR.createItemStack();
+    }
 }

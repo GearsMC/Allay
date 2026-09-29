@@ -192,4 +192,9 @@ public class BlockTripWireBaseComponentImpl extends BlockBaseComponentImpl {
             }
         }
     }
+
+    @Override
+    public ItemStack getPickItem(Block block) {
+        return ItemTypes.STRING.createItemStack();
+    }
 }

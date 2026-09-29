@@ -92,4 +92,9 @@ public class BlockRedstoneRepeaterBaseComponentImpl extends BlockRedstoneDiodeBa
         BlockFace outputFace = getFacing(block);
         updateNeighborsOnStateChange(dimension, pos, outputFace);
     }
+
+    @Override
+    public ItemStack getPickItem(Block block) {
+        return ItemTypes.REPEATER.createItemStack();
+    }
 }
