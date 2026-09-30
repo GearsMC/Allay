@@ -83,8 +83,10 @@ public class EntityPlayerPhysicsComponentImpl extends EntityHumanPhysicsComponen
 
     @Override
     protected void tryResetFallDistance(Location3dc location) {
-        // Reset fall distance when the player is flying
-        if (thisPlayer.isFlying()) {
+        // Reset fall distance when the player is flying or may fly (PM: allowFlight olan oyuncu,
+        // ucusu kapatip havada dusse bile dusme hasari almaz; /fly ve ucus bileti buna dayanir)
+        var controller = thisPlayer.getController();
+        if (thisPlayer.isFlying() || (controller != null && controller.canFly())) {
             this.fallDistance = 0;
             return;
         }
