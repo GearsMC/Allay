@@ -42,7 +42,7 @@ public abstract class BlockLiquidBaseComponentImpl extends BlockBaseComponentImp
     public void onScheduledUpdate(Block block) {
         var pos = block.getPosition();
         var dimension = block.getDimension();
-        if (canFormSource() && getDepth(block.getBlockState()) == 7) {
+        if (canFormSource() && canFormSourceAt(dimension, pos) && getDepth(block.getBlockState()) == 7) {
             // Attempt to form new water source blocks.
             var count = 0;
             for (var face : BlockFace.getHorizontalBlockFaces()) {
@@ -67,6 +67,14 @@ public abstract class BlockLiquidBaseComponentImpl extends BlockBaseComponentImp
         }
 
         updateLiquid(dimension, pos, block.getBlockState(), block.getLayer());
+    }
+
+    /**
+     * SkyBuild {@code getMinAdjacentSourcesToFormSource}: bazi boyutlarda sivi sonsuz kaynak
+     * olusturmaz (nether'de su).
+     */
+    protected boolean canFormSourceAt(Dimension dimension, Vector3ic pos) {
+        return true;
     }
 
     @Override

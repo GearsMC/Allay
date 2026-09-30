@@ -1,11 +1,15 @@
 package org.allaymc.api.block.component;
 
+import org.allaymc.api.block.data.BlockFace;
 import org.allaymc.api.block.dto.Block;
 import org.allaymc.api.block.property.type.BlockPropertyTypes;
 import org.allaymc.api.block.type.BlockState;
 import org.allaymc.api.block.type.BlockType;
+import org.allaymc.api.block.type.BlockTypes;
+import org.allaymc.api.world.Dimension;
 import org.allaymc.api.world.dimension.DimensionType;
 import org.jetbrains.annotations.ApiStatus;
+import org.joml.Vector3ic;
 
 /**
  * Shared component for liquid blocks, covering depth, source, hardening, and flow characteristics.
@@ -13,6 +17,33 @@ import org.jetbrains.annotations.ApiStatus;
  * @author daoge_cmd
  */
 public interface BlockLiquidBaseComponent extends BlockBaseComponent {
+    /**
+     * GearsMC fork (SkyBuild {@code WaterHelper::canWaterExistAt}): in dimensions where water evaporates
+     * (nether) water can only exist next to blue ice (6 faces plus the 4 diagonals on the same level).
+     *
+     * @param dimension the dimension
+     * @param pos       the position to check
+     * @return {@code true} if water may exist at the position
+     */
+    static boolean canWaterExistAt(Dimension dimension, Vector3ic pos) {
+        if (!dimension.getDimensionType().waterEvaporates()) {
+            return true;
+        }
+        for (var face : BlockFace.VALUES) {
+            if (dimension.getBlockState(face.offsetPos(pos)).getBlockType() == BlockTypes.BLUE_ICE) {
+                return true;
+            }
+        }
+        for (var dx = -1; dx <= 1; dx += 2) {
+            for (var dz = -1; dz <= 1; dz += 2) {
+                if (dimension.getBlockState(pos.x() + dx, pos.y(), pos.z() + dz).getBlockType() == BlockTypes.BLUE_ICE) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * Check if the liquid is falling.
      *
