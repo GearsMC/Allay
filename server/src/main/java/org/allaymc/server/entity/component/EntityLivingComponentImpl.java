@@ -10,7 +10,6 @@ import org.allaymc.api.container.ContainerTypes;
 import org.allaymc.api.container.interfaces.ArmorContainer;
 import org.allaymc.api.entity.Entity;
 import org.allaymc.api.entity.EntityState;
-import org.allaymc.api.entity.action.CriticalHit;
 import org.allaymc.api.entity.action.EnchantedHit;
 import org.allaymc.api.entity.action.SimpleEntityAction;
 import org.allaymc.api.entity.component.EntityBaseComponent;
@@ -173,9 +172,8 @@ public class EntityLivingComponentImpl implements EntityLivingComponent {
     protected void applyDamage(DamageContainer damage) {
         setHealth(this.health - damage.getFinalDamage());
         thisEntity.applyAction(SimpleEntityAction.HURT);
-        if (damage.isCritical()) {
-            thisEntity.applyAction(new CriticalHit(55));
-        }
+        // Vanilla kritik yildiz parcacigi (55 adet) bilerek yayilmiyor: PM'de yoktu, kritik
+        // gorseli GearsCore CombatListener.particles ile veriliyor.
         if (damage.isEnchanted()) {
             thisEntity.applyAction(new EnchantedHit(15));
         }
