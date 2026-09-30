@@ -32,7 +32,8 @@ public class RecipeRegistryLoader implements RegistryLoader<Void, Map<Identifier
         // Shaped
         var shapedRecipes = obj.getAsJsonArray("shaped");
         for (var shapedRecipe : shapedRecipes) {
-            if (isDeprecated(shapedRecipe.getAsJsonObject())) {
+            if (isDeprecated(shapedRecipe.getAsJsonObject())
+                || isSmithingTemplateDuplication(shapedRecipe.getAsJsonObject())) {
                 continue;
             }
 
@@ -43,7 +44,8 @@ public class RecipeRegistryLoader implements RegistryLoader<Void, Map<Identifier
         // Shapeless
         var shapelessRecipes = obj.getAsJsonArray("shapeless");
         for (var shapelessRecipe : shapelessRecipes) {
-            if (isDeprecated(shapelessRecipe.getAsJsonObject())) {
+            if (isDeprecated(shapelessRecipe.getAsJsonObject())
+                || isSmithingTemplateDuplication(shapelessRecipe.getAsJsonObject())) {
                 continue;
             }
 
@@ -99,6 +101,35 @@ public class RecipeRegistryLoader implements RegistryLoader<Void, Map<Identifier
 
     protected static boolean isDeprecated(JsonObject obj) {
         return obj.has("tag") && obj.get("tag").getAsString().equals("deprecated");
+    }
+
+    /**
+     * Nalbant sablonu cogaltma tarifleri (7 elmas + malzeme + sablon = 2 sablon) yuklenmez.
+     * GearsMC: SkyBuild {@code CraftingManagerFromDataHelper::isSmithingTemplateDuplicationRecipe}
+     * ile ayni; sablonlar sunucuda satilan/dusen esyalar, craft ile cogaltilamamali.
+     * Kimlik veya herhangi bir cikti {@code smithing_template} iceriyorsa tarif atlanir.
+     */
+    protected static boolean isSmithingTemplateDuplication(JsonObject obj) {
+        if (obj.has("id") && obj.get("id").getAsString().contains("smithing_template")) {
+            return true;
+        }
+        var outputs = obj.get("output");
+        if (outputs == null || !outputs.isJsonArray()) {
+            return false;
+        }
+        for (var output : outputs.getAsJsonArray()) {
+            if (!output.isJsonObject()) {
+                continue;
+            }
+            var outputObj = output.getAsJsonObject();
+            for (var key : new String[]{"item", "id", "itemId"}) {
+                var value = outputObj.get(key);
+                if (value != null && value.isJsonPrimitive() && value.getAsString().contains("smithing_template")) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     protected static boolean isFurnaceLike(JsonObject obj) {
