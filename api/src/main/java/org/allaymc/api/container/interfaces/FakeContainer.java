@@ -116,6 +116,28 @@ public interface FakeContainer extends Container {
     BiPredicate<Integer, ItemStack> getItemValidator();
 
     /**
+     * Bir slotu kilitler ya da kilidini acar.
+     *
+     * <p>Kilitli slottaki esya oyuncu tarafindan alinamaz, tasinamaz, yer degistirilemez,
+     * yere atilamaz ya da yok edilemez; slota esya da konamaz. Tiklama dinleyicileri yine
+     * calisir. {@link #setInteractable(boolean) Etkilesimli} bir konteynerde sabit gosterge
+     * esyalari (ornegin kilitli slot camlari) icin kullanilir; etkilesimsiz konteynerde zaten
+     * hicbir esya hareket etmez.</p>
+     *
+     * <p>GearsMC fork eki.</p>
+     *
+     * @param slot   slot
+     * @param locked {@code true} ise kilitli
+     */
+    void setSlotLocked(int slot, boolean locked);
+
+    /**
+     * @param slot slot
+     * @return slot kilitliyse {@code true}
+     */
+    boolean isSlotLocked(int slot);
+
+    /**
      * Sets an {@link ItemStack} to a specific slot in the container and attaches a listener
      * that will be notified when the item in the slot is clicked or interacted with by a {@link EntityPlayer}.
      *

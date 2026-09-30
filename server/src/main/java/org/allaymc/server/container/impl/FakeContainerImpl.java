@@ -38,12 +38,27 @@ public abstract class FakeContainerImpl extends BaseContainer implements FakeCon
     @Setter
     protected BiPredicate<Integer, ItemStack> itemValidator;
     protected Int2ObjectMap<Set<Runnable>> clickListeners;
+    protected final Set<Integer> lockedSlots = java.util.concurrent.ConcurrentHashMap.newKeySet();
     protected Map<ContainerViewer, Vector3ic[]> fakeBlockPositions;
 
     public FakeContainerImpl(ContainerType<? extends Container> containerType) {
         super(containerType);
         this.clickListeners = new Int2ObjectOpenHashMap<>();
         this.fakeBlockPositions = new HashMap<>();
+    }
+
+    @Override
+    public void setSlotLocked(int slot, boolean locked) {
+        if (locked) {
+            this.lockedSlots.add(slot);
+        } else {
+            this.lockedSlots.remove(slot);
+        }
+    }
+
+    @Override
+    public boolean isSlotLocked(int slot) {
+        return this.lockedSlots.contains(slot);
     }
 
     @Override

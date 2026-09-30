@@ -134,7 +134,7 @@ public interface ContainerActionProcessor<T extends ItemStackRequestAction> {
     static boolean tryHandleFakeContainerSlot(Container container, int slot) {
         if (container instanceof FakeContainerImpl fakeContainer) {
             fakeContainer.onClick(slot);
-            return !fakeContainer.isInteractable();
+            return !fakeContainer.isInteractable() || fakeContainer.isSlotLocked(slot);
         }
 
         return false;
@@ -147,11 +147,14 @@ public interface ContainerActionProcessor<T extends ItemStackRequestAction> {
         if (source instanceof FakeContainerImpl fakeContainer) {
             fakeContainer.onClick(sourceSlot);
             blocked |= !fakeContainer.isInteractable();
+            // Kilitli slottaki sabit esya (orn. kilitli slot cami) alinamaz.
+            blocked |= fakeContainer.isSlotLocked(sourceSlot);
         }
 
         if (destination instanceof FakeContainerImpl fakeContainer) {
             fakeContainer.onClick(destinationSlot);
             blocked |= !fakeContainer.isInteractable();
+            blocked |= fakeContainer.isSlotLocked(destinationSlot);
             // The item validator may reject items entering an interactable fake container
             blocked |= !fakeContainer.canHoldItem(destinationSlot, source.getItemStack(sourceSlot));
         }
