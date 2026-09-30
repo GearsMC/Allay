@@ -1615,6 +1615,13 @@ public final class EntityTypeInitializer {
                     public boolean computeBlockCollisionMotion() {
                         return false;
                     }
+
+                    // Ucan moblarin 0,09'luk surtunmesi hizla durmalari icindir; ejderha ivmesini
+                    // korumali (PocketMine ejderhasi 0,02 kullanir), yoksa hizini kaybedip sallanir.
+                    @Override
+                    public double getDragFactorInAir() {
+                        return 0.02;
+                    }
                 }, EntityFlyingPhysicsComponentImpl.class)
                 .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
                 .build();
