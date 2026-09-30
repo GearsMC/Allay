@@ -90,15 +90,16 @@ public class BlockLavaBaseComponentImpl extends BlockLiquidBaseComponentImpl {
     }
 
     /**
-     * SkyBuild {@code Lava::checkForHarden} karsiligi. Vanilla obsidyen/cobblestone kurali yok:
-     * jenerator kurallari komsu blogu donusturur, lavanin kendisi yerinde kalir.
+     * SkyBuild {@code Lava::checkForHarden} karsiligi. Vanilla'daki kaynak lavadan obsidyen kurali
+     * yok; sertlesen blok her zaman lavanin kendisidir, komsu blok yerinde kalir.
      *
      * <ul>
-     *   <li>Yan/ust komsu su: kaynak lava hicbir sey yapmaz; akan lava (PM decay &lt;= 4) suyu
-     *       cobblestone'a cevirir (binde 1 redstone, binde 2 lapis cevheri).</li>
-     *   <li>Yan/ust komsu paketli buz: tas olur.</li>
-     *   <li>Cehennem biyomunda, lavanin ustunde veya altinda ruh topragi varsa: yaldizli blackstone
-     *       blackstone/netherrack/cevher, mavi buz bazalt/derin arduvaz cevheri olur.</li>
+     *   <li>Yan/ust komsu su: kaynak lava hicbir sey yapmaz; akan lava (PM decay &lt;= 4) kendisi
+     *       cobblestone'a doner (binde 1 redstone, binde 2 lapis cevheri).</li>
+     *   <li>Yan/ust komsu paketli buz: lava tasa doner (buz yerinde kalir).</li>
+     *   <li>Cehennem biyomunda, lavanin ustunde veya altinda ruh topragi varsa: yanindaki yaldizli
+     *       blackstone lavayi blackstone/netherrack/cevhere, mavi buz bazalt/derin arduvaz cevherine
+     *       cevirir.</li>
      * </ul>
      *
      * <p>PM'de su lavanin icine akmaz; yalnizca lava suya akinca su tasa doner (bkz. su tarafi).</p>
@@ -188,14 +189,18 @@ public class BlockLavaBaseComponentImpl extends BlockLiquidBaseComponentImpl {
         return false;
     }
 
-    /** SkyBuild {@code Liquid::liquidCollide}: komsu blok sonuca donusur, lava yerinde kalir. */
-    private void collide(Block lava, Block target, BlockState result) {
-        var event = new LiquidHardenEvent(lava, target.getBlockState(), result, target.getPosition());
+    /**
+     * SkyBuild {@code Liquid::liquidCollide}: sonuc {@code $this}, yani LAVANIN KENDISI olur
+     * ({@code BlockEventHelper::form($this, $result, $cause)}); komşu su/buz/blackstone yerinde
+     * kalir. Boylece jenerator kendi suyunu yemez, lav sertlesip akisi durdurur.
+     */
+    private void collide(Block lava, Block cause, BlockState result) {
+        var event = new LiquidHardenEvent(lava, cause.getBlockState(), result, lava.getPosition());
         if (!event.call()) {
             return;
         }
         var dimension = lava.getDimension();
-        dimension.setBlockState(target.getPosition(), event.getHardenedBlockState());
+        dimension.setBlockState(lava.getPosition(), event.getHardenedBlockState());
         dimension.addSound(MathUtils.center(lava.getPosition()), SimpleSound.FIZZ);
     }
 
