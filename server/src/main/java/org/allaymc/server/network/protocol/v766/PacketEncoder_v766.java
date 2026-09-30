@@ -1103,7 +1103,9 @@ public class PacketEncoder_v766 extends PacketEncoder {
                 packet.setRuntimeEntityId(player.getRuntimeId());
                 packet.setUniqueEntityId(player.getUniqueId().getLeastSignificantBits());
                 packet.setUuid(player.getUniqueId());
-                packet.setUsername(player.getNameTag());
+                // Izleyiciye ozel ad varsa kullanici adi da o olmali; aksi halde istemci
+                // AddPlayer'daki adla NAME verisini farkli gorur.
+                packet.setUsername(nameTag != null ? nameTag.text() : player.getNameTag());
                 packet.setPlatformChatId("");
                 packet.setDeviceId("");
                 // AddPlayerPacket does not use the per-entity network position offset.

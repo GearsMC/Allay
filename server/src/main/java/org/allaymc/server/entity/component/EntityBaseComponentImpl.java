@@ -105,6 +105,7 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
     protected EntityType<? extends Entity> entityType;
     protected Set<WorldViewer> viewers;
     protected Map<UUID, EntityNameTag> viewerNameTags;
+    protected volatile java.util.function.Function<EntityPlayer, EntityNameTag> nameTagResolver;
     protected Set<PrimitiveShape> primitiveShapes;
     @Getter
     protected EntityState state;
@@ -340,7 +341,21 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
             return viewerNameTag;
         }
 
+        var resolver = this.nameTagResolver;
+        if (resolver != null) {
+            var resolved = resolver.apply(viewer);
+            if (resolved != null) {
+                return resolved;
+            }
+        }
+
         return nameTag == null ? null : new EntityNameTag(nameTag, nameTagAlwaysShow);
+    }
+
+    @Override
+    public void setNameTagResolver(java.util.function.Function<EntityPlayer, EntityNameTag> resolver) {
+        this.nameTagResolver = resolver;
+        broadcastState();
     }
 
     @Override

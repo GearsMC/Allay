@@ -199,6 +199,21 @@ public interface EntityBaseComponent extends EntityComponent, CommandSender, Has
     boolean clearNameTagForViewer(EntityPlayer viewer);
 
     /**
+     * Izleyiciye gore ad etiketini gonderim aninda hesaplayan cozucuyu ayarlar.
+     *
+     * <p>Oncelik: {@link #setNameTagForViewer} ile verilen deger, sonra bu cozucu, en son
+     * varlik geneli ad etiketi. Cozucu her dogurma ve durum paketinde yeniden cagrilir; boylece
+     * izleyicinin diline gore ad ilk paketten itibaren dogru gider ve sonradan izleyici basina
+     * kayit tutmak (ve oyuncu kimligine baglanmak) gerekmez. Cozucu {@code null} donerse varlik
+     * geneli etiket kullanilir. Degistirildiginde izleyicilere durum yeniden gonderilir.</p>
+     *
+     * <p>GearsMC fork eki.</p>
+     *
+     * @param resolver cozucu; {@code null} kaldirir
+     */
+    void setNameTagResolver(java.util.function.Function<EntityPlayer, EntityNameTag> resolver);
+
+    /**
      * Checks whether this entity is visible to its viewers.
      *
      * @return whether this entity is visible to its viewers
