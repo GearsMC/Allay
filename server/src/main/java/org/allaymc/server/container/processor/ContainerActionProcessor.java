@@ -81,9 +81,14 @@ public interface ContainerActionProcessor<T extends ItemStackRequestAction> {
     @SuppressWarnings("unchecked")
     static <T extends Container> T getContainerFrom(Player player, FullContainerName containerName) {
         var playerImpl = (EntityPlayerImpl) player.getControlledEntity();
-        var container = ((AllayPlayer) player).getOpenedContainer(containerName.container());
+        var slotType = containerName.container();
+        if (slotType == ContainerSlotType.TRADE2_RESULT || slotType == ContainerSlotType.TRADE_RESULT) {
+            // Takas urunu sunucuda CREATED_OUTPUT'a konur (PMMP TRADE*_RESULT_PREVIEW ile ayni).
+            slotType = ContainerSlotType.CREATED_OUTPUT;
+        }
+        var container = ((AllayPlayer) player).getOpenedContainer(slotType);
         if (container == null) {
-            container = ((EntityPlayerContainerHolderComponentImpl) playerImpl.getContainerHolderComponent()).getContainer(containerName.container());
+            container = ((EntityPlayerContainerHolderComponentImpl) playerImpl.getContainerHolderComponent()).getContainer(slotType);
         }
         return (T) container;
     }
@@ -97,6 +102,21 @@ public interface ContainerActionProcessor<T extends ItemStackRequestAction> {
     }
 
     static int fromNetworkSlotIndex(Container container, int index) {
+        if (container.getContainerType() == ContainerTypes.CREATED_OUTPUT) {
+            // Tek yuvali; takas sonucu TRADE2_RESULT on izleme yuvasindan da alinabilir.
+            return 0;
+        }
+        return ContainerNetworkInfo.getInfo(container.getContainerType()).networkSlotIndexMapper().get(index);
+    }
+
+    /**
+     * {@link #fromNetworkSlotIndex(Container, int)} gibi, fakat bilinmeyen yuvada
+     * istisna yerine {@code null} döner.
+     */
+    static Integer fromNetworkSlotIndexOrNull(Container container, int index) {
+        if (container.getContainerType() == ContainerTypes.CREATED_OUTPUT) {
+            return 0;
+        }
         return ContainerNetworkInfo.getInfo(container.getContainerType()).networkSlotIndexMapper().get(index);
     }
 

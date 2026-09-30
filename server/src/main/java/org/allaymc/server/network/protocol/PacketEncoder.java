@@ -5,6 +5,7 @@ import org.allaymc.api.block.type.BlockState;
 import org.allaymc.api.blockentity.BlockEntity;
 import org.allaymc.api.bossbar.BossBar;
 import org.allaymc.api.container.Container;
+import org.allaymc.api.container.interfaces.FakeTradeContainer;
 import org.allaymc.api.camera.CameraInstruction;
 import org.allaymc.api.dialog.Dialog;
 import org.allaymc.api.entity.Entity;
@@ -403,6 +404,31 @@ public abstract class PacketEncoder {
 
     /** Encodes a numeric property update for an open container. */
     public ContainerSetDataPacket encodeContainerData(int containerId, int property, int value) {
+        return null;
+    }
+
+    /**
+     * Encodes the opening of a villager trade window.
+     *
+     * @param container trade container that holds the trader and the offers
+     * @param containerId network ID assigned to the open container
+     * @param playerUniqueId unique entity ID of the trading player
+     */
+    public UpdateTradePacket encodeTradeOpen(
+            FakeTradeContainer container,
+            byte containerId,
+            long playerUniqueId
+    ) {
+        return null;
+    }
+
+    /**
+     * Encodes the trader's trading state for one viewer.
+     *
+     * @param trader trader entity
+     * @param playerUniqueId unique entity ID of the trading player, or {@code 0} to end trading
+     */
+    public SetEntityDataPacket encodeTraderState(Entity trader, long playerUniqueId) {
         return null;
     }
 

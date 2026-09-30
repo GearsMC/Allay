@@ -180,4 +180,9 @@ public interface ContainerTypes {
      * e.g. compact tool or filter menus that don't need a full chest grid.
      */
     ContainerType<FakeContainer> FAKE_HOPPER = new ContainerType<>(5);
+    /**
+     * A UI-only villager trade container type.
+     * Holds the two payment slots of the trade UI opened through the fake container system.
+     */
+    ContainerType<FakeTradeContainer> FAKE_TRADE = new ContainerType<>(2);
 }

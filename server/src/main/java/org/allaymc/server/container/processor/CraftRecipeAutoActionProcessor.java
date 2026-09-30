@@ -30,6 +30,10 @@ public class CraftRecipeAutoActionProcessor implements ContainerActionProcessor<
     @Override
     public ActionResponse handle(AutoCraftRecipeAction action, Player player, int currentActionIndex, ItemStackRequestAction[] actions, Map<String, Object> dataPool) {
         var recipeNetworkId = action.recipeNetworkId();
+        var tradeContainer = TradeActionHandler.getOpenedTradeContainer(player);
+        if (tradeContainer != null) {
+            return TradeActionHandler.handle(tradeContainer, player, recipeNetworkId, action.timesCrafted(), currentActionIndex, actions);
+        }
         if (recipeNetworkId <= 0) {
             log.warn("Unknown auto craft recipe network id {}", recipeNetworkId);
             return error();

@@ -16,9 +16,22 @@ public class EntityVillagerV2Impl extends EntityImpl implements EntityVillagerV2
     private EntityLivingComponent livingComponent;
     @Delegate
     private EntityPhysicsComponent physicsComponent;
+    // Kalici degil: NPC'ler her acilista meslegi yeniden ayarlar.
+    private volatile int profession;
 
     public EntityVillagerV2Impl(EntityInitInfo initInfo,
                                 List<ComponentProvider<? extends Component>> componentProviders) {
         super(initInfo, componentProviders);
+    }
+
+    @Override
+    public int getProfession() {
+        return profession;
+    }
+
+    @Override
+    public void setProfession(int profession) {
+        this.profession = profession;
+        broadcastState();
     }
 }

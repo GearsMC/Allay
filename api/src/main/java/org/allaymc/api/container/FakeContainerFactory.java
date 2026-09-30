@@ -2,6 +2,7 @@ package org.allaymc.api.container;
 
 import org.allaymc.api.AllayAPI;
 import org.allaymc.api.container.interfaces.FakeContainer;
+import org.allaymc.api.container.interfaces.FakeTradeContainer;
 
 /**
  * FakeContainerFactory is a factory for creating {@link FakeContainer} instances.
@@ -47,4 +48,13 @@ public interface FakeContainerFactory {
      * @return A new smithing table {@code FakeContainer} instance.
      */
     FakeContainer createFakeSmithingTableContainer();
+
+    /**
+     * Creates an instance of a villager trade {@code FakeContainer}.
+     * The trade UI is bound to a client-side entity (usually a villager) and
+     * the server validates and performs every trade.
+     *
+     * @return A new trade {@code FakeTradeContainer} instance.
+     */
+    FakeTradeContainer createFakeTradeContainer();
 }

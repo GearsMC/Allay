@@ -37,6 +37,10 @@ public class CraftRecipeActionProcessor implements ContainerActionProcessor<Craf
     @Override
     public ActionResponse handle(CraftRecipeAction action, Player player, int currentActionIndex, ItemStackRequestAction[] actions, Map<String, Object> dataPool) {
         var recipeNetworkId = action.recipeNetworkId();
+        var tradeContainer = TradeActionHandler.getOpenedTradeContainer(player);
+        if (tradeContainer != null) {
+            return TradeActionHandler.handle(tradeContainer, player, recipeNetworkId, action.numberOfRequestedCrafts(), currentActionIndex, actions);
+        }
         if (recipeNetworkId >= EnchantmentOptionGenerator.NETWORK_ID_COUNTER_INITIAL_VALUE) {
             return handleEnchantTableRecipe(player, recipeNetworkId);
         }

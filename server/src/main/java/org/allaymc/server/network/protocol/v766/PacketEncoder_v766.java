@@ -12,6 +12,8 @@ import org.allaymc.api.bossbar.BossBar;
 import org.allaymc.api.container.Container;
 import org.allaymc.api.container.ContainerHolder;
 import org.allaymc.api.container.ContainerTypes;
+import org.allaymc.api.container.interfaces.FakeTradeContainer;
+import org.allaymc.api.trade.TradeOffer;
 import org.allaymc.api.dialog.Dialog;
 import org.allaymc.api.dialog.ModelSettings;
 import org.allaymc.api.entity.Entity;
@@ -66,6 +68,7 @@ import org.allaymc.api.world.particle.*;
 import org.allaymc.api.world.sound.*;
 import org.allaymc.server.AllayServer;
 import org.allaymc.server.container.ContainerNetworkInfo;
+import org.allaymc.server.container.impl.FakeTradeContainerImpl;
 import org.allaymc.server.container.impl.UnopenedContainerId;
 import org.allaymc.server.container.processor.ContainerActionProcessor;
 import org.allaymc.server.entity.component.aquatic.EntityAxolotlBaseComponentImpl;
@@ -979,6 +982,86 @@ public class PacketEncoder_v766 extends PacketEncoder {
     }
 
     @Override
+    public UpdateTradePacket encodeTradeOpen(
+            FakeTradeContainer container,
+            byte containerId,
+            long playerUniqueId
+    ) {
+        Objects.requireNonNull(container, "container");
+        var trader = Objects.requireNonNull(container.getTrader(), "trader");
+        var packet = new UpdateTradePacket();
+        packet.setContainerId(containerId);
+        packet.setContainerType(org.cloudburstmc.protocol.bedrock.data.inventory.ContainerType.TRADE);
+        packet.setSize(0);
+        packet.setTradeTier(0);
+        packet.setTraderUniqueEntityId(trader.getUniqueId().getLeastSignificantBits());
+        packet.setPlayerUniqueEntityId(playerUniqueId);
+        packet.setDisplayName(Objects.requireNonNullElse(container.getCustomName(), ""));
+        packet.setNewTradingUi(true);
+        packet.setRecipeAddedOnUpdate(false);
+        packet.setUsingEconomyTrade(false);
+        packet.setOffers(encodeTradeOffers(container.getOffers()));
+        return packet;
+    }
+
+    /**
+     * PMMP {@code TradeOfferSerializer} ile ayni NBT duzeni. {@code netId}, istemcinin
+     * CraftRecipe isteginde geri gonderdigi kimliktir; {@link FakeTradeContainer} teklif
+     * sirasindan cozer.
+     */
+    protected NbtMap encodeTradeOffers(List<TradeOffer> offers) {
+        var recipes = new ArrayList<NbtMap>(offers.size());
+        for (int index = 0; index < offers.size(); index++) {
+            var offer = offers.get(index);
+            var buyA = offer.getBuyA();
+            var buyB = offer.getBuyB();
+            var recipe = NbtMap.builder()
+                    .putCompound("buyA", buyA.saveNBT())
+                    .putCompound("sell", offer.getSell().saveNBT())
+                    .putInt("tier", 0)
+                    .putInt("uses", offer.getUses())
+                    .putInt("maxUses", offer.getMaxUses())
+                    .putInt("buyCountA", buyA.getCount())
+                    .putInt("buyCountB", buyB == null ? 0 : buyB.getCount())
+                    .putInt("rewardExp", 0)
+                    .putInt("demand", 0)
+                    .putInt("netId", FakeTradeContainerImpl.networkIdFromIndex(index))
+                    .putInt("traderExp", 0)
+                    .putFloat("priceMultiplierA", 0f)
+                    .putFloat("priceMultiplierB", 0f)
+                    .putString("recipeId", offer.getRecipeId().isEmpty() ? "trade:" + index : offer.getRecipeId());
+            if (buyB != null) {
+                recipe.putCompound("buyB", buyB.saveNBT());
+            }
+            recipes.add(recipe.build());
+        }
+        var tiers = new ArrayList<NbtMap>(5);
+        for (int tier = 0; tier < 5; tier++) {
+            tiers.add(NbtMap.builder().putInt(String.valueOf(tier), tier * 10).build());
+        }
+        return NbtMap.builder()
+                .putList("Recipes", NbtType.COMPOUND, recipes)
+                .putList("TierExpRequirements", NbtType.COMPOUND, tiers)
+                .build();
+    }
+
+    @Override
+    public SetEntityDataPacket encodeTraderState(Entity trader, long playerUniqueId) {
+        Objects.requireNonNull(trader, "trader");
+        var packet = new SetEntityDataPacket();
+        packet.setRuntimeEntityId(trader.getRuntimeId());
+        var metadata = new EntityDataMap();
+        metadata.put(EntityDataTypes.TRADE_TARGET_EID, playerUniqueId);
+        if (playerUniqueId != 0) {
+            metadata.put(EntityDataTypes.TRADE_TIER, 0);
+            metadata.put(EntityDataTypes.MAX_TRADE_TIER, 5);
+            metadata.put(EntityDataTypes.TRADE_EXPERIENCE, 0);
+        }
+        packet.setMetadata(metadata);
+        return packet;
+    }
+
+    @Override
     public ContainerSetDataPacket encodeContainerData(int containerId, int property, int value) {
         var packet = new ContainerSetDataPacket();
         packet.setWindowId((byte) containerId);
@@ -1404,6 +1487,7 @@ public class PacketEncoder_v766 extends PacketEncoder {
             // yoksa istemci onu yaniyor gibi gosterip gizler; FIRE_IMMUNE bunu engeller.
             case EntityItem item -> metadata.setFlag(EntityFlag.FIRE_IMMUNE, item.isFireproof());
             case EntityCushion cushion -> metadata.put(EntityDataTypes.VARIANT, cushion.getColor().ordinalInverted());
+            case EntityVillagerV2 villager -> metadata.put(EntityDataTypes.VARIANT, villager.getProfession());
             case EntityXpOrb xpOrb -> metadata.put(EntityDataTypes.VALUE, xpOrb.getExperienceValue());
             case EntityWither wither -> {
                 metadata.put(EntityDataTypes.WITHER_INVULNERABLE_TICKS, wither.getWitherInvulnerableTicks());

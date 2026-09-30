@@ -250,6 +250,15 @@ public record ContainerNetworkInfo(
             .mapAllSlotToType(ContainerSlotType.LEVEL_ENTITY)
             .build();
 
+    // Yalnizca yeni (trade2) takas arayuzu kullanilir; UI yuva ofsetleri 4 ve 5.
+    public static final ContainerNetworkInfo FAKE_TRADE = builder()
+            .networkId(org.cloudburstmc.protocol.bedrock.data.inventory.ContainerType.TRADE)
+            .type(ContainerTypes.FAKE_TRADE)
+            .mapSlotToType(FakeTradeContainer.INGREDIENT_1_SLOT, ContainerSlotType.TRADE2_INGREDIENT_1)
+            .mapSlotToType(FakeTradeContainer.INGREDIENT_2_SLOT, ContainerSlotType.TRADE2_INGREDIENT_2)
+            .mapRangedNetworkSlotIndex(4, 5, 0)
+            .build();
+
     public ContainerNetworkInfo(int networkId, ContainerType<?> type, ContainerSlotType[] slotTypeTable, Set<ContainerSlotType> heldSlotTypes, BiMap<Integer, Integer> networkSlotIndexMapper) {
         this.networkId = networkId;
         this.type = type;

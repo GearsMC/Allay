@@ -95,6 +95,13 @@ public abstract class FakeContainerImpl extends BaseContainer implements FakeCon
         });
     }
 
+    /**
+     * Sahte blok beklemeden izleyici ekler; bloğa bağlı olmayan arayüzler (takas) içindir.
+     */
+    protected boolean addViewerDirectly(ContainerViewer viewer) {
+        return super.addViewer(viewer);
+    }
+
     public Vector3ic getFakeBlockPos(ContainerViewer viewer) {
         var array = this.fakeBlockPositions.get(viewer);
         if (array != null) {

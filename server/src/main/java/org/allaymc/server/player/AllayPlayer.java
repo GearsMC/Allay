@@ -81,6 +81,7 @@ import org.allaymc.server.command.tree.node.BaseNode;
 import org.allaymc.server.container.ContainerNetworkInfo;
 import org.allaymc.server.container.impl.AbstractPlayerContainer;
 import org.allaymc.server.container.impl.FakeContainerImpl;
+import org.allaymc.server.container.impl.FakeTradeContainerImpl;
 import org.allaymc.server.ddui.AllayDDUIScreenSession;
 import org.allaymc.server.entity.component.player.EntityPlayerBaseComponentImpl;
 import org.allaymc.server.entity.impl.EntityPlayerImpl;
@@ -751,6 +752,13 @@ public class AllayPlayer implements Player {
 
     @SneakyThrows
     protected void sendContainerOpenPacket(byte assignedId, Container container) {
+        if (container instanceof FakeTradeContainerImpl tradeContainer) {
+            // Takas penceresi ContainerOpenPacket ile degil, teklifleri tasiyan
+            // UpdateTradePacket ile acilir.
+            sendPacket(getProtocol().getEncoder().encodeTradeOpen(
+                    tradeContainer, assignedId, FakeTradeContainerImpl.playerUniqueId(this)));
+            return;
+        }
         Vector3ic position = switch (container) {
             // Sahte konteyner ONCE denenir: SmithingTableContainer gibi bazi konteyner
             // arayuzleri BlockContainer'i genisletiyor, dolayisiyla sahte bir nalbant
