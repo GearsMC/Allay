@@ -63,6 +63,11 @@ public class ItemWearableComponentImpl implements ItemWearableComponent {
             }
         }
 
+        // Kafalar (wearWhenInteract=false) giyilmez, bloga yerlestirilir: olayi "kullanildi"
+        // diye isaretlersek yerlestirme atlanir ve kafa yalnizca egilerek (sneak) konabilir.
+        if (!wearWhenInteract) {
+            return;
+        }
         equipArmor(interactInfo.player(), thisItemStack);
         event.setCanBeUsed(true);
     }
