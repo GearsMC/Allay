@@ -122,6 +122,7 @@ import org.joml.Vector3dc;
 
 import java.awt.Color;
 import org.joml.Vector3ic;
+import org.joml.primitives.AABBdc;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -1317,24 +1318,21 @@ public class PacketEncoder_v766 extends PacketEncoder {
         }
         if (entity.isPocketMineSizeMetadata()) {
             // PocketMine gibi: istemci genislik/yuksekligi SCALE ile kendisi carpiyor, bu yuzden
-            // olceksiz kutu gidiyor; HITBOX ve COLLISION_BOX gonderilmiyor.
+            // olceksiz kutu gidiyor; COLLISION_BOX gonderilmiyor.
             var base = entity.getBaseAABB();
             metadata.put(EntityDataTypes.WIDTH, (float) (base.maxX() - base.minX()));
             metadata.put(EntityDataTypes.HEIGHT, (float) (base.maxY() - base.minY()));
+            // Ender ejderhasi gibi bazi varliklarin istemcide kendi (custom_hit_test) vurus
+            // kutusu var ve WIDTH/HEIGHT/SCALE onu degistirmiyor: kucultulmus pet ejderhasi
+            // kocaman kutuyla vuruluyordu. Olcekli kutu acikca gonderilerek ezilir.
+            metadata.put(EntityDataTypes.HITBOX, encodeHitboxes(entity.getAABB()));
         } else {
             var aabb = entity.getAABB();
-            var hitbox = NbtMap.builder()
-                    .putFloat("MinX", 0)
-                    .putFloat("MinY", 0)
-                    .putFloat("MinZ", 0)
-                    .putFloat("MaxX", (float) (aabb.maxX() - aabb.minX()))
-                    .putFloat("MaxY", (float) (aabb.maxY() - aabb.minY()))
-                    .putFloat("MaxZ", (float) (aabb.maxZ() - aabb.minZ()))
-                    .putFloat("PivotX", 0)
-                    .putFloat("PivotY", 0)
-                    .putFloat("PivotZ", 0)
-                    .build();
-            metadata.put(EntityDataTypes.HITBOX, hitbox);
+            // Bos liste istemcinin varsayilan vurus kutusuna doner (vanilla ejderha dahil).
+            // Eskiden Hitboxes listesi olmadan duz bir bilesik gidiyordu; bicim gecersizdi.
+            metadata.put(EntityDataTypes.HITBOX, NbtMap.builder()
+                    .putList("Hitboxes", NbtType.COMPOUND, List.of())
+                    .build());
             metadata.put(EntityDataTypes.COLLISION_BOX, Vector3f.from(
                     (float) (aabb.maxX() - aabb.minX()),
                     (float) (aabb.maxY() - aabb.minY()),
@@ -1358,6 +1356,27 @@ public class PacketEncoder_v766 extends PacketEncoder {
                 metadata.put(EntityDataTypes.NAMETAG_ALWAYS_SHOW, (byte) 1);
             }
         }
+    }
+
+    /**
+     * {@code HITBOX} verisi: {@code {Hitboxes: [{MinX..MaxZ, PivotX..PivotZ}]}}. Kutu varlik
+     * konumuna gore (ayak ortasi) verilir, pivot kutunun merkezidir.
+     */
+    private static NbtMap encodeHitboxes(AABBdc aabb) {
+        var hitbox = NbtMap.builder()
+                .putFloat("MinX", (float) aabb.minX())
+                .putFloat("MinY", (float) aabb.minY())
+                .putFloat("MinZ", (float) aabb.minZ())
+                .putFloat("MaxX", (float) aabb.maxX())
+                .putFloat("MaxY", (float) aabb.maxY())
+                .putFloat("MaxZ", (float) aabb.maxZ())
+                .putFloat("PivotX", (float) ((aabb.minX() + aabb.maxX()) / 2))
+                .putFloat("PivotY", (float) ((aabb.minY() + aabb.maxY()) / 2))
+                .putFloat("PivotZ", (float) ((aabb.minZ() + aabb.maxZ()) / 2))
+                .build();
+        return NbtMap.builder()
+                .putList("Hitboxes", NbtType.COMPOUND, List.of(hitbox))
+                .build();
     }
 
     private static void addComponentSpecificMetadata(Entity entity, EntityDataMap metadata) {

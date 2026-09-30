@@ -1574,6 +1574,7 @@ public final class EntityTypeInitializer {
         EntityTypes.ENDER_DRAGON = AllayEntityType
                 .builder(EntityEnderDragonImpl.class)
                 .vanillaEntity(EntityId.ENDER_DRAGON)
+                .addComponent(EntityEnderDragonBaseComponentImpl::new, EntityEnderDragonBaseComponentImpl.class)
                 .addComponent(() -> {
                     var component = new EntityLivingComponentImpl() {
                         @Override
