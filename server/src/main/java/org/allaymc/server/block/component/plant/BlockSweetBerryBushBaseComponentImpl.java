@@ -127,11 +127,17 @@ public class BlockSweetBerryBushBaseComponentImpl extends BlockBaseComponentImpl
             return;
         }
 
-        if (entity instanceof EntityLiving living) {
-            if (ThreadLocalRandom.current().nextInt(20) == 0) {
-                living.attack(DamageContainer.contact(0.5f));
-            }
+        // SkyBuild SweetBerryBush (0a7e9e3): yalnizca kalin icinde yatay hareket edilirse 1 hasar.
+        if (entity instanceof EntityLiving living && movedHorizontally(living)) {
+            living.attack(DamageContainer.contact(1f));
         }
+    }
+
+    private static boolean movedHorizontally(Entity entity) {
+        var last = entity.getLastLocation();
+        var now = entity.getLocation();
+        return last != null
+                && (Math.abs(now.x() - last.x()) >= 0.003 || Math.abs(now.z() - last.z()) >= 0.003);
     }
 
     @Override

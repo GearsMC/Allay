@@ -54,6 +54,10 @@ public class BlockCampfireBaseComponentImpl extends BlockBaseComponentImpl {
             if (living.hasEffect(EffectTypes.FIRE_RESISTANCE)) {
                 return;
             }
+            // SkyBuild Campfire::onEntityCollide (0a7e9e3): egilen (sneak) varlik yanmaz.
+            if (living instanceof org.allaymc.api.entity.interfaces.EntityPlayer sneaker && sneaker.isSneaking()) {
+                return;
+            }
             // Campfire deals 1 damage per tick (0.5 hearts)
             living.attack(DamageContainer.campfire(1f));
         }

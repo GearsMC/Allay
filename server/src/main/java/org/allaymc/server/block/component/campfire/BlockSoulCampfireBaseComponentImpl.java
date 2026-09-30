@@ -37,6 +37,9 @@ public class BlockSoulCampfireBaseComponentImpl extends BlockCampfireBaseCompone
             if (living.hasEffect(EffectTypes.FIRE_RESISTANCE)) {
                 return;
             }
+            if (living instanceof org.allaymc.api.entity.interfaces.EntityPlayer sneaker && sneaker.isSneaking()) {
+                return;
+            }
             // Soul campfire deals 2 damage per tick (1 heart)
             living.attack(DamageContainer.campfire(2f));
         }
