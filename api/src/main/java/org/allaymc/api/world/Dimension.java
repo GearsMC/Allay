@@ -1118,6 +1118,20 @@ public interface Dimension extends TaskCreator {
      * @param pickupDelay the pickup delay of the xp orb entity
      */
     default void dropXpOrb(Vector3dc pos, int xp, Vector3dc motion, int pickupDelay) {
+        // GearsMC fork (SkyBuild ExperienceOrb::tryAbsorb, d315692): ayni 1x1x1 kutudaki kure
+        // varsa yeni kure acmak yerine deger ona eklenir.
+        if (xp > 0) {
+            var box = new org.joml.primitives.AABBd(
+                    pos.x() - 0.5, pos.y() - 0.5, pos.z() - 0.5, pos.x() + 0.5, pos.y() + 0.5, pos.z() + 0.5);
+            for (var entity : getEntityManager().getPhysicsService()
+                    .computeCollidingEntities(box, e -> e instanceof EntityXpOrb)) {
+                var orb = (EntityXpOrb) entity;
+                if (orb.getExperienceValue() > 0 && !orb.isDead()) {
+                    orb.setExperienceValue((int) Math.min(Integer.MAX_VALUE, (long) orb.getExperienceValue() + xp));
+                    return;
+                }
+            }
+        }
         var rand = ThreadLocalRandom.current();
         var entityXpOrb = EntityTypes.XP_ORB.createEntity(
                 EntityInitInfo.builder()

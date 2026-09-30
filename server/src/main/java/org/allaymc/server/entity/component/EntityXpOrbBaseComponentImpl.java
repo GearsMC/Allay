@@ -39,10 +39,61 @@ public class EntityXpOrbBaseComponentImpl extends EntityPickableBaseComponentImp
         super(info);
     }
 
+    /** SkyBuild {@code ExperienceOrb::MERGE_*} (d315692). */
+    protected static final double MERGE_BOX_SIZE = 1.0d;
+    protected static final int MERGE_CHECK_PERIOD = 5;
+    protected static final int MERGE_NEIGHBOR_CAP = 16;
+
     @Override
     public void tick(long currentTick) {
         super.tick(currentTick);
         moveToNearestPlayer();
+        if (currentTick % MERGE_CHECK_PERIOD == 0) {
+            tryMergeNearby();
+        }
+    }
+
+    /**
+     * SkyBuild {@code ExperienceOrb::tryMergeNearby}: 1x1x1 kutudaki deneyim kureleri tek kureye
+     * birlesir (en dusuk runtime kimligi kalir), boylece cok sayida kucuk kure ortaligi doldurmaz.
+     */
+    protected void tryMergeNearby() {
+        if (!isMergeable()) {
+            return;
+        }
+        var half = MERGE_BOX_SIZE / 2.0d;
+        var box = new org.joml.primitives.AABBd(
+                location.x - half, location.y - half, location.z - half,
+                location.x + half, location.y + half, location.z + half);
+        var nearby = getDimension().getEntityManager().getPhysicsService()
+                .computeCollidingEntities(box, entity -> entity != thisEntity && entity instanceof org.allaymc.api.entity.interfaces.EntityXpOrb);
+        var seen = 0;
+        for (var entity : nearby) {
+            if (++seen > MERGE_NEIGHBOR_CAP) {
+                return;
+            }
+            var other = (org.allaymc.api.entity.interfaces.EntityXpOrb) entity;
+            if (other.getExperienceValue() <= 0 || other.isDead()) {
+                continue;
+            }
+            // Kimligi kucuk olan kalir: yalnizca daha buyuk kimlikli kureyi bu kure yutar, digeri
+            // kendi tikinde ayni karara varir.
+            if (thisEntity.getRuntimeId() < other.getRuntimeId()) {
+                absorb(other);
+            }
+        }
+    }
+
+    protected boolean isMergeable() {
+        return experienceValue > 0 && !thisEntity.isDead() && thisEntity.isAlive();
+    }
+
+    /** {@code donor} kuresinin degerini bu kureye katar ve donor'u kaldirir. */
+    protected void absorb(org.allaymc.api.entity.interfaces.EntityXpOrb donor) {
+        var sum = (long) Math.max(0, this.experienceValue) + Math.max(0, donor.getExperienceValue());
+        setExperienceValue((int) Math.max(1L, Math.min(sum, Integer.MAX_VALUE)));
+        donor.setExperienceValue(0);
+        donor.remove();
     }
 
     @Override
