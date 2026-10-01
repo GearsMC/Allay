@@ -1,4 +1,4 @@
-FROM openjdk:21-jdk-slim AS build
+FROM eclipse-temurin:25-jdk AS build
 
 WORKDIR /src
 
@@ -12,7 +12,7 @@ COPY data /src/data
 RUN apt-get -y update && apt-get -y install git
 RUN ./gradlew :server:shadowJar
 
-FROM openjdk:21-jdk-slim AS run
+FROM eclipse-temurin:25-jdk AS run
 
 LABEL maintainer="AllayMC"
 

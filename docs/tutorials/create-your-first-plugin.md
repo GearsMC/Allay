@@ -12,7 +12,7 @@ Java, Kotlin, Scala and any JVM-based language. In this section, we'll walk you 
 Before you begin, make sure you have the following installed:
 
 - [JetBrains IntelliJ IDEA](https://www.jetbrains.com/idea/)
-- [JDK 21](../getting-started/installation.md#install-java)
+- [JDK 25](../getting-started/installation.md#install-java)
 - [Allay](../getting-started/installation.md#download-allay)
 
 ## Project Templates

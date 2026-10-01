@@ -43,11 +43,11 @@ in your deployment.
 
 ## 🛠️ Getting Started
 
-Allay is written and running in java 21, so you need to install java 21. There are
+Allay is written and running in java 25, so you need to install java 25. There are
 several version of java, and we recommend you to use [GraalVM](https://www.graalvm.org/) for the best performance.
 [OpenJDK](https://adoptopenjdk.net/) is also a good choice if you want to have a stable experience.
 
-After you have installed java 21, there are two ways to install Allay:
+After you have installed java 25, there are two ways to install Allay:
 
 ### ⚡ Use AllayLauncher
 

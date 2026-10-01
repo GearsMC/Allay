@@ -1,6 +1,6 @@
 # Repository Guidelines
 
-Allay is an open-source Minecraft: Bedrock Edition server written in Java 21, built for reliability, performance,
+Allay is an open-source Minecraft: Bedrock Edition server written in Java 25, built for reliability, performance,
 features, and JVM plugin development.
 
 ## Project Structure & Module Organization
@@ -14,7 +14,7 @@ features, and JVM plugin development.
 
 ## Build, Test, and Development Commands
 
-Use the checked-in Gradle wrapper and a Java 21 JDK (`gradlew.bat` on Windows).
+Use the checked-in Gradle wrapper and a Java 25 JDK (`gradlew.bat` on Windows).
 
 - `./gradlew build` compiles every module, runs tests, and produces the server artifacts.
 - `./gradlew :server:test` runs the JUnit suite using `.test/` as its working directory.

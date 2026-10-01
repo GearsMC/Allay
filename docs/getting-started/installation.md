@@ -9,7 +9,7 @@ This guide will walk you through installing and launching your first Allay serve
 
 ## Install Java
 
-Allay requires **Java 21** to run. There are several Java distributions available, but we recommend the following:
+Allay requires **Java 25** to run. There are several Java distributions available, but we recommend the following:
 
 - [**GraalVM**](https://www.graalvm.org/) – for best performance.
 - [**OpenJDK**](https://adoptium.net/) – for a more stable and familiar experience.
