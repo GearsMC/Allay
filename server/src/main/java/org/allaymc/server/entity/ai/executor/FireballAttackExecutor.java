@@ -36,7 +36,13 @@ public class FireballAttackExecutor implements BehaviorExecutor {
     protected static final double HOVER_HEIGHT = 2.0;
 
     /** Ates topunun cikis hizi. */
-    protected static final float FIREBALL_SPEED = 0.6f;
+    protected static final float FIREBALL_SPEED = 0.85f;
+
+    /** Nisan sapmasi: HeartCore {@code applyInaccuracy} 0.06 (dikeyde yarisi). */
+    protected static final double SPREAD = 0.06;
+
+    /** Hedefin goz yuksekliginin kaci kadar yukarisina nisan alinir (HeartCore 0.5). */
+    protected static final double AIM_HEIGHT_FACTOR = 0.5;
 
     protected final MemoryType<Long> targetIdMemory;
     protected final float speed;
@@ -47,6 +53,7 @@ public class FireballAttackExecutor implements BehaviorExecutor {
     protected final int chargeTime;
     protected final int coolDown;
     protected final int burstSize;
+    protected final double fireRangeSquared;
 
     protected int tick;
     protected int shotsLeft;
@@ -69,6 +76,17 @@ public class FireballAttackExecutor implements BehaviorExecutor {
     public FireballAttackExecutor(MemoryType<Long> targetIdMemory, float speed, double maxSenseRange,
                                   double preferredRange, double minRange, boolean clearTargetAfterLose,
                                   int chargeTime, int coolDown, int burstSize) {
+        this(targetIdMemory, speed, maxSenseRange, preferredRange, minRange, clearTargetAfterLose,
+                chargeTime, coolDown, burstSize, Double.MAX_VALUE);
+    }
+
+    /**
+     * @param fireRange ates topunun acilabildigi en uzak mesafe; ondan uzaktayken mob sarj edip bekler
+     */
+    public FireballAttackExecutor(MemoryType<Long> targetIdMemory, float speed, double maxSenseRange,
+                                  double preferredRange, double minRange, boolean clearTargetAfterLose,
+                                  int chargeTime, int coolDown, int burstSize, double fireRange) {
+        this.fireRangeSquared = fireRange == Double.MAX_VALUE ? Double.MAX_VALUE : fireRange * fireRange;
         this.targetIdMemory = targetIdMemory;
         this.speed = speed;
         this.maxSenseRangeSquared = maxSenseRange * maxSenseRange;
@@ -127,7 +145,8 @@ public class FireballAttackExecutor implements BehaviorExecutor {
         updateMovement(entity, entityLoc.x(), entityLoc.z(),
                 targetLoc.x(), targetLoc.y(), targetLoc.z(), distanceSquared);
 
-        if (tick >= nextShotTick) {
+        // Menzil disindayken ates acilmaz (seri ortasinda degilse); sarj hazir bekler.
+        if (tick >= nextShotTick && (shotsLeft > 0 || distanceSquared <= fireRangeSquared)) {
             if (shotsLeft == 0) {
                 shotsLeft = burstSize;
             }
@@ -220,13 +239,18 @@ public class FireballAttackExecutor implements BehaviorExecutor {
         var targetLoc = target.getLocation();
         var direction = new Vector3d(
                 targetLoc.x() - shootPos.x(),
-                targetLoc.y() + target.getEyeHeight() - shootPos.y(),
+                targetLoc.y() + target.getEyeHeight() * AIM_HEIGHT_FACTOR - shootPos.y(),
                 targetLoc.z() - shootPos.z()
         );
         if (direction.lengthSquared() < 1e-6) {
             return;
         }
         direction.normalize();
+        var rand = java.util.concurrent.ThreadLocalRandom.current();
+        direction.add(
+                (rand.nextDouble() * 2 - 1) * SPREAD,
+                (rand.nextDouble() * 2 - 1) * SPREAD * 0.5,
+                (rand.nextDouble() * 2 - 1) * SPREAD).normalize();
 
         var fireball = EntityTypes.SMALL_FIREBALL.createEntity(
                 EntityInitInfo.builder()

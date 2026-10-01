@@ -26,6 +26,8 @@ import org.allaymc.api.entity.data.EntityNameTag;
 import org.allaymc.api.entity.data.WeaponStance;
 import org.allaymc.server.entity.component.EntityAngerableBaseComponentImpl;
 import org.allaymc.server.entity.component.EntityBlazeBaseComponentImpl;
+import org.allaymc.server.entity.component.EntityRabbitBaseComponentImpl;
+import org.allaymc.server.entity.component.EntitySpiderBaseComponentImpl;
 import org.allaymc.api.entity.effect.EffectInstance;
 import org.allaymc.api.entity.interfaces.*;
 import org.allaymc.api.entity.interfaces.EntityAxolotl;
@@ -1527,6 +1529,18 @@ public class PacketEncoder_v766 extends PacketEncoder {
             // setting it would stack a second burning overlay on top. CHARGED is the flare it puts
             // on only while winding up and firing a fireball burst (HeartCore did the same), not
             // merely because a player is nearby.
+            // Orumcek duvara tirmanirken istemci ayaklarini duvara yapistirir; bayrak fizik
+            // bileseninin tirmanma durumundan gelir.
+            case EntitySpider spider -> metadata.setFlag(EntityFlag.WALL_CLIMBING,
+                    ((EntityImpl) spider).getBaseComponent() instanceof EntitySpiderBaseComponentImpl base && base.isClimbing());
+            // Tavsan: deri cesidi ve ziplama animasyonu (bayrak + kalan sure).
+            case EntityRabbit rabbit -> {
+                if (((EntityImpl) rabbit).getBaseComponent() instanceof EntityRabbitBaseComponentImpl base) {
+                    metadata.put(EntityDataTypes.VARIANT, base.getVariant());
+                    metadata.setFlag(EntityFlag.JUMP_GOAL_JUMP, base.isHopping());
+                    metadata.put(EntityDataTypes.JUMP_DURATION, (byte) base.getHopTicks());
+                }
+            }
             case EntityBlaze blaze -> {
                 metadata.setFlag(EntityFlag.FIRE_IMMUNE, true);
                 metadata.setFlag(EntityFlag.CHARGED,

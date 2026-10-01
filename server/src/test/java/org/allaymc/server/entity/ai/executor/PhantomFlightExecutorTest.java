@@ -123,6 +123,7 @@ class PhantomFlightExecutorTest {
         Sim sim = new Sim();
         sim.y = 70;
         EntityIntelligent phantom = mock(EntityIntelligent.class);
+        when(phantom.getDimension()).thenReturn(dimension);
         when(phantom.getLocation()).thenAnswer(inv -> new Location3d(sim.x, sim.y, sim.z, 0, 0, dimension));
         when(phantom.getMotion()).thenAnswer(inv -> new Vector3d(sim.mx, sim.my, sim.mz));
         doAnswer(inv -> {

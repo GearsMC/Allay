@@ -139,20 +139,50 @@ public class RangedAttackExecutor implements BehaviorExecutor {
 
         // Ger, hedefte tut, sonra birak. Tutma asamasi istemcinin tam gerilmis pozu gosterebilmesi
         // icin var; germe biter bitmez ates etmek ekranda bir segirme gibi gorunuyor.
-        if (attackTick < coolDown) {
+        int chargeTicks = chargeTicks();
+        if (attackTick < chargeTicks) {
             setWeaponStance(entity, WeaponStance.CHARGING);
             setCrossbowLoaded(entity, false);
-        } else if (attackTick < coolDown + AIM_TIME) {
+        } else if (attackTick < chargeTicks + aimTicks()) {
             setWeaponStance(entity, WeaponStance.READY);
             setCrossbowLoaded(entity, true);
         } else {
             shoot(entity, targetEntity);
+            onShot(Math.sqrt(distanceSquared));
             attackTick = 0;
             setWeaponStance(entity, WeaponStance.CHARGING);
             setCrossbowLoaded(entity, false);
         }
 
         return true;
+    }
+
+    /** Atistan once yayin gerildigi tick sayisi; alt siniflar mesafeye gore degistirir. */
+    protected int chargeTicks() {
+        return coolDown;
+    }
+
+    /** Gerildikten sonra hedefte tutulan tick sayisi. */
+    protected int aimTicks() {
+        return AIM_TIME;
+    }
+
+    /** Her atistan sonra cagrilir; {@code distance} atis anindaki hedef mesafesidir. */
+    protected void onShot(double distance) {
+    }
+
+    /** Okun cikis hizi; alt siniflar mesafeye gore degistirir. */
+    protected double arrowVelocityFor(double distance) {
+        return arrowVelocity;
+    }
+
+    /** Hedefin ustundeki nisan noktasinin goz yuksekligine orani (1 = goz). */
+    protected double aimHeightFactor() {
+        return 1.0;
+    }
+
+    /** Atis yonunu son bir kez degistirme firsati (yay dususu telafisi, sapma); normallestirilmis doner. */
+    protected void adjustDirection(Vector3d direction, double distance) {
     }
 
     @Override
@@ -220,12 +250,14 @@ public class RangedAttackExecutor implements BehaviorExecutor {
         var targetLoc = target.getLocation();
         var direction = new Vector3d(
                 targetLoc.x() - shootPos.x(),
-                targetLoc.y() + target.getEyeHeight() - shootPos.y(),
+                targetLoc.y() + target.getEyeHeight() * aimHeightFactor() - shootPos.y(),
                 targetLoc.z() - shootPos.z()
         );
+        double aimDistance = direction.length();
         if (direction.lengthSquared() < 1e-6) {
             direction = MathUtils.getDirectionVector(location);
         } else {
+            adjustDirection(direction, aimDistance);
             direction.normalize();
         }
 
@@ -234,7 +266,7 @@ public class RangedAttackExecutor implements BehaviorExecutor {
                         .dimension(dimension)
                         .pos(shootPos)
                         .rot(-location.yaw(), -location.pitch())
-                        .motion(direction.mul(arrowVelocity))
+                        .motion(direction.mul(arrowVelocityFor(aimDistance)))
                         .build()
         );
         arrow.setShooter(entity);

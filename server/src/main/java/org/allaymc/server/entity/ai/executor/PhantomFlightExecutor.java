@@ -8,6 +8,7 @@ import org.allaymc.api.entity.interfaces.EntityIntelligent;
 import org.allaymc.api.entity.interfaces.EntityLiving;
 import org.allaymc.api.entity.interfaces.EntityPlayer;
 import org.allaymc.api.player.GameMode;
+import org.allaymc.api.world.sound.CustomSound;
 import org.joml.Vector3d;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -55,6 +56,13 @@ public class PhantomFlightExecutor implements BehaviorExecutor {
 
     protected enum Phase { CIRCLE, DIVE, ASCEND }
 
+    protected static final int FLAP_SOUND_INTERVAL = 25;
+    protected static final int IDLE_SOUND_MIN = 80;
+    protected static final int IDLE_SOUND_MAX = 200;
+
+    protected int flapTimer;
+    protected int idleTimer;
+
     protected Phase phase;
     protected int phaseTicks;
     protected int diveCooldown;
@@ -86,6 +94,8 @@ public class PhantomFlightExecutor implements BehaviorExecutor {
         phaseTicks = 0;
         diveHit = false;
         diveCooldown = 40 + rand.nextInt(60);
+        flapTimer = FLAP_SOUND_INTERVAL;
+        idleTimer = IDLE_SOUND_MIN + rand.nextInt(IDLE_SOUND_MAX - IDLE_SOUND_MIN + 1);
         sweepAngle = rand.nextDouble() * Math.PI * 2;
         sweepSpeed = SWEEP_SPEED_MIN + rand.nextDouble() * (SWEEP_SPEED_MAX - SWEEP_SPEED_MIN);
         sweepDirection = rand.nextBoolean() ? 1 : -1;
@@ -114,6 +124,7 @@ public class PhantomFlightExecutor implements BehaviorExecutor {
         }
 
         advanceSweep();
+        playAmbientSounds(entity);
         if (target == null) {
             idleOrbit(entity);
         } else {
@@ -159,6 +170,7 @@ public class PhantomFlightExecutor implements BehaviorExecutor {
                     phase = Phase.DIVE;
                     phaseTicks = 0;
                     diveHit = false;
+                    playSound(entity, "mob.phantom.swoop", 1.0f, 0.9f);
                 }
             }
             case DIVE -> {
@@ -170,6 +182,7 @@ public class PhantomFlightExecutor implements BehaviorExecutor {
                 if (!diveHit && dx * dx + dy * dy + dz * dz <= HIT_DISTANCE * HIT_DISTANCE) {
                     diveHit = true;
                     ((EntityLiving) target).attack(DamageContainer.entityAttack(entity, BASE_DAMAGE));
+                    playSound(entity, "mob.phantom.bite", 1.0f, 0.9f);
                     startAscend();
                 } else if (phaseTicks > MAX_DIVE_TICKS) {
                     startAscend();
@@ -199,6 +212,27 @@ public class PhantomFlightExecutor implements BehaviorExecutor {
         double goalZ = orbitCenter.z + Math.sin(sweepAngle) * currentRadius * 0.8;
         double goalY = cruiseAltitude + Math.sin(altitudePhase) * ALTITUDE_WAVE_AMP * 1.3;
         glideTo(entity, goalX, goalY, goalZ);
+    }
+
+    // ---------------------------------------------------------------- ses
+
+    /** HeartCore {@code handleAmbientSounds}: kanat sesi her 25 tick, bosta sesi 80-200 tick'te bir. */
+    protected void playAmbientSounds(EntityIntelligent entity) {
+        var rand = ThreadLocalRandom.current();
+        if (--flapTimer <= 0) {
+            flapTimer = FLAP_SOUND_INTERVAL;
+            playSound(entity, "mob.phantom.flap", 0.6f, 0.9f);
+        }
+        if (--idleTimer <= 0) {
+            idleTimer = IDLE_SOUND_MIN + rand.nextInt(IDLE_SOUND_MAX - IDLE_SOUND_MIN + 1);
+            playSound(entity, "mob.phantom.idle", 0.8f, 0.85f);
+        }
+    }
+
+    /** Perde {@code basePitch}'e kucuk bir rastgele sapma ekler (HeartCore {@code 0.9 + lcg * 0.2}). */
+    protected void playSound(EntityIntelligent entity, String name, float volume, float basePitch) {
+        float pitch = basePitch + ThreadLocalRandom.current().nextFloat() * 0.2f;
+        entity.getDimension().addSound(entity.getLocation(), new CustomSound(name, volume, pitch));
     }
 
     // ---------------------------------------------------------------- hareket

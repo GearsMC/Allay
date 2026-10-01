@@ -87,8 +87,10 @@ public final class EntityTypeInitializer {
     private static final float SPIDER_SPEED = 0.2f;
     private static final float SILVERFISH_SPEED = 0.2f;
     private static final float WITHER_SKELETON_SPEED = 0.13f;
-    private static final float RABBIT_SPEED = 0.15f;
-    private static final float RABBIT_FLEE_SPEED = 0.3f;
+    private static final float RABBIT_SPEED = EntityRabbitBaseComponentImpl.ROAM_SPEED;
+    private static final float RABBIT_FLEE_SPEED = EntityRabbitBaseComponentImpl.FLEE_SPEED;
+    /** HeartCore {@code Rabbit::FLEE_RADIUS}. */
+    private static final double RABBIT_THREAT_RANGE = 8;
 
     private static final float FOX_BASE_SPEED = 0.3f;
     private static final float FOX_PANIC_SPEED = FOX_BASE_SPEED * 1.25f;
@@ -100,16 +102,18 @@ public final class EntityTypeInitializer {
      * arayla uc ates topu savurur, sonra kabaca bes saniye susar. Ayrica burun buruna dovusmeyi
      * reddeder; {@link #BLAZE_MIN_RANGE} degerinden yakina girilirse geri suzulur.
      */
-    private static final double BLAZE_PREFERRED_RANGE = 12;
+    private static final double BLAZE_PREFERRED_RANGE = 10;
     private static final double BLAZE_MIN_RANGE = 5;
-    private static final int BLAZE_CHARGE_TIME = 20;
-    private static final int BLAZE_COOLDOWN = 100;
+    private static final int BLAZE_CHARGE_TIME = 25;
+    private static final int BLAZE_COOLDOWN = 70;
     private static final int BLAZE_BURST_SIZE = 3;
+    /** HeartCore {@code RangedFireballAttackStrategy}: ates yalnizca bu mesafe icindeyken acilir. */
+    private static final double BLAZE_FIRE_RANGE = 18;
+    /** HeartCore: arama menzili = atis menzili + 4. */
+    private static final double BLAZE_SIGHT_RANGE = 22;
+    private static final double BLAZE_CHASE_RANGE = 28;
 
     private static final float SKELETON_SPEED = 0.12f;
-    private static final double SKELETON_PREFERRED_RANGE = 10;
-    private static final double SKELETON_MIN_RANGE = 4;
-    private static final int SKELETON_COOLDOWN = 40;
 
     private static final float PILLAGER_SPEED = 0.13f;
     private static final double PILLAGER_PREFERRED_RANGE = 12;
@@ -740,7 +744,7 @@ public final class EntityTypeInitializer {
                 .vanillaEntity(EntityId.SPIDER)
                 .addComponent(EntitySpiderBaseComponentImpl::new, EntitySpiderBaseComponentImpl.class)
                 .addComponent(EntitySpiderLivingComponentImpl::new, EntitySpiderLivingComponentImpl.class)
-                .addComponent(EntityMobPhysicsComponentImpl::new, EntityMobPhysicsComponentImpl.class)
+                .addComponent(EntitySpiderPhysicsComponentImpl::new, EntitySpiderPhysicsComponentImpl.class)
                 .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
                 .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
                 .addComponent(() -> buildHostileMeleeBehaviorGroup(16, 12,
@@ -782,6 +786,16 @@ public final class EntityTypeInitializer {
                 .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
                 .addComponent(() -> {
                     var behaviorGroup = BehaviorGroupImpl.builder()
+                            .sensor(new NearestPlayerSensor(RABBIT_THREAT_RANGE, 0, 10))
+                            // Yakindaki oyuncudan kac (HeartCore detectThreat: 8 blok, 60 tick).
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new FleeFromTargetExecutor(MemoryTypes.NEAREST_PLAYER, RABBIT_FLEE_SPEED, 4.5, 60))
+                                    .evaluator(all(
+                                            new MemoryCheckNotEmptyEvaluator(MemoryTypes.NEAREST_PLAYER),
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.NEAREST_PLAYER))
+                                    ))
+                                    .priority(7)
+                                    .build())
                             .behavior(BehaviorImpl.builder()
                                     .executor(new FlatRandomRoamExecutor(RABBIT_FLEE_SPEED, 12, 40, true, 100, true, 10))
                                     .evaluator(new PassByTimeEvaluator(EntityIntelligent::getLastDamageTime, 0, 100))
@@ -1028,12 +1042,12 @@ public final class EntityTypeInitializer {
                 .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
                 .addComponent(() -> {
                     var behaviorGroup = BehaviorGroupImpl.builder()
-                            .sensor(new NearestPlayerSensor(48, 0, 20))
+                            .sensor(new NearestPlayerSensor(BLAZE_SIGHT_RANGE, 0, 20))
                             .behavior(BehaviorImpl.builder()
                                     .executor(new FireballAttackExecutor(
-                                            MemoryTypes.ATTACK_TARGET, BLAZE_SPEED, 48,
+                                            MemoryTypes.ATTACK_TARGET, BLAZE_SPEED, BLAZE_CHASE_RANGE,
                                             BLAZE_PREFERRED_RANGE, BLAZE_MIN_RANGE, true,
-                                            BLAZE_CHARGE_TIME, BLAZE_COOLDOWN, BLAZE_BURST_SIZE))
+                                            BLAZE_CHARGE_TIME, BLAZE_COOLDOWN, BLAZE_BURST_SIZE, BLAZE_FIRE_RANGE))
                                     .evaluator(all(
                                             new MemoryCheckNotEmptyEvaluator(MemoryTypes.ATTACK_TARGET),
                                             entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.ATTACK_TARGET))
@@ -1042,9 +1056,9 @@ public final class EntityTypeInitializer {
                                     .build())
                             .behavior(BehaviorImpl.builder()
                                     .executor(new FireballAttackExecutor(
-                                            MemoryTypes.NEAREST_PLAYER, BLAZE_SPEED, 48,
+                                            MemoryTypes.NEAREST_PLAYER, BLAZE_SPEED, BLAZE_CHASE_RANGE,
                                             BLAZE_PREFERRED_RANGE, BLAZE_MIN_RANGE, false,
-                                            BLAZE_CHARGE_TIME, BLAZE_COOLDOWN, BLAZE_BURST_SIZE))
+                                            BLAZE_CHARGE_TIME, BLAZE_COOLDOWN, BLAZE_BURST_SIZE, BLAZE_FIRE_RANGE))
                                     .evaluator(all(
                                             new MemoryCheckNotEmptyEvaluator(MemoryTypes.NEAREST_PLAYER),
                                             entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.NEAREST_PLAYER))
@@ -1177,8 +1191,8 @@ public final class EntityTypeInitializer {
                 .addComponent(EntityHumanPhysicsComponentImpl::new, EntityHumanPhysicsComponentImpl.class)
                 .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
                 .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
-                .addComponent(() -> buildRangedBehaviorGroup(SKELETON_SPEED, 16, 40,
-                        SKELETON_PREFERRED_RANGE, SKELETON_MIN_RANGE, SKELETON_COOLDOWN),
+                .addComponent(() -> buildRangedBehaviorGroup(16,
+                        (memory, clear) -> new BowAttackExecutor(memory, SKELETON_SPEED, 40, clear)),
                         EntityAIComponentImpl.class)
                 .build();
     }
@@ -1321,11 +1335,20 @@ public final class EntityTypeInitializer {
      */
     private static EntityAIComponentImpl buildRangedBehaviorGroup(float speed, double sightRange, double senseRange,
                                                                   double preferredRange, double minRange, int coolDown) {
+        return buildRangedBehaviorGroup(sightRange, (memory, clear) -> new RangedAttackExecutor(
+                memory, speed, senseRange, preferredRange, minRange, clear, coolDown));
+    }
+
+    @FunctionalInterface
+    private interface RangedExecutorFactory {
+        BehaviorExecutor create(MemoryType<Long> targetMemory, boolean clearTargetAfterLose);
+    }
+
+    private static EntityAIComponentImpl buildRangedBehaviorGroup(double sightRange, RangedExecutorFactory factory) {
         var behaviorGroup = BehaviorGroupImpl.builder()
                 .sensor(new NearestPlayerSensor(sightRange, 0, 20))
                 .behavior(BehaviorImpl.builder()
-                        .executor(new RangedAttackExecutor(MemoryTypes.ATTACK_TARGET, speed, senseRange,
-                                preferredRange, minRange, true, coolDown))
+                        .executor(factory.create(MemoryTypes.ATTACK_TARGET, true))
                         .evaluator(all(
                                 new MemoryCheckNotEmptyEvaluator(MemoryTypes.ATTACK_TARGET),
                                 entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.ATTACK_TARGET))
@@ -1333,8 +1356,7 @@ public final class EntityTypeInitializer {
                         .priority(3)
                         .build())
                 .behavior(BehaviorImpl.builder()
-                        .executor(new RangedAttackExecutor(MemoryTypes.NEAREST_PLAYER, speed, senseRange,
-                                preferredRange, minRange, false, coolDown))
+                        .executor(factory.create(MemoryTypes.NEAREST_PLAYER, false))
                         .evaluator(all(
                                 new MemoryCheckNotEmptyEvaluator(MemoryTypes.NEAREST_PLAYER),
                                 entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.NEAREST_PLAYER))
