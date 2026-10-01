@@ -896,8 +896,9 @@ public final class EntityTypeInitializer {
                 .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
                 .addComponent(() -> {
                     var behaviorGroup = BehaviorGroupImpl.builder()
-                            // Enderman seni diger moblardan cok daha uzaktan fark eder.
-                            .sensor(new NearestPlayerSensor(64, 0, 20))
+                            // Enderman seni diger moblardan daha uzaktan fark eder (HeartCore:
+                            // getTargetSearchRange = 32; vanilla'daki 64 buyuk bir arazide fazla).
+                            .sensor(new NearestPlayerSensor(32, 0, 20))
                             // Oncelik 4 (en yuksek): yaralandiktan kisa sure sonra isinlanip kacar.
                             // Burada periyot en az olasilik kadar onemli: isinlanma tek bir tick'te
                             // bitiyor, bu olmadan enderman her tick yeniden degerlendirilir ve
@@ -912,7 +913,7 @@ public final class EntityTypeInitializer {
                                     .period(10)
                                     .build())
                             .behavior(BehaviorImpl.builder()
-                                    .executor(new MeleeAttackExecutor(MemoryTypes.ATTACK_TARGET, ENDERMAN_SPEED, 64, true, 20))
+                                    .executor(new MeleeAttackExecutor(MemoryTypes.ATTACK_TARGET, ENDERMAN_SPEED, 40, true, 20))
                                     .evaluator(all(
                                             new MemoryCheckNotEmptyEvaluator(MemoryTypes.ATTACK_TARGET),
                                             entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.ATTACK_TARGET))
@@ -920,7 +921,7 @@ public final class EntityTypeInitializer {
                                     .priority(3)
                                     .build())
                             .behavior(BehaviorImpl.builder()
-                                    .executor(new MeleeAttackExecutor(MemoryTypes.NEAREST_PLAYER, ENDERMAN_SPEED, 64, 20))
+                                    .executor(new MeleeAttackExecutor(MemoryTypes.NEAREST_PLAYER, ENDERMAN_SPEED, 40, 20))
                                     .evaluator(all(
                                             new MemoryCheckNotEmptyEvaluator(MemoryTypes.NEAREST_PLAYER),
                                             entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.NEAREST_PLAYER))
