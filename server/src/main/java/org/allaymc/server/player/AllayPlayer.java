@@ -13,6 +13,7 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.allaymc.api.block.action.BlockAction;
 import org.allaymc.api.block.type.BlockState;
+import org.allaymc.api.block.type.BlockType;
 import org.allaymc.api.blockentity.BlockEntity;
 import org.allaymc.api.bossbar.BossBar;
 import org.allaymc.api.command.Command;
@@ -105,6 +106,7 @@ import org.cloudburstmc.protocol.bedrock.data.ScoreInfo;
 import org.cloudburstmc.protocol.bedrock.data.command.*;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityDataMap;
 import org.cloudburstmc.protocol.bedrock.data.inventory.ContainerSlotType;
+import org.cloudburstmc.protocol.bedrock.data.inventory.ItemData;
 import org.cloudburstmc.protocol.bedrock.packet.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -196,6 +198,10 @@ public class AllayPlayer implements Player {
     protected final EnumSet<PlayerAbility> abilities;
     protected boolean shouldSendAbilities;
     protected boolean immutableWorld;
+    /** GearsMC fork: macera modunda kırılabilir blok kimlikleri ({@link #setClientBlockRules}). */
+    protected volatile Set<String> clientCanDestroy = Set.of();
+    /** GearsMC fork: eşya kimliği → üzerine konulabilir blok kimlikleri. */
+    protected volatile Map<String, Set<String>> clientCanPlaceOn = Map.of();
     protected boolean alwaysFlying;
 
     // NetEase
@@ -395,7 +401,11 @@ public class AllayPlayer implements Player {
 
     @Override
     public <T extends Entity & EntityContainerHolderComponent> void viewEntityHand(T entity) {
-        sendPacket(getProtocol().getEncoder().encodeEntityHand(entity));
+        var handPacket = getProtocol().getEncoder().encodeEntityHand(entity);
+        if (entity == this.controlledEntity && hasClientBlockRules()) {
+            handPacket.setItem(withClientBlockRules(handPacket.getItem()));
+        }
+        sendPacket(handPacket);
     }
 
     /**
@@ -683,7 +693,12 @@ public class AllayPlayer implements Player {
     }
 
     protected void viewContentsWithSpecificContainerId(Container container, int containerId) {
-        sendPacket(getProtocol().getEncoder().encodeContainerContents(container, containerId));
+        var contentsPacket = getProtocol().getEncoder().encodeContainerContents(container, containerId);
+        if (container instanceof AbstractPlayerContainer && hasClientBlockRules()) {
+            contentsPacket.setContents(contentsPacket.getContents().stream()
+                    .map(this::withClientBlockRules).toList());
+        }
+        sendPacket(contentsPacket);
     }
 
     @Override
@@ -709,7 +724,11 @@ public class AllayPlayer implements Player {
     }
 
     protected void viewSlotWithSpecificContainerId(Container container, int slot, int containerId) {
-        sendPacket(getProtocol().getEncoder().encodeContainerSlot(container, slot, containerId));
+        var slotPacket = getProtocol().getEncoder().encodeContainerSlot(container, slot, containerId);
+        if (container instanceof AbstractPlayerContainer && hasClientBlockRules()) {
+            slotPacket.setItem(withClientBlockRules(slotPacket.getItem()));
+        }
+        sendPacket(slotPacket);
     }
 
     @Override
@@ -1878,7 +1897,8 @@ public class AllayPlayer implements Player {
         if (isImmutableWorld()) {
             return false;
         }
-        if (this.controlledEntity != null && this.controlledEntity.getGameMode() == GameMode.ADVENTURE) {
+        if (this.controlledEntity != null && this.controlledEntity.getGameMode() == GameMode.ADVENTURE
+                && !hasClientBlockRules()) {
             return false;
         }
         if (Server.getInstance().getPlayerManager().isOperator(this)) {
@@ -1892,7 +1912,8 @@ public class AllayPlayer implements Player {
         if (isImmutableWorld()) {
             return false;
         }
-        if (this.controlledEntity != null && this.controlledEntity.getGameMode() == GameMode.ADVENTURE) {
+        if (this.controlledEntity != null && this.controlledEntity.getGameMode() == GameMode.ADVENTURE
+                && !hasClientBlockRules()) {
             return false;
         }
         if (Server.getInstance().getPlayerManager().isOperator(this)) {
@@ -1974,10 +1995,87 @@ public class AllayPlayer implements Player {
         }
 
         if (this.controlledEntity != null) {
-            return this.controlledEntity.getGameMode() == GameMode.SPECTATOR || this.controlledEntity.getGameMode() == GameMode.ADVENTURE;
+            return this.controlledEntity.getGameMode() == GameMode.SPECTATOR
+                    || (this.controlledEntity.getGameMode() == GameMode.ADVENTURE && !hasClientBlockRules());
         }
 
         return false;
+    }
+
+    @Override
+    public void setClientBlockRules(Collection<String> canDestroy, Map<String, ? extends Collection<String>> canPlaceOn) {
+        Set<String> destroy = canDestroy == null ? Set.of() : Set.copyOf(canDestroy);
+        Map<String, Set<String>> place = new HashMap<>();
+        if (canPlaceOn != null) {
+            canPlaceOn.forEach((item, blocks) -> {
+                if (blocks != null && !blocks.isEmpty()) {
+                    place.put(item, Set.copyOf(blocks));
+                }
+            });
+        }
+        if (destroy.equals(this.clientCanDestroy) && place.equals(this.clientCanPlaceOn)) {
+            return;
+        }
+        this.clientCanDestroy = destroy;
+        this.clientCanPlaceOn = Map.copyOf(place);
+        // Yetenek/izin ve işaretlenmiş eşyalar yeniden gönderilir.
+        this.shouldSendAbilities = true;
+        if (this.controlledEntity != null && getClientState().ordinal() >= ClientState.SPAWNED.ordinal()) {
+            viewContainerContents(this.controlledEntity.getContainer(ContainerTypes.INVENTORY));
+            viewContainerContents(this.controlledEntity.getContainer(ContainerTypes.OFFHAND));
+            viewContainerContents(this.controlledEntity.getContainer(ContainerTypes.ARMOR));
+        }
+    }
+
+    @Override
+    public boolean hasClientBlockRules() {
+        return !this.clientCanDestroy.isEmpty() || !this.clientCanPlaceOn.isEmpty();
+    }
+
+    @Override
+    public boolean canBreakBlockType(BlockType<?> blockType) {
+        if (!canBreakBlocks()) {
+            return false;
+        }
+        if (this.controlledEntity == null || this.controlledEntity.getGameMode() != GameMode.ADVENTURE
+                || Server.getInstance().getPlayerManager().isOperator(this)) {
+            return true;
+        }
+        return this.clientCanDestroy.contains(blockType.getIdentifier().toString());
+    }
+
+    @Override
+    public boolean canPlaceBlockOn(ItemStack item, BlockType<?> clickedType) {
+        if (!canPlaceBlocks()) {
+            return false;
+        }
+        if (this.controlledEntity == null || this.controlledEntity.getGameMode() != GameMode.ADVENTURE
+                || Server.getInstance().getPlayerManager().isOperator(this)) {
+            return true;
+        }
+        var allowed = this.clientCanPlaceOn.get(item.getItemType().getIdentifier().toString());
+        return allowed != null && allowed.contains(clickedType.getIdentifier().toString());
+    }
+
+    /** Ağ paketindeki eşyaya oyuncu bazlı CanDestroy/CanPlaceOn listelerini ekler. */
+    protected ItemData withClientBlockRules(ItemData data) {
+        if (data == null || data.getCount() <= 0 || data.getDefinition() == null || !hasClientBlockRules()) {
+            return data;
+        }
+        var canBreak = this.clientCanDestroy.isEmpty() ? null : this.clientCanDestroy.toArray(String[]::new);
+        var placeSet = this.clientCanPlaceOn.get(data.getDefinition().identifier());
+        var canPlace = placeSet == null ? null : placeSet.toArray(String[]::new);
+        if (canBreak == null && canPlace == null) {
+            return data;
+        }
+        var builder = data.toBuilder();
+        if (canBreak != null) {
+            builder.canBreak(canBreak);
+        }
+        if (canPlace != null) {
+            builder.canPlace(canPlace);
+        }
+        return builder.build();
     }
 
     @Override

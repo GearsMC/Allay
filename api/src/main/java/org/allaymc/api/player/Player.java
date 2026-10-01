@@ -1,5 +1,8 @@
 package org.allaymc.api.player;
 
+import org.allaymc.api.block.type.BlockType;
+import org.allaymc.api.item.ItemStack;
+
 import org.allaymc.api.bossbar.BossBarViewer;
 import org.allaymc.api.container.ContainerViewer;
 import org.allaymc.api.ddui.DDUIViewer;
@@ -23,6 +26,7 @@ import org.joml.Vector3ic;
 import java.awt.image.BufferedImage;
 import java.net.SocketAddress;
 import java.util.Collection;
+import java.util.Map;
 import java.util.List;
 import java.util.Set;
 
@@ -382,6 +386,42 @@ public interface Player extends MessageReceiver, WorldViewer, ContainerViewer, B
      * @param immutableWorld {@code true} to enable immutable world, {@code false} to disable it
      */
     void setImmutableWorld(boolean immutableWorld);
+
+    /**
+     * GearsMC fork: macera modundaki oyuncuya istemci tarafında bazı blokları kırma/koyma izni verir.
+     * <p>
+     * Vanilla macera modunun {@code CanDestroy}/{@code CanPlaceOn} eşya etiketlerinin oyuncu bazlı
+     * karşılığıdır: listeler her eşyaya ağ paketinde eklenir, eşyanın kendisi değişmez (yığınlama bozulmaz).
+     * Sunucu da aynı listeyle doğrular; liste boşsa macera modu eskisi gibi tamamen kapalıdır.
+     *
+     * @param canDestroy kırılabilir blok kimlikleri (örn. {@code minecraft:coal_ore})
+     * @param canPlaceOn eşya kimliği → üzerine konulabilir blok kimlikleri
+     */
+    void setClientBlockRules(Collection<String> canDestroy, Map<String, ? extends Collection<String>> canPlaceOn);
+
+    /**
+     * @return {@link #setClientBlockRules} ile verilmiş boş olmayan bir kural var mı
+     */
+    boolean hasClientBlockRules();
+
+    /**
+     * Oyuncunun verilen blok türünü kırıp kıramayacağını söyler.
+     * Macera modunda yalnızca {@link #setClientBlockRules} listesindekiler kırılır.
+     *
+     * @param blockType kırılmak istenen blok
+     * @return kırabilirse {@code true}
+     */
+    boolean canBreakBlockType(BlockType<?> blockType);
+
+    /**
+     * Oyuncunun eşyayı verilen bloğun üzerine koyup koyamayacağını söyler.
+     * Macera modunda yalnızca {@link #setClientBlockRules} listesindeki eşleşmeler geçer.
+     *
+     * @param item        elde tutulan eşya
+     * @param clickedType tıklanan blok
+     * @return koyabilirse {@code true}
+     */
+    boolean canPlaceBlockOn(ItemStack item, BlockType<?> clickedType);
 
     /**
      * Checks whether the player is currently forced to be always flying.

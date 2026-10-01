@@ -73,8 +73,14 @@ public class PlayerAuthInputPacketProcessor extends PacketProcessor<PlayerAuthIn
         // Creative mode player can break blocks just like they are in
         // survival mode if "delayed block breaking" option is enabled
         // TODO: implement canBreak & canPlace feature
-        return entity.getGameMode() == GameMode.ADVENTURE ||
+        // GearsMC fork: istemci blok kuralı verilmiş macera oyuncusu, listedeki bloğu kırabilir.
+        return (entity.getGameMode() == GameMode.ADVENTURE && !player.hasClientBlockRules()) ||
                entity.getGameMode() == GameMode.SPECTATOR;
+    }
+
+    private static boolean cannotBreakAt(Player player, int x, int y, int z) {
+        var dimension = player.getControlledEntity().getLocation().dimension();
+        return !player.canBreakBlockType(dimension.getBlockState(x, y, z).getBlockType());
     }
 
     protected void handleMovement(Player player, Vector3f newPos, Vector3f newRot) {
@@ -105,7 +111,7 @@ public class PlayerAuthInputPacketProcessor extends PacketProcessor<PlayerAuthIn
 
             switch (action.getAction()) {
                 case START_BREAK -> {
-                    if (isInvalidGameType(player) || !player.canBreakBlocks()) {
+                    if (isInvalidGameType(player) || cannotBreakAt(player, pos.getX(), pos.getY(), pos.getZ())) {
                         continue;
                     }
 
@@ -113,7 +119,7 @@ public class PlayerAuthInputPacketProcessor extends PacketProcessor<PlayerAuthIn
                 }
                 case BLOCK_CONTINUE_DESTROY -> {
                     // When a player switches to breaking another block halfway through breaking one
-                    if (isInvalidGameType(player) || !player.canBreakBlocks()) {
+                    if (isInvalidGameType(player) || cannotBreakAt(player, pos.getX(), pos.getY(), pos.getZ())) {
                         continue;
                     }
 
@@ -126,7 +132,7 @@ public class PlayerAuthInputPacketProcessor extends PacketProcessor<PlayerAuthIn
                     startBreak(player, pos.getX(), pos.getY(), pos.getZ(), action.getFace());
                 }
                 case BLOCK_PREDICT_DESTROY -> {
-                    if (isInvalidGameType(player) || !player.canBreakBlocks()) {
+                    if (isInvalidGameType(player) || cannotBreakAt(player, pos.getX(), pos.getY(), pos.getZ())) {
                         var state = player.getControlledEntity().getLocation().dimension().getBlockState(new Vector3d(pos.getX(), pos.getY(), pos.getZ()));
                         player.viewBlockUpdate(new Vector3i(pos.getX(), pos.getY(), pos.getZ()), 0, state);
                         continue;

@@ -142,7 +142,7 @@ public class InventoryTransactionPacketProcessor extends PacketProcessor<Invento
                             break;
                         }
 
-                        if (!player.canPlaceBlocks()) {
+                        if (!player.canPlaceBlockOn(itemInHand, interactedBlock.getBlockType())) {
                             handleItemUseInAir(entity, itemInHand);
                             player.viewBlockUpdate(placeBlockPos, 0, dimension.getBlockState(placeBlockPos));
                             break;
