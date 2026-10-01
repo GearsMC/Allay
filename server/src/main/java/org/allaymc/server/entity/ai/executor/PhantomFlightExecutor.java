@@ -7,7 +7,6 @@ import org.allaymc.api.entity.damage.DamageContainer;
 import org.allaymc.api.entity.interfaces.EntityIntelligent;
 import org.allaymc.api.entity.interfaces.EntityLiving;
 import org.allaymc.api.entity.interfaces.EntityPlayer;
-import org.allaymc.api.math.MathUtils;
 import org.allaymc.api.player.GameMode;
 import org.joml.Vector3d;
 
@@ -265,20 +264,8 @@ public class PhantomFlightExecutor implements BehaviorExecutor {
 
     /** PHP {@code isPlayerLookingAtMe}: hedef fantoma bakiyorsa dalis ertelenir. */
     protected boolean isLookedAt(Entity target, double phantomX, double phantomY, double phantomZ) {
-        if (!(target instanceof EntityPlayer player)) {
-            return false;
-        }
-        var loc = player.getLocation();
-        double ex = phantomX - loc.x();
-        double ey = phantomY - (loc.y() + player.getEyeHeight());
-        double ez = phantomZ - loc.z();
-        double length = Math.sqrt(ex * ex + ey * ey + ez * ez);
-        if (length < 0.0001) {
-            return true;
-        }
-        var look = MathUtils.getDirectionVector(loc);
-        double dot = (look.x() * ex + look.y() * ey + look.z() * ez) / length;
-        return dot >= LOOK_DOT_THRESHOLD;
+        return target instanceof EntityPlayer player
+                && EntityControlHelper.isLookingAt(player, phantomX, phantomY, phantomZ, LOOK_DOT_THRESHOLD);
     }
 
     protected boolean isTargetValid(EntityIntelligent entity, Entity target) {

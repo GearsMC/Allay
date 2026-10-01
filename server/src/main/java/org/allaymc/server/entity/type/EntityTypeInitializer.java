@@ -33,6 +33,7 @@ import org.allaymc.server.entity.ai.evaluator.MemoryCheckNotEmptyEvaluator;
 import org.allaymc.server.entity.ai.evaluator.PassByTimeEvaluator;
 import org.allaymc.server.entity.ai.evaluator.ProbabilityEvaluator;
 import org.allaymc.server.entity.ai.executor.*;
+import org.allaymc.server.entity.ai.sensor.EndermanStareSensor;
 import org.allaymc.server.entity.ai.route.finder.FlatAStarRouteFinder;
 import org.allaymc.server.entity.ai.route.finder.SpaceAStarRouteFinder;
 import org.allaymc.server.entity.ai.route.posevaluator.FlyingPosEvaluator;
@@ -899,6 +900,8 @@ public final class EntityTypeInitializer {
                             // Enderman seni diger moblardan daha uzaktan fark eder (HeartCore:
                             // getTargetSearchRange = 32; vanilla'daki 64 buyuk bir arazide fazla).
                             .sensor(new NearestPlayerSensor(32, 0, 20))
+                            // Bakan oyuncu hedef olur (HeartCore updateProvocationState).
+                            .sensor(new EndermanStareSensor(10))
                             // Oncelik 4 (en yuksek): yaralandiktan kisa sure sonra isinlanip kacar.
                             // Burada periyot en az olasilik kadar onemli: isinlanma tek bir tick'te
                             // bitiyor, bu olmadan enderman her tick yeniden degerlendirilir ve

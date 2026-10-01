@@ -6,6 +6,7 @@ import org.allaymc.api.entity.ai.behavior.BehaviorExecutor;
 import org.allaymc.api.entity.ai.memory.MemoryType;
 import org.allaymc.api.entity.ai.memory.MemoryTypes;
 import org.allaymc.api.entity.component.EntityLivingComponent;
+import org.allaymc.api.entity.effect.EffectInstance;
 import org.allaymc.api.entity.effect.EffectTypes;
 import org.allaymc.api.entity.interfaces.EntityIntelligent;
 import org.allaymc.api.entity.interfaces.EntityLiving;
@@ -57,6 +58,28 @@ public class PotionAttackExecutor implements BehaviorExecutor {
 
     protected int tick;
     protected Vector3d lastMoveTarget;
+
+    /** Cadinin kendine icebilecegi iksirler — HeartCore {@code Witch::maybeStartSelfBuff}. */
+    protected enum Brew { FIRE_RESISTANCE, HEALING, SPEED }
+
+    /** Icme suresi (tick): HeartCore {@code DRINK_MIN_TICKS}-{@code DRINK_MAX_TICKS}. */
+    protected static final int DRINK_MIN_TICKS = 35;
+    protected static final int DRINK_MAX_TICKS = 55;
+    /** Iki icme arasi bekleme: HeartCore {@code SELF_BUFF_COOLDOWN_TICKS = 20 * 6}. */
+    protected static final int SELF_BUFF_COOLDOWN_TICKS = 20 * 6;
+    /** Can bu oranin altina inince iyilestirici iksir icer. */
+    protected static final float LOW_HEALTH_RATIO = 0.35f;
+    protected static final float HEAL_AMOUNT = 4f;
+    /** Hedef bu mesafenin (kare 144 = 12 blok) otesindeyken hiz iksiri icer. */
+    protected static final double SPEED_DISTANCE_SQUARED = 144.0;
+    protected static final int FIRE_RESISTANCE_TICKS = 20 * 200;
+    protected static final int SPEED_TICKS = 20 * 140;
+    /** Icmeden sonra bir sonraki atisa kalan sure (HeartCore: icme + 10 tick bekleme). */
+    protected static final int POST_DRINK_THROW_DELAY = 10;
+
+    protected Brew brew;
+    protected int drinkTicks;
+    protected int selfBuffCooldown;
 
     /**
      * Bir iksir saldiri executor'u olusturur.
@@ -122,6 +145,27 @@ public class PotionAttackExecutor implements BehaviorExecutor {
                 targetLoc.x(), targetLoc.y() + target.getEyeHeight(), targetLoc.z()
         ));
 
+        if (selfBuffCooldown > 0) {
+            selfBuffCooldown--;
+        }
+        if (brew != null) {
+            // Icerken durur ve hedefe bakar; atis yapmaz.
+            EntityControlHelper.removeRouteTarget(entity);
+            lastMoveTarget = null;
+            if (--drinkTicks <= 0) {
+                finishDrinking(entity);
+            }
+            return true;
+        }
+        Brew next = chooseBrew(entity, distanceSquared);
+        if (next != null) {
+            brew = next;
+            drinkTicks = ThreadLocalRandom.current().nextInt(DRINK_MIN_TICKS, DRINK_MAX_TICKS + 1);
+            EntityControlHelper.removeRouteTarget(entity);
+            lastMoveTarget = null;
+            return true;
+        }
+
         updateMovement(entity, entityLoc.x(), entityLoc.z(),
                 targetLoc.x(), targetLoc.y(), targetLoc.z(), distanceSquared);
 
@@ -133,8 +177,50 @@ public class PotionAttackExecutor implements BehaviorExecutor {
         return true;
     }
 
+    /**
+     * Cadinin kendine icecegi iksiri secer — HeartCore sirasi: yaniyorsa yangin direnci, cani
+     * dusukse iyilestirme, hedef uzaktaysa hiz.
+     *
+     * @return iksir; icmeye gerek yoksa {@code null}
+     */
+    protected Brew chooseBrew(EntityIntelligent entity, double targetDistanceSquared) {
+        if (selfBuffCooldown > 0) {
+            return null;
+        }
+        if (entity.isOnFire() && !entity.hasEffect(EffectTypes.FIRE_RESISTANCE)) {
+            return Brew.FIRE_RESISTANCE;
+        }
+        if (entity.getHealth() < entity.getMaxHealth() * LOW_HEALTH_RATIO) {
+            return Brew.HEALING;
+        }
+        if (targetDistanceSquared >= SPEED_DISTANCE_SQUARED && !entity.hasEffect(EffectTypes.SPEED)) {
+            return Brew.SPEED;
+        }
+        return null;
+    }
+
+    protected void finishDrinking(EntityIntelligent entity) {
+        Brew finished = brew;
+        brew = null;
+        drinkTicks = 0;
+        selfBuffCooldown = SELF_BUFF_COOLDOWN_TICKS;
+        tick = Math.max(0, coolDown - POST_DRINK_THROW_DELAY);
+        if (finished == null) {
+            return;
+        }
+        switch (finished) {
+            case FIRE_RESISTANCE -> entity.addEffect(
+                    new EffectInstance(EffectTypes.FIRE_RESISTANCE, 0, FIRE_RESISTANCE_TICKS, false, true));
+            case HEALING -> entity.setHealth(Math.min(entity.getMaxHealth(), entity.getHealth() + HEAL_AMOUNT));
+            case SPEED -> entity.addEffect(
+                    new EffectInstance(EffectTypes.SPEED, 0, SPEED_TICKS, false, false));
+        }
+    }
+
     @Override
     public void onStop(EntityIntelligent entity) {
+        brew = null;
+        drinkTicks = 0;
         EntityControlHelper.removeRouteTarget(entity);
         EntityControlHelper.removeLookTarget(entity);
         entity.setPitchEnabled(false);

@@ -47,4 +47,28 @@ public final class EntityControlHelper {
     public static boolean allowsTarget(Entity mob, Entity target) {
         return !(target instanceof EntityPlayer player) || MobAiHooks.canTarget(mob, player);
     }
+
+    /**
+     * Oyuncunun bakisi verilen noktaya yonelik mi (bakis vektoru ile goz-nokta dogrusu arasindaki
+     * kosinus esigin ustunde mi).
+     *
+     * @param player bakan oyuncu
+     * @param x nokta x
+     * @param y nokta y
+     * @param z nokta z
+     * @param dotThreshold gerekli kosinus (1 = tam karsisi)
+     * @return bakiyorsa {@code true}
+     */
+    public static boolean isLookingAt(EntityPlayer player, double x, double y, double z, double dotThreshold) {
+        var loc = player.getLocation();
+        double ex = x - loc.x();
+        double ey = y - (loc.y() + player.getEyeHeight());
+        double ez = z - loc.z();
+        double length = Math.sqrt(ex * ex + ey * ey + ez * ez);
+        if (length < 0.0001) {
+            return true;
+        }
+        var look = org.allaymc.api.math.MathUtils.getDirectionVector(loc);
+        return (look.x() * ex + look.y() * ey + look.z() * ez) / length >= dotThreshold;
+    }
 }
