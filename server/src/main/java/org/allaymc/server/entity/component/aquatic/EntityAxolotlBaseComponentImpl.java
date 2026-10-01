@@ -21,6 +21,14 @@ public class EntityAxolotlBaseComponentImpl extends EntityBaseComponentImpl {
     /** Mavi varyantin sirasi; digerlerinin aksine neredeyse hic cikmaz. */
     protected static final int BLUE_VARIANT = 4;
 
+    /**
+     * Rengi sabitlemek isteyen eklentilerin kalici veri kabina yazdigi anahtar (tamsayi).
+     * Yazilmamissa renk dogarken rastgele secilir; NPC gibi her acilista ayni gorunmesi
+     * gereken akselotlar bunu pembe icin {@code 0} yapar.
+     */
+    public static final org.allaymc.api.utils.identifier.Identifier VARIANT_KEY =
+            new org.allaymc.api.utils.identifier.Identifier("allay", "axolotl_variant");
+
     protected final int variant;
 
     public EntityAxolotlBaseComponentImpl(EntityInitInfo initInfo) {
@@ -34,6 +42,11 @@ public class EntityAxolotlBaseComponentImpl extends EntityBaseComponentImpl {
      * @return akselotun renk varyanti; istemciye metadata ile gonderilir
      */
     public int getVariant() {
+        Integer fixed = thisEntity == null ? null : thisEntity.getPersistentDataContainer()
+                .get(VARIANT_KEY, org.allaymc.api.pdc.PersistentDataType.INTEGER);
+        if (fixed != null && fixed >= 0 && fixed < VARIANT_COUNT) {
+            return fixed;
+        }
         return variant;
     }
 
