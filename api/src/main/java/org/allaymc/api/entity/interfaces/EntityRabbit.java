@@ -1,7 +1,10 @@
 package org.allaymc.api.entity.interfaces;
 
-import org.allaymc.api.entity.Entity;
+import org.allaymc.api.entity.component.EntityHeadYawComponent;
 
-public interface EntityRabbit extends Entity {
+/**
+ * Tavsan: canli, yapay zekali pasif mob; vurulunca kacar.
+ */
+public interface EntityRabbit extends EntityIntelligent, EntityHeadYawComponent {
 
 }

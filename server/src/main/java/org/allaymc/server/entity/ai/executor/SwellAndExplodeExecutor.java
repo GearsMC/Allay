@@ -76,7 +76,8 @@ public class SwellAndExplodeExecutor implements BehaviorExecutor {
         }
 
         var target = entity.getDimension().getEntityManager().getEntity(targetId);
-        if (!(target instanceof EntityLiving) || !isTargetValid(target)) {
+        if (!(target instanceof EntityLiving) || !isTargetValid(target)
+                || !EntityControlHelper.allowsTarget(entity, target)) {
             return false;
         }
 

@@ -3,6 +3,9 @@ package org.allaymc.server.entity.type;
 import lombok.experimental.UtilityClass;
 import org.allaymc.api.block.type.BlockTypes;
 import org.allaymc.api.container.ContainerTypes;
+import org.allaymc.api.entity.ai.MobAiHooks;
+import org.allaymc.api.entity.ai.behavior.BehaviorExecutor;
+import org.allaymc.api.entity.ai.memory.MemoryType;
 import org.allaymc.api.entity.ai.memory.MemoryTypes;
 import org.allaymc.api.entity.component.EntityBabyComponent;
 import org.allaymc.api.entity.component.EntityContainerHolderComponent;
@@ -80,6 +83,11 @@ public final class EntityTypeInitializer {
     private static final float ENDERMAN_SPEED = 0.15f;
     private static final float PIGLIN_SPEED = 0.13f;
     private static final float BLAZE_SPEED = 0.14f;
+    private static final float SPIDER_SPEED = 0.2f;
+    private static final float SILVERFISH_SPEED = 0.2f;
+    private static final float WITHER_SKELETON_SPEED = 0.13f;
+    private static final float RABBIT_SPEED = 0.15f;
+    private static final float RABBIT_FLEE_SPEED = 0.3f;
 
     private static final float FOX_BASE_SPEED = 0.3f;
     private static final float FOX_PANIC_SPEED = FOX_BASE_SPEED * 1.25f;
@@ -342,12 +350,51 @@ public final class EntityTypeInitializer {
      * Fantom. Yapay zekasi henuz yok; ucus fizigi (yercekimsiz) ve bas donusuyle
      * {@code setMotion} ile havada hareket ettirilebilir (evcil hayvan).
      */
+    /**
+     * Fantom: ucar, hedefin etrafinda daire cizer ve dalis yapar.
+     *
+     * <p>Gun isiginda yanma {@link EntityPhantomLivingComponentImpl} icinde. Undead bileseni
+     * kasten eklenmedi: oradaki yanma kurali kara moblari icindir ve eklenti kancasiyla
+     * kapatilabilir; fantomun kendi (HeartCore'daki) kurali vardir.</p>
+     */
     public static void initPhantom() {
         EntityTypes.PHANTOM = AllayEntityType
                 .builder(EntityPhantomImpl.class)
                 .vanillaEntity(EntityId.PHANTOM)
+                .addComponent(EntityPhantomBaseComponentImpl::new, EntityPhantomBaseComponentImpl.class)
+                .addComponent(EntityPhantomLivingComponentImpl::new, EntityPhantomLivingComponentImpl.class)
                 .addComponent(EntityFlyingPhysicsComponentImpl::new, EntityFlyingPhysicsComponentImpl.class)
                 .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> {
+                    var behaviorGroup = BehaviorGroupImpl.builder()
+                            .sensor(new NearestPlayerSensor(48, 0, 20))
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new PhantomFlightExecutor(MemoryTypes.ATTACK_TARGET, 48, true))
+                                    .evaluator(all(
+                                            new MemoryCheckNotEmptyEvaluator(MemoryTypes.ATTACK_TARGET),
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.ATTACK_TARGET))
+                                    ))
+                                    .priority(3)
+                                    .build())
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new PhantomFlightExecutor(MemoryTypes.NEAREST_PLAYER, 48, false))
+                                    .evaluator(all(
+                                            new MemoryCheckNotEmptyEvaluator(MemoryTypes.NEAREST_PLAYER),
+                                            entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.NEAREST_PLAYER))
+                                    ))
+                                    .priority(2)
+                                    .build())
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new PhantomFlightExecutor(null, 0, false))
+                                    .evaluator(entity -> true)
+                                    .priority(1)
+                                    .build())
+                            .controller(new LookController(true, true))
+                            .routeFinder(new SpaceAStarRouteFinder(new FlyingPosEvaluator()))
+                            .build();
+                    return new EntityAIComponentImpl(behaviorGroup);
+                }, EntityAIComponentImpl.class)
                 .build();
     }
 
@@ -514,6 +561,12 @@ public final class EntityTypeInitializer {
     }
 
     /** Boss'un cagirdigi iskeletlere can ve kara fizigi saglar; hedeflerini eklenti yonetir. */
+    /**
+     * Wither iskeleti: ateste yanmaz, tas kilicla dogar, her vurusta hedefe Wither etkisi verir.
+     *
+     * <p>HeartCore {@code WitherSkeleton}: yakin dovus (bekleme 20 tick, menzil 1.7) ve
+     * {@code WitherSkeletonAttackStrategy}.</p>
+     */
     public static void initWitherSkeleton() {
         EntityTypes.WITHER_SKELETON = AllayEntityType
                 .builder(EntityWitherSkeletonImpl.class)
@@ -523,24 +576,15 @@ public final class EntityTypeInitializer {
                         EntityArmedBaseComponentImpl.class)
                 .addComponent(EntityHumanLikeContainerHolderComponentImpl::new,
                         EntityHumanLikeContainerHolderComponentImpl.class)
-                .addComponent(() -> {
-                    var component = new EntityLivingComponentImpl() {
-                        @Override
-                        public boolean hasFireDamage() {
-                            return false;
-                        }
-
-                        @Override
-                        public boolean isFireproof() {
-                            return true;
-                        }
-                    };
-                    component.setMaxHealth(20);
-                    return component;
-                }, EntityLivingComponentImpl.class)
+                .addComponent(EntityWitherSkeletonLivingComponentImpl::new, EntityWitherSkeletonLivingComponentImpl.class)
                 .addComponent(EntityHumanPhysicsComponentImpl::new, EntityHumanPhysicsComponentImpl.class)
                 .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
                 .addComponent(EntityUndeadComponentImpl::new, EntityUndeadComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> buildHostileMeleeBehaviorGroup(16, 12,
+                                (memory, clear) -> new WitherTouchMeleeExecutor(
+                                        memory, WITHER_SKELETON_SPEED, 32, clear, 20, 1.7)),
+                        EntityAIComponentImpl.class)
                 .build();
     }
 
@@ -680,6 +724,120 @@ public final class EntityTypeInitializer {
                     return new EntityAIComponentImpl(behaviorGroup);
                 }, EntityAIComponentImpl.class)
                 .build();
+    }
+
+    /**
+     * Orumcek: yakin dovus ve hedefe sicrayis ({@link SpiderAttackExecutor}).
+     *
+     * <p>HeartCore {@code Spider}: bekleme 12 tick, menzil 1.6. Duvar tirmanmasi (yatay
+     * carpismada yukselme) motorda carpisma bayragi olmadigi icin yok; basamak asma yurume
+     * denetleyicisinden gelir.</p>
+     */
+    public static void initSpider() {
+        EntityTypes.SPIDER = AllayEntityType
+                .builder(EntitySpiderImpl.class)
+                .vanillaEntity(EntityId.SPIDER)
+                .addComponent(EntitySpiderBaseComponentImpl::new, EntitySpiderBaseComponentImpl.class)
+                .addComponent(EntitySpiderLivingComponentImpl::new, EntitySpiderLivingComponentImpl.class)
+                .addComponent(EntityMobPhysicsComponentImpl::new, EntityMobPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> buildHostileMeleeBehaviorGroup(16, 12,
+                                (memory, clear) -> new SpiderAttackExecutor(
+                                        memory, SPIDER_SPEED, 32, clear, 12, 1.6)),
+                        EntityAIComponentImpl.class)
+                .build();
+    }
+
+    /** Gumus balik: endermite kalibinda minik yakin dovuscu (HeartCore: bekleme 10, menzil 1.0). */
+    public static void initSilverfish() {
+        EntityTypes.SILVERFISH = AllayEntityType
+                .builder(EntitySilverfishImpl.class)
+                .vanillaEntity(EntityId.SILVERFISH)
+                .addComponent(EntitySilverfishBaseComponentImpl::new, EntitySilverfishBaseComponentImpl.class)
+                .addComponent(EntitySilverfishLivingComponentImpl::new, EntitySilverfishLivingComponentImpl.class)
+                .addComponent(EntityMobPhysicsComponentImpl::new, EntityMobPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> buildHostileMeleeBehaviorGroup(16, 8,
+                                (memory, clear) -> new MeleeAttackExecutor(
+                                        memory, SILVERFISH_SPEED, 32, clear, 10, 1.2)),
+                        EntityAIComponentImpl.class)
+                .build();
+    }
+
+    /**
+     * Tavsan: pasif; rastgele dolasir, vurulunca bes saniye hizli kacar (HeartCore
+     * {@code Rabbit}: dolasma 0.32, kacis 0.42).
+     */
+    public static void initRabbit() {
+        EntityTypes.RABBIT = AllayEntityType
+                .builder(EntityRabbitImpl.class)
+                .vanillaEntity(EntityId.RABBIT)
+                .addComponent(EntityRabbitBaseComponentImpl::new, EntityRabbitBaseComponentImpl.class)
+                .addComponent(EntityRabbitLivingComponentImpl::new, EntityRabbitLivingComponentImpl.class)
+                .addComponent(EntityAnimalPhysicsComponentImpl::new, EntityAnimalPhysicsComponentImpl.class)
+                .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
+                .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
+                .addComponent(() -> {
+                    var behaviorGroup = BehaviorGroupImpl.builder()
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new FlatRandomRoamExecutor(RABBIT_FLEE_SPEED, 12, 40, true, 100, true, 10))
+                                    .evaluator(new PassByTimeEvaluator(EntityIntelligent::getLastDamageTime, 0, 100))
+                                    .priority(6)
+                                    .build())
+                            .behavior(BehaviorImpl.builder()
+                                    .executor(new FlatRandomRoamExecutor(RABBIT_SPEED, 10, 100, false, -1, true, 10))
+                                    .evaluator(entity -> true)
+                                    .priority(1)
+                                    .build())
+                            .controller(new WalkController())
+                            .controller(new FluctuateController())
+                            .controller(new LookController(true, true))
+                            .routeFinder(new FlatAStarRouteFinder(new WalkingPosEvaluator()))
+                            .build();
+                    return new EntityAIComponentImpl(behaviorGroup);
+                }, EntityAIComponentImpl.class)
+                .build();
+    }
+
+    /** Hedefe kosan yakin dovuscu davranis grubu (zombi kalibi); yakin dovus yurutucusunu {@code factory} uretir. */
+    private static EntityAIComponentImpl buildHostileMeleeBehaviorGroup(double senseRange, int roamRange,
+                                                                         MeleeExecutorFactory factory) {
+        var behaviorGroup = BehaviorGroupImpl.builder()
+                .sensor(new NearestPlayerSensor(senseRange, 0, 20))
+                .behavior(BehaviorImpl.builder()
+                        .executor(factory.create(MemoryTypes.ATTACK_TARGET, true))
+                        .evaluator(all(
+                                new MemoryCheckNotEmptyEvaluator(MemoryTypes.ATTACK_TARGET),
+                                entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.ATTACK_TARGET))
+                        ))
+                        .priority(3)
+                        .build())
+                .behavior(BehaviorImpl.builder()
+                        .executor(factory.create(MemoryTypes.NEAREST_PLAYER, false))
+                        .evaluator(all(
+                                new MemoryCheckNotEmptyEvaluator(MemoryTypes.NEAREST_PLAYER),
+                                entity -> isValidHostileTarget(entity, entity.getMemoryStorage().get(MemoryTypes.NEAREST_PLAYER))
+                        ))
+                        .priority(2)
+                        .build())
+                .behavior(BehaviorImpl.builder()
+                        .executor(new FlatRandomRoamExecutor(0.1f, roamRange, 100, false, -1, true, 10))
+                        .evaluator(entity -> true)
+                        .priority(1)
+                        .build())
+                .controller(new WalkController())
+                .controller(new FluctuateController())
+                .controller(new LookController(true, true))
+                .routeFinder(new FlatAStarRouteFinder(new WalkingPosEvaluator()))
+                .build();
+        return new EntityAIComponentImpl(behaviorGroup);
+    }
+
+    @FunctionalInterface
+    private interface MeleeExecutorFactory {
+        BehaviorExecutor create(MemoryType<Long> targetMemory, boolean clearTargetAfterLose);
     }
 
     public static void initEndermite() {
@@ -2310,6 +2468,10 @@ public final class EntityTypeInitializer {
 
         var target = entity.getDimension().getEntityManager().getEntity(targetId);
         if (!(target instanceof EntityPlayer player) || target == entity || !target.isAlive()) {
+            return false;
+        }
+
+        if (!MobAiHooks.canTarget(entity, player)) {
             return false;
         }
 

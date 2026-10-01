@@ -1,16 +1,13 @@
 package org.allaymc.api.entity.interfaces;
 
-import org.allaymc.api.entity.Entity;
 import org.allaymc.api.entity.component.EntityHeadYawComponent;
-import org.allaymc.api.entity.component.EntityPhysicsComponent;
-import org.allaymc.api.entity.component.EntityUndeadComponent;
 
 /**
- * Fantom.
+ * Fantom: canli, ucan ve yapay zekali.
  *
- * <p>Yapay zekası henüz yok; uçuş fiziği (yerçekimi yok) ve baş dönüşü vardır, yani
- * {@code setMotion} ile havada hareket ettirilebilir.</p>
+ * <p>Yercekimi yoktur; hedefin ustunde daire cizer ve periyodik olarak dalis yapar.
+ * Gunes isiginda yanma bu varlikta yoktur (HeartCore da yalnizca kendi yakiyordu).</p>
  */
-public interface EntityPhantom extends Entity, EntityUndeadComponent, EntityPhysicsComponent, EntityHeadYawComponent {
+public interface EntityPhantom extends EntityIntelligent, EntityHeadYawComponent {
 
 }

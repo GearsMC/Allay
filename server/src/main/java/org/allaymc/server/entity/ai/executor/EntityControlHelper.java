@@ -1,6 +1,9 @@
 package org.allaymc.server.entity.ai.executor;
 
+import org.allaymc.api.entity.Entity;
+import org.allaymc.api.entity.ai.MobAiHooks;
 import org.allaymc.api.entity.ai.memory.MemoryTypes;
+import org.allaymc.api.entity.interfaces.EntityPlayer;
 import org.allaymc.api.entity.interfaces.EntityIntelligent;
 import org.joml.Vector3dc;
 
@@ -32,5 +35,16 @@ public final class EntityControlHelper {
 
     public static void removeLookTarget(EntityIntelligent entity) {
         entity.getMemoryStorage().clear(MemoryTypes.LOOK_TARGET);
+    }
+
+    /**
+     * Eklenti kancasi (gorunmez yetkili gibi) bu hedefi mobdan gizliyor mu.
+     *
+     * @param mob saldiran mob
+     * @param target hedef
+     * @return hedef gecerliyse {@code true}; yalnizca oyuncular suzulur
+     */
+    public static boolean allowsTarget(Entity mob, Entity target) {
+        return !(target instanceof EntityPlayer player) || MobAiHooks.canTarget(mob, player);
     }
 }

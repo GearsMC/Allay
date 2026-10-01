@@ -1,7 +1,10 @@
 package org.allaymc.api.entity.interfaces;
 
-import org.allaymc.api.entity.Entity;
+import org.allaymc.api.entity.component.EntityHeadYawComponent;
 
-public interface EntitySpider extends Entity {
+/**
+ * Orumcek: canli, yapay zekali yakin dovuscu.
+ */
+public interface EntitySpider extends EntityIntelligent, EntityHeadYawComponent {
 
 }

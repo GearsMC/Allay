@@ -2,6 +2,7 @@ package org.allaymc.server.entity.component;
 
 import org.allaymc.api.container.ContainerTypes;
 import org.allaymc.api.entity.Entity;
+import org.allaymc.api.entity.ai.MobAiHooks;
 import org.allaymc.api.entity.component.EntityContainerHolderComponent;
 import org.allaymc.api.entity.component.EntityLivingComponent;
 import org.allaymc.api.entity.component.EntityUndeadComponent;
@@ -35,7 +36,8 @@ public class EntityUndeadComponentImpl implements EntityUndeadComponent {
 
     @EventHandler
     protected void onTick(CEntityTickEvent event) {
-        if (!thisEntity.isAlive() || thisEntity.isTouchingWater() || livingComponent.isOnFire() || !ignitedBySunlight()) {
+        if (!thisEntity.isAlive() || thisEntity.isTouchingWater() || livingComponent.isOnFire() || !ignitedBySunlight()
+            || MobAiHooks.isSunlightImmune(thisEntity)) {
             return;
         }
 

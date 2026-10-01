@@ -110,7 +110,8 @@ public class MeleeAttackExecutor implements BehaviorExecutor {
         }
 
         var targetEntity = entity.getDimension().getEntityManager().getEntity(targetId);
-        if (!(targetEntity instanceof EntityLiving targetLiving) || !isTargetValid(targetEntity)) {
+        if (!(targetEntity instanceof EntityLiving targetLiving) || !isTargetValid(targetEntity)
+                || !EntityControlHelper.allowsTarget(entity, targetEntity)) {
             return false;
         }
 
@@ -138,6 +139,8 @@ public class MeleeAttackExecutor implements BehaviorExecutor {
                 targetLoc.x(), targetLoc.y() + targetEntity.getEyeHeight(), targetLoc.z()
         ));
 
+        onChase(entity, targetLiving, distanceSquared);
+
         if (distanceSquared <= attackRangeSquared && attackTick > coolDown) {
             var damage = getAttackDamage(entity, targetLiving);
             if (damage <= 0) {
@@ -149,10 +152,30 @@ public class MeleeAttackExecutor implements BehaviorExecutor {
             entity.getDimension().addSound(targetLoc, new AttackSound(attackSuccess));
             if (attackSuccess) {
                 attackTick = 0;
+                onAttackSuccess(entity, targetLiving);
             }
         }
 
         return true;
+    }
+
+    /**
+     * Hedef kovalanirken her tick cagrilir; alt siniflar sicrama gibi ek hareketler ekler.
+     *
+     * @param entity saldiran mob
+     * @param target hedef
+     * @param distanceSquared hedefe kare mesafe
+     */
+    protected void onChase(EntityIntelligent entity, EntityLiving target, double distanceSquared) {
+    }
+
+    /**
+     * Vurus isabet ettiginde cagrilir; alt siniflar etki uygular.
+     *
+     * @param entity saldiran mob
+     * @param target vurulan hedef
+     */
+    protected void onAttackSuccess(EntityIntelligent entity, EntityLiving target) {
     }
 
     @Override

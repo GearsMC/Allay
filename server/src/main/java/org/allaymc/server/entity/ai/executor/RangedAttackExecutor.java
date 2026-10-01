@@ -111,7 +111,8 @@ public class RangedAttackExecutor implements BehaviorExecutor {
         }
 
         var targetEntity = entity.getDimension().getEntityManager().getEntity(targetId);
-        if (!(targetEntity instanceof EntityLiving) || !isTargetValid(targetEntity)) {
+        if (!(targetEntity instanceof EntityLiving) || !isTargetValid(targetEntity)
+                || !EntityControlHelper.allowsTarget(entity, targetEntity)) {
             return false;
         }
 
