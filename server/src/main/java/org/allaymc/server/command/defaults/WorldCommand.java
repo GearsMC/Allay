@@ -55,7 +55,8 @@ public class WorldCommand extends Command {
                 .exec((context, entity) -> {
                     String worldName = context.getResult(1);
                     String dimName = context.getResult(2);
-                    var world = Server.getInstance().getWorldPool().getWorld(worldName);
+                    // Kapali dunya (or. unload edilmis ada) once acilir.
+                    var world = Server.getInstance().getWorldPool().getOrLoadWorld(worldName);
                     if (world == null) {
                         context.addError("%" + TrKeys.ALLAY_COMMAND_WORLD_UNKNOWN, worldName);
                         return context.fail();
@@ -83,6 +84,23 @@ public class WorldCommand extends Command {
                     context.addOutput(TrKeys.ALLAY_COMMAND_WORLD_TP_SUCCESS, worldName, dimName);
                     return context.success();
                 }, SenderType.ENTITY)
+                .root()
+                .key("load")
+                .str("world")
+                .exec(context -> {
+                    String worldName = context.getResult(1);
+                    var pool = Server.getInstance().getWorldPool();
+                    if (pool.getWorld(worldName) != null) {
+                        context.addOutput(TrKeys.ALLAY_COMMAND_WORLD_LOAD_ALREADY, worldName);
+                        return context.success();
+                    }
+                    if (pool.getOrLoadWorld(worldName) == null) {
+                        context.addError("%" + TrKeys.ALLAY_COMMAND_WORLD_UNKNOWN, worldName);
+                        return context.fail();
+                    }
+                    context.addOutput(TrKeys.ALLAY_COMMAND_WORLD_LOAD_SUCCESS, worldName);
+                    return context.success();
+                })
                 .root()
                 .key("unload")
                 .str("world")

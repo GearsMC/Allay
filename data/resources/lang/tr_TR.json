@@ -28,6 +28,8 @@
   "allay:command.status.world.contents": "  Chunk: %s | Varlık: %s | Blok varlığı: %s",
   "allay:command.status.world.tick": "  TPS: %s | MSPT: %s | tik kullanımı: %%s",
   "allay:command.status.worlds.header": "--- Dünyalar (%s) ---",
+  "allay:command.world.load.already": "%1 dünyası zaten yüklü",
+  "allay:command.world.load.success": "%1 dünyası yüklendi",
   "allay:tile.chemical_heat.name": "Isı Bloğu",
   "allay:tile.hard_black_stained_glass.name": "Sertleşmiş Siyah Cam",
   "allay:tile.hard_blue_stained_glass.name": "Sertleşmiş Mavi Cam",

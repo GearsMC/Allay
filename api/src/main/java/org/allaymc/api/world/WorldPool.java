@@ -51,6 +51,32 @@ public interface WorldPool {
     World getDefaultWorld();
 
     /**
+     * Adiyla bir dunyayi dondurur; yuklu degilse once {@code world-settings.yml}'deki
+     * kayitli dunyalari, sonra {@link #addWorldLoader} ile eklenen yukleyicileri dener.
+     * Eklentilerin kendi klasorlerinde tuttugu dunyalar (or. adalar) boylece
+     * {@code /world tp} ve {@code /world load} ile de acilabilir.
+     *
+     * @param name dunya adi
+     * @return dunya; hicbir yerde bulunamazsa {@code null}
+     */
+    World getOrLoadWorld(String name);
+
+    /**
+     * Yuklu olmayan bir dunyayi adiyla acabilen bir yukleyici ekler.
+     *
+     * @param loader dunya adini alip dunyayi yukleyen ve donduren fonksiyon; bu adi
+     *               tanimiyorsa {@code null} dondurmelidir
+     */
+    void addWorldLoader(java.util.function.Function<String, World> loader);
+
+    /**
+     * {@link #addWorldLoader} ile eklenen yukleyiciyi kaldirir.
+     *
+     * @param loader kaldirilacak yukleyici
+     */
+    void removeWorldLoader(java.util.function.Function<String, World> loader);
+
+    /**
      * Create a world with the provided name, storage and generators for different dimensions.
      *
      * @param name               the name of the world to be loaded

@@ -243,6 +243,16 @@ public interface TrKeys {
     String ALLAY_COMMAND_WORLD_LIST = "allay:command.world.list";
 
     /**
+     * {@literal World %1 is already loaded}
+     */
+    String ALLAY_COMMAND_WORLD_LOAD_ALREADY = "allay:command.world.load.already";
+
+    /**
+     * {@literal World %1 loaded}
+     */
+    String ALLAY_COMMAND_WORLD_LOAD_SUCCESS = "allay:command.world.load.success";
+
+    /**
      * {@literal You are teleported to world %1:%2}
      */
     String ALLAY_COMMAND_WORLD_TP_SUCCESS = "allay:command.world.tp.success";

@@ -52,6 +52,8 @@
   "allay:command.world.dim.disabled": "Dimension is disabled: %1",
   "allay:command.world.dim.unknown": "Unknown dimension: %1",
   "allay:command.world.list": "Loaded worlds:",
+  "allay:command.world.load.already": "World %1 is already loaded",
+  "allay:command.world.load.success": "World %1 loaded",
   "allay:command.world.tp.success": "You are teleported to world %1:%2",
   "allay:command.world.unknown": "Unknown world: %1",
   "allay:command.world.unload.failed.default": "Default world can't be unloaded",

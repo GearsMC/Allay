@@ -29,6 +29,9 @@ import org.allaymc.server.world.dimension.BuiltinDimensionSettings;
 import org.allaymc.server.world.dimension.DimensionId;
 import org.allaymc.server.world.light.NoLightEngine;
 
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
+import java.util.List;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -46,6 +49,7 @@ public final class AllayWorldPool implements WorldPool {
     @Getter
     private final Path worldFolder;
     private final WorldSettings worldConfig;
+    private final List<Function<String, World>> worldLoaders = new CopyOnWriteArrayList<>();
 
     @Setter
     private World defaultWorld;
@@ -177,6 +181,44 @@ public final class AllayWorldPool implements WorldPool {
     @Override
     public Map<String, World> getWorlds() {
         return Collections.unmodifiableMap(this.worlds);
+    }
+
+    @Override
+    public World getOrLoadWorld(String name) {
+        var loaded = getWorld(name);
+        if (loaded != null) {
+            return loaded;
+        }
+        var setting = this.worldConfig.worlds().get(name);
+        if (setting != null) {
+            loadWorld(name, setting);
+            loaded = getWorld(name);
+            if (loaded != null) {
+                return loaded;
+            }
+        }
+        for (var loader : this.worldLoaders) {
+            try {
+                loaded = loader.apply(name);
+            } catch (Exception e) {
+                log.error("World loader failed for {}", name, e);
+                continue;
+            }
+            if (loaded != null) {
+                return loaded;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public void addWorldLoader(Function<String, World> loader) {
+        this.worldLoaders.add(Objects.requireNonNull(loader));
+    }
+
+    @Override
+    public void removeWorldLoader(Function<String, World> loader) {
+        this.worldLoaders.remove(loader);
     }
 
     @Override
