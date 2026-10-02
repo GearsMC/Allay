@@ -752,6 +752,10 @@ public class PacketEncoder_v766 extends PacketEncoder {
             case SimpleParticle.BUBBLE -> packet.setType(ParticleType.BUBBLE);
             case SimpleParticle.VILLAGER_ANGRY -> packet.setType(ParticleType.VILLAGER_ANGRY);
             case SimpleParticle.INK -> packet.setType(ParticleType.INK);
+            // GearsMC fork: ortak RP'nin yeniden dokuladigi parcaciklar (HeartCore paritesi).
+            case SimpleParticle.SCULK_SENSOR_REDSTONE -> packet.setType(ParticleType.SCULK_SENSOR_REDSTONE);
+            case SimpleParticle.BALLOON_GAS -> packet.setType(ParticleType.BALLOON_GAS);
+            case SimpleParticle.STALACTITE_DRIP_WATER -> packet.setType(ParticleType.STALACTITE_DRIP_WATER);
             case ShootParticle shoot -> {
                 packet.setType(LevelEvent.PARTICLE_SHOOT);
                 int data = 0;

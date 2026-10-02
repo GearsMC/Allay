@@ -80,5 +80,16 @@ public enum SimpleParticle implements Particle {
 
     PORTAL,
 
-    HUGE_EXPLODE
+    HUGE_EXPLODE,
+
+    /// GearsMC fork: sculk algilayici kizilmermer parcacigi. Ortak RP bunu ruzgar
+    /// cizgisine cevirir (HeartCore WindParticle).
+    SCULK_SENSOR_REDSTONE,
+
+    /// GearsMC fork: balon gazi parcacigi. Ortak RP bunu yaprak dokusuna cevirir
+    /// (HeartCore PaleOakLeavesParticle).
+    BALLOON_GAS,
+
+    /// GearsMC fork: sarkittan damlayan su (HeartCore DripWaterParticle).
+    STALACTITE_DRIP_WATER
 }
