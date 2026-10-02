@@ -234,7 +234,8 @@ public class StatusCommand extends Command {
             totalBlockEntities += blockEntities;
 
             var tickUsage = world.getTickUsage() * 100f;
-            sender.sendMessage("- " + TextFormat.AQUA + world.getWorldData().getDisplayName());
+            // Görünen ad (level.dat) şablondan kopyalanabildiği için gerçek dünya adı gösterilir; /durum ile aynı.
+            sender.sendMessage("- " + TextFormat.AQUA + world.getName());
             sender.sendTranslatable(TrKeys.ALLAY_COMMAND_STATUS_WORLD_TICK,
                     colorizeTps(world.getTPS()) + String.format(Locale.ROOT, "%.1f", world.getTPS()),
                     String.format(Locale.ROOT, "%.2f", world.getMSPT()),
