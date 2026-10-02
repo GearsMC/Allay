@@ -74,6 +74,14 @@ public final class AllayChunkManager implements ChunkManager {
         tickChunks(currentTick);
     }
 
+    /**
+     * Boyutta yuklu, yuklenmekte olan ya da chunk isteyen hicbir sey yoksa {@code true}.
+     * Bu durumda {@link #tick(long)} hicbir is yapmaz.
+     */
+    public boolean isIdle() {
+        return this.chunkLoaders.isEmpty() && this.chunkHolders.isEmpty();
+    }
+
     private void tickChunkLoaders() {
         // NOTICE: There is no need to use parallel stream here
         for (var chunkLoaderHolder : chunkLoaders.values()) {

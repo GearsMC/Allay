@@ -194,16 +194,26 @@ public class AllayWorld implements World {
         tickSleep();
         scheduler.tick();
 
-        var dimensions = dimensionMap.values();
-        if (TICK_DIMENSION_IN_PARALLEL && dimensions.size() > 1) {
+        // Bos boyutlar (oyuncu, chunk, varlik yok) yalnizca zamanlayicisini calistirir;
+        // onlar icin paralel gorev acip beklemeye gerek yok.
+        var active = new java.util.ArrayList<AllayDimension>(dimensionMap.size());
+        for (var dimension : dimensionMap.values()) {
+            var allayDimension = (AllayDimension) dimension;
+            if (allayDimension.isIdle()) {
+                allayDimension.tick(currentTick);
+            } else {
+                active.add(allayDimension);
+            }
+        }
+        if (TICK_DIMENSION_IN_PARALLEL && active.size() > 1) {
             var server = Server.getInstance();
             Utils.forEachInParallel(
-                    dimensions, virtualTickingThread ? server.getVirtualThreadPool() : server.getComputeThreadPool(),
-                    dimension -> ((AllayDimension) dimension).tick(currentTick)
+                    active, virtualTickingThread ? server.getVirtualThreadPool() : server.getComputeThreadPool(),
+                    dimension -> dimension.tick(currentTick)
             ).join();
         } else {
-            for (var dimension : dimensions) {
-                ((AllayDimension) dimension).tick(currentTick);
+            for (var dimension : active) {
+                dimension.tick(currentTick);
             }
         }
 

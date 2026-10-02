@@ -61,6 +61,14 @@ public class AllayEntityManager implements EntityManager {
         this.physicsService.tick();
     }
 
+    /**
+     * Boyutta varlik ve bekleyen varlik gorevi yoksa {@code true}. Dunya thread'inden,
+     * boyut tick'lenmiyorken cagrilir.
+     */
+    public boolean isIdle() {
+        return this.entities.isEmpty() && this.queue.isEmpty();
+    }
+
     public void idle() {
         processQueue();
     }

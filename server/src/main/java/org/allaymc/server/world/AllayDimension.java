@@ -92,7 +92,21 @@ public class AllayDimension implements Dimension {
         this.lightEngine.startTick();
     }
 
+    /**
+     * Boyutta oyuncu, chunk (yuklu ya da yuklenen), chunk yukleyici ve varlik yoksa
+     * {@code true}. Ornegin kimsenin olmadigi bir adanin dunyasi.
+     */
+    public boolean isIdle() {
+        return this.players.isEmpty() && this.chunkManager.isIdle() && this.entityManager.isIdle();
+    }
+
     public void tick(long currentTick) {
+        if (isIdle()) {
+            // Tick'lenecek bir sey yok; yalnizca zamanlayici calisir ki bu boyuta
+            // verilen gorevler (or. isinlanma, chunk yukleme) beklemede kalmasin.
+            this.scheduler.tick();
+            return;
+        }
         tickLightning();
         this.scheduler.tick();
         this.entityManager.tick(currentTick);
