@@ -6,6 +6,7 @@ import org.allaymc.api.entity.EntityInitInfo;
 import org.allaymc.api.entity.component.EntityHeadYawComponent;
 import org.allaymc.api.entity.component.EntityLivingComponent;
 import org.allaymc.api.entity.component.EntityPhysicsComponent;
+import org.allaymc.api.entity.component.EntityUndeadComponent;
 import org.allaymc.api.entity.interfaces.EntityWither;
 import org.allaymc.server.component.ComponentProvider;
 
@@ -18,6 +19,8 @@ public class EntityWitherImpl extends EntityImpl implements EntityWither {
     private EntityPhysicsComponent physicsComponent;
     @Delegate
     private EntityHeadYawComponent headYawComponent;
+    @Delegate
+    private EntityUndeadComponent undeadComponent;
     private int witherInvulnerableTicks;
     private long witherTargetA;
     private long witherTargetB;

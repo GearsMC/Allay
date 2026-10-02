@@ -561,7 +561,13 @@ public final class EntityTypeInitializer {
                     }
                 }, EntityFlyingPhysicsComponentImpl.class)
                 .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
-                .addComponent(EntityUndeadComponentImpl::new, EntityUndeadComponentImpl.class)
+                // Vanilla wither gunes altinda tutusmaz.
+                .addComponent(() -> new EntityUndeadComponentImpl() {
+                    @Override
+                    public boolean ignitedBySunlight() {
+                        return false;
+                    }
+                }, EntityUndeadComponentImpl.class)
                 .build();
     }
 

@@ -31,7 +31,8 @@ public class EntityUndeadComponentImpl implements EntityUndeadComponent {
     @Dependency
     protected EntityLivingComponent livingComponent;
 
-    @Dependency
+    // Istege bagli: zirh envanteri olmayan olumsuzler (or. wither) de bu bileseni kullanir.
+    @Dependency(optional = true)
     protected EntityContainerHolderComponent containerHolderComponent;
 
     @EventHandler
@@ -62,7 +63,8 @@ public class EntityUndeadComponentImpl implements EntityUndeadComponent {
     }
 
     protected boolean hasHelmetProtection() {
-        return containerHolderComponent.hasContainer(ContainerTypes.ARMOR) &&
+        return containerHolderComponent != null &&
+               containerHolderComponent.hasContainer(ContainerTypes.ARMOR) &&
                containerHolderComponent.getContainer(ContainerTypes.ARMOR).getHelmet() != ItemAirStack.AIR_STACK;
     }
 }
