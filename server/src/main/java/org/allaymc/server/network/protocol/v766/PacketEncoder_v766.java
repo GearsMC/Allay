@@ -2080,6 +2080,9 @@ public class PacketEncoder_v766 extends PacketEncoder {
                 case 3 -> SoundEvent.ITEM_TRIDENT_RIPTIDE_3;
                 default -> throw new IllegalArgumentException("Invalid riptide level: " + riptide.level());
             });
+            case PotentSulfurGeyserSound geyser -> packet.setSound(geyser.continuous()
+                    ? (geyser.active() ? SoundEvent.GEYSER_CONTINUOUS_ERUPTION_ACTIVE : SoundEvent.GEYSER_CONTINUOUS_ERUPTION_START)
+                    : (geyser.active() ? SoundEvent.GEYSER_ERUPTION_ACTIVE : SoundEvent.GEYSER_ERUPTION_START));
             case SimpleSound.PAINTING_PLACE -> {
                 LevelEventPacket levelEvent = new LevelEventPacket();
                 levelEvent.setType(LevelEvent.SOUND_ITEMFRAME_PLACE);
@@ -2334,6 +2337,10 @@ public class PacketEncoder_v766 extends PacketEncoder {
                 packet.setSound(SoundEvent.HIT);
                 packet.setExtraData(networkBlockId(so.blockState()));
             }
+            case BlockBreakSound so -> {
+                packet.setSound(SoundEvent.BREAK);
+                packet.setExtraData(networkBlockId(so.blockState()));
+            }
             case ItemUseOnBlockSound so -> {
                 packet.setSound(SoundEvent.ITEM_USE_ON);
                 packet.setExtraData(networkBlockId(so.blockState()));
@@ -2484,6 +2491,8 @@ public class PacketEncoder_v766 extends PacketEncoder {
                  DIAMOND_SPEAR_ATTACK_HIT, DIAMOND_SPEAR_ATTACK_MISS, DIAMOND_SPEAR_USE,
                  NETHERITE_SPEAR_ATTACK_HIT, NETHERITE_SPEAR_ATTACK_MISS,
                  NETHERITE_SPEAR_USE -> false;
+            case GEYSER_ERUPTION_START, GEYSER_ERUPTION_ACTIVE,
+                 GEYSER_CONTINUOUS_ERUPTION_START, GEYSER_CONTINUOUS_ERUPTION_ACTIVE -> false;
             default -> true;
         };
     }

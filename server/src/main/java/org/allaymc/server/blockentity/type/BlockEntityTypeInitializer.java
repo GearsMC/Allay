@@ -164,7 +164,7 @@ public final class BlockEntityTypeInitializer {
         BlockEntityTypes.POTENT_SULFUR = AllayBlockEntityType
                 .builder(BlockEntityPotentSulfurImpl.class)
                 .name(BlockEntityId.POTENT_SULFUR)
-                .addComponent(BlockEntityBaseComponentImpl::new, BlockEntityBaseComponentImpl.class)
+                .addComponent(BlockEntityPotentSulfurBaseComponentImpl::new, BlockEntityPotentSulfurBaseComponentImpl.class)
                 .build();
     }
 

@@ -41,6 +41,7 @@ import org.allaymc.server.block.component.fallable.BlockAnvilFallableComponentIm
 import org.allaymc.server.block.component.fallable.BlockConcretePowderFallableComponentImpl;
 import org.allaymc.server.block.component.fallable.BlockFallableComponentImpl;
 import org.allaymc.server.block.component.fallable.BlockPointedDripstoneFallableComponentImpl;
+import org.allaymc.server.block.component.fallable.BlockSulfurSpikeFallableComponentImpl;
 import org.allaymc.server.block.component.fire.BlockFireBaseComponentImpl;
 import org.allaymc.server.block.component.fire.BlockSoulFireBaseComponentImpl;
 import org.allaymc.server.block.component.flower.BlockBigFlowerBaseComponentImpl;
@@ -3141,6 +3142,26 @@ public final class BlockTypeInitializer {
                 .bindBlockEntity(BlockEntityTypes.CHISELED_BOOKSHELF)
                 .setProperties(BlockPropertyTypes.BOOKS_STORED, BlockPropertyTypes.DIRECTION_4)
                 .setBaseComponentSupplier(BlockChiseledBookshelfBaseComponentImpl::new)
+                .build();
+    }
+
+    public static void initPotentSulfur() {
+        BlockTypes.POTENT_SULFUR = AllayBlockType
+                .builder(BlockPotentSulfurBehaviorImpl.class)
+                .vanillaBlock(BlockId.POTENT_SULFUR)
+                .setProperties(BlockPropertyTypes.POTENT_SULFUR_STATE)
+                .bindBlockEntity(BlockEntityTypes.POTENT_SULFUR)
+                .setBaseComponentSupplier(BlockPotentSulfurBaseComponentImpl::new)
+                .build();
+    }
+
+    public static void initSulfurSpike() {
+        BlockTypes.SULFUR_SPIKE = AllayBlockType
+                .builder(BlockSulfurSpikeBehaviorImpl.class)
+                .vanillaBlock(BlockId.SULFUR_SPIKE)
+                .setProperties(BlockPropertyTypes.DRIPSTONE_THICKNESS, BlockPropertyTypes.HANGING)
+                .setBaseComponentSupplier(BlockSulfurSpikeBaseComponentImpl::new)
+                .addComponent(new BlockSulfurSpikeFallableComponentImpl())
                 .build();
     }
 

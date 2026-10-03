@@ -35,7 +35,9 @@ import org.allaymc.api.world.dimension.DimensionTypes;
 import org.allaymc.api.world.gamerule.GameRules;
 import org.allaymc.api.world.particle.CustomParticle;
 import org.allaymc.api.world.particle.SimpleParticle;
+import org.allaymc.api.world.sound.BlockBreakSound;
 import org.allaymc.api.world.sound.MusicDiscPlaySound;
+import org.allaymc.api.world.sound.PotentSulfurGeyserSound;
 import org.allaymc.api.world.sound.SimpleSound;
 import org.allaymc.server.container.impl.BaseContainer;
 import org.allaymc.server.world.chunk.AllayUnsafeChunk;
@@ -43,6 +45,7 @@ import org.allaymc.server.world.dimension.DimensionId;
 import org.allaymc.testutils.AllayTestExtension;
 import org.cloudburstmc.nbt.NbtMap;
 import org.cloudburstmc.protocol.bedrock.data.GameType;
+import org.cloudburstmc.protocol.bedrock.data.SoundEvent;
 import org.cloudburstmc.protocol.bedrock.data.definitions.BlockDefinition;
 import org.cloudburstmc.protocol.bedrock.data.definitions.ItemDefinition;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityDataMap;
@@ -177,6 +180,51 @@ class PacketEncoderCompatibilityTest {
                     .encodeSound(sound, position, false)
                     .isEmpty());
             assertSoundEncodes(protocol(ClientVariant.INTERNATIONAL, 844), sound, position);
+        }
+    }
+
+    @Test
+    void blockBreakSoundCarriesTheBlockOnEveryProtocol() {
+        var position = new org.joml.Vector3d(4.5, 64.5, 4.5);
+        var state = org.allaymc.api.block.type.BlockTypes.SULFUR_SPIKE.getDefaultState();
+        for (var protocol : List.of(
+                protocol(ClientVariant.NETEASE, 766),
+                protocol(ClientVariant.INTERNATIONAL, 975),
+                protocol(ClientVariant.INTERNATIONAL, 1001),
+                protocol(ClientVariant.INTERNATIONAL, 2193)
+        )) {
+            var packets = protocol.getEncoder().encodeSound(new BlockBreakSound(state), position, true);
+            assertEquals(1, packets.size());
+            var packet = assertInstanceOf(LevelSoundEventPacket.class, packets.iterator().next());
+            assertEquals(SoundEvent.BREAK, packet.getSound());
+            assertEquals(protocol.getEncoder().networkBlockId(state), packet.getExtraData());
+            assertPacketEncodes(protocol, packet);
+        }
+    }
+
+    @Test
+    void potentSulfurGeyserSoundsStartAtV1001() {
+        var position = new org.joml.Vector3d(4.5, 66.5, 4.5);
+        var expected = Map.of(
+                new PotentSulfurGeyserSound(false, false), SoundEvent.GEYSER_ERUPTION_START,
+                new PotentSulfurGeyserSound(false, true), SoundEvent.GEYSER_ERUPTION_ACTIVE,
+                new PotentSulfurGeyserSound(true, false), SoundEvent.GEYSER_CONTINUOUS_ERUPTION_START,
+                new PotentSulfurGeyserSound(true, true), SoundEvent.GEYSER_CONTINUOUS_ERUPTION_ACTIVE
+        );
+        for (var entry : expected.entrySet()) {
+            for (var old : List.of(protocol(ClientVariant.NETEASE, 766), protocol(ClientVariant.INTERNATIONAL, 975))) {
+                assertTrue(old.getEncoder().encodeSound(entry.getKey(), position, true).isEmpty(),
+                        () -> entry.getKey() + " " + old + " surumune gitmemeli");
+            }
+            for (var version : List.of(1001, 2168, 2193)) {
+                var protocol = protocol(ClientVariant.INTERNATIONAL, version);
+                var packets = protocol.getEncoder().encodeSound(entry.getKey(), position, true);
+                assertEquals(1, packets.size());
+                var packet = assertInstanceOf(LevelSoundEventPacket.class, packets.iterator().next());
+                assertEquals(entry.getValue(), packet.getSound());
+                assertFalse(packet.isRelativeVolumeDisabled());
+                assertPacketEncodes(protocol, packet);
+            }
         }
     }
 
