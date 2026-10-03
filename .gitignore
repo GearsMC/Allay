@@ -26,6 +26,7 @@
 
 # Local Windows launcher + Postgres helper (machine-specific)
 /start.cmd
+/start.ps1
 /ensure-postgres.ps1
 
 # Test working dir
