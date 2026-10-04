@@ -198,6 +198,8 @@ public class AllayPlayer implements Player {
     protected final EnumSet<PlayerAbility> abilities;
     protected boolean shouldSendAbilities;
     protected boolean immutableWorld;
+    /** GearsMC fork: oturumluk yetenek engelleri ({@link #setDeniedAbilities}); kaydedilmez. */
+    protected volatile Set<PlayerAbility> deniedAbilities = Set.of();
     /** GearsMC fork: macera modunda kırılabilir blok kimlikleri ({@link #setClientBlockRules}). */
     protected volatile Set<String> clientCanDestroy = Set.of();
     /** GearsMC fork: eşya kimliği → üzerine konulabilir blok kimlikleri. */
@@ -1713,8 +1715,11 @@ public class AllayPlayer implements Player {
 
     protected EnumSet<Ability> calculateAbilities(Player player) {
         var abilities = EnumSet.noneOf(Ability.class);
+        var denied = player.getDeniedAbilities();
         for (var ability : player.getAbilities()) {
-            abilities.add(toNetworkAbility(ability));
+            if (!denied.contains(ability)) {
+                abilities.add(toNetworkAbility(ability));
+            }
         }
 
         if (player.getControlledEntity() != null && player.getControlledEntity().hasPermission(Permissions.ABILITY_OPERATOR_COMMAND_QUICK_BAR).asBoolean()) {
@@ -1835,6 +1840,34 @@ public class AllayPlayer implements Player {
         return this.abilities.contains(ability);
     }
 
+    /** Kalıcı yetenek var ve oturumluk engel yok. */
+    protected boolean hasActiveAbility(PlayerAbility ability) {
+        return this.abilities.contains(ability) && !this.deniedAbilities.contains(ability);
+    }
+
+    @Override
+    public void setDeniedAbilities(Set<PlayerAbility> abilities) {
+        Set<PlayerAbility> denied = abilities == null || abilities.isEmpty()
+                ? Set.of()
+                : Collections.unmodifiableSet(EnumSet.copyOf(abilities));
+        if (denied.equals(this.deniedAbilities)) {
+            return;
+        }
+
+        var wasAlwaysFlying = isAlwaysFlying();
+        var couldFly = canFly();
+
+        this.deniedAbilities = denied;
+        this.shouldSendAbilities = true;
+
+        syncFlyingState(wasAlwaysFlying, couldFly);
+    }
+
+    @Override
+    public @UnmodifiableView Set<PlayerAbility> getDeniedAbilities() {
+        return this.deniedAbilities;
+    }
+
     @Override
     public void setAbility(PlayerAbility ability, boolean value) {
         if (this.abilities.contains(ability) == value) {
@@ -1904,7 +1937,7 @@ public class AllayPlayer implements Player {
         if (Server.getInstance().getPlayerManager().isOperator(this)) {
             return true;
         }
-        return hasAbility(PlayerAbility.PLACE_BLOCK);
+        return hasActiveAbility(PlayerAbility.PLACE_BLOCK);
     }
 
     @Override
@@ -1919,7 +1952,7 @@ public class AllayPlayer implements Player {
         if (Server.getInstance().getPlayerManager().isOperator(this)) {
             return true;
         }
-        return hasAbility(PlayerAbility.BREAK_BLOCK);
+        return hasActiveAbility(PlayerAbility.BREAK_BLOCK);
     }
 
     @Override
@@ -1933,7 +1966,7 @@ public class AllayPlayer implements Player {
         if (Server.getInstance().getPlayerManager().isOperator(this)) {
             return true;
         }
-        return hasAbility(PlayerAbility.INTERACT_BLOCK);
+        return hasActiveAbility(PlayerAbility.INTERACT_BLOCK);
     }
 
     @Override
@@ -1944,7 +1977,7 @@ public class AllayPlayer implements Player {
         if (Server.getInstance().getPlayerManager().isOperator(this)) {
             return true;
         }
-        return hasAbility(PlayerAbility.OPEN_CONTAINER);
+        return hasActiveAbility(PlayerAbility.OPEN_CONTAINER);
     }
 
     @Override
@@ -1955,7 +1988,7 @@ public class AllayPlayer implements Player {
         if (Server.getInstance().getPlayerManager().isOperator(this)) {
             return true;
         }
-        return hasAbility(PlayerAbility.ATTACK_PLAYER);
+        return hasActiveAbility(PlayerAbility.ATTACK_PLAYER);
     }
 
     @Override
@@ -1966,22 +1999,22 @@ public class AllayPlayer implements Player {
         if (Server.getInstance().getPlayerManager().isOperator(this)) {
             return true;
         }
-        return hasAbility(PlayerAbility.ATTACK_MOB);
+        return hasActiveAbility(PlayerAbility.ATTACK_MOB);
     }
 
     @Override
     public boolean canFly() {
-        return this.controlledEntity != null && (isAlwaysFlying() || hasAbility(PlayerAbility.MAY_FLY));
+        return this.controlledEntity != null && (isAlwaysFlying() || hasActiveAbility(PlayerAbility.MAY_FLY));
     }
 
     @Override
     public boolean hasInfiniteBlock() {
-        return hasAbility(PlayerAbility.INFINITE_BLOCK);
+        return hasActiveAbility(PlayerAbility.INFINITE_BLOCK);
     }
 
     @Override
     public boolean isNoClip() {
-        return this.controlledEntity != null && (hasAbility(PlayerAbility.NO_CLIP) || this.controlledEntity.getGameMode() == GameMode.SPECTATOR);
+        return this.controlledEntity != null && (hasActiveAbility(PlayerAbility.NO_CLIP) || this.controlledEntity.getGameMode() == GameMode.SPECTATOR);
     }
 
     @Override
@@ -2088,7 +2121,7 @@ public class AllayPlayer implements Player {
 
     @Override
     public boolean isAlwaysFlying() {
-        return this.alwaysFlying || hasAbility(PlayerAbility.NO_CLIP) || (this.controlledEntity != null && this.controlledEntity.getGameMode() == GameMode.SPECTATOR);
+        return this.alwaysFlying || hasActiveAbility(PlayerAbility.NO_CLIP) || (this.controlledEntity != null && this.controlledEntity.getGameMode() == GameMode.SPECTATOR);
     }
 
     @Override

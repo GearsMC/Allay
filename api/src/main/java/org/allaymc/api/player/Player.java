@@ -242,6 +242,25 @@ public interface Player extends MessageReceiver, WorldViewer, ContainerViewer, B
     void setAbilities(Set<PlayerAbility> abilities);
 
     /**
+     * GearsMC fork: yalnızca bu oturum için geçerli yetenek engelleri.
+     * <p>
+     * {@link #getAbilities()} oyuncunun kalıcı izinleridir ve oyuncu verisine yazılır. Bağlama göre
+     * değişen kısıtlamalar (ör. yetkisiz adada blok koyma/kırma) onları değiştirmemeli, buraya
+     * konmalıdır: bu küme hiç kaydedilmez, çıkışta ve yeniden başlatmada kendiliğinden kalkar.
+     * Etkin yetenek = kalıcı yetenek VE engelli değil; {@link #canPlaceBlocks()} gibi kontroller ve
+     * istemciye giden yetenek paketi etkin yeteneğe bakar. {@link #hasAbility} kalıcı değeri döner.
+     *
+     * @param abilities engellenecek yetenekler; boş küme bütün engelleri kaldırır
+     */
+    void setDeniedAbilities(Set<PlayerAbility> abilities);
+
+    /**
+     * @return {@link #setDeniedAbilities} ile konmuş geçici engeller
+     */
+    @UnmodifiableView
+    Set<PlayerAbility> getDeniedAbilities();
+
+    /**
      * Enables the given ability.
      *
      * @param ability the ability to enable
