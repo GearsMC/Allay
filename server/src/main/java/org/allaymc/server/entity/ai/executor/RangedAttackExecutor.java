@@ -10,6 +10,7 @@ import org.allaymc.api.entity.ai.memory.MemoryTypes;
 import org.allaymc.api.entity.component.EntityContainerHolderComponent;
 import org.allaymc.api.entity.component.EntityWeaponStanceComponent;
 import org.allaymc.api.entity.data.WeaponStance;
+import org.allaymc.api.entity.interfaces.EntityArrow;
 import org.allaymc.api.entity.interfaces.EntityIntelligent;
 import org.allaymc.api.entity.interfaces.EntityLiving;
 import org.allaymc.api.entity.interfaces.EntityPlayer;
@@ -273,11 +274,15 @@ public class RangedAttackExecutor implements BehaviorExecutor {
         arrow.setBaseDamage(arrowBaseDamage);
         // Mob oklari toplanamaz; yoksa bir mob ciftligi yeri oka bogar.
         arrow.setPickUpDisabled(true);
+        configureArrow(arrow);
         dimension.getEntityManager().addEntity(arrow);
 
         entity.applyAction(SimpleEntityAction.SWING_ARM);
         // Yay geren bir iskelet, arbalet mandalinin birakilmasi gibi ses cikarmamali.
         dimension.addSound(shootPos, holdsCrossbow(entity) ? SimpleSound.CROSSBOW_SHOOT : SimpleSound.BOW_SHOOT);
+    }
+
+    protected void configureArrow(EntityArrow arrow) {
     }
 
     /**

@@ -1,7 +1,6 @@
 package org.allaymc.api.entity.interfaces;
 
-import org.allaymc.api.entity.Entity;
+import org.allaymc.api.entity.component.EntityHeadYawComponent;
 
-public interface EntityHorse extends Entity {
-
+public interface EntityHorse extends EntityAnimal, EntityHeadYawComponent {
 }

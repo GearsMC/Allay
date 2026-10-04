@@ -2493,7 +2493,7 @@ public final class EntityTypeInitializer {
      * <p>Vanilla oyunda mobun bulanti kapmasinin bir yolu olmadigi icin bu kural yalnizca
      * eklentinin bilerek verdigi bulantida devreye girer.</p>
      */
-    private static boolean isValidHostileTarget(EntityIntelligent entity, long targetId) {
+    static boolean isValidHostileTarget(EntityIntelligent entity, long targetId) {
         if (entity.hasEffect(EffectTypes.NAUSEA)) {
             return false;
         }

@@ -1,7 +1,6 @@
 package org.allaymc.api.entity.interfaces;
 
-import org.allaymc.api.entity.Entity;
+import org.allaymc.api.entity.component.EntityHeadYawComponent;
 
-public interface EntityGlowSquid extends Entity {
-
+public interface EntityGlowSquid extends EntityIntelligent, EntityHeadYawComponent {
 }

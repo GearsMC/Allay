@@ -3,6 +3,8 @@ package org.allaymc.server.registry.populator;
 import lombok.extern.slf4j.Slf4j;
 import org.allaymc.server.entity.type.EntityTypeDefaultInitializer;
 import org.allaymc.server.entity.type.EntityTypeInitializer;
+import org.allaymc.server.entity.type.HostileMobEntityTypeInitializer;
+import org.allaymc.server.entity.type.PassiveMobEntityTypeInitializer;
 import org.allaymc.server.utils.ReflectionUtils;
 import org.allaymc.server.utils.Utils;
 
@@ -14,6 +16,8 @@ public class EntityTypeRegistryPopulator implements Runnable {
     @Override
     public void run() {
         ReflectionUtils.getAllStaticVoidParameterlessMethods(EntityTypeInitializer.class).forEach(Utils::callInitializer);
+        ReflectionUtils.getAllStaticVoidParameterlessMethods(HostileMobEntityTypeInitializer.class).forEach(Utils::callInitializer);
+        ReflectionUtils.getAllStaticVoidParameterlessMethods(PassiveMobEntityTypeInitializer.class).forEach(Utils::callInitializer);
         EntityTypeDefaultInitializer.init();
     }
 }

@@ -86,7 +86,10 @@ public class EntityArrowPhysicsComponentImpl extends EntityProjectilePhysicsComp
         if (other instanceof EntityLiving living) {
             var potionType = potionComponent.getPotionType();
             if (potionType != null) {
-                potionType.applyTo(living);
+                for (var effect : potionType.getEffects()) {
+                    effect.setDuration(Math.max(1, effect.getDuration() / 8));
+                    living.addEffect(effect);
+                }
             }
 
             double damage = arrowBaseComponent.getBaseDamage();
