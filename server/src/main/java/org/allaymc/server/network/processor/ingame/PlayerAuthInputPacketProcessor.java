@@ -8,6 +8,7 @@ import org.allaymc.api.block.data.BlockFace;
 import org.allaymc.api.block.dto.Block;
 import org.allaymc.api.block.type.BlockState;
 import org.allaymc.api.block.type.BlockTypes;
+import org.allaymc.api.entity.interfaces.EntityPlayer;
 import org.allaymc.api.eventbus.event.block.BlockBreakEvent;
 import org.allaymc.api.eventbus.event.player.PlayerJumpEvent;
 import org.allaymc.api.eventbus.event.player.PlayerPunchAirEvent;
@@ -53,6 +54,8 @@ public class PlayerAuthInputPacketProcessor extends PacketProcessor<PlayerAuthIn
     protected static final float BLOCK_BREAKING_PROGRESS_TOLERANCE = 0.65f;
     protected static final int TELEPORT_ACK_DIFF_TOLERANCE = 1;
     protected static final float PLAYER_NETWORK_OFFSET = 1.62f;
+    /** Bu açlık değeri ve altında (uçamayan oyuncu) koşamaz. */
+    protected static final int MIN_SPRINT_FOOD_LEVEL = 6;
 
     protected int breakingPosX = Integer.MAX_VALUE;
     protected int breakingPosY = Integer.MAX_VALUE;
@@ -331,6 +334,15 @@ public class PlayerAuthInputPacketProcessor extends PacketProcessor<PlayerAuthIn
         this.progressPerTick = newProgressPerTick;
     }
 
+    /**
+     * Vanilla kuralı: açlık {@value #MIN_SPRINT_FOOD_LEVEL}'nın üstündeyse ya da oyuncu uçabiliyorsa
+     * (/fly, yaratıcı mod) veya uçuyorsa koşabilir. İstemci de buna göre koşmaya başlar; sunucu yalnızca
+     * açlığa bakınca uçan aç oyuncuların koşusu reddediliyordu.
+     */
+    protected static boolean canStartSprinting(Player player, EntityPlayer entity) {
+        return entity.getFoodLevel() > MIN_SPRINT_FOOD_LEVEL || player.canFly() || entity.isFlying();
+    }
+
     protected void handleInputData(Player player, Set<PlayerAuthInputData> inputData) {
         var entity = player.getControlledEntity();
         if (entity.isDead()) {
@@ -342,12 +354,14 @@ public class PlayerAuthInputPacketProcessor extends PacketProcessor<PlayerAuthIn
         for (var input : inputData) {
             switch (input) {
                 case START_SPRINTING -> {
-                    if (entity.getFoodLevel() <= 6) {
-                        log.warn("Player {} tried to start sprinting without enough food level", player.getOriginName());
-                        return;
+                    // GearsMC fork: reddedilen girdi yalnızca kendisini atlar; eskiden return ile paketteki
+                    // diğer girdiler (eğilme, süzülme…) de işlenmiyordu.
+                    if (canStartSprinting(player, entity)) {
+                        entity.setSprinting(true);
+                    } else {
+                        log.warn("Player {} tried to start sprinting without enough food level (food: {})",
+                                player.getOriginName(), entity.getFoodLevel());
                     }
-
-                    entity.setSprinting(true);
                 }
                 case STOP_SPRINTING -> entity.setSprinting(false);
                 case START_SNEAKING -> entity.setSneaking(true);
@@ -371,15 +385,12 @@ public class PlayerAuthInputPacketProcessor extends PacketProcessor<PlayerAuthIn
                         controller.viewPlayerAbilities(controller);
 
                         log.warn("Player {} tried to start flying without permission", player.getOriginName());
-                        return;
-                    }
-
-                    // Durum değişmeden önce sorulur; iptalde istemci düzeltilir.
-                    if (!new PlayerToggleFlightEvent(entity, true).call()) {
+                    } else if (!new PlayerToggleFlightEvent(entity, true).call()) {
+                        // Durum değişmeden önce sorulur; iptalde istemci düzeltilir.
                         player.viewPlayerAbilities(player);
-                        return;
+                    } else {
+                        entity.setFlying(true);
                     }
-                    entity.setFlying(true);
                 }
                 case STOP_FLYING -> {
                     if (player.isAlwaysFlying()) {
