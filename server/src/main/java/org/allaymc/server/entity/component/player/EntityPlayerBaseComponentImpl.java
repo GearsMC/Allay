@@ -499,7 +499,9 @@ public class EntityPlayerBaseComponentImpl extends EntityBaseComponentImpl imple
         }
 
         this.experienceLevel = event.getNewExperienceLevel();
-        this.controller.sendExperienceLevel(this.experienceLevel);
+        if (isActualPlayer()) {
+            this.controller.sendExperienceLevel(this.experienceLevel);
+        }
     }
 
     @Override
@@ -510,7 +512,9 @@ public class EntityPlayerBaseComponentImpl extends EntityBaseComponentImpl imple
         }
 
         this.experienceProgress = value;
-        this.controller.sendExperienceProgress(this.experienceProgress);
+        if (isActualPlayer()) {
+            this.controller.sendExperienceProgress(this.experienceProgress);
+        }
     }
 
     @Override

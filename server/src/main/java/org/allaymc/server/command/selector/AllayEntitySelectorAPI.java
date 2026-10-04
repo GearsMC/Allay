@@ -67,6 +67,10 @@ public class AllayEntitySelectorAPI implements EntitySelectorAPI {
         registerArgument(new Scores());
     }
 
+    static boolean isConnectedPlayer(Entity entity) {
+        return entity instanceof EntityPlayer player && player.isActualPlayer();
+    }
+
     // TODO: refactor this
     @Override
     public List<Entity> matchEntities(CommandSender sender, String token) throws SelectorSyntaxException {
@@ -106,8 +110,16 @@ public class AllayEntitySelectorAPI implements EntitySelectorAPI {
         }
 
         // For the player type selector that is determined, exclude entities that are not players
+        // GearsMC fork: oyuncu kılığındaki NPC'ler (bağlı istemcisi olmayan EntityPlayer) vanilla'daki gibi
+        // @a/@p/@r'ye girmez; istemciye paket gönderen komutlar (ör. /xp) onlarda çöküyordu. @e ve
+        // type belirtilmiş @r etkilenmez.
         switch (selectorType) {
-            case ALL_PLAYERS, NEAREST_PLAYER -> entities.removeIf(e -> !(e instanceof EntityPlayer));
+            case ALL_PLAYERS, NEAREST_PLAYER -> entities.removeIf(e -> !isConnectedPlayer(e));
+            case RANDOM_PLAYER -> {
+                if (!arguments.containsKey("type")) {
+                    entities.removeIf(e -> e instanceof EntityPlayer && !isConnectedPlayer(e));
+                }
+            }
             default -> {
             }
         }
