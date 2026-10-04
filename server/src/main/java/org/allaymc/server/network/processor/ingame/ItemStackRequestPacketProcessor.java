@@ -33,6 +33,14 @@ public class ItemStackRequestPacketProcessor extends PacketProcessor<ItemStackRe
 
     @Override
     public void handleSync(Player player, ItemStackRequestPacket packet, long receiveTime) {
+        try {
+            handleRequests(player, packet);
+        } finally {
+            ContainerActionProcessor.scheduleRejectedFakeMenuResync();
+        }
+    }
+
+    private void handleRequests(Player player, ItemStackRequestPacket packet) {
         List<ItemStackResponse> encodedResponses = new LinkedList<>();
         label:
         for (var request : packet.getRequests()) {
@@ -61,6 +69,13 @@ public class ItemStackRequestPacketProcessor extends PacketProcessor<ItemStackRe
                 var response = processor.handle(action, player, index, actions, dataPool);
                 if (response == null) {
                     continue;
+                }
+
+                if (ContainerActionProcessor.consumeRejectedFakeMenuAbort()) {
+                    encodedResponses.add(response.ok()
+                            ? encodeActionResponses(List.of(response), request.requestId())
+                            : new ItemStackResponse(ItemStackResponseStatus.ERROR, request.requestId(), null));
+                    continue label;
                 }
 
                 if (!response.ok()) {

@@ -34,8 +34,8 @@ public abstract class TransferItemActionProcessor<T extends TransferItemStackReq
         int destinationSlot = ContainerActionProcessor.fromNetworkSlotIndex(destinationContainer, action.destination().slot());
         int destinationStackNetworkId = action.destination().stackNetworkId();
 
-        if (ContainerActionProcessor.tryHandleFakeContainer(sourceContainer, sourceSlot, destinationContainer, destinationSlot)) {
-            return error();
+        if (ContainerActionProcessor.tryHandleFakeContainer(player, sourceContainer, sourceSlot, destinationContainer, destinationSlot)) {
+            return ContainerActionProcessor.rejectUnchanged(player, sourceContainer, sourceSlot, destinationContainer, destinationSlot);
         }
 
         var sourItem = sourceContainer.getItemStack(sourceSlot);

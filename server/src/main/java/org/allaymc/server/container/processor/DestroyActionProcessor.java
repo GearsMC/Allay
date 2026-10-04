@@ -26,8 +26,8 @@ public class DestroyActionProcessor implements ContainerActionProcessor<DestroyA
         var count = action.count();
         var slot = ContainerActionProcessor.fromNetworkSlotIndex(container, action.source().slot());
 
-        if (ContainerActionProcessor.tryHandleFakeContainerSlot(container, slot)) {
-            return error();
+        if (ContainerActionProcessor.tryHandleFakeContainerSlot(player, container, slot)) {
+            return ContainerActionProcessor.rejectUnchanged(player, container, slot);
         }
 
         var item = container.getItemStack(slot);

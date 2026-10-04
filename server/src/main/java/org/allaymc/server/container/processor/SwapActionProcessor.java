@@ -27,15 +27,15 @@ public class SwapActionProcessor implements ContainerActionProcessor<SwapAction>
         var sourceSlot = ContainerActionProcessor.fromNetworkSlotIndex(sourceContainer, action.source().slot());
         var destinationSlot = ContainerActionProcessor.fromNetworkSlotIndex(destinationContainer, action.destination().slot());
 
-        if (ContainerActionProcessor.tryHandleFakeContainer(sourceContainer, sourceSlot, destinationContainer, destinationSlot)) {
-            return error();
+        if (ContainerActionProcessor.tryHandleFakeContainer(player, sourceContainer, sourceSlot, destinationContainer, destinationSlot)) {
+            return ContainerActionProcessor.rejectUnchanged(player, sourceContainer, sourceSlot, destinationContainer, destinationSlot);
         }
 
         // On swap the destination's item also enters the source container, so the
         // source side's item validator must accept it as well
         if (sourceContainer instanceof FakeContainerImpl fakeContainer
             && !fakeContainer.canHoldItem(sourceSlot, destinationContainer.getItemStack(destinationSlot))) {
-            return error();
+            return ContainerActionProcessor.rejectUnchanged(player, sourceContainer, sourceSlot, destinationContainer, destinationSlot);
         }
 
         var sourceItem = sourceContainer.getItemStack(sourceSlot);

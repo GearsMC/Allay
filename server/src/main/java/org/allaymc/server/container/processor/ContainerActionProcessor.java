@@ -127,20 +127,24 @@ public interface ContainerActionProcessor<T extends ItemStackRequestAction> {
      * menu-style (non-interactable) fake containers: otherwise a player could
      * throw a menu button on the ground or destroy it in creative mode.
      *
+     * @param player    the player who attempted the action
      * @param container the container the action originates from
      * @param slot      the slot the action originates from
      * @return {@code true} if the action must be rejected
      */
-    static boolean tryHandleFakeContainerSlot(Container container, int slot) {
+    static boolean tryHandleFakeContainerSlot(Player player, Container container, int slot) {
         if (container instanceof FakeContainerImpl fakeContainer) {
             fakeContainer.onClick(slot);
-            return !fakeContainer.isInteractable() || fakeContainer.isSlotLocked(slot);
+            if (!fakeContainer.isInteractable() || fakeContainer.isSlotLocked(slot)) {
+                RejectedFakeMenu.mark(player, container);
+                return true;
+            }
         }
 
         return false;
     }
 
-    static boolean tryHandleFakeContainer(Container source, int sourceSlot, Container destination, int destinationSlot) {
+    static boolean tryHandleFakeContainer(Player player, Container source, int sourceSlot, Container destination, int destinationSlot) {
         // Click listeners always fire; the transfer is only rejected when a
         // non-interactable (menu-style) fake container is involved.
         var blocked = false;
@@ -159,7 +163,34 @@ public interface ContainerActionProcessor<T extends ItemStackRequestAction> {
             blocked |= !fakeContainer.canHoldItem(destinationSlot, source.getItemStack(sourceSlot));
         }
 
+        if (blocked) {
+            RejectedFakeMenu.mark(player, source, destination);
+        }
         return blocked;
+    }
+
+    static void markRejectedFakeMenu(Player player, Container... containers) {
+        RejectedFakeMenu.mark(player, containers);
+    }
+
+    static ActionResponse rejectUnchanged(Player player, Container container, int slot) {
+        return RejectedFakeMenu.unchanged(player, container, slot);
+    }
+
+    static ActionResponse rejectUnchanged(Player player, Container source, int sourceSlot, Container destination, int destinationSlot) {
+        return RejectedFakeMenu.unchanged(player, source, sourceSlot, destination, destinationSlot);
+    }
+
+    static boolean consumeRejectedFakeMenuAbort() {
+        return RejectedFakeMenu.consumeAbort();
+    }
+
+    static void resyncRejectedFakeMenu() {
+        RejectedFakeMenu.resync();
+    }
+
+    static void scheduleRejectedFakeMenuResync() {
+        RejectedFakeMenu.scheduleResync();
     }
 
     static boolean canPlaceItemToSlot(Container container, int slot, ItemStack item) {
