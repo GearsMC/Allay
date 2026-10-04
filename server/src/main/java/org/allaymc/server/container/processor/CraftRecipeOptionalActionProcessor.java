@@ -196,6 +196,8 @@ public class CraftRecipeOptionalActionProcessor implements ContainerActionProces
                 return error();
             }
 
+            // XP harcanır ve örs hasar alabilir.
+            ItemStackRequestTransaction.markIrreversible();
             var anvilPos = container.getBlockPos();
             if (ThreadLocalRandom.current().nextFloat() < ANVIL_DAMAGE_CHANCE) {
                 var anvilState = entity.getDimension().getBlockState(anvilPos);

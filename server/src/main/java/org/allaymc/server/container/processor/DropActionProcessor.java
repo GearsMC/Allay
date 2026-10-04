@@ -46,6 +46,8 @@ public class DropActionProcessor implements ContainerActionProcessor<DropAction>
         }
 
         player.getControlledEntity().forceDropItem(container, slot, count);
+        // Yere atılan eşya dünyada bir varlık oldu; geri alınırsa kopyalanır.
+        ItemStackRequestTransaction.markIrreversible();
         item = container.getItemStack(slot);
         return new ActionResponse(
                 true,

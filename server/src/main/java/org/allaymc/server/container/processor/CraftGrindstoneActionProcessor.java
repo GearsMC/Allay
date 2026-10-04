@@ -82,6 +82,7 @@ public class CraftGrindstoneActionProcessor implements ContainerActionProcessor<
         xp = event.getExperienceAmount();
 
         if (xp > 0) {
+            ItemStackRequestTransaction.markIrreversible();
             var blockPos = container.getBlockPos();
             player.getControlledEntity().getDimension().dropXpOrb(new Vector3d(
                     blockPos.x() + 0.5,

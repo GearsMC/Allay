@@ -47,6 +47,7 @@ public class BeaconPaymentActionProcessor implements ContainerActionProcessor<Be
             return error();
         }
 
+        ItemStackRequestTransaction.markIrreversible();
         if (action.primaryEffect() != 0) {
             blockEntityBeacon.setPrimaryEffect(Registries.EFFECTS.getByK1(action.primaryEffect()));
         }

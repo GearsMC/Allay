@@ -56,7 +56,9 @@ public abstract class TransferItemActionProcessor<T extends TransferItemStackReq
         }
 
         var destItem = destinationContainer.getItemStack(destinationSlot);
-        if (destItem.getItemType() != AIR && destItem.getItemType() != sourItem.getItemType()) {
+        // GearsMC fork: yalnızca tür değil, isim/büyü/meta gibi veriler de aynı olmalı; yoksa kaynak
+        // yığın hedefe eklenip kendi verisini kaybediyordu.
+        if (destItem.getItemType() != AIR && !destItem.canMerge(sourItem, true)) {
             log.warn("place an item to a slot that has a different item is not allowed");
             return error();
         }
@@ -71,7 +73,8 @@ public abstract class TransferItemActionProcessor<T extends TransferItemStackReq
             return error();
         }
 
-        if (destItem.getCount() + count > destItem.getItemType().getItemData().maxStackSize()) {
+        // Hedef boşsa (hava) sınır taşınan eşyanınkidir.
+        if (destItem.getCount() + count > sourItem.getItemType().getItemData().maxStackSize()) {
             log.warn("destination stack size bigger than the max stack size!");
             return error();
         }

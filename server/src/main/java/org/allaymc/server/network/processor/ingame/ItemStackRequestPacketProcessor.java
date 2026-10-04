@@ -7,10 +7,12 @@ import org.allaymc.api.player.Player;
 import org.allaymc.server.container.processor.ActionResponse;
 import org.allaymc.server.container.processor.ContainerActionProcessor;
 import org.allaymc.server.container.processor.ContainerActionProcessorHolder;
+import org.allaymc.server.container.processor.ItemStackRequestTransaction;
 import org.allaymc.server.network.processor.PacketProcessor;
 import org.allaymc.server.player.AllayPlayer;
 import org.cloudburstmc.protocol.bedrock.data.inventory.ContainerSlotType;
 import org.cloudburstmc.protocol.bedrock.data.inventory.FullContainerName;
+import org.cloudburstmc.protocol.bedrock.data.inventory.itemstack.request.ItemStackRequest;
 import org.cloudburstmc.protocol.bedrock.data.inventory.itemstack.request.action.ItemStackRequestAction;
 import org.cloudburstmc.protocol.bedrock.data.inventory.itemstack.request.action.ItemStackRequestActionType;
 import org.cloudburstmc.protocol.bedrock.data.inventory.itemstack.response.ItemStackResponse;
@@ -42,59 +44,90 @@ public class ItemStackRequestPacketProcessor extends PacketProcessor<ItemStackRe
 
     private void handleRequests(Player player, ItemStackRequestPacket packet) {
         List<ItemStackResponse> encodedResponses = new LinkedList<>();
-        label:
         for (var request : packet.getRequests()) {
-            // It is possible to have two same type actions in one request!
-            List<ActionResponse> responses = new LinkedList<>();
-            // Indicate that the further destroy action does not return a response
-            // For more details, see inventory_stack_packet.md
-            var noResponseForDestroyAction = false;
-            var actions = request.actions();
-
-            Map<String, Object> dataPool = new HashMap<>();
-            dataPool.put(FILTER_STRINGS_DATA_KEY, request.filterStrings());
-
-            for (int index = 0; index < actions.length; index++) {
-                var action = actions[index];
-                if (action.getType() == ItemStackRequestActionType.CRAFT_RESULTS_DEPRECATED) {
-                    noResponseForDestroyAction = true;
-                }
-
-                ContainerActionProcessor<ItemStackRequestAction> processor = processorHolder.getProcessor(action.getType());
-                if (processor == null) {
-                    log.warn("Not found handler for action type {}", action.getType());
-                    continue;
-                }
-
-                var response = processor.handle(action, player, index, actions, dataPool);
-                if (response == null) {
-                    continue;
-                }
-
-                if (ContainerActionProcessor.consumeRejectedFakeMenuAbort()) {
-                    encodedResponses.add(response.ok()
-                            ? encodeActionResponses(List.of(response), request.requestId())
-                            : new ItemStackResponse(ItemStackResponseStatus.ERROR, request.requestId(), null));
-                    continue label;
-                }
-
-                if (!response.ok()) {
-                    encodedResponses.add(new ItemStackResponse(ItemStackResponseStatus.ERROR, request.requestId(), null));
-                    continue label;
-                }
-
-                if (noResponseForDestroyAction && action.getType() == ItemStackRequestActionType.DESTROY) {
-                    noResponseForDestroyAction = false;
-                } else {
-                    responses.add(response);
-                }
+            var transaction = ItemStackRequestTransaction.begin(player);
+            try {
+                encodedResponses.add(handleRequest(player, request, transaction));
+            } finally {
+                transaction.close();
             }
-
-            encodedResponses.add(encodeActionResponses(responses, request.requestId()));
         }
 
         var allayPlayer = (AllayPlayer) player;
         allayPlayer.sendPacket(allayPlayer.getProtocol().getEncoder().encodeItemStackResponse(encodedResponses));
+    }
+
+    private ItemStackResponse handleRequest(Player player, ItemStackRequest request, ItemStackRequestTransaction transaction) {
+        // It is possible to have two same type actions in one request!
+        List<ActionResponse> responses = new LinkedList<>();
+        // Indicate that the further destroy action does not return a response
+        // For more details, see inventory_stack_packet.md
+        var noResponseForDestroyAction = false;
+        var actions = request.actions();
+
+        Map<String, Object> dataPool = new HashMap<>();
+        dataPool.put(FILTER_STRINGS_DATA_KEY, request.filterStrings());
+
+        for (int index = 0; index < actions.length; index++) {
+            var action = actions[index];
+            if (action.getType() == ItemStackRequestActionType.CRAFT_RESULTS_DEPRECATED) {
+                noResponseForDestroyAction = true;
+            }
+
+            ContainerActionProcessor<ItemStackRequestAction> processor = processorHolder.getProcessor(action.getType());
+            if (processor == null) {
+                log.warn("Not found handler for action type {}", action.getType());
+                continue;
+            }
+
+            // GearsMC fork: eylem yuvaları değiştirmeden önce ilk halleri saklanır (bkz. ItemStackRequestTransaction).
+            transaction.capture(action);
+            ActionResponse response;
+            try {
+                response = processor.handle(action, player, index, actions, dataPool);
+            } catch (RuntimeException exception) {
+                log.error("Item stack request action {} of {} failed", action.getType(), player.getOriginName(), exception);
+                response = ContainerActionProcessor.ERROR_RESPONSE;
+            }
+            if (response == null) {
+                continue;
+            }
+
+            if (ContainerActionProcessor.consumeRejectedFakeMenuAbort()) {
+                if (response.ok()) {
+                    transaction.commit();
+                    return encodeActionResponses(List.of(response), request.requestId());
+                }
+                return reject(player, request, action, index, transaction);
+            }
+
+            if (!response.ok()) {
+                return reject(player, request, action, index, transaction);
+            }
+
+            if (noResponseForDestroyAction && action.getType() == ItemStackRequestActionType.DESTROY) {
+                noResponseForDestroyAction = false;
+            } else {
+                responses.add(response);
+            }
+        }
+
+        transaction.commit();
+        return encodeActionResponses(responses, request.requestId());
+    }
+
+    /**
+     * İstemci reddedilen isteğin tamamını geri alır; sunucu da (yan etki yoksa) geri alır ve istemciyi
+     * gerçek içerikle eşitler.
+     */
+    private ItemStackResponse reject(Player player, ItemStackRequest request, ItemStackRequestAction action,
+                                     int index, ItemStackRequestTransaction transaction) {
+        var rolledBack = transaction.rollback();
+        // Geri almadan sonra: istemcinin isteği gönderdiği andaki sunucu içeriği.
+        var slots = transaction.describeSlots();
+        log.warn("Item stack request rejected: player={}, action={} (#{} of {}), slots={}, rolledBack={}",
+                player.getOriginName(), action.getType(), index + 1, request.actions().length, slots, rolledBack);
+        return new ItemStackResponse(ItemStackResponseStatus.ERROR, request.requestId(), null);
     }
 
     private ItemStackResponse encodeActionResponses(List<ActionResponse> responses, int requestId) {

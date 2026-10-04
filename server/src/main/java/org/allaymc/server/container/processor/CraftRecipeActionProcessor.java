@@ -156,6 +156,8 @@ public class CraftRecipeActionProcessor implements ContainerActionProcessor<Craf
             // Required lapis lazuli count is also the cost of xp level
             entity.setExperienceLevel(entity.getExperienceLevel() - requiredLapisLazuliCount);
         }
+        // XP harcandı ve büyü tohumu yenileniyor.
+        ItemStackRequestTransaction.markIrreversible();
 
         var enchantedItem = inputItem.copy(true);
         enchantedItem.addEnchantments(enchantments);

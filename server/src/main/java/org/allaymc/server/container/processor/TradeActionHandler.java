@@ -86,6 +86,7 @@ public final class TradeActionHandler {
         }
 
         offer.addUses(tradeCount);
+        ItemStackRequestTransaction.markIrreversible();
         var listener = container.getTradeListener();
         if (listener != null) {
             try {
