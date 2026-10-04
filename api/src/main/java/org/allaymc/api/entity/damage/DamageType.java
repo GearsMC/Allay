@@ -111,15 +111,17 @@ public class DamageType {
     /**
      * Damage caused by being hit by a projectile such as an arrow
      */
-    public static DamageType PROJECTILE = fixedWithExtraSingleParam(TrKeys.MC_DEATH_ATTACK_ARROW, projectile -> {
-        var attacker = ((EntityProjectile) projectile).getShooter();
-        String name;
-        if (attacker instanceof EntityPlayer player) {
-            name = player.getDisplayName();
-        } else {
-            name = attacker.getNameTag() == null ? attacker.getDisplayName() : attacker.getNameTag();
+    public static DamageType PROJECTILE = fixedWithExtraSingleParam(TrKeys.MC_DEATH_ATTACK_ARROW, attacker -> {
+        // Olduren, merminin atanidir (ok, kafatasi...). Atani olmayan mermide (or. dagiticidan cikan ok)
+        // merminin kendisi yazilir. Eklentiler varlik olmayan "sanal" mermilerde (yetenek kesmesi, ozel
+        // boss topu) saldirgani dogrudan verebilir; o zaman saldirganin kendisi kullanilir. Eskiden
+        // saldirgan her zaman mermiye cevriliyordu: oyuncu/ejderha verilince ClassCastException, atani
+        // olmayan mermide NullPointerException atiyor ve olum ekranina sebep gitmiyordu.
+        Object killer = attacker;
+        if (attacker instanceof EntityProjectile projectile && projectile.getShooter() != null) {
+            killer = projectile.getShooter();
         }
-        return name;
+        return killer instanceof Entity entity ? deathName(entity) : null;
     });
     public static DamageType RAM_ATTACK = defaultFixed(); // TODO
     public static DamageType STALACTITE = fixed(TrKeys.MC_DEATH_ATTACK_STALACTITE);
@@ -190,6 +192,14 @@ public class DamageType {
             var singleParam = deathInfoExtraSingleParamProvider.apply(attacker);
             return singleParam != null ? new String[]{singleParam} : new String[0];
         });
+    }
+
+    /** Olum mesajinda gorunecek ad: oyuncuda gorunen ad, digerlerinde isim etiketi varsa o. */
+    private static String deathName(Entity entity) {
+        if (entity instanceof EntityPlayer player) {
+            return player.getDisplayName();
+        }
+        return entity.getNameTag() == null ? entity.getDisplayName() : entity.getNameTag();
     }
 
     public static DamageType fixedWithExtraSingleParam(@MayContainTrKey String deathInfo, Function<Object, String> deathInfoExtraSingleParamProvider) {
