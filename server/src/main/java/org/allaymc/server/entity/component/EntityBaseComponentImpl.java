@@ -150,6 +150,11 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
     @Getter
     @Setter
     protected boolean persistent = true;
+    /**
+     * GearsMC fork: boyutlar arası ışınlanma sürüyor (eski boyuttan çıkarıldı, yenisine henüz eklenmedi).
+     * Bu sırada durum spawned değildir ama varlık silinmiyor, yalnızca taşınıyor; bkz. {@link #isValid()}.
+     */
+    protected volatile boolean changingDimension;
     /** Varlık çarpışması; {@link #setEntityCollision(boolean)} ile kapatılabilir. */
     protected volatile boolean entityCollision = true;
     @Getter
@@ -651,10 +656,23 @@ public class EntityBaseComponentImpl implements EntityBaseComponent {
 
     protected void teleportOverDimension(Location3dc target) {
         // Teleporting to another dimension, there will be more works to be done
+        this.changingDimension = true;
         this.location.dimension().getEntityManager().removeEntity(thisEntity, () -> {
             setLocationBeforeSpawn(target);
-            target.dimension().getEntityManager().addEntity(thisEntity);
+            target.dimension().getEntityManager().addEntity(thisEntity, () -> this.changingDimension = false);
         });
+    }
+
+    /**
+     * GearsMC fork: boyut değiştiren varlık geçiş boyunca geçerli sayılır.
+     * <p>
+     * Zamanlayıcı yaratıcısı geçersiz olan görevi kalıcı olarak iptal eder. Işınlanma varlığın kendi
+     * zamanlayıcısındaki bir görevden yapılınca durum hemen DESPAWNED_LATER oluyor ve aynı tick'te sıradaki
+     * görevler (ör. pet takibi) sessizce ölüyordu; hangisinin önce çalıştığına göre "bazen" oluyordu.
+     */
+    @Override
+    public boolean isValid() {
+        return getState().isSpawned() || this.changingDimension;
     }
 
     @Override

@@ -687,6 +687,7 @@ public class EntityPlayerBaseComponentImpl extends EntityBaseComponentImpl imple
             boolean dimensionChanged = currentDim.getDimensionType() != targetDim.getDimensionType();
             // Clear cache on dimension or world change
             ChunkCache.getInstance().clearPlayer(((AllayPlayer) this.controller).getLoginData().getUuid());
+            this.changingDimension = true;
             currentDim.removePlayer(this.controller, () -> {
                 setLocationBeforeSpawn(target);
                 if (dimensionChanged && !this.controller.isChangingDimension()) {
@@ -694,6 +695,7 @@ public class EntityPlayerBaseComponentImpl extends EntityBaseComponentImpl imple
                     this.controller.beginDimensionChange(targetDim.getDimensionType(), target.x(), target.y(), target.z());
                 }
                 targetDim.addPlayer(this.controller, () -> {
+                    this.changingDimension = false;
                     if (dimensionChanged) {
                         // As of v1.19.50, the dimension ack is sent by the server after dimension transfer completes
                         this.controller.completeDimensionChange();
@@ -704,6 +706,17 @@ public class EntityPlayerBaseComponentImpl extends EntityBaseComponentImpl imple
         } else {
             super.teleportOverDimension(target);
         }
+    }
+
+    /**
+     * Geçiş sırasında bağlantı koparsa oyuncu yeni boyuta hiç eklenmez; o zaman geçersizdir.
+     */
+    @Override
+    public boolean isValid() {
+        if (getState().isSpawned()) {
+            return true;
+        }
+        return this.changingDimension && (!isActualPlayer() || this.controller.isConnected());
     }
 
     @Override
