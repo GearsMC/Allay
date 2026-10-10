@@ -348,20 +348,15 @@ public class EntityLivingComponentImpl implements EntityLivingComponent {
     protected void applyAttacker(DamageContainer damage) {
         if (damage.getAttacker() instanceof Entity attacker) {
             if (attacker instanceof EntityLivingComponent living) {
+                var baseDamage = damage.getSourceDamage();
                 var strengthLevel = living.getEffectLevel(EffectTypes.STRENGTH);
                 if (strengthLevel > 0) {
-                    damage.updateFinalDamage(d -> {
-                        var pow = Math.pow(1.3, strengthLevel);
-                        return (float) (d * pow + ((pow - 1) / 0.3));
-                    });
+                    damage.updateFinalDamage(d -> d + baseDamage * 0.3f * strengthLevel);
                 }
 
                 var weaknessLevel = living.getEffectLevel(EffectTypes.WEAKNESS);
-                if (weaknessLevel > 0) {
-                    damage.updateFinalDamage(d -> {
-                        var pow = Math.pow(0.8, weaknessLevel);
-                        return (float) (d * pow + ((pow - 1) / 0.4));
-                    });
+                if (weaknessLevel > 0 && damage.getDamageType() == DamageType.ENTITY_ATTACK) {
+                    damage.updateFinalDamage(d -> Math.max(0, d - baseDamage * 0.2f * weaknessLevel));
                 }
             }
 
@@ -511,6 +506,9 @@ public class EntityLivingComponentImpl implements EntityLivingComponent {
         }
 
         var event = new EntityEffectAddEvent(thisEntity, effectInstance);
+        if (!canReplaceEffect(effects.get(effectInstance.getType()), effectInstance)) {
+            event.setCancelled(true);
+        }
         if (!event.call()) {
             return false;
         }
@@ -547,6 +545,18 @@ public class EntityLivingComponentImpl implements EntityLivingComponent {
         sendEffects(null, removed);
         effectType.onRemove(thisEntity, removed);
         this.baseComponent.broadcastState();
+    }
+
+    protected static boolean canReplaceEffect(EffectInstance oldEffect, EffectInstance newEffect) {
+        if (oldEffect == null) {
+            return true;
+        }
+
+        if (newEffect.getAmplifier() != oldEffect.getAmplifier()) {
+            return newEffect.getAmplifier() > oldEffect.getAmplifier();
+        }
+
+        return newEffect.getDuration() >= oldEffect.getDuration();
     }
 
     protected void sendEffects(EffectInstance newEffect, EffectInstance oldEffect) {

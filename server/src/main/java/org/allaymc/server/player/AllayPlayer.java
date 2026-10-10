@@ -325,6 +325,7 @@ public class AllayPlayer implements Player {
             viewer.viewEntityOffhand(this.controlledEntity);
         });
 
+        this.speed = PlayerMovementSpeed.calculate(this.controlledEntity, this.speed);
         sendSpeed(this.speed);
         sendExperienceLevel(this.controlledEntity.getExperienceLevel());
         sendExperienceProgress(this.controlledEntity.getExperienceProgress());
