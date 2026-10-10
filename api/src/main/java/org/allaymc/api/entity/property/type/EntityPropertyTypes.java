@@ -2,9 +2,11 @@ package org.allaymc.api.entity.property.type;
 
 import org.allaymc.api.annotation.MinecraftVersionSensitive;
 import org.allaymc.api.entity.data.SulfurCubeArchetype;
+import org.allaymc.api.entity.property.enums.ArmadilloState;
 import org.allaymc.api.entity.property.enums.ClimateVariant;
 import org.allaymc.api.entity.property.enums.CopperGolemChestInteraction;
 import org.allaymc.api.entity.property.enums.CopperGolemOxidationLevel;
+import org.allaymc.api.entity.property.enums.CreakingState;
 
 @MinecraftVersionSensitive
 public interface EntityPropertyTypes {
@@ -24,4 +26,10 @@ public interface EntityPropertyTypes {
      * gorunur.</p>
      */
     EnumPropertyType<SulfurCubeArchetype> SULFUR_CUBE_ARCHETYPE = EnumPropertyType.of("minecraft:sulfur_cube_archetype", SulfurCubeArchetype.class, SulfurCubeArchetype.NONE);
+
+    EnumPropertyType<ArmadilloState> ARMADILLO_STATE = EnumPropertyType.of("minecraft:armadillo_state", ArmadilloState.class, ArmadilloState.UNROLLED);
+
+    EnumPropertyType<CreakingState> CREAKING_STATE = EnumPropertyType.of("minecraft:creaking_state", CreakingState.class, CreakingState.NEUTRAL);
+
+    IntPropertyType CREAKING_SWAYING_TICKS = IntPropertyType.of("minecraft:creaking_swaying_ticks", 0, 6, 0);
 }

@@ -12,6 +12,7 @@ import org.allaymc.api.entity.type.EntityTypes;
 import org.allaymc.api.player.GameMode;
 import org.allaymc.api.world.sound.SimpleSound;
 import org.allaymc.server.entity.component.EntityBlazeBaseComponentImpl;
+import org.allaymc.server.entity.component.mob.EntityGhastBaseComponentImpl;
 import org.allaymc.server.entity.impl.EntityImpl;
 import org.joml.Vector3d;
 
@@ -176,6 +177,8 @@ public class FireballAttackExecutor implements BehaviorExecutor {
     protected static void setCharging(EntityIntelligent entity, boolean charging) {
         if (entity instanceof EntityImpl impl && impl.getBaseComponent() instanceof EntityBlazeBaseComponentImpl blaze) {
             blaze.setCharging(charging);
+        } else if (entity instanceof EntityImpl impl && impl.getBaseComponent() instanceof EntityGhastBaseComponentImpl ghast) {
+            ghast.setCharging(charging);
         }
     }
 

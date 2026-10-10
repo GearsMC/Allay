@@ -1,7 +1,6 @@
 package org.allaymc.api.entity.interfaces;
 
-import org.allaymc.api.entity.Entity;
+import org.allaymc.api.entity.component.EntityHeadYawComponent;
 
-public interface EntityDonkey extends Entity {
-
+public interface EntityDonkey extends EntityAnimal, EntityHeadYawComponent {
 }

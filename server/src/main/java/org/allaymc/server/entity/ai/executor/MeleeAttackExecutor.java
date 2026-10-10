@@ -147,7 +147,7 @@ public class MeleeAttackExecutor implements BehaviorExecutor {
                 return false;
             }
 
-            var attackSuccess = targetLiving.attack(DamageContainer.entityAttack(entity, damage));
+            var attackSuccess = targetLiving.attack(createAttackDamage(entity, targetLiving, damage));
             entity.applyAction(SimpleEntityAction.SWING_ARM);
             entity.getDimension().addSound(targetLoc, new AttackSound(attackSuccess));
             if (attackSuccess) {
@@ -212,6 +212,10 @@ public class MeleeAttackExecutor implements BehaviorExecutor {
         }
 
         return true;
+    }
+
+    protected DamageContainer createAttackDamage(EntityIntelligent entity, EntityLiving victim, float damage) {
+        return DamageContainer.entityAttack(entity, damage);
     }
 
     protected float getAttackDamage(EntityIntelligent entity, EntityLiving victim) {

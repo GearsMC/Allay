@@ -633,15 +633,6 @@ public final class EntityTypeInitializer {
         };
     }
 
-    public static void initVillagerV2() {
-        EntityTypes.VILLAGER_V2 = AllayEntityType
-                .builder(EntityVillagerV2Impl.class)
-                .vanillaEntity(EntityId.VILLAGER_V2)
-                .addComponent(EntityLivingComponentImpl::new, EntityLivingComponentImpl.class)
-                .addComponent(EntityHumanPhysicsComponentImpl::new, EntityHumanPhysicsComponentImpl.class)
-                .build();
-    }
-
     public static void initZombie() {
         EntityTypes.ZOMBIE = AllayEntityType
                 .builder(EntityZombieImpl.class)
@@ -2493,7 +2484,7 @@ public final class EntityTypeInitializer {
      * <p>Vanilla oyunda mobun bulanti kapmasinin bir yolu olmadigi icin bu kural yalnizca
      * eklentinin bilerek verdigi bulantida devreye girer.</p>
      */
-    private static boolean isValidHostileTarget(EntityIntelligent entity, long targetId) {
+    static boolean isValidHostileTarget(EntityIntelligent entity, long targetId) {
         if (entity.hasEffect(EffectTypes.NAUSEA)) {
             return false;
         }

@@ -26,6 +26,7 @@ import org.allaymc.api.entity.data.EntityNameTag;
 import org.allaymc.api.entity.data.WeaponStance;
 import org.allaymc.server.entity.component.EntityAngerableBaseComponentImpl;
 import org.allaymc.server.entity.component.EntityBlazeBaseComponentImpl;
+import org.allaymc.server.entity.component.EntityMetadataContributor;
 import org.allaymc.server.entity.component.EntityRabbitBaseComponentImpl;
 import org.allaymc.server.entity.component.EntitySpiderBaseComponentImpl;
 import org.allaymc.api.entity.effect.EffectInstance;
@@ -1292,6 +1293,9 @@ public class PacketEncoder_v766 extends PacketEncoder {
         addGenericMetadata(entity, nameTag, metadata);
         addComponentSpecificMetadata(entity, metadata);
         addTypeSpecificMetadata(entity, metadata);
+        if (entity instanceof EntityImpl impl && impl.getBaseComponent() instanceof EntityMetadataContributor contributor) {
+            contributor.writeMetadata(metadata);
+        }
         return metadata;
     }
 

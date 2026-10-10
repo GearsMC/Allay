@@ -1,7 +1,9 @@
 package org.allaymc.api.entity.interfaces;
 
-import org.allaymc.api.entity.Entity;
+import org.allaymc.api.entity.component.EntityContainerHolderComponent;
+import org.allaymc.api.entity.component.EntityHeadYawComponent;
 import org.allaymc.api.entity.component.EntityUndeadComponent;
+import org.allaymc.api.entity.component.EntityWeaponStanceComponent;
 
-public interface EntityBogged extends Entity, EntityUndeadComponent {
+public interface EntityBogged extends EntityIntelligent, EntityHeadYawComponent, EntityUndeadComponent, EntityContainerHolderComponent, EntityWeaponStanceComponent {
 }
