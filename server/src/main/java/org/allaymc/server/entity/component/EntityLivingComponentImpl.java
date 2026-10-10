@@ -522,8 +522,10 @@ public class EntityLivingComponentImpl implements EntityLivingComponent {
         sendEffects(effectInstance, old);
         if (old == null) {
             effectInstance.getType().onAdd(thisEntity, effectInstance);
-            this.baseComponent.broadcastState();
+        } else {
+            effectInstance.getType().onReplace(thisEntity, old, effectInstance);
         }
+        this.baseComponent.broadcastState();
 
         return true;
     }

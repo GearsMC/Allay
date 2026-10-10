@@ -73,6 +73,12 @@ public interface EffectType {
     default void onRemove(EntityLiving entity, EffectInstance effectInstance) {
     }
 
+    @ApiStatus.OverrideOnly
+    default void onReplace(EntityLiving entity, EffectInstance oldEffect, EffectInstance newEffect) {
+        onRemove(entity, oldEffect);
+        onAdd(entity, newEffect);
+    }
+
     /**
      * Called when the entity owning the effect is damaged.
      *
