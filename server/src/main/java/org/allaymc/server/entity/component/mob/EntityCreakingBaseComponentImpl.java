@@ -35,6 +35,9 @@ public class EntityCreakingBaseComponentImpl extends EntityMobBaseComponentImpl 
     public void startSwaying() {
         swayingTicks = 6;
         setPropertyValue(EntityPropertyTypes.CREAKING_SWAYING_TICKS, swayingTicks);
+        if (getDimension() != null) {
+            getDimension().addSound(location, new CustomSound(SoundNames.MOB_CREAKING_SWAY));
+        }
     }
 
     @EventHandler

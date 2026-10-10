@@ -1,8 +1,8 @@
 package org.allaymc.api.entity.interfaces;
 
-import org.allaymc.api.entity.component.EntityPhysicsComponent;
+import org.allaymc.api.entity.component.EntityHeadYawComponent;
 
-public interface EntityVillagerV2 extends EntityLiving, EntityPhysicsComponent {
+public interface EntityVillagerV2 extends EntityIntelligent, EntityHeadYawComponent {
     /**
      * Meslek görünümü (istemciye VARIANT olarak gider). 0 işsiz köylüdür.
      */

@@ -24,6 +24,7 @@ import org.allaymc.server.entity.component.EntityMetadataContributor;
 import org.allaymc.server.entity.component.event.CEntityLoadNBTEvent;
 import org.allaymc.server.entity.component.event.CEntitySaveNBTEvent;
 import org.allaymc.server.entity.component.event.CEntityTickEvent;
+import org.allaymc.server.entity.impl.EntityImpl;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityDataMap;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityDataTypes;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityFlag;
@@ -285,12 +286,29 @@ public class EntityMobBaseComponentImpl extends EntityBaseComponentImpl implemen
         if (converted instanceof EntityLivingComponent living && thisEntity instanceof EntityLivingComponent old) {
             living.setHealth(Math.min(living.getMaxHealth(), Math.max(1, old.getHealth())));
         }
+        copyVariant(converted);
         getDimension().getEntityManager().addEntity(converted);
         if (conversionSound != null) {
             getDimension().addSound(new Vector3d(loc.x(), loc.y(), loc.z()), new CustomSound(conversionSound));
         }
         conversionTarget = null;
         thisEntity.remove();
+    }
+
+    /**
+     * Copies biome and profession onto a converted mob that stores the same values.
+     * Targets without a roller keep their own freshly rolled identity.
+     */
+    protected void copyVariant(Entity converted) {
+        if (!(converted instanceof EntityImpl impl) || !(impl.getBaseComponent() instanceof EntityMobBaseComponentImpl target)) {
+            return;
+        }
+        if (variantRoller != null && target.variantRoller != null) {
+            target.setVariant(variant);
+        }
+        if (markVariantRoller != null && target.markVariantRoller != null) {
+            target.setMarkVariant(markVariant);
+        }
     }
 
     protected void tickPeriodicDrop() {

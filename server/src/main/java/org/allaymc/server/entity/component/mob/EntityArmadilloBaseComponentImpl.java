@@ -25,6 +25,7 @@ public class EntityArmadilloBaseComponentImpl extends EntityMobBaseComponentImpl
     protected EntityLivingComponent livingComponent;
 
     protected volatile boolean rolled;
+    protected boolean stateSynced;
     protected int calmTicks;
     protected int unrollTicks;
 
@@ -41,6 +42,12 @@ public class EntityArmadilloBaseComponentImpl extends EntityMobBaseComponentImpl
 
     @EventHandler
     protected void onArmadilloTick(CEntityTickEvent event) {
+        // The rolled flag is server-only. The client state is an entity property and survives
+        // reload on its own, so the first tick has to adopt it or a curled armadillo walks away.
+        if (!stateSynced) {
+            stateSynced = true;
+            syncRolledFromProperty();
+        }
         if (!thisEntity.isAlive()) {
             return;
         }
@@ -78,6 +85,17 @@ public class EntityArmadilloBaseComponentImpl extends EntityMobBaseComponentImpl
 
     protected void setState(ArmadilloState state) {
         setPropertyValue(EntityPropertyTypes.ARMADILLO_STATE, state);
+    }
+
+    protected void syncRolledFromProperty() {
+        var state = getPropertyValue(EntityPropertyTypes.ARMADILLO_STATE);
+        if (state == ArmadilloState.UNROLLED) {
+            return;
+        }
+        rolled = true;
+        if (state == ArmadilloState.ROLLED_UP_UNROLLING) {
+            unrollTicks = UNROLL_TICKS;
+        }
     }
 
     protected boolean isThreatened() {

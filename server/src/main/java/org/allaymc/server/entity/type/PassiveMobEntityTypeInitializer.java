@@ -61,6 +61,7 @@ import org.allaymc.server.entity.impl.*;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
+import java.util.function.IntSupplier;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -465,17 +466,34 @@ public final class PassiveMobEntityTypeInitializer {
 
     public static void initVillagers() {
         EntityTypes.VILLAGER = villager(EntityVillagerImpl.class, EntityId.VILLAGER, true);
+        // Zombie villagers cure into villager_v2. Variant is the profession (0–14) and
+        // mark variant is the biome (0–6), matching the zombie villager that converts into it.
+        EntityTypes.VILLAGER_V2 = villager(EntityVillagerV2Impl.class, EntityId.VILLAGER_V2,
+                () -> ThreadLocalRandom.current().nextInt(15),
+                () -> ThreadLocalRandom.current().nextInt(7));
         EntityTypes.WANDERING_TRADER = villager(EntityWanderingTraderImpl.class, EntityId.WANDERING_TRADER, false);
     }
 
     private static <T extends Entity> EntityType<T> villager(
             Class<? extends EntityImpl> implClass, EntityId id, boolean profession) {
+        return villager(implClass, id, profession ? () -> ThreadLocalRandom.current().nextInt(6) : null, null);
+    }
+
+    private static <T extends Entity> EntityType<T> villager(
+            Class<? extends EntityImpl> implClass, EntityId id,
+            IntSupplier variantRoller, IntSupplier markVariantRoller) {
         return AllayEntityType
                 .builder(implClass)
                 .vanillaEntity(id)
                 .addComponent(initInfo -> {
                     var base = new EntityMobBaseComponentImpl(initInfo, 0.6, 1.9);
-                    return profession ? base.variant(() -> ThreadLocalRandom.current().nextInt(6)) : base;
+                    if (variantRoller != null) {
+                        base.variant(variantRoller);
+                    }
+                    if (markVariantRoller != null) {
+                        base.markVariant(markVariantRoller);
+                    }
+                    return base;
                 }, EntityMobBaseComponentImpl.class)
                 .addComponent(() -> new EntityMobLivingComponentImpl(20, MobLoot.NONE, MobLoot.NO_XP), EntityMobLivingComponentImpl.class)
                 .addComponent(EntityHumanPhysicsComponentImpl::new, EntityHumanPhysicsComponentImpl.class)

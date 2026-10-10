@@ -6,6 +6,7 @@ import org.allaymc.api.entity.Entity;
 import org.allaymc.api.entity.ai.memory.MemoryType;
 import org.allaymc.api.entity.ai.memory.MemoryTypes;
 import org.allaymc.api.entity.component.EntityContainerHolderComponent;
+import org.allaymc.api.entity.damage.DamageContainer;
 import org.allaymc.api.entity.damage.DamageType;
 import org.allaymc.api.entity.effect.EffectInstance;
 import org.allaymc.api.entity.effect.EffectTypes;
@@ -496,7 +497,7 @@ public final class HostileMobEntityTypeInitializer {
                 .vanillaEntity(EntityId.CREAKING)
                 .setProperties(EntityPropertyTypes.CREAKING_STATE, EntityPropertyTypes.CREAKING_SWAYING_TICKS)
                 .addComponent(EntityCreakingBaseComponentImpl::new, EntityCreakingBaseComponentImpl.class)
-                .addComponent(() -> new EntityMobLivingComponentImpl(1, MobLoot.NONE, MobLoot.NO_XP), EntityMobLivingComponentImpl.class)
+                .addComponent(HostileMobEntityTypeInitializer::creakingLiving, EntityMobLivingComponentImpl.class)
                 .addComponent(EntityMobPhysicsComponentImpl::new, EntityMobPhysicsComponentImpl.class)
                 .addComponent(EntityHeadYawComponentImpl::new, EntityHeadYawComponentImpl.class)
                 .addComponent(EntityParallelTickComponentImpl::new, EntityParallelTickComponentImpl.class)
@@ -520,6 +521,37 @@ public final class HostileMobEntityTypeInitializer {
     private static boolean isObservedCreaking(EntityIntelligent entity) {
         return entity instanceof EntityImpl impl && impl.getBaseComponent() instanceof EntityCreakingBaseComponentImpl creaking
                && creaking.isObserved();
+    }
+
+    /**
+     * Creakings keep 1 health so destroying the heart can still remove them, but a landed hit
+     * only plays the sway. Void, commands, and the plugin API remain lethal.
+     */
+    private static EntityMobLivingComponentImpl creakingLiving() {
+        return new EntityMobLivingComponentImpl(1, MobLoot.NONE, MobLoot.NO_XP) {
+            @Override
+            public boolean canBeAttacked(DamageContainer damage) {
+                return !creakingShrugsOff(damage) && super.canBeAttacked(damage);
+            }
+
+            @Override
+            public boolean attack(DamageContainer damage, boolean ignoreCoolDown) {
+                if (thisEntity.isAlive() && creakingShrugsOff(damage)) {
+                    if (damage.getAttacker() != null
+                            && thisEntity instanceof EntityImpl impl
+                            && impl.getBaseComponent() instanceof EntityCreakingBaseComponentImpl creaking) {
+                        creaking.startSwaying();
+                    }
+                    return false;
+                }
+                return super.attack(damage, ignoreCoolDown);
+            }
+        };
+    }
+
+    private static boolean creakingShrugsOff(DamageContainer damage) {
+        var type = damage.getDamageType();
+        return type != DamageType.VOID && type != DamageType.COMMAND && type != DamageType.API;
     }
 
     public static void initWarden() {

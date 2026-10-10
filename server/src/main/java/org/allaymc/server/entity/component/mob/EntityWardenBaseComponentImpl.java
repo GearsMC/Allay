@@ -13,15 +13,21 @@ import org.allaymc.api.world.sound.CustomSound;
 import org.allaymc.api.world.sound.SoundNames;
 import org.allaymc.server.component.annotation.Dependency;
 import org.allaymc.server.entity.ai.executor.EntityControlHelper;
+import org.allaymc.server.entity.component.event.CEntityLoadNBTEvent;
+import org.allaymc.server.entity.component.event.CEntitySaveNBTEvent;
 import org.allaymc.server.entity.component.event.CEntityTickEvent;
+import org.cloudburstmc.nbt.NbtMap;
+import org.cloudburstmc.nbt.NbtType;
 import org.cloudburstmc.protocol.bedrock.data.SoundEvent;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityDataMap;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityDataTypes;
 import org.cloudburstmc.protocol.bedrock.data.entity.EntityFlag;
 import org.joml.Vector3d;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -39,11 +45,17 @@ public class EntityWardenBaseComponentImpl extends EntityMobBaseComponentImpl {
     protected static final int DARKNESS_INTERVAL = 120;
     protected static final int DARKNESS_DURATION = 260;
     protected static final int SNIFF_TICKS = 84;
+    protected static final String TAG_ANGER = "Anger";
+    protected static final String TAG_ANGER_AMOUNT = "Amount";
+    protected static final String TAG_UUID_MOST = "UUIDMost";
+    protected static final String TAG_UUID_LEAST = "UUIDLeast";
+    protected static final String TAG_SONIC_COOLDOWN = "SonicCooldown";
 
     @Dependency
     protected EntityAIComponent aiComponent;
 
     protected final Map<Long, Integer> anger = new ConcurrentHashMap<>();
+    protected final Map<UUID, Integer> pendingAnger = new ConcurrentHashMap<>();
     protected final Map<Long, Vector3d> lastPositions = new HashMap<>();
 
     protected volatile boolean sonicCharging;
@@ -95,6 +107,7 @@ public class EntityWardenBaseComponentImpl extends EntityMobBaseComponentImpl {
             return;
         }
 
+        resolvePendingAnger();
         var tick = event.getCurrentTick();
         if (tick % 20 == 0) {
             senseVibrations();
@@ -122,6 +135,99 @@ public class EntityWardenBaseComponentImpl extends EntityMobBaseComponentImpl {
         }
         if (changed) {
             broadcastState();
+        }
+    }
+
+    /**
+     * Anger is keyed by runtime id while the warden is loaded, but runtime ids change after a
+     * chunk reload. Suspects are stored by player UUID until that player is in the dimension again.
+     */
+    protected void resolvePendingAnger() {
+        if (pendingAnger.isEmpty() || getDimension() == null) {
+            return;
+        }
+
+        var resolved = false;
+        var iterator = pendingAnger.entrySet().iterator();
+        while (iterator.hasNext()) {
+            var entry = iterator.next();
+            var player = findPlayer(entry.getKey());
+            if (player == null) {
+                continue;
+            }
+            anger.merge(player.getRuntimeId(), entry.getValue(), (old, added) -> Math.min(MAX_ANGER, old + added));
+            iterator.remove();
+            resolved = true;
+        }
+        if (resolved) {
+            updateTarget();
+        }
+    }
+
+    protected EntityPlayer findPlayer(UUID uniqueId) {
+        for (var controller : getDimension().getPlayers()) {
+            var player = controller.getControlledEntity();
+            if (player != null && uniqueId.equals(player.getUniqueId())) {
+                return player;
+            }
+        }
+        return null;
+    }
+
+    @EventHandler
+    protected void onWardenLoadNBT(CEntityLoadNBTEvent event) {
+        var nbt = event.getNbt();
+        nbt.listenForList(TAG_ANGER, NbtType.COMPOUND, entries -> {
+            for (var entry : entries) {
+                if (!entry.containsKey(TAG_UUID_MOST) || !entry.containsKey(TAG_UUID_LEAST)) {
+                    continue;
+                }
+                var amount = entry.getInt(TAG_ANGER_AMOUNT, 0);
+                if (amount <= 0) {
+                    continue;
+                }
+                pendingAnger.put(new UUID(entry.getLong(TAG_UUID_MOST), entry.getLong(TAG_UUID_LEAST)), Math.min(MAX_ANGER, amount));
+            }
+        });
+        var cooldown = nbt.getInt(TAG_SONIC_COOLDOWN, 0);
+        if (cooldown > 0) {
+            nextSonicBoomTick = thisEntity.getTick() + cooldown;
+        }
+    }
+
+    @EventHandler
+    protected void onWardenSaveNBT(CEntitySaveNBTEvent event) {
+        var saved = new ArrayList<NbtMap>();
+        var seen = new HashMap<UUID, Integer>();
+        if (getDimension() != null) {
+            var manager = getDimension().getEntityManager();
+            for (var entry : anger.entrySet()) {
+                if (!(manager.getEntity(entry.getKey()) instanceof EntityPlayer player) || entry.getValue() <= 0) {
+                    continue;
+                }
+                var uniqueId = player.getUniqueId();
+                if (uniqueId != null) {
+                    seen.put(uniqueId, entry.getValue());
+                }
+            }
+        }
+        pendingAnger.forEach(seen::putIfAbsent);
+        for (var entry : seen.entrySet()) {
+            if (entry.getValue() <= 0) {
+                continue;
+            }
+            saved.add(NbtMap.builder()
+                    .putLong(TAG_UUID_MOST, entry.getKey().getMostSignificantBits())
+                    .putLong(TAG_UUID_LEAST, entry.getKey().getLeastSignificantBits())
+                    .putInt(TAG_ANGER_AMOUNT, entry.getValue())
+                    .build());
+        }
+        if (!saved.isEmpty()) {
+            event.getNbt().putList(TAG_ANGER, NbtType.COMPOUND, saved);
+        }
+        var remaining = nextSonicBoomTick - thisEntity.getTick();
+        if (remaining > 0) {
+            event.getNbt().putInt(TAG_SONIC_COOLDOWN, (int) remaining);
         }
     }
 
