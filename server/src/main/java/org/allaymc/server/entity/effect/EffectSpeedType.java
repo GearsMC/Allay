@@ -4,6 +4,7 @@ import org.allaymc.api.entity.effect.EffectInstance;
 import org.allaymc.api.entity.interfaces.EntityLiving;
 import org.allaymc.api.entity.interfaces.EntityPlayer;
 import org.allaymc.api.utils.identifier.Identifier;
+import org.allaymc.server.player.PlayerMovementSpeed;
 
 import java.awt.*;
 
@@ -17,25 +18,15 @@ public class EffectSpeedType extends AbstractEffectType {
 
     @Override
     public void onAdd(EntityLiving entity, EffectInstance effectInstance) {
-        if (entity instanceof EntityPlayer player && player.isActualPlayer()) {
-            var level = effectInstance.getLevel();
-            var multiplier = level * 0.2;
-            var controller = player.getController();
-            controller.setSpeed(controller.getSpeed().addMultiplier(multiplier));
-            controller.setFlySpeed(controller.getFlySpeed().addMultiplier(multiplier));
-            controller.setVerticalFlySpeed(controller.getVerticalFlySpeed().addMultiplier(multiplier));
+        if (entity instanceof EntityPlayer player) {
+            PlayerMovementSpeed.update(player);
         }
     }
 
     @Override
     public void onRemove(EntityLiving entity, EffectInstance effectInstance) {
-        if (entity instanceof EntityPlayer player && player.isActualPlayer()) {
-            var level = effectInstance.getLevel();
-            var multiplier = -level * 0.2;
-            var controller = player.getController();
-            controller.setSpeed(controller.getSpeed().addMultiplier(multiplier));
-            controller.setFlySpeed(controller.getFlySpeed().addMultiplier(multiplier));
-            controller.setVerticalFlySpeed(controller.getVerticalFlySpeed().addMultiplier(multiplier));
+        if (entity instanceof EntityPlayer player) {
+            PlayerMovementSpeed.update(player);
         }
     }
 }

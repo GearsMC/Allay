@@ -21,9 +21,11 @@ public class EffectHealthBoostType extends AbstractEffectType {
 
     @Override
     public void onRemove(EntityLiving entity, EffectInstance effectInstance) {
-        entity.setMaxHealth(entity.getMaxHealth() - (effectInstance.getLevel() * 4));
-        if (entity.getHealth() > entity.getMaxHealth()) {
-            entity.setHealth(entity.getMaxHealth());
-        }
+        entity.setMaxHealth(Math.max(1, entity.getMaxHealth() - (effectInstance.getLevel() * 4)));
+    }
+
+    @Override
+    public void onReplace(EntityLiving entity, EffectInstance oldEffect, EffectInstance newEffect) {
+        entity.setMaxHealth(Math.max(1, entity.getMaxHealth() + (newEffect.getLevel() - oldEffect.getLevel()) * 4));
     }
 }

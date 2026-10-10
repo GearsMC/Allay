@@ -42,6 +42,7 @@ import org.allaymc.server.entity.component.EntityBaseComponentImpl;
 import org.allaymc.server.entity.component.event.*;
 import org.allaymc.server.player.AllayPlayer;
 import org.allaymc.server.player.ChunkCache;
+import org.allaymc.server.player.PlayerMovementSpeed;
 import org.allaymc.server.world.AllayDimension;
 import org.cloudburstmc.nbt.NbtMap;
 import org.cloudburstmc.nbt.NbtMapBuilder;
@@ -981,15 +982,7 @@ public class EntityPlayerBaseComponentImpl extends EntityBaseComponentImpl imple
                 setSneaking(false);
             }
 
-            if (isActualPlayer()) {
-                var speed = this.controller.getSpeed();
-                if (sprinting) {
-                    speed = speed.addMultiplier(0.3);
-                } else {
-                    speed = speed.addMultiplier(-0.3);
-                }
-                this.controller.setSpeed(speed);
-            }
+            PlayerMovementSpeed.update(thisPlayer);
 
             broadcastState();
             new PlayerToggleSprintEvent(thisPlayer, sprinting).call();
