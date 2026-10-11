@@ -128,6 +128,23 @@ class ProtocolDataEncoderTest {
     }
 
     @Test
+    void customArmorProtectionIsOnWearable() {
+        var armor = TestRegistryFixtures.customArmorItemType();
+        var definition = protocol(898).getData().itemDefinitions().stream()
+                .filter(item -> item.identifier().equals(armor.getIdentifier().toString()))
+                .findFirst()
+                .orElseThrow();
+        var components = definition.componentData().getCompound("components");
+        assertFalse(components.containsKey("minecraft:armor"));
+        var wearable = components.getCompound("minecraft:wearable");
+        assertEquals("slot.armor.chest", wearable.getString("slot"));
+        assertEquals(7, wearable.getInt("protection"));
+        assertFalse(wearable.getBoolean("hides_player_location"));
+        assertEquals("slot.armor.chest", components.getCompound("item_properties").getString("wearable_slot"));
+        assertEquals(384, components.getCompound("minecraft:durability").getInt("max_durability"));
+    }
+
+    @Test
     void cachedItemPayloadsUseDefinitionsFromTheirProtocolRegistry() {
         var protocol = protocol(898);
         for (var creativeItem : protocol.getData().creativeItems()) {

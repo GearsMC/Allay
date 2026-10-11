@@ -6,6 +6,8 @@ import org.allaymc.api.block.property.type.BooleanPropertyType;
 import org.allaymc.api.block.property.type.EnumPropertyType;
 import org.allaymc.api.block.property.type.IntPropertyType;
 import org.allaymc.api.block.type.BlockType;
+import org.allaymc.api.item.CustomItemBehavior;
+import org.allaymc.api.item.CustomItemFactory;
 import org.allaymc.api.item.data.ItemTag;
 import org.allaymc.api.item.type.ItemType;
 import org.allaymc.api.math.voxelshape.VoxelShape;
@@ -49,6 +51,7 @@ public final class TestRegistryFixtures {
     private static BlockType<TestBlock> molangBlockTypeWithoutProperties;
     private static BlockType<TestBlock> customDefinitionBlockType;
     private static ItemType<?> customDefinitionItemType;
+    private static ItemType<?> customArmorItemType;
     private static final AtomicInteger CUSTOM_BLOCK_DEFINITION_INVOCATIONS = new AtomicInteger();
     private static boolean registered;
 
@@ -158,6 +161,14 @@ public final class TestRegistryFixtures {
                         .rawComponents(Map.of("allay_test:component", NbtMap.EMPTY))
                         .build())
                 .build();
+        customArmorItemType = CustomItemFactory.getFactory().registerItem(
+                org.allaymc.api.item.CustomItemDefinition.builder()
+                        .identifier("allay_test:custom_chestplate")
+                        .displayName("item.allay_test.custom_chestplate.name")
+                        .behavior(CustomItemBehavior.CHESTPLATE)
+                        .armorValue(7)
+                        .maxDamage(384)
+                        .build());
 
         registered = true;
     }
@@ -228,6 +239,11 @@ public final class TestRegistryFixtures {
     public static ItemType<?> customDefinitionItemType() {
         ensureRegistered();
         return customDefinitionItemType;
+    }
+
+    public static ItemType<?> customArmorItemType() {
+        ensureRegistered();
+        return customArmorItemType;
     }
 
     public static int customBlockDefinitionInvocations() {

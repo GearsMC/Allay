@@ -240,9 +240,6 @@ public abstract class Protocol {
                     .build());
         }
         if (itemStack instanceof ItemWearableComponent wearable) {
-            components.putCompound("minecraft:armor", NbtMap.builder()
-                    .putInt("protection", itemData.armorValue())
-                    .build());
             var slot = switch (wearable.getArmorType()) {
                 case HELMET -> "slot.armor.head";
                 case CHESTPLATE -> "slot.armor.chest";
@@ -250,7 +247,11 @@ public abstract class Protocol {
                 case BOOTS -> "slot.armor.feet";
             };
             properties.putString("wearable_slot", slot);
-            components.putCompound("minecraft:wearable", NbtMap.builder().putString("slot", slot).build());
+            components.putCompound("minecraft:wearable", NbtMap.builder()
+                    .putBoolean("hides_player_location", false)
+                    .putInt("protection", itemData.armorValue())
+                    .putString("slot", slot)
+                    .build());
         }
         if (itemStack instanceof ItemEdibleComponent edible) {
             properties.putInt("use_duration", edible.getEatingTime())
