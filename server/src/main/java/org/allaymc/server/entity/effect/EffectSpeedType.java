@@ -19,14 +19,21 @@ public class EffectSpeedType extends AbstractEffectType {
     @Override
     public void onAdd(EntityLiving entity, EffectInstance effectInstance) {
         if (entity instanceof EntityPlayer player) {
-            PlayerMovementSpeed.update(player);
+            PlayerMovementSpeed.update(player, true);
         }
     }
 
     @Override
     public void onRemove(EntityLiving entity, EffectInstance effectInstance) {
         if (entity instanceof EntityPlayer player) {
-            PlayerMovementSpeed.update(player);
+            PlayerMovementSpeed.update(player, true);
+        }
+    }
+
+    @Override
+    public void onReplace(EntityLiving entity, EffectInstance oldEffect, EffectInstance newEffect) {
+        if (entity instanceof EntityPlayer player) {
+            PlayerMovementSpeed.update(player, true);
         }
     }
 }

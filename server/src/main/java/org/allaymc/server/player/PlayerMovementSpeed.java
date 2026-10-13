@@ -30,11 +30,22 @@ public final class PlayerMovementSpeed {
     }
 
     public static void update(EntityPlayer entity) {
+        update(entity, false);
+    }
+
+    public static void update(EntityPlayer entity, boolean resendUnchanged) {
         if (!entity.isActualPlayer()) {
             return;
         }
 
         var controller = entity.getController();
-        controller.setSpeed(calculate(entity, controller.getSpeed()));
+        var current = controller.getSpeed();
+        var speed = calculate(entity, current);
+        if (resendUnchanged && speed.equals(current) && controller instanceof AllayPlayer allayPlayer) {
+            allayPlayer.sendSpeed(current);
+            return;
+        }
+
+        controller.setSpeed(speed);
     }
 }
